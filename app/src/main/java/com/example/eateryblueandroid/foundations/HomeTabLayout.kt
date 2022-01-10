@@ -3,6 +3,7 @@ package com.example.eateryblueandroid.foundations
 import android.content.Context
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,12 +33,14 @@ fun MainScreen(context: Context) {
 //this defines the behavior and look of each tab
 @Composable
 fun BottomNav(navController: NavHostController, items: List<BottomNavTab> ) {
-    BottomNavigation {
+    BottomNavigation (backgroundColor = colorResource(id = R.color.white)){
         val currentRoute = currentRoute(navController)
         items.forEach { screen ->
             BottomNavigationItem(
                 icon = { Icon(painter = painterResource(id = screen.iconId), null) },
                 label = { Text(screen.tabName) },
+                selectedContentColor = colorResource(id = R.color.eateryBlue),
+                unselectedContentColor = colorResource(id = R.color.unselectedTabBarColor),
                 selected = currentRoute == screen.route,
                 onClick = {
                     if (currentRoute != screen.route) {
