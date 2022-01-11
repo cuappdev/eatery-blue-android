@@ -40,7 +40,7 @@ fun BottomNav(navController: NavHostController, items: List<BottomNavTab> ) {
                 icon = { Icon(painter = painterResource(id = screen.iconId), null) },
                 label = { Text(screen.tabName) },
                 selectedContentColor = colorResource(id = R.color.eateryBlue),
-                unselectedContentColor = colorResource(id = R.color.unselectedTabBarColor),
+                unselectedContentColor = colorResource(id = R.color.gray05),
                 selected = currentRoute == screen.route,
                 onClick = {
                     if (currentRoute != screen.route) {
