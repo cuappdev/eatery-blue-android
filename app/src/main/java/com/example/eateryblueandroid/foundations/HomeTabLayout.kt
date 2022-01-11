@@ -62,7 +62,7 @@ private fun currentRoute(navController: NavHostController): String? {
 @Composable
 private fun MainScreenNavigationConfigurations(navController: NavHostController, homeTab: BottomNavTab, profileTab: BottomNavTab){
     NavHost(navController = navController, startDestination = homeTab.route ) {
-        composable(homeTab.route){}
+        composable(homeTab.route){ HomeScreen()}
         composable(profileTab.route){}
     }
 
