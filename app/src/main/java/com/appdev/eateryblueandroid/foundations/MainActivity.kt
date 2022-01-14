@@ -1,16 +1,18 @@
-package com.example.eateryblueandroid.foundations
+package com.appdev.eateryblueandroid.foundations
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Column
+import com.appdev.eateryblueandroid.screens.home.AllEateriesViewModel
+import com.appdev.eateryblueandroid.screens.home.SafeHomeScreen
 
 class MainActivity : AppCompatActivity() {
+    val allEateriesViewModel = AllEateriesViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MainScreen(context = applicationContext)
+            SafeHomeScreen(allEateriesViewModel)
         }
     }
 }

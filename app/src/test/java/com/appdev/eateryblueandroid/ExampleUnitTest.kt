@@ -1,4 +1,4 @@
-package com.example.eateryblueandroid
+package com.appdev.eateryblueandroid
 
 import org.junit.Test
 

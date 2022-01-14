@@ -1,4 +1,4 @@
-package com.example.eateryblueandroid.foundations
+package com.appdev.eateryblueandroid.foundations
 
 import android.content.Context
 import androidx.compose.material.*
@@ -10,7 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.eateryblueandroid.R
+import com.appdev.eateryblueandroid.R
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
 @Composable

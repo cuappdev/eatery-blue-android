@@ -1,4 +1,4 @@
-package com.example.eateryblueandroid
+package com.appdev.eateryblueandroid
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
