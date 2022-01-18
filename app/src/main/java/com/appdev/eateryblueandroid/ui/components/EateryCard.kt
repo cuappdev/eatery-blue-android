@@ -74,8 +74,8 @@ fun EateryCard(eatery: Eatery, isCompact: Boolean = false) {
                         modifier = Modifier.fillMaxWidth(0.95f)
                     )
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_star),
-                        tint = colorResource(id = R.color.yellow),
+                        painter = painterResource(id = R.drawable.ic_star_outline),
+                        tint = colorResource(id = R.color.gray05),
                         modifier = Modifier.padding(top = 3.dp),
                         contentDescription = null
                     )

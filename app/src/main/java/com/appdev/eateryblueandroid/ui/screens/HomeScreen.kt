@@ -11,16 +11,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.Modifier
 import com.appdev.eateryblueandroid.ui.components.EateryCard
-import com.appdev.eateryblueandroid.ui.viewmodels.AllEateriesViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.EateryListViewModel
 
 @Composable
-fun SafeHomeScreen(allEateriesViewModel: AllEateriesViewModel){
-    val state = allEateriesViewModel.state.collectAsState()
+fun HomeScreen(eateryListViewModel: EateryListViewModel){
+    val state = eateryListViewModel.state.collectAsState()
     state.value.let {
         when(it) {
-            is AllEateriesViewModel.State.Loading ->
+            is EateryListViewModel.State.Loading ->
                 Text(text = "gucci")
-            is AllEateriesViewModel.State.Data ->
+            is EateryListViewModel.State.Data ->
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 13.dp, vertical = 8.dp)
                 ) {
@@ -32,7 +32,7 @@ fun SafeHomeScreen(allEateriesViewModel: AllEateriesViewModel){
                         }
                     }
                 }
-            is AllEateriesViewModel.State.Failure ->
+            is EateryListViewModel.State.Failure ->
                 Text("FAILURE")
         }
     }

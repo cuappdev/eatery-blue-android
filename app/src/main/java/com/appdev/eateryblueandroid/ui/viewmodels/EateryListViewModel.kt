@@ -10,7 +10,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class AllEateriesViewModel: ViewModel() {
+class EateryListViewModel(
+    eateryList: List<Eatery>? = null,
+    fetchFromApi: Boolean
+): ViewModel() {
     sealed class State {
         object Loading: State()
         data class Failure(val errorMsg: String) : State()
@@ -21,19 +24,17 @@ class AllEateriesViewModel: ViewModel() {
     val state = _state.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            while (isActive) {
-                val res = ApiService.getInstance().fetchEateries()
-                if (res.success) {
-                    res.data?.let { _state.value = State.Data(it) }
-                } else {
-                    res.error?.let { _state.value = State.Failure(it) }
+        eateryList?.let { _state.value = State.Data(it) }
+        if (fetchFromApi) {
+            viewModelScope.launch {
+                while (isActive) {
+                    val res = ApiService.getInstance().fetchEateries()
+                    if (res.success) {
+                        res.data?.let { _state.value = State.Data(it) }
+                    } else {
+                        res.error?.let { _state.value = State.Failure(it) }
+                    }
                 }
-
-                //_state.value = State.Data(data.eateries)
-                // Log.i("qwerty", data.toString())
-                // Wait one minute and re-fetch the Eateries
-                delay(60 * 1000L)
             }
         }
     }
