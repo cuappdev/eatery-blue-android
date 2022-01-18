@@ -1,6 +1,5 @@
-package com.appdev.eateryblueandroid.screens.home
+package com.appdev.eateryblueandroid.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.Eatery
@@ -24,9 +23,15 @@ class AllEateriesViewModel: ViewModel() {
     init {
         viewModelScope.launch {
             while (isActive) {
-                val data = ApiService.getInstance().fetchEateries()
+                val res = ApiService.getInstance().fetchEateries()
+                if (res.success) {
+                    res.data?.let { _state.value = State.Data(it) }
+                } else {
+                    res.error?.let { _state.value = State.Failure(it) }
+                }
+
                 //_state.value = State.Data(data.eateries)
-                Log.i("qwerty", data.toString())
+                // Log.i("qwerty", data.toString())
                 // Wait one minute and re-fetch the Eateries
                 delay(60 * 1000L)
             }

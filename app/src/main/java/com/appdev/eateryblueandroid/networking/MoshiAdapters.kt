@@ -25,7 +25,7 @@ class DateAdapter {
         return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(date)
     }
 
-    @FromJson fun FromJson(date: String): Date {
+    @FromJson fun fromJson(date: String): Date {
         try {
             val simpleDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(date)
             if (simpleDate != null) {
