@@ -22,6 +22,7 @@ import com.skydoves.landscapist.glide.GlideImage
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.theme.sfProTextFontFamily
 import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun EateryCard(eatery: Eatery, isCompact: Boolean = false) {
@@ -50,7 +51,8 @@ fun EateryCard(eatery: Eatery, isCompact: Boolean = false) {
                     Image(
                         painter = painterResource(R.drawable.blank_eatery),
                         contentDescription = "Eatery Image",
-                        contentScale = ContentScale.FillWidth
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             )
