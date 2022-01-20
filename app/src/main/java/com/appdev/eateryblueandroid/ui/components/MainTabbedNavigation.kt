@@ -11,7 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.screens.home.SafeHomeScreen
+import com.appdev.eateryblueandroid.ui.screens.HomeScreen
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryListViewModel
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
@@ -62,9 +62,13 @@ private fun currentRoute(navController: NavHostController): String? {
 
 //this composable function takes care of mapping the routes defined by the tabs to their screens
 @Composable
-private fun MainScreenNavigationConfigurations(navController: NavHostController, homeTab: BottomNavTab, profileTab: BottomNavTab, eateryListViewModel: EateryListViewModel){
+private fun MainScreenNavigationConfigurations(
+    navController: NavHostController,
+    homeTab: BottomNavTab, profileTab: BottomNavTab,
+    eateryListViewModel: EateryListViewModel
+){
     NavHost(navController = navController, startDestination = homeTab.route ) {
-        composable(homeTab.route){ SafeHomeScreen(eateryListViewModel = eateryListViewModel)}
+        composable(homeTab.route){ HomeScreen(eateryListViewModel = eateryListViewModel)}
         composable(profileTab.route){}
     }
 

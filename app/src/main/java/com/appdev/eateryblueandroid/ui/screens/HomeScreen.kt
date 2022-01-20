@@ -1,9 +1,6 @@
-package com.appdev.eateryblueandroid.screens.home
+package com.appdev.eateryblueandroid.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -20,14 +17,28 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryListViewModel
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.max
+import java.lang.Float.min
 
 @Composable
-fun SafeHomeScreen(eateryListViewModel: EateryListViewModel){
+
+fun HomeScreen(eateryListViewModel: EateryListViewModel){
+    val scrollState = rememberLazyListState()
+    val scrollOffset: Float = min(
+        1f,
+        1 - (scrollState.firstVisibleItemScrollOffset / 600f + scrollState.firstVisibleItemIndex)
+    )
+    val heightSize by animateDpAsState(targetValue = max(50.dp, 100.dp * scrollOffset))
+    //val dynamicLines = max(3f, scrollOffset * 6).toInt()
     Scaffold(
         topBar = {
             TopAppBar(
                 backgroundColor = colorResource(R.color.eateryBlue),
-                modifier = Modifier.fillMaxHeight(0.13f)) {
+                modifier = Modifier
+                    .height(heightSize)) {
                 Column(
                 ) {
                     Image(painter = painterResource(id = R.drawable.ic_eaterylogo), contentDescription = null)
@@ -43,6 +54,7 @@ fun SafeHomeScreen(eateryListViewModel: EateryListViewModel){
                     Text(text = "gucci")
                 is EateryListViewModel.State.Data ->
                     LazyColumn(
+                        state = scrollState,
                         contentPadding = PaddingValues(horizontal = 13.dp, vertical = 8.dp)
                     ) {
                         items(it.data) { eatery ->
