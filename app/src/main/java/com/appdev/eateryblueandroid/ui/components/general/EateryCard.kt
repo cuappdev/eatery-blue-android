@@ -1,62 +1,43 @@
 package com.appdev.eateryblueandroid.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.appdev.eateryblueandroid.models.Eatery
-import com.skydoves.landscapist.ShimmerParams
-import com.skydoves.landscapist.glide.GlideImage
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.ui.theme.sfProTextFontFamily
-import androidx.compose.foundation.Image
-import androidx.compose.ui.graphics.Color
-import com.appdev.eateryblueandroid.ui.components.sharedelements.SharedElement
-import com.appdev.eateryblueandroid.ui.components.sharedelements.SharedElementType
+import com.appdev.eateryblueandroid.ui.components.core.Image
+import com.appdev.eateryblueandroid.ui.components.core.Text
+import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 
 @Composable
-fun EateryCard(eatery: Eatery, isCompact: Boolean = false) {
+fun EateryCard(
+    eatery: Eatery,
+    isCompact: Boolean = false,
+    selectEatery: (eatery: Eatery) -> Unit = {}
+) {
     Surface(
         elevation = 20.dp,
-        shape = RoundedCornerShape(10.dp)
+        shape = RoundedCornerShape(10.dp),
+        modifier = Modifier.clickable { selectEatery(eatery) }
     ) {
         Column(
             modifier = Modifier
                 .background(color = colorResource(id = R.color.white))
         ) {
-            GlideImage(
-                imageModel = eatery.imageUrl,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(2.7f),
-                shimmerParams = ShimmerParams(
-                    baseColor = colorResource(id = R.color.white),
-                    highlightColor = colorResource(id =R.color.gray00),
-                    durationMillis = 350,
-                    dropOff = 0.65f,
-                    tilt = 20f
-                ),
-                failure = {
-                    Image(
-                        painter = painterResource(R.drawable.blank_eatery),
-                        contentDescription = "Eatery Image",
-                        contentScale = ContentScale.FillWidth,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+
+            Image(
+                url = eatery.imageUrl ?: "",
+                modifier = Modifier.fillMaxWidth().aspectRatio(2.7f)
             )
             Column(
                 modifier = Modifier.padding(10.dp)
@@ -65,22 +46,11 @@ fun EateryCard(eatery: Eatery, isCompact: Boolean = false) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    SharedElement(
-                        tag = eatery.name ?: "",
-                        type = SharedElementType.FROM,
-                        eateryId = eatery.id ?: 0
-                    ) {
-                        Text(
-                            text = eatery.name ?: "Unnamed Eatery",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            color = colorResource(id = R.color.black),
-                            fontFamily = sfProTextFontFamily,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 18.sp,
-                            modifier = Modifier.fillMaxWidth(0.95f)
-                        )
-                    }
+                    Text(
+                        text = eatery.name ?: "",
+                        textStyle = TextStyle.HEADER_H4,
+                        modifier = Modifier.fillMaxWidth(0.95f)
+                    )
                     Icon(
                         painter = painterResource(id = R.drawable.ic_star_outline),
                         tint = colorResource(id = R.color.gray05),
@@ -112,9 +82,7 @@ fun EateryCardPrimaryHeader(eatery: Eatery, isCompact: Boolean) {
             Text(
                 text = "10 - 12 min",
                 color = colorResource(id = R.color.gray05),
-                fontFamily = sfProTextFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
+                textStyle = TextStyle.BODY_MEDIUM
             )
             DotSeparator()
             EateryMenuSummary(eatery = eatery)
@@ -126,9 +94,7 @@ fun EateryCardPrimaryHeader(eatery: Eatery, isCompact: Boolean) {
             Text(
                 text = eatery.location ?: "Unknown location",
                 color = colorResource(id = R.color.gray05),
-                fontFamily = sfProTextFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
+                textStyle = TextStyle.BODY_MEDIUM
             )
             DotSeparator()
             EateryMenuSummary(eatery = eatery)
@@ -152,17 +118,13 @@ fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean) {
             Text(
                 text = "3 min walk",
                 color = colorResource(id = R.color.gray05),
-                fontFamily = sfProTextFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
+                textStyle = TextStyle.BODY_MEDIUM
             )
             DotSeparator()
             Text(
                 text = "5-7 min wait",
                 color = colorResource(id = R.color.gray05),
-                fontFamily = sfProTextFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
+                textStyle = TextStyle.BODY_MEDIUM
             )
         }
     }
@@ -173,9 +135,7 @@ fun DotSeparator() {
     Text(
         text = "·",
         color = colorResource(id = R.color.gray05),
-        fontFamily = sfProTextFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 14.sp,
+        textStyle = TextStyle.BODY_MEDIUM,
         modifier = Modifier.padding(horizontal = 5.dp)
     )
 }
@@ -186,11 +146,8 @@ fun EateryMenuSummary(eatery: Eatery) {
         Text(
             text = "Meal swipes allowed",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             color = colorResource(id = R.color.eateryBlue),
-            fontFamily = sfProTextFontFamily,
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp
+            textStyle = TextStyle.BODY_MEDIUM
         )
     } else if (eatery.paymentAcceptsMealSwipes == false &&
             eatery.paymentAcceptsBrbs == false &&
@@ -198,21 +155,15 @@ fun EateryMenuSummary(eatery: Eatery) {
         Text(
             text = "Cash or credit only",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             color = colorResource(id = R.color.green),
-            fontFamily = sfProTextFontFamily,
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp
+            textStyle = TextStyle.BODY_MEDIUM
         )
     } else {
         Text(
-            text = eatery.menuSummary ?: "No menu summary",
+            text = eatery.menuSummary ?: "",
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
             color = colorResource(id = R.color.gray05),
-            fontFamily = sfProTextFontFamily,
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp
+            textStyle = TextStyle.BODY_MEDIUM
         )
     }
 }

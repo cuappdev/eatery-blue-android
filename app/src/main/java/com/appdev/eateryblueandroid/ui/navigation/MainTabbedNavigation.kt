@@ -1,4 +1,4 @@
-package com.appdev.eateryblueandroid.ui.components
+package com.appdev.eateryblueandroid.ui.navigation
 
 import android.content.Context
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -14,7 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.screens.HomeTabController
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.EateryListViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeTabViewModel
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
@@ -22,7 +22,7 @@ import com.appdev.eateryblueandroid.ui.viewmodels.HomeTabViewModel
 fun MainScreen(
     context: Context,
     homeTabViewModel: HomeTabViewModel,
-    eateryListViewModel: EateryListViewModel,
+    homeViewModel: HomeViewModel,
     eateryDetailViewModel: EateryDetailViewModel
 ) {
 
@@ -41,7 +41,7 @@ fun MainScreen(
             homeTab,
             profileTab,
             homeTabViewModel,
-            eateryListViewModel,
+            homeViewModel,
             eateryDetailViewModel
         )
     }
@@ -81,14 +81,14 @@ private fun MainScreenNavigationConfigurations(
     navController: NavHostController,
     homeTab: BottomNavTab, profileTab: BottomNavTab,
     homeTabViewModel: HomeTabViewModel,
-    eateryListViewModel: EateryListViewModel,
+    homeViewModel: HomeViewModel,
     eateryDetailViewModel: EateryDetailViewModel
 ){
     val eateryListScrollState = rememberLazyListState()
     NavHost(navController = navController, startDestination = homeTab.route ) {
         composable(homeTab.route){ HomeTabController(
             homeTabViewModel = homeTabViewModel,
-            eateryListViewModel = eateryListViewModel,
+            homeViewModel = homeViewModel,
             eateryDetailViewModel = eateryDetailViewModel,
             eateryListScrollState = eateryListScrollState
         ) }
