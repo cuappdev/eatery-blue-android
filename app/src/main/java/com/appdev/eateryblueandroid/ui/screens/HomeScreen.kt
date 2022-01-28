@@ -23,7 +23,8 @@ fun HomeScreen(
             is HomeViewModel.State.Data ->
                 Main(
                     scrollState = scrollState,
-                    homeItems = it.data,
+                    eateries = it.eateries,
+                    sections = it.sections,
                     selectEatery = selectEatery
                 )
             is HomeViewModel.State.Failure ->

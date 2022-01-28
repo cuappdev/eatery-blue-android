@@ -28,7 +28,7 @@ fun EateryCard(
     Surface(
         elevation = 20.dp,
         shape = RoundedCornerShape(10.dp),
-        modifier = Modifier.clickable { selectEatery(eatery) }
+        modifier = Modifier.clickable { selectEatery(eatery) }.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
