@@ -23,6 +23,8 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.theme.sfProTextFontFamily
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.Color
+import com.appdev.eateryblueandroid.ui.components.sharedelements.SharedElement
+import com.appdev.eateryblueandroid.ui.components.sharedelements.SharedElementType
 
 @Composable
 fun EateryCard(eatery: Eatery, isCompact: Boolean = false) {
@@ -63,16 +65,22 @@ fun EateryCard(eatery: Eatery, isCompact: Boolean = false) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = eatery.name ?: "Unnamed Eatery",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = colorResource(id = R.color.black),
-                        fontFamily = sfProTextFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp,
-                        modifier = Modifier.fillMaxWidth(0.95f)
-                    )
+                    SharedElement(
+                        tag = eatery.name ?: "",
+                        type = SharedElementType.FROM,
+                        eateryId = eatery.id ?: 0
+                    ) {
+                        Text(
+                            text = eatery.name ?: "Unnamed Eatery",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = colorResource(id = R.color.black),
+                            fontFamily = sfProTextFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 18.sp,
+                            modifier = Modifier.fillMaxWidth(0.95f)
+                        )
+                    }
                     Icon(
                         painter = painterResource(id = R.drawable.ic_star_outline),
                         tint = colorResource(id = R.color.gray05),

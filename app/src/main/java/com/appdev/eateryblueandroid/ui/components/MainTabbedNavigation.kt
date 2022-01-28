@@ -1,6 +1,7 @@
 package com.appdev.eateryblueandroid.ui.components
 
 import android.content.Context
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.colorResource
@@ -11,12 +12,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.ui.screens.HomeScreen
+import com.appdev.eateryblueandroid.ui.screens.HomeTabController
+import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryListViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.HomeTabViewModel
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
 @Composable
-fun MainScreen(context: Context, eateryListViewModel: EateryListViewModel) {
+fun MainScreen(
+    context: Context,
+    homeTabViewModel: HomeTabViewModel,
+    eateryListViewModel: EateryListViewModel,
+    eateryDetailViewModel: EateryDetailViewModel
+) {
 
     val navController = rememberNavController()
     val homeTab = BottomNavTab("home", "Home", R.drawable.ic_home)
@@ -28,7 +36,14 @@ fun MainScreen(context: Context, eateryListViewModel: EateryListViewModel) {
             BottomNav(navController, bottomNavItems)
         }
     ) {
-        MainScreenNavigationConfigurations(navController, homeTab, profileTab, eateryListViewModel)
+        MainScreenNavigationConfigurations(
+            navController,
+            homeTab,
+            profileTab,
+            homeTabViewModel,
+            eateryListViewModel,
+            eateryDetailViewModel
+        )
     }
 }
 
@@ -65,10 +80,18 @@ private fun currentRoute(navController: NavHostController): String? {
 private fun MainScreenNavigationConfigurations(
     navController: NavHostController,
     homeTab: BottomNavTab, profileTab: BottomNavTab,
-    eateryListViewModel: EateryListViewModel
+    homeTabViewModel: HomeTabViewModel,
+    eateryListViewModel: EateryListViewModel,
+    eateryDetailViewModel: EateryDetailViewModel
 ){
+    val eateryListScrollState = rememberLazyListState()
     NavHost(navController = navController, startDestination = homeTab.route ) {
-        composable(homeTab.route){ HomeScreen(eateryListViewModel = eateryListViewModel)}
+        composable(homeTab.route){ HomeTabController(
+            homeTabViewModel = homeTabViewModel,
+            eateryListViewModel = eateryListViewModel,
+            eateryDetailViewModel = eateryDetailViewModel,
+            eateryListScrollState = eateryListScrollState
+        ) }
         composable(profileTab.route){}
     }
 

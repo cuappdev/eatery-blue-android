@@ -17,16 +17,23 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryListViewModel
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.max
+import com.appdev.eateryblueandroid.models.Eatery
 import java.lang.Float.min
 
 @Composable
 
-fun HomeScreen(eateryListViewModel: EateryListViewModel){
-    val scrollState = rememberLazyListState()
+fun EateryListScreen(
+    eateryListViewModel: EateryListViewModel,
+    selectEatery: (eatery: Eatery) -> Unit,
+    scrollState: LazyListState
+){
     val scrollOffset: Float = min(
         1f,
         1 - (scrollState.firstVisibleItemScrollOffset / 600f + scrollState.firstVisibleItemIndex)
@@ -34,18 +41,19 @@ fun HomeScreen(eateryListViewModel: EateryListViewModel){
     val heightSize by animateDpAsState(targetValue = max(50.dp, 100.dp * scrollOffset))
     //val dynamicLines = max(3f, scrollOffset * 6).toInt()
     Scaffold(
-        topBar = {
-            TopAppBar(
-                backgroundColor = colorResource(R.color.eateryBlue),
-                modifier = Modifier
-                    .height(heightSize)) {
-                Column(
-                ) {
-                    Image(painter = painterResource(id = R.drawable.ic_eaterylogo), contentDescription = null)
-                    Text(text = "Eatery", color = colorResource(id = R.color.white), fontSize = 34.sp)
-                }
-            }
-        }
+//        topBar = {
+//            TopAppBar(
+//                backgroundColor = colorResource(R.color.eateryBlue),
+//                modifier = Modifier
+//                    .height(heightSize)
+//            ) {
+//                Column(
+//                ) {
+//                    Image(painter = painterResource(id = R.drawable.ic_eaterylogo), contentDescription = null)
+//                    Text(text = "Eatery", color = colorResource(id = R.color.white), fontSize = 34.sp)
+//                }
+//            }
+//        }
     ) {
         val state = eateryListViewModel.state.collectAsState()
         state.value.let {
@@ -59,7 +67,9 @@ fun HomeScreen(eateryListViewModel: EateryListViewModel){
                     ) {
                         items(it.data) { eatery ->
                             Column(
-                                modifier = Modifier.padding(0.dp, 5.dp)
+                                modifier = Modifier
+                                    .padding(0.dp, 5.dp)
+                                    .clickable { selectEatery(eatery) }
                             ) {
                                 EateryCard(eatery = eatery)
                             }
