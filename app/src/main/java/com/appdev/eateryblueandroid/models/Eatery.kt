@@ -22,7 +22,9 @@ data class Eatery(
     @Json(name="location") val location: String? = null,
     @Json(name="online_order_url") val onlineOrderUrl: String? = null,
     @Json(name="wait_times") val waitTimes: List<WaitTimeDay>? = null,
-    @Json(name="alerts") val alerts: List<Alert>? = null)
+    @Json(name="alerts") val alerts: List<Alert>? = null,
+    var isFavorite: Boolean = false
+)
 
 @JsonClass(generateAdapter = true)
 data class Alert(

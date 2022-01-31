@@ -1,6 +1,7 @@
-package com.appdev.eateryblueandroid.ui.components
+package com.appdev.eateryblueandroid.ui.navigation
 
 import android.content.Context
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.colorResource
@@ -11,12 +12,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.screens.home.SafeHomeScreen
-import com.appdev.eateryblueandroid.ui.viewmodels.AllEateriesViewModel
+import com.appdev.eateryblueandroid.ui.screens.HomeTabController
+import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.HomeTabViewModel
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
 @Composable
-fun MainScreen(context: Context, allEateriesViewModel: AllEateriesViewModel) {
+fun MainScreen(
+    context: Context,
+    homeTabViewModel: HomeTabViewModel,
+    homeViewModel: HomeViewModel,
+    eateryDetailViewModel: EateryDetailViewModel
+) {
 
     val navController = rememberNavController()
     val homeTab = BottomNavTab("home", "Home", R.drawable.ic_home)
@@ -28,7 +36,14 @@ fun MainScreen(context: Context, allEateriesViewModel: AllEateriesViewModel) {
             BottomNav(navController, bottomNavItems)
         }
     ) {
-        MainScreenNavigationConfigurations(navController, homeTab, profileTab, allEateriesViewModel)
+        MainScreenNavigationConfigurations(
+            navController,
+            homeTab,
+            profileTab,
+            homeTabViewModel,
+            homeViewModel,
+            eateryDetailViewModel
+        )
     }
 }
 
@@ -62,9 +77,21 @@ private fun currentRoute(navController: NavHostController): String? {
 
 //this composable function takes care of mapping the routes defined by the tabs to their screens
 @Composable
-private fun MainScreenNavigationConfigurations(navController: NavHostController, homeTab: BottomNavTab, profileTab: BottomNavTab, allEateriesViewModel: AllEateriesViewModel){
+private fun MainScreenNavigationConfigurations(
+    navController: NavHostController,
+    homeTab: BottomNavTab, profileTab: BottomNavTab,
+    homeTabViewModel: HomeTabViewModel,
+    homeViewModel: HomeViewModel,
+    eateryDetailViewModel: EateryDetailViewModel
+){
+    val eateryListScrollState = rememberLazyListState()
     NavHost(navController = navController, startDestination = homeTab.route ) {
-        composable(homeTab.route){ SafeHomeScreen(allEateriesViewModel = allEateriesViewModel)}
+        composable(homeTab.route){ HomeTabController(
+            homeTabViewModel = homeTabViewModel,
+            homeViewModel = homeViewModel,
+            eateryDetailViewModel = eateryDetailViewModel,
+            eateryListScrollState = eateryListScrollState
+        ) }
         composable(profileTab.route){}
     }
 
