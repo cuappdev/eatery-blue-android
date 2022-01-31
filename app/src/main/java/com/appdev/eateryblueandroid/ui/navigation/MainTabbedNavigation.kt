@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.screens.HomeTabController
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.ExpandedSectionViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeTabViewModel
 
@@ -23,6 +24,7 @@ fun MainScreen(
     context: Context,
     homeTabViewModel: HomeTabViewModel,
     homeViewModel: HomeViewModel,
+    expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel
 ) {
 
@@ -42,6 +44,7 @@ fun MainScreen(
             profileTab,
             homeTabViewModel,
             homeViewModel,
+            expandedSectionViewModel,
             eateryDetailViewModel
         )
     }
@@ -82,6 +85,7 @@ private fun MainScreenNavigationConfigurations(
     homeTab: BottomNavTab, profileTab: BottomNavTab,
     homeTabViewModel: HomeTabViewModel,
     homeViewModel: HomeViewModel,
+    expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel
 ){
     val eateryListScrollState = rememberLazyListState()
@@ -90,6 +94,7 @@ private fun MainScreenNavigationConfigurations(
             homeTabViewModel = homeTabViewModel,
             homeViewModel = homeViewModel,
             eateryDetailViewModel = eateryDetailViewModel,
+            expandedSectionViewModel = expandedSectionViewModel,
             eateryListScrollState = eateryListScrollState
         ) }
         composable(profileTab.route){}

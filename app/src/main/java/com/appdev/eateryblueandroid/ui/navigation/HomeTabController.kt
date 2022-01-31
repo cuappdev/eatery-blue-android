@@ -4,7 +4,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.models.Eatery
+import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.ExpandedSectionViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeTabViewModel
 
@@ -13,6 +15,7 @@ fun HomeTabController(
     homeTabViewModel: HomeTabViewModel,
     homeViewModel: HomeViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
+    expandedSectionViewModel: ExpandedSectionViewModel,
     eateryListScrollState: LazyListState
 ) {
     val state = homeTabViewModel.state.collectAsState()
@@ -26,12 +29,21 @@ fun HomeTabController(
                         eateryDetailViewModel.selectEatery(eatery)
                         homeTabViewModel.transitionEateryDetail()
                     },
+                    selectSection = fun(section: EaterySection) {
+                        expandedSectionViewModel.expandSection(section)
+                        homeTabViewModel.transitionExpandedSection()
+                    },
                     scrollState = eateryListScrollState
                 )
             is HomeTabViewModel.State.EateryDetailVisible ->
                 EateryDetailScreen(
                     eateryDetailViewModel = eateryDetailViewModel,
                     hideEatery = homeTabViewModel::transitionEateryList
+                )
+            is HomeTabViewModel.State.ExpandedSectionVisible ->
+                ExpandedSectionScreen(
+                    expandedSectionViewModel = expandedSectionViewModel,
+                    hideSection = homeTabViewModel::transitionEateryList
                 )
         }
     }
