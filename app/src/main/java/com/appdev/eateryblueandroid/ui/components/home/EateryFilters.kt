@@ -27,7 +27,7 @@ fun EateryFilters() {
         "Central"
     )
 
-    LazyRow(contentPadding = PaddingValues(10.dp)) {
+    LazyRow(contentPadding = PaddingValues(10.dp, 0.dp)) {
         items(options) { item ->
             EateryFilter(item)
         }
@@ -38,7 +38,7 @@ fun EateryFilters() {
 fun EateryFilter(text: String) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.padding(start=3.dp, end = 3.dp)
+        modifier = Modifier.padding(start=6.dp, end = 6.dp)
     ) {
         Row(
             modifier = Modifier

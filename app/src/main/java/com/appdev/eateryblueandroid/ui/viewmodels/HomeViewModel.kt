@@ -17,7 +17,6 @@ class HomeViewModel(
         object Loading : State()
         data class Failure(val errorMsg: String) : State()
         data class Data(val eateries: List<Eatery>, val sections: List<EaterySection>) : State()
-
     }
 
     private var _state = MutableStateFlow<State>(State.Loading)
