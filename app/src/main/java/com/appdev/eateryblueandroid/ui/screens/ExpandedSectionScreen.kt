@@ -3,8 +3,6 @@ package com.appdev.eateryblueandroid.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import com.appdev.eateryblueandroid.ui.components.core.Text
-import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ExpandedSectionViewModel
 
 @Composable
