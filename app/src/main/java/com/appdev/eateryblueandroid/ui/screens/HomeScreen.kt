@@ -16,6 +16,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel,
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
+    selectSearch: () -> Unit,
     scrollState: LazyListState
 ){
     Column {
@@ -31,7 +32,8 @@ fun HomeScreen(
                         eateries = it.eateries,
                         sections = it.sections,
                         selectEatery = selectEatery,
-                        selectSection = selectSection
+                        selectSection = selectSection,
+                        selectSearch = selectSearch
                     )
                 is HomeViewModel.State.Failure ->
                     Text("FAILURE")

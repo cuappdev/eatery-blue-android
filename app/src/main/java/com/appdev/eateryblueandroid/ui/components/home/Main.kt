@@ -25,7 +25,8 @@ fun Main(
     sections: List<EaterySection>,
     eateries: List<Eatery>,
     selectEatery: (eatery: Eatery) -> Unit,
-    selectSection: (eaterySection: EaterySection) -> Unit
+    selectSection: (eaterySection: EaterySection) -> Unit,
+    selectSearch: () -> Unit,
 ) {
 
     val mainItems: List<MainItem> = listOf(
@@ -54,7 +55,7 @@ fun Main(
             when (item) {
                 is MainItem.SearchBox ->
                     Column(modifier = Modifier.padding(16.dp, 12.dp)) {
-                        SearchBar()
+                        SearchBar(selectSearch = selectSearch)
                     }
                 is MainItem.FilterOptions -> EateryFilters()
                 is MainItem.EaterySectionLabel ->

@@ -11,6 +11,7 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
@@ -33,6 +34,11 @@ fun EateryFilters() {
         }
     }
 }
+@Preview
+@Composable
+fun PreviewEateryFilters() {
+    EateryFilters()
+}
 
 @Composable
 fun EateryFilter(text: String) {
@@ -51,4 +57,9 @@ fun EateryFilter(text: String) {
             )
         }
     }
+}
+@Preview
+@Composable
+fun PreviewEateryFiltersText() {
+    EateryFilter("Hello")
 }

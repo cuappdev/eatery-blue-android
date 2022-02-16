@@ -6,6 +6,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,10 +14,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.screens.HomeTabController
-import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.ExpandedSectionViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.HomeTabViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.*
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
 @Composable
@@ -25,7 +23,8 @@ fun MainScreen(
     homeTabViewModel: HomeTabViewModel,
     homeViewModel: HomeViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
-    eateryDetailViewModel: EateryDetailViewModel
+    eateryDetailViewModel: EateryDetailViewModel,
+    searchViewModel: SearchViewModel,
 ) {
 
     val navController = rememberNavController()
@@ -45,10 +44,12 @@ fun MainScreen(
             homeTabViewModel,
             homeViewModel,
             expandedSectionViewModel,
-            eateryDetailViewModel
+            eateryDetailViewModel,
+            searchViewModel,
         )
     }
 }
+
 
 //this defines the behavior and look of each tab
 @Composable
@@ -86,7 +87,8 @@ private fun MainScreenNavigationConfigurations(
     homeTabViewModel: HomeTabViewModel,
     homeViewModel: HomeViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
-    eateryDetailViewModel: EateryDetailViewModel
+    eateryDetailViewModel: EateryDetailViewModel,
+    searchViewModel: SearchViewModel
 ){
     val eateryListScrollState = rememberLazyListState()
     NavHost(navController = navController, startDestination = homeTab.route ) {
@@ -95,7 +97,8 @@ private fun MainScreenNavigationConfigurations(
             homeViewModel = homeViewModel,
             eateryDetailViewModel = eateryDetailViewModel,
             expandedSectionViewModel = expandedSectionViewModel,
-            eateryListScrollState = eateryListScrollState
+            eateryListScrollState = eateryListScrollState,
+            searchViewModel = searchViewModel
         ) }
         composable(profileTab.route){}
     }
