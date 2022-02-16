@@ -1,14 +1,12 @@
 package com.appdev.eateryblueandroid.ui.screens
 
+import android.widget.SearchView
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
-import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.ExpandedSectionViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.HomeTabViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.*
 
 @Composable
 fun HomeTabController(
@@ -16,6 +14,7 @@ fun HomeTabController(
     homeViewModel: HomeViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
+    searchViewModel: SearchViewModel,
     eateryListScrollState: LazyListState
 ) {
     val state = homeTabViewModel.state.collectAsState()
@@ -33,6 +32,10 @@ fun HomeTabController(
                         expandedSectionViewModel.expandSection(section)
                         homeTabViewModel.transitionExpandedSection()
                     },
+                    selectSearch = fun() {
+                        searchViewModel.transitionSearchLoading()
+                        homeTabViewModel.transitionSearchScreen()
+                    },
                     scrollState = eateryListScrollState
                 )
             is HomeTabViewModel.State.EateryDetailVisible ->
@@ -43,6 +46,11 @@ fun HomeTabController(
             is HomeTabViewModel.State.ExpandedSectionVisible ->
                 ExpandedSectionScreen(
                     expandedSectionViewModel = expandedSectionViewModel,
+                    hideSection = homeTabViewModel::transitionEateryList
+                )
+            is HomeTabViewModel.State.SearchScreenVisible ->
+                SearchingScreen(
+                    searchViewModel = searchViewModel,
                     hideSection = homeTabViewModel::transitionEateryList
                 )
         }

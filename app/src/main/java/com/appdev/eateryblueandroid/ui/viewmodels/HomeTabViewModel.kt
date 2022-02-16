@@ -6,9 +6,10 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class HomeTabViewModel : ViewModel() {
     sealed class State {
-        object EateryListVisible : State()
-        object EateryDetailVisible : State()
-        object ExpandedSectionVisible : State()
+        object EateryListVisible: State()
+        object EateryDetailVisible: State()
+        object ExpandedSectionVisible: State()
+        object SearchScreenVisible: State()
     }
 
     private var _state = MutableStateFlow<State>(State.EateryListVisible)
@@ -24,5 +25,8 @@ class HomeTabViewModel : ViewModel() {
 
     fun transitionExpandedSection() {
         _state.value = State.ExpandedSectionVisible
+    }
+    fun transitionSearchScreen() {
+        _state.value = State.SearchScreenVisible
     }
 }

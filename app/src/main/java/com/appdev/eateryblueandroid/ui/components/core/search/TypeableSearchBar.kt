@@ -1,4 +1,4 @@
-package com.appdev.eateryblueandroid.ui.components.home
+package com.appdev.eateryblueandroid.ui.components.core.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,7 +10,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -20,10 +19,10 @@ import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 
 @Composable
-fun SearchBar(selectSearch: () -> Unit) {
+fun TypeableSearchBar(searchText : String) {
     Surface(
         shape = RoundedCornerShape(5.dp),
-        modifier = Modifier.clickable {selectSearch() }.fillMaxWidth()
+        modifier = Modifier.clickable {}.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -38,11 +37,17 @@ fun SearchBar(selectSearch: () -> Unit) {
                 modifier = Modifier.padding(top = 3.dp)
             )
             Text(
-                text = "Search for grub...",
+                text = searchText,
                 textStyle = TextStyle.BODY_MEDIUM,
                 color = colorResource(id = R.color.gray05),
                 modifier = Modifier.padding(start = 5.dp)
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewTypeableSearchBar(){
+    TypeableSearchBar("hello")
 }

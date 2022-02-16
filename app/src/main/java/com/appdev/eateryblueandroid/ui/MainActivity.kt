@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import com.appdev.eateryblueandroid.ui.components.general.BottomSheet
 import com.appdev.eateryblueandroid.ui.components.login.LoginWebView
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import com.appdev.eateryblueandroid.ui.components.core.Text
 
 import com.appdev.eateryblueandroid.ui.navigation.MainScreen
 import com.appdev.eateryblueandroid.ui.viewmodels.*
@@ -18,6 +21,7 @@ class MainActivity : AppCompatActivity() {
 
     private val profileViewModel = ProfileViewModel()
     private val bottomSheetViewModel = BottomSheetViewModel()
+    private val searchViewModel = SearchViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -35,7 +39,10 @@ class MainActivity : AppCompatActivity() {
             )
             BottomSheet(
                 bottomSheetViewModel = bottomSheetViewModel
-            )
+               
+            ),
+             searchViewModel = searchViewModel,
         }
     }
+
 }

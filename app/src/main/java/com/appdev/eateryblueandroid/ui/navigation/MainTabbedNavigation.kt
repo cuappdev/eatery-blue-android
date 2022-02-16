@@ -6,6 +6,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,7 +26,8 @@ fun MainScreen(
     expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
     profileViewModel: ProfileViewModel,
-    bottomSheetViewModel: BottomSheetViewModel
+    bottomSheetViewModel: BottomSheetViewModel,
+    searchViewModel: SearchViewModel,
 ) {
 
     val navController = rememberNavController()
@@ -47,10 +49,12 @@ fun MainScreen(
             expandedSectionViewModel,
             eateryDetailViewModel,
             profileViewModel,
-            bottomSheetViewModel
+            bottomSheetViewModel,
+            searchViewModel,
         )
     }
 }
+
 
 //this defines the behavior and look of each tab
 @Composable
@@ -89,6 +93,7 @@ private fun MainScreenNavigationConfigurations(
     homeViewModel: HomeViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
+    searchViewModel: SearchViewModel,
     profileViewModel: ProfileViewModel,
     bottomSheetViewModel: BottomSheetViewModel
 ) {
@@ -100,7 +105,8 @@ private fun MainScreenNavigationConfigurations(
                 homeViewModel = homeViewModel,
                 eateryDetailViewModel = eateryDetailViewModel,
                 expandedSectionViewModel = expandedSectionViewModel,
-                eateryListScrollState = eateryListScrollState
+                eateryListScrollState = eateryListScrollState,
+                searchViewModel = searchViewModel
             )
         }
         composable(profileTab.route) {
