@@ -15,6 +15,7 @@ fun HomeTabController(
     eateryDetailViewModel: EateryDetailViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
     searchViewModel: SearchViewModel,
+
     eateryListScrollState: LazyListState
 ) {
     val state = homeTabViewModel.state.collectAsState()
@@ -33,7 +34,7 @@ fun HomeTabController(
                         homeTabViewModel.transitionExpandedSection()
                     },
                     selectSearch = fun() {
-                        searchViewModel.transitionSearchLoading()
+                        searchViewModel.transitionSearchNothingTyped()
                         homeTabViewModel.transitionSearchScreen()
                     },
                     scrollState = eateryListScrollState
@@ -51,7 +52,13 @@ fun HomeTabController(
             is HomeTabViewModel.State.SearchScreenVisible ->
                 SearchingScreen(
                     searchViewModel = searchViewModel,
-                    hideSection = homeTabViewModel::transitionEateryList
+
+                    selectEatery = fun(eatery: Eatery) {
+                        eateryDetailViewModel.selectEatery(eatery)
+                        homeTabViewModel.transitionEateryDetail()
+                    },
+                    hideSection = homeTabViewModel::transitionEateryList,
+
                 )
         }
     }

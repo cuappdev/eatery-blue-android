@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
     private val eateryListViewModel = HomeViewModel(fetchFromApi = true)
     private val expandedSectionViewModel = ExpandedSectionViewModel()
     private val eateryDetailViewModel = EateryDetailViewModel()
-    private val searchViewModel = SearchViewModel()
+    private val searchViewModel = SearchViewModel(fetchFromApi = true)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
