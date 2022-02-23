@@ -2,10 +2,16 @@ package com.appdev.eateryblueandroid.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
@@ -16,19 +22,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.models.Eatery
-import com.appdev.eateryblueandroid.models.Event
-import com.appdev.eateryblueandroid.models.MenuCategory
-import com.appdev.eateryblueandroid.models.MenuItem
+import com.appdev.eateryblueandroid.models.*
+import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.ui.components.home.SearchBar
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 @Composable
@@ -43,7 +50,9 @@ fun EateryDetailScreen(
                 Text("Error")
             is EateryDetailViewModel.State.Data ->
                 Column(
-                    modifier = Modifier.padding(0.dp)
+                    modifier = Modifier
+                        .padding(0.dp)
+                        .verticalScroll(rememberScrollState())
                 ) {
                     Box() {
                         Image(
@@ -175,28 +184,95 @@ fun EateryDetailScreen(
                             )
                         }
                     }
-                    Surface(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        shape = RoundedCornerShape(5.dp)
+                    AlertsSection(eatery = it.data)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
+                            .border(
+                                1.dp,
+                                colorResource(id = R.color.gray00),
+                                RoundedCornerShape(8.dp)
+                            ),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .background(colorResource(id = R.color.blue_light))
-                                .padding(horizontal = 12.dp, vertical = 12.dp)
+                                .padding(vertical = 12.dp)
+                                .weight(1f, true)
                         ) {
-                            Icon(
-                                Icons.Default.Info,
-                                contentDescription = "Warning",
-                                tint = colorResource(id = R.color.eateryBlue)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_clock),
+                                    contentDescription = "Hours Icon",
+                                    tint = colorResource(id = R.color.gray05)
+                                )
+                                Text(
+                                    text = "Hours",
+                                    textStyle = TextStyle.LABEL_SEMIBOLD,
+                                    color = colorResource(id = R.color.gray05),
+                                    modifier = Modifier.padding(start = 5.dp)
+                                )
+                            }
+                            val openUntil = getOpenUntil(it.data)
                             Text(
-                                text = "Cash or credit only after 3:00 PM",
-                                textStyle = TextStyle.BODY_NORMAL,
-                                color = colorResource(id = R.color.eateryBlue),
+                                text = openUntil ?: "Closed",
+                                textStyle = TextStyle.BODY_SEMIBOLD,
+                                color = colorResource(id = if (openUntil.isNullOrBlank()) R.color.red else R.color.green),
                                 modifier = Modifier.padding(start = 5.dp)
                             )
                         }
+                        Spacer(
+                            modifier = Modifier
+                                .width(1.dp)
+                                .height(24.dp)
+                                .background(colorResource(id = R.color.gray00), CircleShape)
+                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .padding(vertical = 12.dp)
+                                .weight(1f, true)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_watch),
+                                    contentDescription = "Watch Icon",
+                                    tint = colorResource(id = R.color.gray05)
+                                )
+                                Text(
+                                    text = "Wait Time",
+                                    textStyle = TextStyle.LABEL_SEMIBOLD,
+                                    color = colorResource(id = R.color.gray05),
+                                    modifier = Modifier.padding(start = 5.dp)
+                                )
+                            }
+                            Text(
+                                text = getWaitTimes(it.data) ?: "3-5 minutes",
+                                textStyle = TextStyle.BODY_SEMIBOLD,
+                                color = colorResource(id = R.color.black),
+                                modifier = Modifier.padding(start = 5.dp)
+                            )
+                        }
+                    }
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(16.dp)
+                            .background(
+                                colorResource(
+                                    id = R.color.gray00
+                                )
+                            )
+                    )
+                    getCurrentEvents(it.data)?.forEach { event ->
+                        EateryMenuWidget(event)
                     }
                 }
         }
@@ -204,6 +280,137 @@ fun EateryDetailScreen(
 
     BackHandler {
         hideEatery()
+    }
+}
+
+@Composable
+fun EateryMenuWidget(event: Event) {
+    Row(
+        modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(
+                text = event.description ?: "Full Menu",
+                textStyle = TextStyle.HEADER_H3,
+            )
+            if (event.startTime != null && event.endTime != null) {
+                Text(
+                    text = "${event.startTime.format(DateTimeFormatter.ofPattern("K:mm a"))} - ${
+                        event.endTime.format(
+                            DateTimeFormatter.ofPattern("K:mm a")
+                        )
+                    }",
+                    textStyle = TextStyle.BODY_MEDIUM,
+                    color = colorResource(id = R.color.gray05)
+                )
+            }
+        }
+        CircularBackgroundIcon(
+            icon = painterResource(
+                id = R.drawable.ic_baseline_keyboard_arrow_down_24
+            ),
+            onTap = { /* TODO: */ },
+            clickable = true,
+            iconHeight = 28.dp,
+            iconWidth = 28.dp,
+        )
+    }
+    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+        SearchBar()
+    }
+    Spacer(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(colorResource(id = R.color.gray00), CircleShape)
+    )
+    event.menu?.forEach { category ->
+        Text(
+            text = category.category ?: "Category",
+            textStyle = TextStyle.HEADER_H4,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+        )
+        category.items?.forEach { menuItem ->
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            ) {
+                Row {
+                    Text(
+                        text = menuItem.name ?: "Item Name",
+                        textStyle = TextStyle.BODY_SEMIBOLD,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (menuItem.basePrice != null) {
+                        Text(
+                            text = String.format("$%.2f", menuItem.basePrice),
+                            textStyle = TextStyle.BODY_MEDIUM
+                        )
+                    }
+
+                }
+                if (!menuItem.description.isNullOrBlank()) {
+                    Text(
+                        text = menuItem.description,
+                        textStyle = TextStyle.BODY_NORMAL,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            Spacer(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(colorResource(id = R.color.gray00), CircleShape)
+            )
+        }
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp)
+                .background(
+                    colorResource(
+                        id = R.color.gray00
+                    )
+                )
+        )
+    }
+}
+
+@Composable
+fun AlertsSection(eatery: Eatery) {
+    eatery.alerts?.forEach {
+        if (!it.description.isNullOrBlank()
+            && it.startTime?.isBefore(LocalDateTime.now()) == true
+            && it.endTime?.isAfter(LocalDateTime.now()) == true
+        )
+            Surface(
+                modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
+                shape = RoundedCornerShape(5.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(colorResource(id = R.color.blue_light))
+                        .padding(horizontal = 12.dp, vertical = 12.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = "Warning",
+                        tint = colorResource(id = R.color.eateryBlue)
+                    )
+                    Text(
+                        text = it.description,
+                        textStyle = TextStyle.BODY_NORMAL,
+                        color = colorResource(id = R.color.eateryBlue),
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
+                }
+            }
     }
 }
 

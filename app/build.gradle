@@ -4,6 +4,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('/Users/kevin/Downloads/owic-dev-keystore')
+            storePassword 'linkedWorld'
+            keyAlias 'key0'
+            keyPassword 'linkedWorld'
+        }
+    }
     compileSdk 31
 
     defaultConfig {
@@ -49,7 +57,7 @@ dependencies {
     implementation 'androidx.compose.animation:animation:1.0.5'
     implementation 'androidx.compose.ui:ui-tooling:1.0.5'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0-alpha01'
-    implementation 'com.google.accompanist:accompanist-pager:0.18.0'
+    implementation 'com.google.accompanist:accompanist-permissions:0.23.0'
     implementation "androidx.compose.ui:ui:1.0.5"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")

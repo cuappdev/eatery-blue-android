@@ -1,11 +1,12 @@
 package com.appdev.eateryblueandroid.ui.components.home
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -13,11 +14,14 @@ import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
+import com.appdev.eateryblueandroid.models.getOpenUntil
+import com.appdev.eateryblueandroid.models.isClosed
 import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
-import kotlin.math.exp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 @Composable
 fun Main(
@@ -31,24 +35,26 @@ fun Main(
     val mainItems: List<MainItem> = listOf(
         listOf(MainItem.SearchBox),
         listOf(MainItem.FilterOptions),
-        sections.flatMap{ section -> listOf(
-            MainItem.EaterySectionLabel(
-                section.name,
-                expandable = eateries.filter{ section.filter(it) }.size > 3,
-                expandSection = {selectSection(section)}
-            ),
-            MainItem.EaterySectionList(section)
-        ) },
+        sections.flatMap { section ->
+            listOf(
+                MainItem.EaterySectionLabel(
+                    section.name,
+                    expandable = eateries.filter { section.filter(it) }.size > 3,
+                    expandSection = { selectSection(section) }
+                ),
+                MainItem.EaterySectionList(section)
+            )
+        },
         listOf(MainItem.EaterySectionLabel(
             "All Eateries",
             expandable = false, expandSection = {}
         )),
-        eateries.map{MainItem.EateryItem(it)}
+        eateries.sortedByDescending { if (isClosed(it)) 0 else 1 }.map { MainItem.EateryItem(it) }
     ).flatten()
 
     LazyColumn(
         state = scrollState,
-        contentPadding = PaddingValues(bottom=30.dp)
+        contentPadding = PaddingValues(bottom = 30.dp)
     ) {
         items(mainItems) { item ->
             when (item) {
@@ -58,9 +64,10 @@ fun Main(
                     }
                 is MainItem.FilterOptions -> EateryFilters()
                 is MainItem.EaterySectionLabel ->
-                    Row(modifier = Modifier
-                        .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp)
-                        .fillMaxWidth(),
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp)
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -74,18 +81,25 @@ fun Main(
                                     id = R.drawable.ic_rightarrow
                                 ),
                                 onTap = item.expandSection,
-                                clickable = item.expandable
+                                clickable = item.expandable,
                             )
                         }
                     }
                 is MainItem.EaterySectionList ->
-                        EaterySectionPreview(
-                            eateries = eateries,
-                            section = item.section,
-                            selectSection = selectSection
-                        )
+                    EaterySectionPreview(
+                        eateries = eateries,
+                        section = item.section,
+                        selectSection = selectSection,
+                        selectEatery = selectEatery
+                    )
                 is MainItem.EateryItem ->
-                    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)) {
+                    Column(
+                        modifier = Modifier.padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = 12.dp
+                        )
+                    ) {
                         EateryCard(eatery = item.eatery, selectEatery = selectEatery)
                     }
             }
@@ -94,13 +108,14 @@ fun Main(
 }
 
 sealed class MainItem {
-    object SearchBox: MainItem()
-    object FilterOptions: MainItem()
+    object SearchBox : MainItem()
+    object FilterOptions : MainItem()
     data class EaterySectionLabel(
         val label: String,
         val expandable: Boolean,
         val expandSection: () -> Unit
-    ): MainItem()
-    data class EaterySectionList(val section: EaterySection): MainItem()
-    data class EateryItem(val eatery: Eatery): MainItem()
+    ) : MainItem()
+
+    data class EaterySectionList(val section: EaterySection) : MainItem()
+    data class EateryItem(val eatery: Eatery) : MainItem()
 }
