@@ -12,5 +12,8 @@
     <color name="eateryBlue">#4A90E2</color>
     <color name="gray00">#EFF1F4</color>
     <color name="gray05">#586069</color>
+    <color name="gray06">#444D56</color>
+    <color name="redLight">#FEF0EF</color>
+    <color name="red">#F2655D</color>
     <color name="transparent">#00EFF1F4</color>
 </resources>
