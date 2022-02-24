@@ -9,6 +9,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.sp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.theme.sfProDisplayFontFamily
@@ -49,6 +50,7 @@ fun Text(
         fontFamily = fontFamily(textStyle),
         fontWeight = fontWeight(textStyle),
         fontSize = fontSize(textStyle),
+        letterSpacing = 0.sp,
         modifier = modifier
     )
 }

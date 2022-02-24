@@ -7,11 +7,14 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="white_transparent">#88FFFFFF</color>
     <color name="green">#63C774</color>
     <color name="yellow">#FEC50E</color>
+    <color name="red">#F2655D</color>
     <color name="eateryBlue">#4A90E2</color>
     <color name="gray00">#EFF1F4</color>
     <color name="gray05">#586069</color>
+    <color name="blue_light">#E8EFF8</color>
     <color name="gray06">#444D56</color>
     <color name="redLight">#FEF0EF</color>
     <color name="red">#F2655D</color>
