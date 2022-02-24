@@ -24,7 +24,8 @@ fun MainScreen(
     homeViewModel: HomeViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    bottomSheetViewModel: BottomSheetViewModel
 ) {
 
     val navController = rememberNavController()
@@ -45,7 +46,8 @@ fun MainScreen(
             homeViewModel,
             expandedSectionViewModel,
             eateryDetailViewModel,
-            profileViewModel
+            profileViewModel,
+            bottomSheetViewModel
         )
     }
 }
@@ -87,7 +89,8 @@ private fun MainScreenNavigationConfigurations(
     homeViewModel: HomeViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    bottomSheetViewModel: BottomSheetViewModel
 ){
     val eateryListScrollState = rememberLazyListState()
     NavHost(navController = navController, startDestination = homeTab.route ) {
@@ -99,7 +102,8 @@ private fun MainScreenNavigationConfigurations(
             eateryListScrollState = eateryListScrollState
         ) }
         composable(profileTab.route){ ProfileTabController(
-            profileViewModel = profileViewModel
+            profileViewModel = profileViewModel,
+            bottomSheetViewModel = bottomSheetViewModel
         ) }
     }
 

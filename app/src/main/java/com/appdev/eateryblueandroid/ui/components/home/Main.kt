@@ -27,7 +27,6 @@ fun Main(
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit
 ) {
-
     val mainItems: List<MainItem> = listOf(
         listOf(MainItem.SearchBox),
         listOf(MainItem.FilterOptions),

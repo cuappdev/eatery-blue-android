@@ -25,14 +25,11 @@ fun EateryDetailScreen(
                 Column(
                     modifier = Modifier.padding(90.dp)
                 ) {
-                    Text(
-                        text = it.data.name ?: "No name",
-                        fontSize=20.sp
-                    )
+
                 }
         }
     }
-    
+
     BackHandler {
         hideEatery()
     }

@@ -13,7 +13,7 @@ interface GetApi {
     @POST("commerce")
     suspend fun fetchAccounts(
         @Body body: GetApiRequestBody<GetApiAccountsParams>
-    ): GetApiResponse<PaymentMethodsResponse>
+    ): GetApiResponse<AccountsResponse>
 
     @POST("commerce")
     suspend fun fetchTransactionHistory(

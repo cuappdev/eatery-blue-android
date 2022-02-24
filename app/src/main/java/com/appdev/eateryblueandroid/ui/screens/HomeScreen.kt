@@ -6,10 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.ui.res.painterResource
+import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
+import com.appdev.eateryblueandroid.ui.components.general.TopBar
 import com.appdev.eateryblueandroid.ui.components.home.Main
-import com.appdev.eateryblueandroid.ui.components.home.TopBar
 
 @Composable
 fun HomeScreen(
@@ -19,7 +21,12 @@ fun HomeScreen(
     scrollState: LazyListState
 ){
     Column {
-        TopBar(scrollState = scrollState)
+        TopBar(
+            label = "Eatery",
+            expanded = scrollState.firstVisibleItemIndex == 0,
+            eateryIcon = true,
+            rightIcon = painterResource(id = R.drawable.ic_search)
+        )
         val state = homeViewModel.state.collectAsState()
         state.value.let {
             when(it) {

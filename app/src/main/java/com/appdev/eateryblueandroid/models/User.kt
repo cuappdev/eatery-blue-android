@@ -13,16 +13,16 @@ data class User(
     @Json(name="lastName") val lastName: String? = null,
     @Json(name="email") val email: String? = null,
     @Json(name="phone") val phone: String? = null,
-    var paymentMethods: List<PaymentMethod>? = null,
+    var accounts: List<Account>? = null,
     var transactions: List<Transaction>? = listOf()
 )
 
-data class PaymentMethodsResponse(
-    @Json(name="accounts") val paymentMethods: List<PaymentMethod>? = null
+data class AccountsResponse(
+    @Json(name="accounts") val accounts: List<Account>? = null
 )
 
-data class PaymentMethod(
-    @Json(name="accountDisplayName") val name: String? = null,
+data class Account(
+    @Json(name="accountDisplayName") val type: AccountType? = null,
     @Json(name="balance") val balance: Double? = null
 )
 
@@ -34,12 +34,17 @@ data class TransactionsResponse(
 
 data class Transaction(
     @Json(name="transactionId") val id: String? = null,
-    @Json(name="amount") val amount: Int? = null,
-    @Json(name="resultingBalance") val resultingBalance: Int? = null,
+    @Json(name="amount") val amount: Double? = null,
+    @Json(name="resultingBalance") val resultingBalance: Double? = null,
     @Json(name="postedDate") val date: LocalDateTime? = null,
-    @Json(name="accountName") val accountName: String? = null,
-    @Json(name="locationName") val type: TransactionType? = null
+    @Json(name="transactionType") val transactionType: TransactionType? = null,
+    @Json(name="accountName") val accountType: AccountType? = null,
+    @Json(name="locationName") val location: String? = null,
 )
+
+enum class AccountType {
+    LAUNDRY, MEALPLAN, BRBS, CITYBUCKS, OTHER
+}
 
 enum class TransactionType {
     DEPOSIT, SPEND, NOOP

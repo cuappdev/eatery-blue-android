@@ -1,6 +1,7 @@
 package com.appdev.eateryblueandroid.ui.components.login
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebView
@@ -53,8 +54,8 @@ class SessionIdWebViewClient(
     var lastUrl: String? = null
 
     override fun onPageFinished(view: WebView?, url: String?) {
-        if (lastUrl == url) return;
-
+        if (lastUrl == url) return
+        Log.i("qwerty", url.toString())
         lastUrl = url
         if (url?.contains("sessionId=") == true) {
             val idx = url.indexOf("sessionId=") + 10
