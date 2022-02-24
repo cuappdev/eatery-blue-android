@@ -30,7 +30,8 @@ enum class TextStyle {
     LABEL_MEDIUM,
     LABEL_SEMIBOLD,
     MISC_BACK,
-    SUBTITLE
+    SUBTITLE,
+    APPDEV_BODY_MEDIUM
 }
 
 @Composable
@@ -69,6 +70,8 @@ private fun fontFamily(textStyle: TextStyle): FontFamily {
         sfProDisplayFontFamily
     } else if (textStyle == TextStyle.SUBTITLE) {
         sfProDisplayFontFamily
+    } else if (textStyle == TextStyle.APPDEV_BODY_MEDIUM) {
+        sfProDisplayFontFamily
     } else {
         sfProTextFontFamily
     }
@@ -103,6 +106,8 @@ private fun fontSize(textStyle: TextStyle): TextUnit {
         17.sp
     } else if (textStyle == TextStyle.SUBTITLE) {
         20.sp
+    } else if (textStyle == TextStyle.APPDEV_BODY_MEDIUM) {
+        18.sp
     } else {
         100.sp
     }
@@ -137,6 +142,8 @@ private fun fontWeight(textStyle: TextStyle): FontWeight {
         FontWeight.Normal
     } else if (textStyle == TextStyle.SUBTITLE) {
         FontWeight.SemiBold
+    } else if (textStyle == TextStyle.APPDEV_BODY_MEDIUM) {
+        FontWeight.Medium
     } else {
         FontWeight.Black
     }

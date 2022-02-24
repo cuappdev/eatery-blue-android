@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.models.Eatery
-import com.appdev.eateryblueandroid.networking.ApiService
+import com.appdev.eateryblueandroid.networking.internal.ApiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive

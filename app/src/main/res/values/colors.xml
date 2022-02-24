@@ -15,5 +15,8 @@
     <color name="gray00">#EFF1F4</color>
     <color name="gray05">#586069</color>
     <color name="blue_light">#E8EFF8</color>
+    <color name="gray06">#444D56</color>
+    <color name="redLight">#FEF0EF</color>
+    <color name="red">#F2655D</color>
     <color name="transparent">#00EFF1F4</color>
 </resources>

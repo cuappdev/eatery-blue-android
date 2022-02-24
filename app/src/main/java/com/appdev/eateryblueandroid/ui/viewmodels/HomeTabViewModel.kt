@@ -1,7 +1,6 @@
 package com.appdev.eateryblueandroid.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.appdev.eateryblueandroid.models.Eatery
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 

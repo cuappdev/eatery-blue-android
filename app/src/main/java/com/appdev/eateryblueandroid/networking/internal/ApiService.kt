@@ -1,4 +1,4 @@
-package com.appdev.eateryblueandroid.networking
+package com.appdev.eateryblueandroid.networking.internal
 
 import com.appdev.eateryblueandroid.util.Constants
 import com.squareup.moshi.Moshi
