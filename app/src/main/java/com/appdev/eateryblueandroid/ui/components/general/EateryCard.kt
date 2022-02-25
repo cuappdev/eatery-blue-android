@@ -1,31 +1,40 @@
 package com.appdev.eateryblueandroid.ui.components
 
-import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColor
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.util.isFavorite
+import com.appdev.eateryblueandroid.util.toggleFavorite
+
+import kotlin.coroutines.coroutineContext
 
 @Composable
 fun EateryCard(
     eatery: Eatery,
     isCompact: Boolean = false,
-    selectEatery: (eatery: Eatery) -> Unit = {}
+    selectEatery: (eatery: Eatery) -> Unit = {},
+    interactionSource: MutableInteractionSource = remember {MutableInteractionSource()}
 ) {
+    var liked by remember {
+        mutableStateOf(eatery.isFavorite)
+    }
     Surface(
         elevation = 20.dp,
         shape = RoundedCornerShape(10.dp),
@@ -37,7 +46,7 @@ fun EateryCard(
             modifier = Modifier
                 .background(color = colorResource(id = R.color.white))
         ) {
-            Box () {
+            Box {
                 Image(
                     url = eatery.imageUrl ?: "",
                     modifier = Modifier
@@ -67,9 +76,18 @@ fun EateryCard(
                         modifier = Modifier.fillMaxWidth(0.95f)
                     )
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_star_outline),
-                        tint = colorResource(id = R.color.gray05),
-                        modifier = Modifier.padding(top = 3.dp),
+                        painter = painterResource(id = if (liked) R.drawable.ic_star else R.drawable.ic_star_outline),
+                        tint = colorResource(id = if (liked) R.color.yellow else R.color.gray05),
+                        modifier = Modifier
+                            .padding(top = 3.dp)
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = rememberRipple(),
+                                onClick = {
+                                    toggleFavorite(eatery)
+                                    liked = !liked
+                                }
+                            ),
                         contentDescription = null
                     )
                 }
