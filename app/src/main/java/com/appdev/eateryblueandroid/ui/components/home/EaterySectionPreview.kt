@@ -37,7 +37,7 @@ fun EaterySectionPreview(
     var height by remember { mutableStateOf(0)}
     val sectionItems: List<SectionPreviewItem> =
         listOf(
-            filteredEateries.subList(0, 3).map { SectionPreviewItem.EateryItem(it) },
+            filteredEateries.subList(0, Math.min(filteredEateries.size,3)).map { SectionPreviewItem.EateryItem(it) },
             if (filteredEateries.size > 3) listOf(SectionPreviewItem.MoreEateriesBox) else listOf()
         ).flatten()
     LazyRow(contentPadding = PaddingValues(9.dp, 0.dp)) {
