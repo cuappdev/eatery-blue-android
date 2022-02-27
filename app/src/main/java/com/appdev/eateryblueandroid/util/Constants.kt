@@ -10,7 +10,6 @@ object Constants {
 
     const val CORNELL_INSTITUTION_ID = "73116ae4-22ad-4c71-8ffd-11ba015407b1"
     const val FAVORITE_EATERIES_LOCAL_STORAGE = "favorite_eateries"
-    const val FAVORITE_EATERIES_KEY = "favorite_eateries_json"
 
     var currentLocation: Location? = null
 }
