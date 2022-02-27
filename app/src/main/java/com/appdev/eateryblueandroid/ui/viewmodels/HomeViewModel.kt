@@ -48,7 +48,7 @@ class HomeViewModel(
 
     private fun eaterySections(): List<EaterySection> {
         return listOf(
-            EaterySection("Favorite Eateries") { it.campusArea == "Central" },
+            EaterySection("Favorite Eateries") { it.isFavorite },
             EaterySection("Nearest to You") {it.campusArea == "West"}
         )
     }
