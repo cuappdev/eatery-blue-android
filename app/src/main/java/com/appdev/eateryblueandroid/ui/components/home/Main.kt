@@ -30,24 +30,26 @@ fun Main(
     val mainItems: List<MainItem> = listOf(
         listOf(MainItem.SearchBox),
         listOf(MainItem.FilterOptions),
-        sections.flatMap{ section -> listOf(
-            MainItem.EaterySectionLabel(
-                section.name,
-                expandable = eateries.filter{ section.filter(it) }.size > 3,
-                expandSection = {selectSection(section)}
-            ),
-            MainItem.EaterySectionList(section)
-        ) },
+        sections.flatMap { section ->
+            listOf(
+                MainItem.EaterySectionLabel(
+                    section.name,
+                    expandable = eateries.filter { section.filter(it) }.size > 3,
+                    expandSection = { selectSection(section) }
+                ),
+                MainItem.EaterySectionList(section)
+            )
+        },
         listOf(MainItem.EaterySectionLabel(
             "All Eateries",
             expandable = false, expandSection = {}
         )),
-        eateries.map{MainItem.EateryItem(it)}
+        eateries.map { MainItem.EateryItem(it) }
     ).flatten()
 
     LazyColumn(
         state = scrollState,
-        contentPadding = PaddingValues(bottom=30.dp)
+        contentPadding = PaddingValues(bottom = 30.dp)
     ) {
         items(mainItems) { item ->
             when (item) {
@@ -57,9 +59,10 @@ fun Main(
                     }
                 is MainItem.FilterOptions -> EateryFilters()
                 is MainItem.EaterySectionLabel ->
-                    Row(modifier = Modifier
-                        .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp)
-                        .fillMaxWidth(),
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp)
+                            .fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -78,13 +81,19 @@ fun Main(
                         }
                     }
                 is MainItem.EaterySectionList ->
-                        EaterySectionPreview(
-                            eateries = eateries,
-                            section = item.section,
-                            selectSection = selectSection
-                        )
+                    EaterySectionPreview(
+                        eateries = eateries,
+                        section = item.section,
+                        selectSection = selectSection
+                    )
                 is MainItem.EateryItem ->
-                    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)) {
+                    Column(
+                        modifier = Modifier.padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = 12.dp
+                        )
+                    ) {
                         EateryCard(eatery = item.eatery, selectEatery = selectEatery)
                     }
             }
@@ -93,13 +102,14 @@ fun Main(
 }
 
 sealed class MainItem {
-    object SearchBox: MainItem()
-    object FilterOptions: MainItem()
+    object SearchBox : MainItem()
+    object FilterOptions : MainItem()
     data class EaterySectionLabel(
         val label: String,
         val expandable: Boolean,
         val expandSection: () -> Unit
-    ): MainItem()
-    data class EaterySectionList(val section: EaterySection): MainItem()
-    data class EateryItem(val eatery: Eatery): MainItem()
+    ) : MainItem()
+
+    data class EaterySectionList(val section: EaterySection) : MainItem()
+    data class EateryItem(val eatery: Eatery) : MainItem()
 }

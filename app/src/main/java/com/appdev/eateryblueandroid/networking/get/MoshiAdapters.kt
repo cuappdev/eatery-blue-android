@@ -13,7 +13,7 @@ import java.util.*
 
 class DateTimeAdapter {
     @ToJson
-    fun toJson(dateTime: LocalDateTime) : String {
+    fun toJson(dateTime: LocalDateTime): String {
         return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSSZ"))
     }
 
@@ -33,7 +33,7 @@ class DateTimeAdapter {
 
 class TransactionTypeAdapter {
     @ToJson
-    fun toJson(transactionType: TransactionType) : Int {
+    fun toJson(transactionType: TransactionType): Int {
         return if (transactionType == TransactionType.DEPOSIT) {
             3
         } else if (transactionType == TransactionType.SPEND) {
@@ -45,19 +45,19 @@ class TransactionTypeAdapter {
 
     @FromJson
     fun fromJson(transactionType: Int): TransactionType {
-       return if (transactionType == 1) {
-           TransactionType.SPEND
-       } else if (transactionType == 3) {
-           TransactionType.DEPOSIT
-       } else {
-           TransactionType.NOOP
-       }
+        return if (transactionType == 1) {
+            TransactionType.SPEND
+        } else if (transactionType == 3) {
+            TransactionType.DEPOSIT
+        } else {
+            TransactionType.NOOP
+        }
     }
 }
 
 class AccountTypeAdapter {
     @ToJson
-    fun toJson(accountType: AccountType) : String {
+    fun toJson(accountType: AccountType): String {
         return if (accountType == AccountType.BRBS) {
             "brb"
         } else if (accountType == AccountType.CITYBUCKS) {
@@ -80,8 +80,9 @@ class AccountTypeAdapter {
         } else if (accountName.contains("laundry", ignoreCase = true)) {
             AccountType.LAUNDRY
         } else if (accountName.contains("meal plan", ignoreCase = true) ||
-                accountName.contains("off-campus value", ignoreCase = true) ||
-                accountName.contains("bear traditional", ignoreCase = true)) {
+            accountName.contains("off-campus value", ignoreCase = true) ||
+            accountName.contains("bear traditional", ignoreCase = true)
+        ) {
             AccountType.MEALPLAN
         } else {
             AccountType.OTHER

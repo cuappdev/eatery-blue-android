@@ -31,9 +31,10 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
             profileViewModel.transitionLogin()
         }
     }
-    Column(modifier = Modifier
-        .padding(top = 36.dp, start = 16.dp, end = 16.dp)
-        .fillMaxWidth()
+    Column(
+        modifier = Modifier
+            .padding(top = 36.dp, start = 16.dp, end = 16.dp)
+            .fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
@@ -146,17 +147,21 @@ fun SettingsOption(icon: Painter, title: String, description: String, onClick: (
 
 @Composable
 fun SettingsLineSeparator() {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .height(1.dp)
-        .background(colorResource(id = R.color.gray01))) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(colorResource(id = R.color.gray01))
+    ) {
     }
 }
 
 @Composable
 fun LogoutSection(logout: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 24.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -169,7 +174,8 @@ fun LogoutSection(logout: () -> Unit) {
             shape = RoundedCornerShape(25.dp),
         ) {
             Row(
-                modifier = Modifier.background(color = colorResource(id = R.color.gray00))
+                modifier = Modifier
+                    .background(color = colorResource(id = R.color.gray00))
                     .padding(top = 8.dp, bottom = 8.dp, start = 14.dp, end = 14.dp)
                     .clickable { logout() },
                 verticalAlignment = Alignment.CenterVertically

@@ -28,19 +28,19 @@ fun TopBar(
 ) {
     val transition = updateTransition(expanded, label = "TopBarAnimation")
     val expandedAlpha by transition.animateFloat(label = "ExpandedAlpha") { state ->
-        when(state) {
+        when (state) {
             true -> 1f
             false -> 0f
         }
     }
     val minimizedAlpha by transition.animateFloat(label = "MinimizedAlpha") { state ->
-        when(state) {
+        when (state) {
             true -> 0f
             false -> 1f
         }
     }
     val height by transition.animateDp(label = "TopBarHeight") { state ->
-        when(state) {
+        when (state) {
             true -> 100.dp
             false -> 60.dp
         }
@@ -67,7 +67,7 @@ fun TopBar(
                     painter = painterResource(id = R.drawable.ic_eaterylogo),
                     contentDescription = null,
                     tint = colorResource(id = R.color.white),
-                    modifier = Modifier.alpha(if(eateryIcon) 1f else 0f)
+                    modifier = Modifier.alpha(if (eateryIcon) 1f else 0f)
                 )
                 Text(
                     text = label,

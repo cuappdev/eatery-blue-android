@@ -60,7 +60,7 @@ fun TransactionHistorySpendAmount(
             text = text,
             textStyle = TextStyle.BODY_SEMIBOLD
         )
-        if(accountType == AccountType.MEALPLAN) {
+        if (accountType == AccountType.MEALPLAN) {
             Text(
                 text = if (amount > 1) "swipes" else "swipe",
                 color = colorResource(id = R.color.gray05),

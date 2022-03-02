@@ -14,22 +14,23 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.*
 
-class ProfileViewModel: ViewModel() {
+class ProfileViewModel : ViewModel() {
     sealed class State {
-        object Empty: State()
-        data class LoggingIn(val netid: String, val password: String): State()
+        object Empty : State()
+        data class LoggingIn(val netid: String, val password: String) : State()
         data class ProfileData(
             val user: User,
             val query: String,
             val accountFilter: AccountType
-            ): State()
-        data class LoginFailure(val error: LoginFailureType): State()
+        ) : State()
+
+        data class LoginFailure(val error: LoginFailureType) : State()
     }
 
     sealed class Display {
-        data class Login(val authenticating: Boolean, val progress: Float = 0f): Display()
-        object Settings: Display()
-        object Profile: Display()
+        data class Login(val authenticating: Boolean, val progress: Float = 0f) : Display()
+        object Settings : Display()
+        object Profile : Display()
     }
 
     private var _state = MutableStateFlow<State>(State.Empty)
@@ -98,7 +99,7 @@ class ProfileViewModel: ViewModel() {
             user.transactions = res3.response?.transactions
             _state.value = State.ProfileData(
                 user = user,
-                query  = "",
+                query = "",
                 accountFilter = AccountType.MEALPLAN
             )
             _display.value = Display.Profile

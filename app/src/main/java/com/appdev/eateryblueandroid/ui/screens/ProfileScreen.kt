@@ -30,7 +30,7 @@ fun ProfileScreen(
     val showBottomSheet = {
         val currentFilter = (state.value as ProfileViewModel.State.ProfileData).accountFilter
         val updatedFilter = mutableStateOf(currentFilter)
-        val toggleFilter = {filter: AccountType ->
+        val toggleFilter = { filter: AccountType ->
             updatedFilter.value = filter
         }
         bottomSheetViewModel.show {
@@ -45,13 +45,15 @@ fun ProfileScreen(
     Column {
         Box {
             TopBar(
-               label = "Account",
-               expanded = true,
-               eateryIcon = false,
-               rightIcon = null
+                label = "Account",
+                expanded = true,
+                eateryIcon = false,
+                rightIcon = null
             )
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 24.dp, end = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, end = 16.dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 Icon(
@@ -65,7 +67,7 @@ fun ProfileScreen(
 
 
         state.value.let {
-            when(it) {
+            when (it) {
                 is ProfileViewModel.State.ProfileData ->
                     Main(
                         user = it.user,
@@ -79,8 +81,7 @@ fun ProfileScreen(
                 is ProfileViewModel.State.LoginFailure ->
                     Text("LOGIN FAILURE")
                 is ProfileViewModel.State.Empty ->
-                    Text("Internal Error"
-                )
+                    Text("Internal Error")
             }
         }
     }

@@ -85,7 +85,7 @@ private fun fontSize(textStyle: TextStyle): TextUnit {
     } else if (textStyle == TextStyle.HEADER_H4) {
         18.sp
     } else if (textStyle == TextStyle.HEADER_H5) {
-       17.sp
+        17.sp
     } else if (textStyle == TextStyle.HEADER_H6) {
         17.sp
     } else if (textStyle == TextStyle.BODY_NORMAL) {

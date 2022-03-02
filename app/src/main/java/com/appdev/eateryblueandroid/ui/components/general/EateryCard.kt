@@ -28,7 +28,9 @@ fun EateryCard(
     Surface(
         elevation = 20.dp,
         shape = RoundedCornerShape(10.dp),
-        modifier = Modifier.clickable { selectEatery(eatery) }.fillMaxWidth()
+        modifier = Modifier
+            .clickable { selectEatery(eatery) }
+            .fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
@@ -37,7 +39,9 @@ fun EateryCard(
 
             Image(
                 url = eatery.imageUrl ?: "",
-                modifier = Modifier.fillMaxWidth().aspectRatio(2.7f)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(2.7f)
             )
             Column(
                 modifier = Modifier.padding(10.dp)
@@ -60,7 +64,7 @@ fun EateryCard(
                 }
 
                 EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact)
-                EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact )
+                EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
             }
         }
     }
@@ -150,8 +154,9 @@ fun EateryMenuSummary(eatery: Eatery) {
             textStyle = TextStyle.BODY_MEDIUM
         )
     } else if (eatery.paymentAcceptsMealSwipes == false &&
-            eatery.paymentAcceptsBrbs == false &&
-            eatery.paymentAcceptsCash == true) {
+        eatery.paymentAcceptsBrbs == false &&
+        eatery.paymentAcceptsCash == true
+    ) {
         Text(
             text = "Cash or credit only",
             maxLines = 1,

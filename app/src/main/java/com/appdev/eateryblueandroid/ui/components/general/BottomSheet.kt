@@ -37,7 +37,7 @@ fun BottomSheet(
     bottomSheetViewModel: BottomSheetViewModel
 ) {
     val state = bottomSheetViewModel.state.collectAsState()
-    val target = if(state.value is BottomSheetViewModel.State.Visible) 0f else 1f
+    val target = if (state.value is BottomSheetViewModel.State.Visible) 0f else 1f
     val hiddenFraction = animateFloatAsState(
         targetValue = target,
         animationSpec = tween(
@@ -46,7 +46,7 @@ fun BottomSheet(
             easing = LinearOutSlowInEasing
         ),
         finishedListener = {
-            if(state.value is BottomSheetViewModel.State.Hiding) {
+            if (state.value is BottomSheetViewModel.State.Hiding) {
                 bottomSheetViewModel.hidden()
             }
         }
@@ -100,11 +100,12 @@ fun BottomSheetOverlay(
             shape = RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable (interactionSource = interactionSource, indication = null){}
+                .clickable(interactionSource = interactionSource, indication = null) {}
         ) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
             ) {
                 contents()
             }

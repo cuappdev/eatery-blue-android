@@ -5,9 +5,9 @@ import com.appdev.eateryblueandroid.models.EaterySection
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class ExpandedSectionViewModel: ViewModel() {
+class ExpandedSectionViewModel : ViewModel() {
     sealed class State {
-        object Empty: State()
+        object Empty : State()
         data class Data(val data: EaterySection) : State()
     }
 

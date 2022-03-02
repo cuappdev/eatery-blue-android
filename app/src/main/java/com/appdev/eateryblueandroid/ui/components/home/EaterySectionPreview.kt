@@ -32,8 +32,8 @@ fun EaterySectionPreview(
     section: EaterySection,
     selectSection: (eaterySection: EaterySection) -> Unit
 ) {
-    val filteredEateries = eateries.filter {section.filter(it)}
-    var height by remember { mutableStateOf(0)}
+    val filteredEateries = eateries.filter { section.filter(it) }
+    var height by remember { mutableStateOf(0) }
     val sectionItems: List<SectionPreviewItem> =
         listOf(
             filteredEateries.subList(0, 3).map { SectionPreviewItem.EateryItem(it) },
@@ -41,7 +41,7 @@ fun EaterySectionPreview(
         ).flatten()
     LazyRow(contentPadding = PaddingValues(9.dp, 0.dp)) {
         items(sectionItems) { item ->
-            when(item) {
+            when (item) {
                 is SectionPreviewItem.EateryItem ->
                     Column(
                         modifier = Modifier
@@ -87,6 +87,6 @@ fun EaterySectionPreview(
 }
 
 sealed class SectionPreviewItem {
-    object MoreEateriesBox: SectionPreviewItem()
+    object MoreEateriesBox : SectionPreviewItem()
     data class EateryItem(val eatery: Eatery) : SectionPreviewItem()
 }

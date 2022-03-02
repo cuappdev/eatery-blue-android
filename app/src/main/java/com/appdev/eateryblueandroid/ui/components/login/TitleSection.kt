@@ -24,8 +24,8 @@ fun TitleSection(transitionSettings: () -> Unit, isLoggingIn: Boolean) {
             contentDescription = null,
             tint = colorResource(id = R.color.black),
             modifier = Modifier.then(
-                if(isLoggingIn) Modifier
-                else Modifier.clickable{ transitionSettings() }
+                if (isLoggingIn) Modifier
+                else Modifier.clickable { transitionSettings() }
             )
         )
     }

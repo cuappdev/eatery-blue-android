@@ -25,7 +25,7 @@ fun TextInputs(
 
 ) {
     Text(
-        text="NetID",
+        text = "NetID",
         textStyle = TextStyle.HEADER_H4,
         color = colorResource(id = R.color.black),
         modifier = Modifier.padding(top = 37.dp, bottom = 12.dp)
@@ -41,7 +41,7 @@ fun TextInputs(
     )
 
     Text(
-        text="Password",
+        text = "Password",
         textStyle = TextStyle.HEADER_H4,
         color = colorResource(id = R.color.black),
         modifier = Modifier.padding(top = 24.dp)
@@ -61,7 +61,7 @@ fun TextInputs(
         }
     )
     Text(
-        text="Forgot password?",
+        text = "Forgot password?",
         color = colorResource(R.color.eateryBlue),
         textStyle = TextStyle.BODY_SEMIBOLD,
         modifier = Modifier.padding(top = 12.dp)

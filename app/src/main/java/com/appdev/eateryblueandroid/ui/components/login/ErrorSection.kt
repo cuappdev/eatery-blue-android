@@ -54,7 +54,7 @@ fun ErrorSection(error: LoginFailureType) {
             )
             Text(
                 text = errorText,
-                color= colorResource(id = R.color.red),
+                color = colorResource(id = R.color.red),
                 textStyle = TextStyle.LABEL_SEMIBOLD,
                 modifier = Modifier.padding(start = 6.dp)
             )

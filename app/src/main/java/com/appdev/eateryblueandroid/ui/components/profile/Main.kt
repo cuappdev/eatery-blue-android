@@ -21,7 +21,7 @@ fun Main(
     showBottomSheet: () -> Unit
 ) {
     var displayQuery by remember { mutableStateOf(transactionQuery) }
-    val transactionHistoryList = user.transactions?.filter{
+    val transactionHistoryList = user.transactions?.filter {
         it.transactionType == TransactionType.SPEND && it.accountType == accountFilter
                 && removeSpecialCharacters(formatLocation(it.location)).contains(
             removeSpecialCharacters(transactionQuery)
@@ -34,14 +34,14 @@ fun Main(
         listOf(ProfileItem.TransactionHistoryHeader),
         listOf(ProfileItem.TransactionHistorySearch),
         transactionHistoryList,
-        if(transactionHistoryList.isEmpty()) listOf(ProfileItem.NoTransactions) else listOf()
+        if (transactionHistoryList.isEmpty()) listOf(ProfileItem.NoTransactions) else listOf()
     ).flatten()
 
     LazyColumn(
-        contentPadding = PaddingValues(bottom=100.dp)
+        contentPadding = PaddingValues(bottom = 100.dp)
     ) {
         items(profileItems) { item ->
-            when(item) {
+            when (item) {
                 is ProfileItem.AccountSummary ->
                     AccountSummaries(user.accounts)
                 is ProfileItem.SectionSeparator ->
@@ -76,10 +76,10 @@ fun Main(
 }
 
 sealed class ProfileItem {
-    object AccountSummary: ProfileItem()
-    object SectionSeparator: ProfileItem()
-    object TransactionHistoryHeader: ProfileItem()
-    object TransactionHistorySearch: ProfileItem()
-    data class TransactionHistoryItem(val transaction: Transaction): ProfileItem()
-    object NoTransactions: ProfileItem()
+    object AccountSummary : ProfileItem()
+    object SectionSeparator : ProfileItem()
+    object TransactionHistoryHeader : ProfileItem()
+    object TransactionHistorySearch : ProfileItem()
+    data class TransactionHistoryItem(val transaction: Transaction) : ProfileItem()
+    object NoTransactions : ProfileItem()
 }

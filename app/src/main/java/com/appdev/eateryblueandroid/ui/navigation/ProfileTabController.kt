@@ -14,7 +14,7 @@ fun ProfileTabController(
     val state = profileViewModel.state.collectAsState()
     display.value.let {
         when (it) {
-            is ProfileViewModel.Display.Login->
+            is ProfileViewModel.Display.Login ->
                 LoginScreen(
                     profileViewModel = profileViewModel
                 )

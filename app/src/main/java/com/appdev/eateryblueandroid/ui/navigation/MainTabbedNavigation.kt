@@ -54,7 +54,7 @@ fun MainScreen(
 
 //this defines the behavior and look of each tab
 @Composable
-fun BottomNav(navController: NavHostController, items: List<BottomNavTab> ) {
+fun BottomNav(navController: NavHostController, items: List<BottomNavTab>) {
     BottomNavigation(backgroundColor = colorResource(id = R.color.white)) {
         val currentRoute = currentRoute(navController)
         items.forEach { screen ->
@@ -91,20 +91,24 @@ private fun MainScreenNavigationConfigurations(
     eateryDetailViewModel: EateryDetailViewModel,
     profileViewModel: ProfileViewModel,
     bottomSheetViewModel: BottomSheetViewModel
-){
+) {
     val eateryListScrollState = rememberLazyListState()
-    NavHost(navController = navController, startDestination = homeTab.route ) {
-        composable(homeTab.route){ HomeTabController(
-            homeTabViewModel = homeTabViewModel,
-            homeViewModel = homeViewModel,
-            eateryDetailViewModel = eateryDetailViewModel,
-            expandedSectionViewModel = expandedSectionViewModel,
-            eateryListScrollState = eateryListScrollState
-        ) }
-        composable(profileTab.route){ ProfileTabController(
-            profileViewModel = profileViewModel,
-            bottomSheetViewModel = bottomSheetViewModel
-        ) }
+    NavHost(navController = navController, startDestination = homeTab.route) {
+        composable(homeTab.route) {
+            HomeTabController(
+                homeTabViewModel = homeTabViewModel,
+                homeViewModel = homeViewModel,
+                eateryDetailViewModel = eateryDetailViewModel,
+                expandedSectionViewModel = expandedSectionViewModel,
+                eateryListScrollState = eateryListScrollState
+            )
+        }
+        composable(profileTab.route) {
+            ProfileTabController(
+                profileViewModel = profileViewModel,
+                bottomSheetViewModel = bottomSheetViewModel
+            )
+        }
     }
 
 }

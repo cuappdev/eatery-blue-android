@@ -35,7 +35,7 @@ fun SearchBar() {
                 modifier = Modifier.padding(top = 3.dp)
             )
             Text(
-                text = "Search for grub...", 
+                text = "Search for grub...",
                 textStyle = TextStyle.BODY_MEDIUM,
                 color = colorResource(id = R.color.gray05),
                 modifier = Modifier.padding(start = 5.dp)

@@ -15,17 +15,23 @@ import com.appdev.eateryblueandroid.R
 @Composable
 fun SectionSeparator() {
     Column {
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(colorResource(id = R.color.gray01))){}
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .height(16.dp)
-            .background(colorResource(id = R.color.gray00))) {}
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(colorResource(id = R.color.gray01))){}
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(colorResource(id = R.color.gray01))
+        ) {}
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(16.dp)
+                .background(colorResource(id = R.color.gray00))
+        ) {}
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(colorResource(id = R.color.gray01))
+        ) {}
     }
 }

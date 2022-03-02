@@ -59,7 +59,7 @@ fun PaymentMethodSelector(
         HorizontalSeparator()
         PaymentMethodOption(
             text = "Big Red Bucks",
-            selected = selectedFilter.value == AccountType.BRBS ,
+            selected = selectedFilter.value == AccountType.BRBS,
             onSelect = { toggleFilter(AccountType.BRBS) }
         )
         HorizontalSeparator()
@@ -75,13 +75,14 @@ fun PaymentMethodSelector(
             onSelect = { toggleFilter(AccountType.LAUNDRY) }
         )
         Surface(shape = RoundedCornerShape(24.dp), modifier = Modifier.padding(top = 12.dp)) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .background(colorResource(id = R.color.eateryBlue))
-                .clickable {
-                    saveFilter(selectedFilter.value)
-                    hide()
-                },
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(colorResource(id = R.color.eateryBlue))
+                    .clickable {
+                        saveFilter(selectedFilter.value)
+                        hide()
+                    },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -109,10 +110,10 @@ fun PaymentMethodOption(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 21.dp, bottom = 21.dp)
-            .clickable (
+            .clickable(
                 indication = null,
                 interactionSource = interactionSource
-            ){ onSelect() }
+            ) { onSelect() }
     ) {
         Text(text = text, textStyle = TextStyle.HEADER_H4)
         if (selected) {
@@ -125,8 +126,7 @@ fun PaymentMethodOption(
                 backgroundTint = colorResource(id = R.color.black),
                 backgroundSize = 24.dp
             )
-        }
-        else {
+        } else {
             Column(
                 modifier = Modifier
                     .border(

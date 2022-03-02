@@ -20,7 +20,9 @@ fun TransactionHistoryHeader(
     showAccountSelector: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 12.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, top = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(

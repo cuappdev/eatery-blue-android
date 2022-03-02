@@ -8,7 +8,7 @@ import retrofit2.Retrofit
 
 object ApiService {
     var api: Api? = null
-    fun getInstance() : Api {
+    fun getInstance(): Api {
         if (api == null) {
             val moshi = Moshi.Builder()
                 .add(TimestampAdapter())

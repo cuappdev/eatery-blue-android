@@ -1,4 +1,5 @@
 package com.appdev.eateryblueandroid.ui.screens
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -13,7 +14,7 @@ import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 
 @Composable
-fun LoginScreen( profileViewModel: ProfileViewModel) {
+fun LoginScreen(profileViewModel: ProfileViewModel) {
     var netid by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val passwordFocus = remember { FocusRequester() }

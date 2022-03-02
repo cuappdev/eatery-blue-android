@@ -8,7 +8,7 @@ interface GetApi {
     @POST("user")
     suspend fun fetchUser(
         @Body body: GetApiRequestBody<GetApiUserParams>
-    ) : GetApiResponse<User>
+    ): GetApiResponse<User>
 
     @POST("commerce")
     suspend fun fetchAccounts(

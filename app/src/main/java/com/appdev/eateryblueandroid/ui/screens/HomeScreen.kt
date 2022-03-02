@@ -19,7 +19,7 @@ fun HomeScreen(
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
     scrollState: LazyListState
-){
+) {
     Column {
         TopBar(
             label = "Eatery",
@@ -29,7 +29,7 @@ fun HomeScreen(
         )
         val state = homeViewModel.state.collectAsState()
         state.value.let {
-            when(it) {
+            when (it) {
                 is HomeViewModel.State.Loading ->
                     Text(text = "gucci")
                 is HomeViewModel.State.Data ->

@@ -56,7 +56,7 @@ fun LoginButton(
                 }
             } else {
                 Row(modifier = Modifier
-                    .clickable{login()}
+                    .clickable { login() }
                     .fillMaxWidth()
                     .padding(top = 13.dp, bottom = 13.dp),
                     horizontalArrangement = Arrangement.Center
