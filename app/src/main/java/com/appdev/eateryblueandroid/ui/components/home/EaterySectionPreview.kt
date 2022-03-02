@@ -30,7 +30,8 @@ import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 fun EaterySectionPreview(
     eateries: List<Eatery>,
     section: EaterySection,
-    selectSection: (eaterySection: EaterySection) -> Unit
+    selectSection: (eaterySection: EaterySection) -> Unit,
+    selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
     val filteredEateries = eateries.filter { section.filter(it) }
     var height by remember { mutableStateOf(0) }
@@ -51,7 +52,7 @@ fun EaterySectionPreview(
                                 height = it.height
                             }
                     ) {
-                        EateryCard(eatery = item.eatery, selectEatery = {})
+                        EateryCard(eatery = item.eatery, selectEatery = selectEatery)
                     }
                 is SectionPreviewItem.MoreEateriesBox ->
                     Surface(

@@ -4,6 +4,8 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @JsonClass(generateAdapter = true)
@@ -84,3 +86,45 @@ data class MenuSubItem(
     @Json(name = "total_price") val totalPrice: Float? = null,
     @Json(name = "additional_price") val additionalPrice: Float? = null
 )
+
+fun getWalkTimes(eatery: Eatery): String {
+    return "3 min walk"
+}
+
+fun getWaitTimes(eatery: Eatery): String? {
+    val waitTimeData = eatery.waitTimes
+    if (waitTimeData.isNullOrEmpty())
+        return null
+    val waitTimeDay = waitTimeData.find { waitTimeDay ->
+        waitTimeDay.canonicalDate
+            ?.toInstant()
+            ?.truncatedTo(ChronoUnit.DAYS)
+            ?.equals(Date().toInstant().truncatedTo(ChronoUnit.DAYS)) ?: true
+    }?.data ?: return null
+    val waitTimes = waitTimeDay.find { waitTimeData ->
+        waitTimeData.timestamp?.isBefore(LocalDateTime.now()) ?: true
+    } ?: return null
+    return "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)} minutes"
+}
+
+fun getCurrentEvents(eatery: Eatery): List<Event>? {
+    val eventData = eatery.events
+    val currentTime = LocalDateTime.now()
+    if (eventData.isNullOrEmpty())
+        return null
+    return eventData.filter{ event ->
+        currentTime.isAfter(event.startTime) && currentTime.isBefore(event.endTime)
+    }
+}
+
+fun getOpenUntil(eatery: Eatery): String? {
+    val currentEvents = getCurrentEvents(eatery)
+    if (currentEvents.isNullOrEmpty())
+        return null
+    val endTime = currentEvents.first().endTime ?: return null
+    return "Open until ${endTime.format(DateTimeFormatter.ofPattern("K:mm a"))}"
+}
+
+fun isClosed(eatery: Eatery): Boolean {
+    return getOpenUntil(eatery) == null
+}

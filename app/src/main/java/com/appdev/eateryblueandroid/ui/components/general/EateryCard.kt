@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.ui.components
 
+import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,12 +10,12 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.appdev.eateryblueandroid.models.Eatery
+import androidx.core.graphics.toColor
 import com.appdev.eateryblueandroid.R
+import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
@@ -36,13 +37,22 @@ fun EateryCard(
             modifier = Modifier
                 .background(color = colorResource(id = R.color.white))
         ) {
-
-            Image(
-                url = eatery.imageUrl ?: "",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(2.7f)
-            )
+            Box () {
+                Image(
+                    url = eatery.imageUrl ?: "",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(2.7f)
+                )
+                if (isClosed(eatery)){
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(2.7f)
+                            .background(color = colorResource(id = R.color.white_transparent))
+                    )
+                }
+            }
             Column(
                 modifier = Modifier.padding(10.dp)
             ) {
@@ -120,13 +130,13 @@ fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean) {
                 modifier = Modifier.padding(end = 4.dp, top = 1.dp)
             )
             Text(
-                text = "3 min walk",
+                text = getWalkTimes(eatery),
                 color = colorResource(id = R.color.gray05),
                 textStyle = TextStyle.BODY_MEDIUM
             )
             DotSeparator()
             Text(
-                text = "5-7 min wait",
+                text = getWaitTimes(eatery) ?: "3-5 minutes",
                 color = colorResource(id = R.color.gray05),
                 textStyle = TextStyle.BODY_MEDIUM
             )
