@@ -46,7 +46,8 @@ fun SearchingScreen(
             is SearchViewModel.State.WordsTyped ->
                 WordsTypedSearchScreen(
                     eateries = it.eateries,
-                    selectEatery = selectEatery
+                    selectEatery = selectEatery,
+                    searchViewModel =searchViewModel
                 )
             is SearchViewModel.State.SearchResults ->
                 Text("Search Results")
