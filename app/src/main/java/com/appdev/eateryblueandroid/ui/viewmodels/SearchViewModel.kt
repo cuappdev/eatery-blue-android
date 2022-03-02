@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.ui.viewmodels
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.Eatery
@@ -24,6 +25,7 @@ class SearchViewModel(
     }
     private var _state = MutableStateFlow<SearchViewModel.State>(SearchViewModel.State.Loading)
     val state = _state.asStateFlow()
+    val typedText = mutableStateOf("sandwich")
 
     init {
         if (fetchFromApi) {
@@ -55,5 +57,8 @@ class SearchViewModel(
     }
     fun transitionSearchResults() {
         _state.value = SearchViewModel.State.SearchResults
+    }
+    fun onTextChange(input : String){
+        typedText.value = input
     }
 }

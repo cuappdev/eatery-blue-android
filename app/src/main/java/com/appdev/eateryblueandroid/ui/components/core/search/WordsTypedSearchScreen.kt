@@ -21,6 +21,7 @@ fun WordsTypedSearchScreen(
 //    scrollState: LazyListState,
     eateries: List<Eatery>,
     selectEatery: (eatery: Eatery) -> Unit,
+    searchViewModel: SearchViewModel,
 
 ){
     val searchTextedItem: List<SearchTextedItem> = listOf(
@@ -29,6 +30,7 @@ fun WordsTypedSearchScreen(
         eateries.map{ SearchTextedItem.EateryItem(it)}
     ).flatten()
 
+
     LazyColumn(
         contentPadding = PaddingValues(bottom=30.dp)
     ) {
@@ -36,17 +38,20 @@ fun WordsTypedSearchScreen(
             when (item) {
                 is SearchTextedItem.SearchBox ->
                     Column(modifier = Modifier.padding(16.dp, 12.dp)) {
-                        TypeableSearchBar(searchText = "sandwich")
+                        TypeableSearchBar(searchViewModel,searchText = "sandwich")
                     }
-                is SearchTextedItem.FilterOptions -> EateryFilters()
+                is SearchTextedItem.FilterOptions -> Column(modifier = Modifier.padding(bottom = 12.dp)) {
+                    EateryFilters()
+                }
                 is SearchTextedItem.EateryItem ->
                     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)) {
                         EateryCard(eatery = item.eatery, selectEatery = selectEatery)
                     }
+                }
             }
         }
     }
-}
+
 
 sealed class SearchTextedItem {
     object SearchBox: SearchTextedItem()
