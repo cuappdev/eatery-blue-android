@@ -17,9 +17,22 @@ import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.ui.viewmodels.LoginFailureType
+import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 
 @Composable
-fun ErrorSection() {
+fun ErrorSection(error: LoginFailureType) {
+    val errorText: String = if (error == LoginFailureType.FETCH_USER_FAILURE) {
+        "Request to fetch user failed"
+    } else if (error == LoginFailureType.USERNAME_PASSWORD_INVALID) {
+        "NetID and/or password incorrect, please try again"
+    } else if (error == LoginFailureType.FETCH_ACCOUNTS_FAILURE) {
+        "Request to fetch user accounts failed"
+    } else if (error == LoginFailureType.FETCH_TRANSACTION_HISTORY_FAILURE) {
+        "Request to fetch transaction history failed"
+    } else {
+        "Internal error"
+    }
     Surface(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
@@ -40,8 +53,8 @@ fun ErrorSection() {
                 modifier = Modifier.padding(top = 1.dp)
             )
             Text(
-                text = "NetID and/or password incorrect, please try again",
-                color= colorResource(id = R.color.red),
+                text = errorText,
+                color = colorResource(id = R.color.red),
                 textStyle = TextStyle.LABEL_SEMIBOLD,
                 modifier = Modifier.padding(start = 6.dp)
             )

@@ -30,14 +30,14 @@ fun CircularBackgroundIcon(
     onTap: () -> Unit = {}
 ) {
     Surface(
-        shape = RoundedCornerShape(backgroundSize/2)
+        shape = RoundedCornerShape(backgroundSize / 2)
     ) {
         Row(
             modifier = Modifier
                 .background(backgroundTint)
                 .width(backgroundSize)
                 .height(backgroundSize)
-                .then(if(clickable) Modifier.clickable { onTap() } else Modifier),
+                .then(if (clickable) Modifier.clickable { onTap() } else Modifier),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {

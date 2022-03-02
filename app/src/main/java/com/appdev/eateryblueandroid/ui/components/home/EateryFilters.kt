@@ -38,7 +38,7 @@ fun EateryFilters() {
 fun EateryFilter(text: String) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.padding(start=6.dp, end = 6.dp)
+        modifier = Modifier.padding(start = 6.dp, end = 6.dp)
     ) {
         Row(
             modifier = Modifier

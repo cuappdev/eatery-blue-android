@@ -3,6 +3,7 @@ package com.appdev.eateryblueandroid.ui
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import com.appdev.eateryblueandroid.ui.components.general.BottomSheet
 import com.appdev.eateryblueandroid.ui.components.login.LoginWebView
 
 import com.appdev.eateryblueandroid.ui.navigation.MainScreen
@@ -16,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private val eateryDetailViewModel = EateryDetailViewModel()
 
     private val profileViewModel = ProfileViewModel()
+    private val bottomSheetViewModel = BottomSheetViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -25,11 +27,14 @@ class MainActivity : AppCompatActivity() {
                 homeViewModel = eateryListViewModel,
                 expandedSectionViewModel = expandedSectionViewModel,
                 eateryDetailViewModel = eateryDetailViewModel,
-
-                profileViewModel = profileViewModel
+                profileViewModel = profileViewModel,
+                bottomSheetViewModel = bottomSheetViewModel
             )
             LoginWebView(
                 profileViewModel = profileViewModel,
+            )
+            BottomSheet(
+                bottomSheetViewModel = bottomSheetViewModel
             )
         }
     }

@@ -5,9 +5,9 @@ import com.appdev.eateryblueandroid.models.Eatery
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class EateryDetailViewModel: ViewModel() {
+class EateryDetailViewModel : ViewModel() {
     sealed class State {
-        object Empty: State()
+        object Empty : State()
         data class Data(val data: Eatery) : State()
     }
 
