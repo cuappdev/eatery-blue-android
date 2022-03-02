@@ -3,10 +3,7 @@ package com.appdev.eateryblueandroid.ui.components.login
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ProgressIndicatorDefaults
@@ -45,18 +42,24 @@ fun LoginButton(
     ) {
         Row(
             modifier = Modifier
-                .background(colorResource(id = R.color.eateryBlue))
-                .padding(top = 13.dp, bottom = 13.dp),
+                .background(colorResource(id = R.color.eateryBlue)),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (authenticating) {
-                CircularProgressIndicator(
-                    progress = animatedProgress,
-                    color = colorResource(id = R.color.white)
-                )
+                Row(modifier = Modifier.padding(10.dp)) {
+                    CircularProgressIndicator(
+                        progress = animatedProgress,
+                        color = colorResource(id = R.color.white),
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
             } else {
-                Row(modifier = Modifier.clickable{login()}
+                Row(modifier = Modifier
+                    .clickable { login() }
+                    .fillMaxWidth()
+                    .padding(top = 13.dp, bottom = 13.dp),
+                    horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
                         text = "Log in",

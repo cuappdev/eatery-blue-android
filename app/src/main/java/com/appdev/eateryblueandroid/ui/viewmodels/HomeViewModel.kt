@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     fetchFromApi: Boolean
-): ViewModel() {
+) : ViewModel() {
     sealed class State {
         object Loading : State()
         data class Failure(val errorMsg: String) : State()
@@ -45,7 +45,7 @@ class HomeViewModel(
     private fun eaterySections(): List<EaterySection> {
         return listOf(
             EaterySection("Favorite Eateries") { it.campusArea == "Central" },
-            EaterySection("Nearest to You") {it.campusArea == "West"}
+            EaterySection("Nearest to You") { it.campusArea == "West" }
         )
     }
 }

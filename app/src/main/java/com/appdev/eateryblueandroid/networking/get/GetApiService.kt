@@ -17,6 +17,7 @@ object GetApiService {
             val moshi = Moshi.Builder()
                 .add(DateTimeAdapter())
                 .add(TransactionTypeAdapter())
+                .add(AccountTypeAdapter())
                 .add(KotlinJsonAdapterFactory())
                 .build()
 
@@ -38,7 +39,10 @@ object GetApiService {
         )
     }
 
-    fun generateAccountsBody(sessionId: String, userId: String): GetApiRequestBody<GetApiAccountsParams> {
+    fun generateAccountsBody(
+        sessionId: String,
+        userId: String
+    ): GetApiRequestBody<GetApiAccountsParams> {
         return GetApiRequestBody(
             version = "1",
             method = "retrieveAccountsByUser",
@@ -52,17 +56,17 @@ object GetApiService {
     fun generateTransactionHistoryBody(
         sessionId: String, userId: String, endDate: Date
     ): GetApiRequestBody<GetApiTransactionHistoryParams> {
-        val startDate = Date.from(endDate.toInstant().minus(Duration.ofDays(100)))
+        val startDate = Date.from(endDate.toInstant().minus(Duration.ofDays(5000)))
         return GetApiRequestBody(
             version = "1",
-            method="retrieveTransactionHistory",
+            method = "retrieveTransactionHistory",
             params = GetApiTransactionHistoryParams(
                 paymentSystemType = 0,
                 sessionId = sessionId,
                 queryCriteria = GetApiTransactionHistoryQueryCriteria(
                     endDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(endDate),
                     startDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(startDate),
-                    maxReturn = 100,
+                    maxReturn = 5000,
                     institutionId = Constants.CORNELL_INSTITUTION_ID,
                     userId = userId
                 )
