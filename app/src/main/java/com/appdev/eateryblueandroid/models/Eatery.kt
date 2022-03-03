@@ -1,8 +1,9 @@
 package com.appdev.eateryblueandroid.models
 
+import android.location.Location
+import com.appdev.eateryblueandroid.util.LocationHandler
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -87,8 +88,19 @@ data class MenuSubItem(
     @Json(name = "additional_price") val additionalPrice: Float? = null
 )
 
-fun getWalkTimes(eatery: Eatery): String {
-    return "3 min walk"
+fun getWalkTimes(eatery: Eatery): Int {
+    val currentLocation = LocationHandler.getLocation()
+    val results = floatArrayOf(0f)
+    if (eatery.latitude == null || eatery.longitude == null || currentLocation == null)
+        return 3
+    Location.distanceBetween(
+        currentLocation.latitude,
+        currentLocation.longitude,
+        eatery.latitude.toDouble(),
+        eatery.longitude.toDouble(),
+        results
+    )
+    return ((results[0] / 1.42) / 60).toInt()
 }
 
 fun getWaitTimes(eatery: Eatery): String? {
@@ -112,7 +124,7 @@ fun getCurrentEvents(eatery: Eatery): List<Event>? {
     val currentTime = LocalDateTime.now()
     if (eventData.isNullOrEmpty())
         return null
-    return eventData.filter{ event ->
+    return eventData.filter { event ->
         currentTime.isAfter(event.startTime) && currentTime.isBefore(event.endTime)
     }
 }

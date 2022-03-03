@@ -16,8 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -285,6 +284,7 @@ fun EateryDetailScreen(
 
 @Composable
 fun EateryMenuWidget(event: Event) {
+    var openDropdown by remember { mutableStateOf(true) }
     Row(
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -310,74 +310,76 @@ fun EateryMenuWidget(event: Event) {
         }
         CircularBackgroundIcon(
             icon = painterResource(
-                id = R.drawable.ic_baseline_keyboard_arrow_down_24
+                id = if (openDropdown) R.drawable.ic_baseline_keyboard_arrow_down_24 else R.drawable.ic_baseline_keyboard_arrow_up_24
             ),
-            onTap = { /* TODO: */ },
+            onTap = { openDropdown = !openDropdown },
             clickable = true,
             iconHeight = 28.dp,
             iconWidth = 28.dp,
         )
     }
-    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-        SearchBar()
-    }
-    Spacer(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(colorResource(id = R.color.gray00), CircleShape)
-    )
-    event.menu?.forEach { category ->
-        Text(
-            text = category.category ?: "Category",
-            textStyle = TextStyle.HEADER_H4,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-        )
-        category.items?.forEach { menuItem ->
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-                Row {
-                    Text(
-                        text = menuItem.name ?: "Item Name",
-                        textStyle = TextStyle.BODY_SEMIBOLD,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if (menuItem.basePrice != null) {
-                        Text(
-                            text = String.format("$%.2f", menuItem.basePrice),
-                            textStyle = TextStyle.BODY_MEDIUM
-                        )
-                    }
-
-                }
-                if (!menuItem.description.isNullOrBlank()) {
-                    Text(
-                        text = menuItem.description,
-                        textStyle = TextStyle.BODY_NORMAL,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-            Spacer(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(colorResource(id = R.color.gray00), CircleShape)
-            )
+    if (openDropdown) {
+        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+            SearchBar()
         }
         Spacer(
             modifier = Modifier
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth()
-                .height(8.dp)
-                .background(
-                    colorResource(
-                        id = R.color.gray00
-                    )
-                )
+                .height(1.dp)
+                .background(colorResource(id = R.color.gray00), CircleShape)
         )
+        event.menu?.forEach { category ->
+            Text(
+                text = category.category ?: "Category",
+                textStyle = TextStyle.HEADER_H4,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            )
+            category.items?.forEach { menuItem ->
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Row {
+                        Text(
+                            text = menuItem.name ?: "Item Name",
+                            textStyle = TextStyle.BODY_SEMIBOLD,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (menuItem.basePrice != null) {
+                            Text(
+                                text = String.format("$%.2f", menuItem.basePrice),
+                                textStyle = TextStyle.BODY_MEDIUM
+                            )
+                        }
+
+                    }
+                    if (!menuItem.description.isNullOrBlank()) {
+                        Text(
+                            text = menuItem.description,
+                            textStyle = TextStyle.BODY_NORMAL,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                Spacer(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(colorResource(id = R.color.gray00), CircleShape)
+                )
+            }
+            Spacer(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .background(
+                        colorResource(
+                            id = R.color.gray00
+                        )
+                    )
+            )
+        }
     }
 }
 

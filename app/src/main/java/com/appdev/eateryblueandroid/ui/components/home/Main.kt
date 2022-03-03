@@ -5,8 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -14,14 +12,12 @@ import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
-import com.appdev.eateryblueandroid.models.getOpenUntil
+import com.appdev.eateryblueandroid.models.getWalkTimes
 import com.appdev.eateryblueandroid.models.isClosed
 import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
 @Composable
 fun Main(
@@ -48,7 +44,9 @@ fun Main(
             "All Eateries",
             expandable = false, expandSection = {}
         )),
-        eateries.sortedByDescending { if (isClosed(it)) 0 else 1 }.map { MainItem.EateryItem(it) }
+        // Why 250k? That's the time in minutes to walk halfway around the world (aka. max on Earth)
+        eateries.sortedByDescending { if (isClosed(it)) 0 else 250000 - getWalkTimes(it) }
+            .map { MainItem.EateryItem(it) }
     ).flatten()
 
     LazyColumn(

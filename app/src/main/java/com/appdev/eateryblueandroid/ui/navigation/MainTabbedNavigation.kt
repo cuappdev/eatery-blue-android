@@ -30,7 +30,7 @@ fun MainScreen(
 
     val navController = rememberNavController()
     val homeTab = BottomNavTab("home", "Home", R.drawable.ic_home)
-    val profileTab = BottomNavTab("profile", "profile", R.drawable.ic_user)
+    val profileTab = BottomNavTab("profile", "Profile", R.drawable.ic_user)
     val bottomNavItems = listOf(homeTab, profileTab)
 
     Scaffold(
