@@ -3,13 +3,10 @@ package com.appdev.eateryblueandroid.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -21,8 +18,10 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -30,12 +29,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.*
-import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
-import com.appdev.eateryblueandroid.ui.components.core.Image
-import com.appdev.eateryblueandroid.ui.components.core.Text
-import com.appdev.eateryblueandroid.ui.components.core.TextStyle
-import com.appdev.eateryblueandroid.ui.components.home.SearchBar
+import com.appdev.eateryblueandroid.ui.components.core.*
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
+import com.appdev.eateryblueandroid.util.Keyboard
+import com.appdev.eateryblueandroid.util.keyboardAsState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -48,6 +45,8 @@ fun EateryDetailScreen(
 ) {
     val context = LocalContext.current
     val state = eateryDetailViewModel.state.collectAsState()
+    val isKeyboardOpen by keyboardAsState()
+
     state.value.let {
         when (it) {
             is EateryDetailViewModel.State.Empty ->
@@ -56,6 +55,7 @@ fun EateryDetailScreen(
                 Column(
                     modifier = Modifier
                         .padding(0.dp)
+                        .wrapContentHeight()
                         .verticalScroll(rememberScrollState())
                 ) {
                     Box() {
@@ -157,7 +157,8 @@ fun EateryDetailScreen(
                                 } else {
                                     val openPlayIntent = Intent(Intent.ACTION_VIEW).apply {
                                         data = Uri.parse(
-                                            "https://play.google.com/store/apps/details?id=com.cbord.get")
+                                            "https://play.google.com/store/apps/details?id=com.cbord.get"
+                                        )
                                         setPackage("com.android.vending")
                                     }
                                     context.startActivity(openPlayIntent)
@@ -296,9 +297,14 @@ fun EateryDetailScreen(
                                 )
                             )
                     )
-                    getCurrentEvents(it.data)?.forEach { event ->
+                    getCurrentEvents(it.data, matchDay = true)?.forEach { event ->
                         EateryMenuWidget(event)
                     }
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height( if (isKeyboardOpen == Keyboard.Closed) 54.dp else 800.dp)
+                    )
                 }
         }
     }
@@ -311,6 +317,9 @@ fun EateryDetailScreen(
 @Composable
 fun EateryMenuWidget(event: Event) {
     var openDropdown by remember { mutableStateOf(true) }
+    var filterText by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     Row(
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -346,7 +355,32 @@ fun EateryMenuWidget(event: Event) {
     }
     if (openDropdown) {
         Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            SearchBar()
+            Column(
+                modifier = Modifier.weight(1f),
+            ) {
+                TextField(
+                    value = filterText,
+                    onValueChange = { filterText = it },
+                    placeholder = "Search for grub...",
+                    backgroundColor = colorResource(id = R.color.gray00),
+                    focusRequester = focusRequester,
+                    onSubmit = { focusManager.clearFocus() },
+                    leftIcon = painterResource(id = R.drawable.ic_magnifying_glass)
+                )
+            }
+
+            if (filterText.isNotBlank()) {
+                Text(
+                    text = "Cancel",
+                    textStyle = TextStyle.MISC_BACK,
+                    modifier = Modifier
+                        .padding(start = 10.dp, top = 8.dp)
+                        .clickable {
+                            filterText = ""
+                            focusManager.clearFocus()
+                        }
+                )
+            }
         }
         Spacer(
             modifier = Modifier
@@ -356,12 +390,15 @@ fun EateryMenuWidget(event: Event) {
                 .background(colorResource(id = R.color.gray00), CircleShape)
         )
         event.menu?.forEach { category ->
+            val filteredItems = category.items?.filter { it.name?.contains(filterText, true) ?: false }
+            if (filteredItems.isNullOrEmpty())
+                return@forEach
             Text(
                 text = category.category ?: "Category",
                 textStyle = TextStyle.HEADER_H4,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
             )
-            category.items?.forEach { menuItem ->
+            filteredItems.forEachIndexed { index, menuItem ->
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
@@ -387,13 +424,15 @@ fun EateryMenuWidget(event: Event) {
                         )
                     }
                 }
-                Spacer(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(colorResource(id = R.color.gray00), CircleShape)
-                )
+                if (category.items.lastIndex != index) {
+                    Spacer(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(colorResource(id = R.color.gray00), CircleShape)
+                    )
+                }
             }
             Spacer(
                 modifier = Modifier

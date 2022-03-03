@@ -119,14 +119,19 @@ fun getWaitTimes(eatery: Eatery): String? {
     return "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)} minutes"
 }
 
-fun getCurrentEvents(eatery: Eatery): List<Event>? {
+fun getCurrentEvents(eatery: Eatery, matchDay: Boolean = false): List<Event>? {
     val eventData = eatery.events
     val currentTime = LocalDateTime.now()
     if (eventData.isNullOrEmpty())
         return null
-    return eventData.filter { event ->
-        currentTime.isAfter(event.startTime) && currentTime.isBefore(event.endTime)
-    }
+    return if (matchDay)
+        eventData.filter { event ->
+            currentTime.dayOfYear == event.startTime?.dayOfYear
+        }.sortedBy { it.startTime }
+    else
+        eventData.filter { event ->
+            currentTime.isAfter(event.startTime) && currentTime.isBefore(event.endTime)
+        }
 }
 
 fun getOpenUntil(eatery: Eatery): String? {
