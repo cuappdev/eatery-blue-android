@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     fetchFromApi: Boolean
-): ViewModel() {
+) : ViewModel() {
     sealed class State {
         object Loading : State()
         data class Failure(val errorMsg: String) : State()
@@ -32,9 +32,6 @@ class HomeViewModel(
                     val res = ApiService.getInstance().fetchEateries()
                     if (res.success) {
                         res.data?.let { eateries ->
-                            eateries.forEach { eatery ->
-                                eatery.isFavorite = isFavorite(eatery)
-                            }
                             _state.value = State.Data(
                                 eateries = eateries,
                                 sections = eaterySections()

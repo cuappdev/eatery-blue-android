@@ -25,26 +25,23 @@ fun TextInputs(
 
 ) {
     Text(
-        text="NetID",
+        text = "NetID",
         textStyle = TextStyle.HEADER_H4,
         color = colorResource(id = R.color.black),
-        modifier = Modifier.padding(top = 37.dp)
+        modifier = Modifier.padding(top = 37.dp, bottom = 12.dp)
     )
     TextField(
         value = netid,
         onValueChange = setNetId,
         placeholder = "Type your NetID (i.e. abc123)",
         backgroundColor = colorResource(R.color.gray00),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 12.dp),
         onSubmit = {
             if (netid.isNotEmpty()) passwordFocus.requestFocus()
         }
     )
 
     Text(
-        text="Password",
+        text = "Password",
         textStyle = TextStyle.HEADER_H4,
         color = colorResource(id = R.color.black),
         modifier = Modifier.padding(top = 24.dp)
@@ -54,10 +51,7 @@ fun TextInputs(
         onValueChange = setPassword,
         placeholder = "Type your password...",
         backgroundColor = colorResource(R.color.gray00),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 12.dp)
-            .focusRequester(passwordFocus),
+        focusRequester = passwordFocus,
         isPassword = true,
         onSubmit = {
             if (password.isNotEmpty()) {
@@ -67,7 +61,7 @@ fun TextInputs(
         }
     )
     Text(
-        text="Forgot password?",
+        text = "Forgot password?",
         color = colorResource(R.color.eateryBlue),
         textStyle = TextStyle.BODY_SEMIBOLD,
         modifier = Modifier.padding(top = 12.dp)

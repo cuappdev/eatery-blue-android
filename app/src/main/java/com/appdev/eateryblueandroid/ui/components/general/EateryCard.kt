@@ -1,20 +1,19 @@
 package com.appdev.eateryblueandroid.ui.components
 
+import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColor
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Image
@@ -30,8 +29,7 @@ import kotlin.coroutines.coroutineContext
 fun EateryCard(
     eatery: Eatery,
     isCompact: Boolean = false,
-    selectEatery: (eatery: Eatery) -> Unit = {},
-    interactionSource: MutableInteractionSource = remember {MutableInteractionSource()}
+    selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
     val state = getMutableFavoriteStateOf(eatery)
     Surface(
@@ -45,7 +43,7 @@ fun EateryCard(
             modifier = Modifier
                 .background(color = colorResource(id = R.color.white))
         ) {
-            Box {
+            Box () {
                 Image(
                     url = eatery.imageUrl ?: "",
                     modifier = Modifier
@@ -61,7 +59,6 @@ fun EateryCard(
                     )
                 }
             }
-
             Column(
                 modifier = Modifier.padding(10.dp)
             ) {

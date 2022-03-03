@@ -1,9 +1,7 @@
 package com.appdev.eateryblueandroid.ui.components.login
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,9 +11,10 @@ import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 
 @Composable
-fun TitleSection() {
+fun TitleSection(transitionSettings: () -> Unit, isLoggingIn: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.End
@@ -23,7 +22,11 @@ fun TitleSection() {
         Icon(
             painter = painterResource(id = R.drawable.ic_settings),
             contentDescription = null,
-            tint = colorResource(id = R.color.black)
+            tint = colorResource(id = R.color.black),
+            modifier = Modifier.then(
+                if (isLoggingIn) Modifier
+                else Modifier.clickable { transitionSettings() }
+            )
         )
     }
     Text(

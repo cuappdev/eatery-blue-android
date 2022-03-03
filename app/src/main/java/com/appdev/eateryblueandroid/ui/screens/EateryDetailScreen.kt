@@ -1,10 +1,13 @@
 package com.appdev.eateryblueandroid.ui.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -13,8 +16,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,7 +34,6 @@ import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.components.home.SearchBar
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
-import com.appdev.eateryblueandroid.util.toggleFavorite
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -42,20 +44,6 @@ fun EateryDetailScreen(
     hideEatery: () -> Unit
 ) {
     val state = eateryDetailViewModel.state.collectAsState()
-
-    var liked by remember {
-        mutableStateOf(state.value.let {
-            when (it) {
-                is EateryDetailViewModel.State.Data -> {
-                    it.data.isFavorite
-                }
-                else -> {
-                    false
-                }
-            }
-        })
-    }
-
     state.value.let {
         when (it) {
             is EateryDetailViewModel.State.Empty ->
@@ -66,7 +54,7 @@ fun EateryDetailScreen(
                         .padding(0.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Box {
+                    Box() {
                         Image(
                             url = it.data.imageUrl ?: "",
                             modifier = Modifier
@@ -92,8 +80,7 @@ fun EateryDetailScreen(
                             )
                         }
                         Button(
-                            onClick = { toggleFavorite(it.data)
-                                        liked = !liked},
+                            onClick = { /* TODO */ },
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(16.dp)
@@ -102,11 +89,11 @@ fun EateryDetailScreen(
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = colorResource(id = R.color.white),
-                                contentColor = colorResource(id = if (liked) R.color.yellow else R.color.gray05)
+                                contentColor = colorResource(id = R.color.yellow)
                             )
                         ) {
                             Icon(
-                                painter = painterResource(id = if (liked) R.drawable.ic_star else R.drawable.ic_star_outline),
+                                Icons.Default.Star,
                                 contentDescription = "Favorite",
                             )
                         }

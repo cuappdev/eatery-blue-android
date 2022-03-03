@@ -2,14 +2,22 @@ package com.appdev.eateryblueandroid.ui.components.core
 
 import android.view.KeyEvent
 import android.view.RoundedCorner
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Icon
+import androidx.compose.material.Surface
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
@@ -23,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.theme.sfProTextFontFamily
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
-import androidx.compose.material.TextField as AndroidTextField
 import androidx.compose.ui.text.TextStyle as AndroidTextStyle
 
 @Composable
@@ -31,52 +38,80 @@ fun TextField(
     value: String,
     onValueChange: (updated: String) -> Unit,
     placeholder: String,
-    modifier: Modifier = Modifier,
     onSubmit: () -> Unit = {},
     backgroundColor: Color = colorResource(id = R.color.white),
-    isPassword: Boolean = false
+    focusRequester: FocusRequester? = null,
+    isPassword: Boolean = false,
+    leftIcon: Painter? = null
 ) {
-    AndroidTextField(
-        value = value,
-        onValueChange = onValueChange,
-        maxLines = 1,
-        singleLine = true,
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+    Surface(
         shape = RoundedCornerShape(8.dp),
-        textStyle = AndroidTextStyle(
-            color = Color.Black,
-            fontFamily = sfProTextFontFamily,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
-        ),
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = backgroundColor,
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = colorResource(id = R.color.black)
-        ),
-        placeholder = { Text(
-            text = placeholder,
-            textStyle = TextStyle.BODY_MEDIUM,
-            color = colorResource(id = R.color.gray05)
-        )},
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.None,
-            autoCorrect = false,
-            keyboardType = KeyboardType.Text,
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                onSubmit()
+    ) {
+        Row(
+            modifier = Modifier
+                .background(backgroundColor)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (leftIcon != null) {
+                Icon(
+                    painter = leftIcon,
+                    contentDescription = null,
+                    tint = colorResource(id = R.color.gray05),
+                    modifier = Modifier.padding(start = 12.dp)
+                )
             }
-        ),
-        modifier = modifier.onKeyEvent {
-            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
-                onSubmit()
-                true
-            } else {
-                false
-            }
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                maxLines = 1,
+                singleLine = true,
+                visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+                textStyle = AndroidTextStyle(
+                    color = Color.Black,
+                    fontFamily = sfProTextFontFamily,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium
+                ),
+                decorationBox = { innerTextField ->
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        if (value.isEmpty()) {
+                            Text(
+                                text = placeholder,
+                                textStyle = TextStyle.BODY_MEDIUM,
+                                color = colorResource(id = R.color.gray05),
+                            )
+                        }
+                    }
+                    innerTextField()
+                },
+                keyboardOptions = KeyboardOptions(
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrect = false,
+                    keyboardType = KeyboardType.Text,
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        onSubmit()
+                    }
+                ),
+                modifier = Modifier
+                    .onKeyEvent {
+                        if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                            onSubmit()
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    .then(
+                        if (focusRequester != null)
+                            Modifier.focusRequester(focusRequester)
+                        else Modifier
+                    )
+                    .fillMaxWidth()
+                    .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)
+            )
         }
-    )
+    }
 }

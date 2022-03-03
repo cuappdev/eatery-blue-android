@@ -1,28 +1,36 @@
 package com.appdev.eateryblueandroid.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.appdev.eateryblueandroid.models.AccountType
 import com.appdev.eateryblueandroid.models.Transaction
 import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.util.*
 
-class ProfileViewModel: ViewModel() {
+class ProfileViewModel : ViewModel() {
     sealed class State {
-        object Empty: State()
-        data class LoggingIn(val netid: String, val password: String): State()
-        data class ProfileData(val user: User, val latestDateFetched: LocalDateTime): State()
-        data class LoginFailure(val error: LoginFailureType): State()
+        object Empty : State()
+        data class LoggingIn(val netid: String, val password: String) : State()
+        data class ProfileData(
+            val user: User,
+            val query: String,
+            val accountFilter: AccountType
+        ) : State()
+
+        data class LoginFailure(val error: LoginFailureType) : State()
     }
 
     sealed class Display {
-        data class Login(val authenticating: Boolean, val progress: Float = 0f): Display()
-        object Settings: Display()
-        object Profile: Display()
+        data class Login(val authenticating: Boolean, val progress: Float = 0f) : Display()
+        object Settings : Display()
+        object Profile : Display()
     }
 
     private var _state = MutableStateFlow<State>(State.Empty)
@@ -40,6 +48,23 @@ class ProfileViewModel: ViewModel() {
         _display.value = Display.Login(authenticating = true, progress = 0.6f)
     }
 
+    fun transitionSettings() {
+        _display.value = Display.Settings
+    }
+
+    fun transitionProfile() {
+        _display.value = Display.Profile
+    }
+
+    fun transitionLogin() {
+        _display.value = Display.Login(authenticating = false, progress = 0.0f)
+    }
+
+    fun logout() {
+        _state.value = State.Empty
+        transitionLogin()
+    }
+
     fun loginSuccess(sessionId: String) {
         _display.value = Display.Login(authenticating = true, progress = 0.9f)
         viewModelScope.launch {
@@ -47,8 +72,7 @@ class ProfileViewModel: ViewModel() {
                 GetApiService.generateUserBody(sessionId = sessionId)
             )
             if (res1.exception != null || res1.response == null) {
-                _state.value = State.LoginFailure(LoginFailureType.FETCH_USER_FAILURE)
-                _display.value = Display.Login(authenticating = false)
+                loginFailure(LoginFailureType.FETCH_USER_FAILURE)
                 return@launch
             }
             _display.value = Display.Login(authenticating = true, progress = 1f)
@@ -57,8 +81,7 @@ class ProfileViewModel: ViewModel() {
                 GetApiService.generateAccountsBody(sessionId = sessionId, userId = user.id ?: "")
             )
             if (res2.exception != null) {
-                _state.value = State.LoginFailure(LoginFailureType.FETCH_ACCOUNTS_FAILURE)
-                _display.value = Display.Login(authenticating = false)
+                loginFailure(LoginFailureType.FETCH_ACCOUNTS_FAILURE)
                 return@launch
             }
             val res3 = GetApiService.getInstance().fetchTransactionHistory(
@@ -69,15 +92,15 @@ class ProfileViewModel: ViewModel() {
                 )
             )
             if (res3.exception != null) {
-                _state.value = State.LoginFailure(LoginFailureType.FETCH_TRANSACTION_HISTORY_FAILURE)
-                _display.value = Display.Login(authenticating = false)
+                loginFailure(LoginFailureType.FETCH_TRANSACTION_HISTORY_FAILURE)
                 return@launch
             }
-            user.paymentMethods = res2.response?.paymentMethods
+            user.accounts = res2.response?.accounts
             user.transactions = res3.response?.transactions
             _state.value = State.ProfileData(
                 user = user,
-                latestDateFetched = oldestTransactionDate(user.transactions)
+                query = "",
+                accountFilter = AccountType.MEALPLAN
             )
             _display.value = Display.Profile
         }
@@ -85,17 +108,25 @@ class ProfileViewModel: ViewModel() {
 
     fun loginFailure(error: LoginFailureType) {
         _state.value = State.LoginFailure(error)
+        _display.value = Display.Login(authenticating = false)
     }
 
-    internal fun oldestTransactionDate(transactions: List<Transaction>?): LocalDateTime {
-        var oldestDate = LocalDateTime.MAX
-        if (transactions == null) return oldestDate
-        for (transaction in transactions) {
-            if (transaction.date?.isBefore(oldestDate) == true) {
-                oldestDate = transaction.date
-            }
-        }
-        return oldestDate
+    fun updateAccountFilter(updatedFilter: AccountType) {
+        val currentProfileData = _state.value as? State.ProfileData ?: return
+        _state.value = State.ProfileData(
+            user = currentProfileData.user,
+            query = currentProfileData.query,
+            accountFilter = updatedFilter
+        )
+    }
+
+    fun updateQuery(updatedQuery: String) {
+        val currentProfileData = _state.value as? State.ProfileData ?: return
+        _state.value = State.ProfileData(
+            user = currentProfileData.user,
+            query = updatedQuery,
+            accountFilter = currentProfileData.accountFilter
+        )
     }
 }
 
