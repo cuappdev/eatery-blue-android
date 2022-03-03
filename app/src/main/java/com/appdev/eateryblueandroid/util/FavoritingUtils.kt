@@ -15,9 +15,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-//private const val USER_PREFERENCES_NAME = "user_preferences"
 private const val DATA_STORE_FILE_NAME = "user_prefs.pb"
-//private const val SORT_ORDER_KEY = "sort_order"
 
 private var myFavorites: Favorites = Favorites(mutableMapOf())
 var appContext: Context? = null
@@ -62,22 +60,6 @@ fun isFavorite(eatery: Eatery): Boolean {
     return getMutableFavoriteStateOf(eatery).value
 }
 
-/*
-*
-* Old version for SharedPreferences
-*
-fun saveFavoriteSet(): Boolean {
-    val mSharedPreferences: SharedPreferences? =
-        appContext?.getSharedPreferences(Constants.FAVORITE_EATERIES_LOCAL_STORAGE, 0)
-    val gson = Gson()
-    val json: String = gson.toJson(myFavorites).toString()
-    val mPreferencesEditor = mSharedPreferences?.edit()
-    mPreferencesEditor?.putString(Constants.FAVORITE_EATERIES_KEY, json)
-    if (mPreferencesEditor != null) return mPreferencesEditor.commit()
-    return false
-}
-*/
-
 private val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
     fileName = DATA_STORE_FILE_NAME,
     serializer = UserPreferencesSerializer
@@ -87,7 +69,7 @@ fun initializeFavoriteMap() {
     CoroutineScope(Dispatchers.IO).launch {
         val favoritesFlow: Flow<Map<Int, Boolean>> = appContext!!.userPreferencesStore.data
             .map { userPrefs ->
-                // The eateryId property is generated from the proto schema.
+                // The favoritesMap property is generated from the proto schema.
                 userPrefs.favoritesMap
             }
 
