@@ -17,16 +17,20 @@ import kotlinx.coroutines.launch
 
 private const val DATA_STORE_FILE_NAME = "user_prefs.pb"
 
-private var myFavorites: Favorites = Favorites(mutableMapOf())
 var appContext: Context? = null
-private var favoriteStates: HashMap<Int, MutableState<Boolean>> = hashMapOf()
 
-private data class Favorites(var favoritesMap: MutableMap<Int?, Boolean>)
+/** A map of eateries' ids to the mutable states containing their favorite status.
+ *  If an eatery's ID is NOT in this map, that MUST mean it is not a favorite.
+ *  Otherwise, its favorite status corresponds to the mutable state's value.
+ *
+ *  Reading directly from this map can be unsafe--use getMutableFavoriteStateOf instead.
+ */
+private var favoriteStates: HashMap<Int, MutableState<Boolean>> = hashMapOf()
 
 fun toggleFavorite(eatery: Eatery) {
     eatery.isFavorite = !eatery.isFavorite
-    favoriteStates[eatery.id]!!.value = !favoriteStates[eatery.id]!!.value
-    myFavorites.favoritesMap[eatery.id] = eatery.isFavorite
+    val state: MutableState<Boolean> = getMutableFavoriteStateOf(eatery)
+    state.value = !(state.value)
 
     //Save
     saveFavoriteMap()
@@ -39,19 +43,32 @@ fun toggleFavorite(eatery: Eatery) {
  * @param eatery    The eatery whose favorite state to get.
  */
 fun getMutableFavoriteStateOf(eatery: Eatery): MutableState<Boolean> {
-    if (favoriteStates.containsKey(eatery.id)) {
-        return favoriteStates[eatery.id]!!
+    // If the mutable state does not exist yet in this map, enter a "False" into the map.
+    if (!favoriteStates.containsKey(eatery.id)) {
+        favoriteStates[eatery.id!!] = mutableStateOf(false)
     }
-    val state = mutableStateOf(myFavorites.favoritesMap[eatery.id] == true)
-    favoriteStates[eatery.id!!] = state
-    return state
+    return favoriteStates[eatery.id]!!
+}
+
+/**
+ * Gets a MutableState observing the favorite status of the eatery.
+ * Use when a live state of the eatery's favorite status is needed.
+ *
+ * @param id    The id corresponding to the eatery whose favorite state to get.
+ */
+fun getMutableFavoriteStateOf(id: Int): MutableState<Boolean> {
+    // If the mutable state does not exist yet in this map, enter a "False" into the map.
+    if (!favoriteStates.containsKey(id)) {
+        favoriteStates[id] = mutableStateOf(false)
+    }
+    return favoriteStates[id]!!
 }
 
 fun numFavorites(): Int {
-    if (myFavorites.favoritesMap.isEmpty()) return 0
+    if (favoriteStates.isEmpty()) return 0
     var num = 0
-    myFavorites.favoritesMap.keys.forEach { mapping ->
-        if (myFavorites.favoritesMap[mapping] == true) num++
+    favoriteStates.keys.forEach { mapping ->
+        if (getMutableFavoriteStateOf(mapping).value) num++
     }
     return num
 }
@@ -66,25 +83,44 @@ private val Context.userPreferencesStore: DataStore<UserPreferences> by dataStor
 )
 
 fun initializeFavoriteMap() {
+    /*
+    * For some reason, this function attempts to call COLLECT (below) multiple times, even after
+    * the app has launched. To counteract this, introduce a boolean to make it run only once.
+    * After all, we only want to load the favorites when we first open the app. Otherwise,
+    * many nasty bugs arise.
+    */
+    var once = false
     CoroutineScope(Dispatchers.IO).launch {
         val favoritesFlow: Flow<Map<Int, Boolean>> = appContext!!.userPreferencesStore.data
             .map { userPrefs ->
                 // The favoritesMap property is generated from the proto schema.
                 userPrefs.favoritesMap
             }
+        favoritesFlow.collect { map ->
+            val tempMap = map.toMutableMap()
+            if (!once) {
+                once = true
+                tempMap.keys.forEach { mapping ->
+                    favoriteStates[mapping] = mutableStateOf(tempMap[mapping] == true)
+                }
+            }
 
-        favoritesFlow.collect { map -> myFavorites.favoritesMap = map.toMutableMap() }
-    }
-    myFavorites.favoritesMap.keys.forEach { mapping ->
-        favoriteStates[mapping!!] = mutableStateOf(myFavorites.favoritesMap[mapping]!!)
+        }
     }
 }
 
 fun saveFavoriteMap() {
+    // Builds a map to save to proto Datastore
+    val tempMap: MutableMap<Int, Boolean> = mutableMapOf()
+    favoriteStates.keys.forEach { mapping ->
+        tempMap[mapping] = favoriteStates[mapping]!!.value
+    }
+
+    // Save to proto Datastore
     CoroutineScope(Dispatchers.IO).launch {
         appContext!!.userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
-                .putAllFavorites(myFavorites.favoritesMap)
+                .putAllFavorites(tempMap)
                 .build()
         }
     }

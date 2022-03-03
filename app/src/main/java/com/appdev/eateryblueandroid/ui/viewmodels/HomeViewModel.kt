@@ -5,9 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.networking.internal.ApiService
-import com.appdev.eateryblueandroid.util.getMutableFavoriteStateOf
-import com.appdev.eateryblueandroid.util.isFavorite
-import com.appdev.eateryblueandroid.util.numFavorites
+import com.appdev.eateryblueandroid.util.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
