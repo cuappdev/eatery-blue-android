@@ -28,7 +28,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
@@ -40,6 +39,7 @@ import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+
 
 @Composable
 fun EateryDetailScreen(
@@ -148,7 +148,21 @@ fun EateryDetailScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                val getAppIntent =
+                                    context.packageManager.getLaunchIntentForPackage("com.cbord.get")
+                                if (getAppIntent != null) {
+                                    getAppIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                                    context.startActivity(getAppIntent)
+                                } else {
+                                    val openPlayIntent = Intent(Intent.ACTION_VIEW).apply {
+                                        data = Uri.parse(
+                                            "https://play.google.com/store/apps/details?id=com.cbord.get")
+                                        setPackage("com.android.vending")
+                                    }
+                                    context.startActivity(openPlayIntent)
+                                }
+                            },
                             shape = RoundedCornerShape(100),
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = colorResource(id = R.color.eateryBlue),
@@ -169,9 +183,11 @@ fun EateryDetailScreen(
                         }
                         Button(
                             onClick = {
-                                val gmmIntentUri = Uri.parse("google.navigation:q=${it.data.latitude},${it.data.longitude}&mode=w")
-                                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                                mapIntent.setPackage("com.google.android.apps.maps")
+                                val mapIntent = Intent(Intent.ACTION_VIEW).apply {
+                                    data =
+                                        Uri.parse("google.navigation:q=${it.data.latitude},${it.data.longitude}&mode=w")
+                                    setPackage("com.google.android.apps.maps")
+                                }
                                 context.startActivity(mapIntent)
                             },
                             shape = RoundedCornerShape(100),
