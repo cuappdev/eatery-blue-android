@@ -20,6 +20,7 @@ import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.util.getMutableFavoriteStateOf
 import com.appdev.eateryblueandroid.util.isFavorite
 import com.appdev.eateryblueandroid.util.toggleFavorite
 
@@ -32,9 +33,7 @@ fun EateryCard(
     selectEatery: (eatery: Eatery) -> Unit = {},
     interactionSource: MutableInteractionSource = remember {MutableInteractionSource()}
 ) {
-    var liked by remember {
-        mutableStateOf(eatery.isFavorite)
-    }
+    val state = getMutableFavoriteStateOf(eatery)
     Surface(
         elevation = 20.dp,
         shape = RoundedCornerShape(10.dp),
@@ -76,8 +75,8 @@ fun EateryCard(
                         modifier = Modifier.fillMaxWidth(0.95f)
                     )
                     Icon(
-                        painter = painterResource(id = if (liked) R.drawable.ic_star else R.drawable.ic_star_outline),
-                        tint = colorResource(id = if (liked) R.color.yellow else R.color.gray05),
+                        painter = painterResource(id = if (state.value) R.drawable.ic_star else R.drawable.ic_star_outline),
+                        tint = colorResource(id = if (state.value) R.color.yellow else R.color.gray05),
                         modifier = Modifier
                             .padding(top = 3.dp)
                             .clickable(
@@ -85,7 +84,6 @@ fun EateryCard(
                                 indication = rememberRipple(),
                                 onClick = {
                                     toggleFavorite(eatery)
-                                    liked = !liked
                                 }
                             ),
                         contentDescription = null
