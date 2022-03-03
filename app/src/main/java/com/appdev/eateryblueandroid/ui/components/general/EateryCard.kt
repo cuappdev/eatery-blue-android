@@ -45,14 +45,14 @@ fun EateryCard(
             modifier = Modifier
                 .background(color = colorResource(id = R.color.white))
         ) {
-            Box () {
+            Box() {
                 Image(
                     url = eatery.imageUrl ?: "",
                     modifier = Modifier
                         .fillMaxWidth()
                         .aspectRatio(2.7f)
                 )
-                if (isClosed(eatery)){
+                if (isClosed(eatery)) {
                     Spacer(
                         modifier = Modifier
                             .fillMaxWidth()
