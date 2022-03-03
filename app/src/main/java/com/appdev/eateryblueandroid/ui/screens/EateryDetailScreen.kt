@@ -17,7 +17,9 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,6 +36,8 @@ import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.components.home.SearchBar
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
+import com.appdev.eateryblueandroid.util.getMutableFavoriteStateOf
+import com.appdev.eateryblueandroid.util.toggleFavorite
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -44,6 +48,14 @@ fun EateryDetailScreen(
     hideEatery: () -> Unit
 ) {
     val state = eateryDetailViewModel.state.collectAsState()
+    val favState : MutableState<Boolean>
+    state.value.let {
+        when(it){
+            is EateryDetailViewModel.State.Data ->
+                favState = getMutableFavoriteStateOf(it.data)
+            else -> {favState = mutableStateOf(false)}
+        }
+    }
     state.value.let {
         when (it) {
             is EateryDetailViewModel.State.Empty ->
@@ -80,7 +92,7 @@ fun EateryDetailScreen(
                             )
                         }
                         Button(
-                            onClick = { /* TODO */ },
+                            onClick = { toggleFavorite(it.data) },
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(16.dp)
@@ -89,11 +101,11 @@ fun EateryDetailScreen(
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = colorResource(id = R.color.white),
-                                contentColor = colorResource(id = R.color.yellow)
+                                contentColor = colorResource(id = if (favState.value) R.color.yellow else R.color.gray05)
                             )
                         ) {
                             Icon(
-                                Icons.Default.Star,
+                                painter = painterResource(id = if (favState.value) R.drawable.ic_star else R.drawable.ic_star_outline),
                                 contentDescription = "Favorite",
                             )
                         }
