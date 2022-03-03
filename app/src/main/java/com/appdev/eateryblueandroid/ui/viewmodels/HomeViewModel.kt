@@ -32,6 +32,9 @@ class HomeViewModel(
                     val res = ApiService.getInstance().fetchEateries()
                     if (res.success) {
                         res.data?.let { eateries ->
+                            eateries.forEach {
+                                eatery -> eatery.isFavorite = isFavorite(eatery)
+                            }
                             _state.value = State.Data(
                                 eateries = eateries,
                                 sections = eaterySections()

@@ -19,7 +19,7 @@ private const val DATA_STORE_FILE_NAME = "user_prefs.pb"
 
 private var myFavorites: Favorites = Favorites(mutableMapOf())
 var appContext: Context? = null
-private var favoriteStates : HashMap<Int, MutableState<Boolean>> = hashMapOf()
+private var favoriteStates: HashMap<Int, MutableState<Boolean>> = hashMapOf()
 
 private data class Favorites(var favoritesMap: MutableMap<Int?, Boolean>)
 
@@ -38,12 +38,12 @@ fun toggleFavorite(eatery: Eatery) {
  *
  * @param eatery    The eatery whose favorite state to get.
  */
-fun getMutableFavoriteStateOf(eatery: Eatery) : MutableState<Boolean> {
+fun getMutableFavoriteStateOf(eatery: Eatery): MutableState<Boolean> {
     if (favoriteStates.containsKey(eatery.id)) {
         return favoriteStates[eatery.id]!!
     }
-    val state = mutableStateOf(myFavorites.favoritesMap[eatery.id]==true)
-    favoriteStates.put(eatery.id!!, state)
+    val state = mutableStateOf(myFavorites.favoritesMap[eatery.id] == true)
+    favoriteStates[eatery.id!!] = state
     return state
 }
 
@@ -74,6 +74,9 @@ fun initializeFavoriteMap() {
             }
 
         favoritesFlow.collect { map -> myFavorites.favoritesMap = map.toMutableMap() }
+    }
+    myFavorites.favoritesMap.keys.forEach { mapping ->
+        favoriteStates[mapping!!] = mutableStateOf(myFavorites.favoritesMap[mapping]!!)
     }
 }
 
