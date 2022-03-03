@@ -1,5 +1,7 @@
 package com.appdev.eateryblueandroid.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,11 +22,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
@@ -42,6 +46,7 @@ fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel,
     hideEatery: () -> Unit
 ) {
+    val context = LocalContext.current
     val state = eateryDetailViewModel.state.collectAsState()
     state.value.let {
         when (it) {
@@ -163,7 +168,12 @@ fun EateryDetailScreen(
                             )
                         }
                         Button(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                val gmmIntentUri = Uri.parse("google.navigation:q=${it.data.latitude},${it.data.longitude}&mode=w")
+                                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                                mapIntent.setPackage("com.google.android.apps.maps")
+                                context.startActivity(mapIntent)
+                            },
                             shape = RoundedCornerShape(100),
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = colorResource(id = R.color.gray00),
