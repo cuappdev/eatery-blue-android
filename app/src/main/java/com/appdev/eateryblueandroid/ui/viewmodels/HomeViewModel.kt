@@ -6,6 +6,7 @@ import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.networking.internal.ApiService
 import com.appdev.eateryblueandroid.util.isFavorite
+import com.appdev.eateryblueandroid.util.numFavorites
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
@@ -47,8 +48,11 @@ class HomeViewModel(
     }
 
     private fun eaterySections(): List<EaterySection> {
-        return listOf(
+        return if (numFavorites() > 0) listOf(
             EaterySection("Favorite Eateries") { it.isFavorite },
+            EaterySection("Nearest to You") {it.campusArea == "West"}
+        )
+        else listOf(
             EaterySection("Nearest to You") {it.campusArea == "West"}
         )
     }
