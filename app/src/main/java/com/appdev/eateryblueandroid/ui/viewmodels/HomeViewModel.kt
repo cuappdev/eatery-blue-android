@@ -30,9 +30,7 @@ class HomeViewModel(
                     val res = ApiService.getInstance().fetchEateries()
                     if (res.success) {
                         res.data?.let { eateries ->
-                            eateries.forEach {
-                                eatery -> eatery.isFavorite = isFavorite(eatery)
-                            }
+                            initializeFavoriteMap(eateries)
                             _state.value = State.Data(
                                 eateries = eateries,
                                 sections = eaterySections()
@@ -48,7 +46,7 @@ class HomeViewModel(
 
     private fun eaterySections(): List<EaterySection> {
         return if (numFavorites() > 0) listOf(
-            EaterySection("Favorite Eateries") { getMutableFavoriteStateOf(it).value },
+            EaterySection("Favorite Eateries") { it.isFavorite() },
             EaterySection("Nearest to You") {it.campusArea == "West"}
         )
         else listOf(

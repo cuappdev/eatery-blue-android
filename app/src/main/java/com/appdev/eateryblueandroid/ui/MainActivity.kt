@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
     private val bottomSheetViewModel = BottomSheetViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        appContext = this
         setContent {
             MainScreen(
                 context = this,
@@ -39,7 +40,5 @@ class MainActivity : AppCompatActivity() {
                 bottomSheetViewModel = bottomSheetViewModel
             )
         }
-        appContext = this
-        initializeFavoriteMap()
     }
 }

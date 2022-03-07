@@ -22,7 +22,6 @@ import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.util.getMutableFavoriteStateOf
-import com.appdev.eateryblueandroid.util.toggleFavorite
 
 import kotlin.coroutines.coroutineContext
 
@@ -32,7 +31,6 @@ fun EateryCard(
     isCompact: Boolean = false,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
-    val state = getMutableFavoriteStateOf(eatery)
     val interactionSource = MutableInteractionSource()
     Surface(
         elevation = 20.dp,
@@ -74,15 +72,15 @@ fun EateryCard(
                         modifier = Modifier.fillMaxWidth(0.95f)
                     )
                     Icon(
-                        painter = painterResource(id = if (state.value) R.drawable.ic_star else R.drawable.ic_star_outline),
-                        tint = colorResource(id = if (state.value) R.color.yellow else R.color.gray05),
+                        painter = painterResource(id = if (eatery.isFavorite()) R.drawable.ic_star else R.drawable.ic_star_outline),
+                        tint = colorResource(id = if (eatery.isFavorite()) R.color.yellow else R.color.gray05),
                         modifier = Modifier
                             .padding(top = 3.dp)
                             .clickable(
                                 interactionSource = interactionSource,
                                 indication = rememberRipple(),
                                 onClick = {
-                                    toggleFavorite(eatery)
+                                    eatery.toggleFavorite()
                                 }
                             ),
                         contentDescription = null

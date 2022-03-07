@@ -1,5 +1,7 @@
 package com.appdev.eateryblueandroid.models
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.LocalDate
@@ -25,8 +27,32 @@ data class Eatery(
     @Json(name = "online_order_url") val onlineOrderUrl: String? = null,
     @Json(name = "wait_times") val waitTimes: List<WaitTimeDay>? = null,
     @Json(name = "alerts") val alerts: List<Alert>? = null,
-    var isFavorite: Boolean = false
-)
+
+    // Set private to ensure easy use + to ensure same state referenced by FavoritingUtils.kt
+    @Transient private var isFavorite: MutableState<Boolean> = mutableStateOf(false)
+
+) {
+    fun toggleFavorite() {
+        isFavorite.value = !(isFavorite.value)
+        com.appdev.eateryblueandroid.util.saveFavoriteMap()
+    }
+
+    // Safe to use when recompose is needed.
+    fun isFavorite(): Boolean {
+        return isFavorite.value
+    }
+
+    private var hasSetFavorites = false
+
+    /** Sets the mutableState object for this eatery. Do NOT use to favorite or unfavorite
+     *  an eatery. Use toggleFavorite() for that instead. */
+    fun setFavoriteState(state : MutableState<Boolean>) {
+        // The state is set in FavoritingUtils and must not ever be set again--hence this if.
+        if (!hasSetFavorites) {
+            isFavorite = state
+        }
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class Alert(
@@ -112,7 +138,7 @@ fun getCurrentEvents(eatery: Eatery): List<Event>? {
     val currentTime = LocalDateTime.now()
     if (eventData.isNullOrEmpty())
         return null
-    return eventData.filter{ event ->
+    return eventData.filter { event ->
         currentTime.isAfter(event.startTime) && currentTime.isBefore(event.endTime)
     }
 }

@@ -27,32 +27,10 @@ var appContext: Context? = null
  */
 private var favoriteStates: HashMap<Int, MutableState<Boolean>> = hashMapOf()
 
-fun toggleFavorite(eatery: Eatery) {
-    eatery.isFavorite = !eatery.isFavorite
-    val state: MutableState<Boolean> = getMutableFavoriteStateOf(eatery)
-    state.value = !(state.value)
-
-    //Save
-    saveFavoriteMap()
-}
-
 /**
- * Gets a MutableState observing the favorite status of the eatery.
- * Use when a live state of the eatery's favorite status is needed.
- *
- * @param eatery    The eatery whose favorite state to get.
- */
-fun getMutableFavoriteStateOf(eatery: Eatery): MutableState<Boolean> {
-    // If the mutable state does not exist yet in this map, enter a "False" into the map.
-    if (!favoriteStates.containsKey(eatery.id)) {
-        favoriteStates[eatery.id!!] = mutableStateOf(false)
-    }
-    return favoriteStates[eatery.id]!!
-}
-
-/**
- * Gets a MutableState observing the favorite status of the eatery.
- * Use when a live state of the eatery's favorite status is needed.
+ * Gets a MutableState observing the favorite status of the eatery whose id is known.
+ * Use only when you only have the eatery id. If eatery object can be referenced, use
+ * eatery.isFavorite instead.
  *
  * @param id    The id corresponding to the eatery whose favorite state to get.
  */
@@ -73,23 +51,27 @@ fun numFavorites(): Int {
     return num
 }
 
-fun isFavorite(eatery: Eatery): Boolean {
-    return getMutableFavoriteStateOf(eatery).value
-}
-
 private val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
     fileName = DATA_STORE_FILE_NAME,
     serializer = UserPreferencesSerializer
 )
 
-fun initializeFavoriteMap() {
+private var fetchedStates: Boolean = false
+
+/**
+ * Initializes favoriteStates with mutableStates for each eatery (id).
+ * Also initializes any eateries' isFavorite states that are passed.
+ * The states of the eatery and favoriteStates will point to the same reference.
+ *
+ * @param eateries  Eateries whose states to initialize as well.
+ */
+fun initializeFavoriteMap(eateries : List<Eatery> = listOf()) {
     /*
     * For some reason, this function attempts to call COLLECT (below) multiple times, even after
-    * the app has launched. To counteract this, introduce a boolean to make it run only once.
-    * After all, we only want to load the favorites when we first open the app. Otherwise,
-    * many nasty bugs arise.
+    * the app has launched. To counteract this, introduce a boolean (fetchedStates) to make it run only once.
+    * After all, we only want to load the favorites ONCE when we first open the app.
+    * Otherwise, many nasty bugs arise.
     */
-    var once = false
     CoroutineScope(Dispatchers.IO).launch {
         val favoritesFlow: Flow<Map<Int, Boolean>> = appContext!!.userPreferencesStore.data
             .map { userPrefs ->
@@ -98,10 +80,20 @@ fun initializeFavoriteMap() {
             }
         favoritesFlow.collect { map ->
             val tempMap = map.toMutableMap()
-            if (!once) {
-                once = true
+            if (!fetchedStates) {
+                fetchedStates = true
                 tempMap.keys.forEach { mapping ->
                     favoriteStates[mapping] = mutableStateOf(tempMap[mapping] == true)
+                }
+            }
+            eateries.forEach { eatery ->
+                if (favoriteStates.containsKey(eatery.id)) {
+                    eatery.setFavoriteState(favoriteStates[eatery.id]!!)
+                }
+                else {
+                    val state = mutableStateOf(false)
+                    favoriteStates[eatery.id!!] = state
+                    eatery.setFavoriteState(state)
                 }
             }
 

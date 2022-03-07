@@ -37,7 +37,6 @@ import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.components.home.SearchBar
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
 import com.appdev.eateryblueandroid.util.getMutableFavoriteStateOf
-import com.appdev.eateryblueandroid.util.toggleFavorite
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -48,14 +47,6 @@ fun EateryDetailScreen(
     hideEatery: () -> Unit
 ) {
     val state = eateryDetailViewModel.state.collectAsState()
-    val favState : MutableState<Boolean>
-    state.value.let {
-        when(it){
-            is EateryDetailViewModel.State.Data ->
-                favState = getMutableFavoriteStateOf(it.data)
-            else -> {favState = mutableStateOf(false)}
-        }
-    }
     state.value.let {
         when (it) {
             is EateryDetailViewModel.State.Empty ->
@@ -92,7 +83,7 @@ fun EateryDetailScreen(
                             )
                         }
                         Button(
-                            onClick = { toggleFavorite(it.data) },
+                            onClick = { it.data.toggleFavorite() },
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(16.dp)
@@ -101,11 +92,11 @@ fun EateryDetailScreen(
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = colorResource(id = R.color.white),
-                                contentColor = colorResource(id = if (favState.value) R.color.yellow else R.color.gray05)
+                                contentColor = colorResource(id = if (it.data.isFavorite()) R.color.yellow else R.color.gray05)
                             )
                         ) {
                             Icon(
-                                painter = painterResource(id = if (favState.value) R.drawable.ic_star else R.drawable.ic_star_outline),
+                                painter = painterResource(id = if (it.data.isFavorite()) R.drawable.ic_star else R.drawable.ic_star_outline),
                                 contentDescription = "Favorite",
                             )
                         }
