@@ -2,6 +2,7 @@ package com.appdev.eateryblueandroid.models
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import com.appdev.eateryblueandroid.util.saveFavorite
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.LocalDate
@@ -28,29 +29,16 @@ data class Eatery(
     @Json(name = "wait_times") val waitTimes: List<WaitTimeDay>? = null,
     @Json(name = "alerts") val alerts: List<Alert>? = null,
 
-    // Set private to ensure easy use + to ensure same state referenced by FavoritingUtils.kt
     @Transient private var isFavorite: MutableState<Boolean> = mutableStateOf(false)
-
 ) {
     fun toggleFavorite() {
-        isFavorite.value = !(isFavorite.value)
-        com.appdev.eateryblueandroid.util.saveFavoriteMap()
+        isFavorite.value = !isFavorite.value
+        saveFavorite(id!!, isFavorite.value)
     }
 
     // Safe to use when recompose is needed.
     fun isFavorite(): Boolean {
         return isFavorite.value
-    }
-
-    private var hasSetFavorites = false
-
-    /** Sets the mutableState object for this eatery. Do NOT use to favorite or unfavorite
-     *  an eatery. Use toggleFavorite() for that instead. */
-    fun setFavoriteState(state : MutableState<Boolean>) {
-        // The state is set in FavoritingUtils and must not ever be set again--hence this if.
-        if (!hasSetFavorites) {
-            isFavorite = state
-        }
     }
 }
 

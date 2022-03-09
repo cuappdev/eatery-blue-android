@@ -10,5 +10,7 @@ object Constants {
 
     const val CORNELL_INSTITUTION_ID = "73116ae4-22ad-4c71-8ffd-11ba015407b1"
 
+    const val DATA_STORE_FILE_NAME = "user_prefs.pb"
+
     var currentLocation: Location? = null
 }

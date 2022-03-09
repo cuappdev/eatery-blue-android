@@ -21,7 +21,6 @@ import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
-import com.appdev.eateryblueandroid.util.getMutableFavoriteStateOf
 
 import kotlin.coroutines.coroutineContext
 

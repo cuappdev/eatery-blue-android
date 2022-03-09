@@ -45,12 +45,9 @@ class HomeViewModel(
     }
 
     private fun eaterySections(): List<EaterySection> {
-        return if (numFavorites() > 0) listOf(
+        return listOf(
             EaterySection("Favorite Eateries") { it.isFavorite() },
-            EaterySection("Nearest to You") {it.campusArea == "West"}
-        )
-        else listOf(
-            EaterySection("Nearest to You") {it.campusArea == "West"}
+            EaterySection("Nearest to You") { it.campusArea == "West" }
         )
     }
 }

@@ -36,7 +36,6 @@ import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.components.home.SearchBar
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
-import com.appdev.eateryblueandroid.util.getMutableFavoriteStateOf
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
