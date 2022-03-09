@@ -297,7 +297,7 @@ fun EateryDetailScreen(
                                 )
                             )
                     )
-                    getCurrentEvents(it.data, matchDay = true)?.forEach { event ->
+                    getTodaysEvents(it.data)?.forEach { event ->
                         EateryMenuWidget(event)
                     }
                     Spacer(

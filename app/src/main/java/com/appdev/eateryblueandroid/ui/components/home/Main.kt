@@ -18,6 +18,7 @@ import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.util.Constants.WORLD_DISTANCE_KM
 
 @Composable
 fun Main(
@@ -45,7 +46,7 @@ fun Main(
             expandable = false, expandSection = {}
         )),
         // Why 250k? That's the time in minutes to walk halfway around the world (aka. max on Earth)
-        eateries.sortedByDescending { if (isClosed(it)) 0 else 250000 - getWalkTimes(it) }
+        eateries.sortedByDescending { if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(it) }
             .map { MainItem.EateryItem(it) }
     ).flatten()
 

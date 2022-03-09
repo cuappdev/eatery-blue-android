@@ -1,6 +1,7 @@
 package com.appdev.eateryblueandroid.models
 
 import android.location.Location
+import com.appdev.eateryblueandroid.util.Constants.AVERAGE_WALK_SPEED
 import com.appdev.eateryblueandroid.util.LocationHandler
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -100,7 +101,7 @@ fun getWalkTimes(eatery: Eatery): Int {
         eatery.longitude.toDouble(),
         results
     )
-    return ((results[0] / 1.42) / 60).toInt()
+    return ((results[0] / AVERAGE_WALK_SPEED) / 60).toInt()
 }
 
 fun getWaitTimes(eatery: Eatery): String? {
@@ -119,17 +120,22 @@ fun getWaitTimes(eatery: Eatery): String? {
     return "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)} minutes"
 }
 
-fun getCurrentEvents(eatery: Eatery, matchDay: Boolean = false): List<Event>? {
+fun getTodaysEvents(eatery: Eatery): List<Event>? {
     val eventData = eatery.events
     val currentTime = LocalDateTime.now()
     if (eventData.isNullOrEmpty())
         return null
-    return if (matchDay)
-        eventData.filter { event ->
+    return eventData.filter { event ->
             currentTime.dayOfYear == event.startTime?.dayOfYear
         }.sortedBy { it.startTime }
-    else
-        eventData.filter { event ->
+}
+
+fun getCurrentEvents(eatery: Eatery): List<Event>? {
+    val eventData = eatery.events
+    val currentTime = LocalDateTime.now()
+    if (eventData.isNullOrEmpty())
+        return null
+    return eventData.filter { event ->
             currentTime.isAfter(event.startTime) && currentTime.isBefore(event.endTime)
         }
 }
