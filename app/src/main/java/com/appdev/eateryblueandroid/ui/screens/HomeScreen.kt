@@ -1,17 +1,26 @@
 package com.appdev.eateryblueandroid.ui.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
-import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
-import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.core.content.ContextCompat
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.ui.components.general.TopBar
 import com.appdev.eateryblueandroid.ui.components.home.Main
+import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
+import com.appdev.eateryblueandroid.util.LocationHandler
 
 @Composable
 fun HomeScreen(
@@ -20,6 +29,40 @@ fun HomeScreen(
     selectSection: (eaterySection: EaterySection) -> Unit,
     scrollState: LazyListState
 ) {
+    val context = LocalContext.current
+    val locationPermissionRequest = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                LocationHandler.instantiate(context)
+            }
+            permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                /* TODO: Handle insufficient permission */
+            }
+            else -> {
+                /* TODO: Handle insufficient permission */
+            }
+        }
+    }
+    SideEffect {
+        when (PackageManager.PERMISSION_GRANTED) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) -> {
+                LocationHandler.instantiate(context)
+            }
+            else -> {
+                locationPermissionRequest.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
+            }
+        }
+    }
     Column {
         TopBar(
             label = "Eatery",
@@ -31,7 +74,7 @@ fun HomeScreen(
         state.value.let {
             when (it) {
                 is HomeViewModel.State.Loading ->
-                    Text(text = "gucci")
+                    Box {}
                 is HomeViewModel.State.Data ->
                     Main(
                         scrollState = scrollState,
