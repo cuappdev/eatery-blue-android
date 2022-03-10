@@ -36,6 +36,18 @@ import com.appdev.eateryblueandroid.util.keyboardAsState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
 
 
 @Composable
@@ -58,88 +70,9 @@ fun EateryDetailScreen(
                         .wrapContentHeight()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Box() {
-                        Image(
-                            url = it.data.imageUrl ?: "",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(240.dp)
-                        )
-                        Button(
-                            onClick = { hideEatery() },
-                            modifier = Modifier
-                                .align(Alignment.TopStart)
-                                .padding(16.dp)
-                                .size(40.dp),
-                            contentPadding = PaddingValues(6.dp),
-                            shape = CircleShape,
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = colorResource(id = R.color.white),
-                                contentColor = colorResource(id = R.color.black)
-                            )
-                        ) {
-                            Icon(
-                                Icons.Default.ArrowBack,
-                                contentDescription = "Back",
-                            )
-                        }
-                        Button(
-                            onClick = { /* TODO */ },
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(16.dp)
-                                .size(40.dp),
-                            contentPadding = PaddingValues(6.dp),
-                            shape = CircleShape,
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = colorResource(id = R.color.white),
-                                contentColor = colorResource(id = R.color.yellow)
-                            )
-                        ) {
-                            Icon(
-                                Icons.Default.Star,
-                                contentDescription = "Favorite",
-                            )
-                        }
-                        PaymentsWidget(
-                            it.data,
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(16.dp)
-                                .height(40.dp)
-                        )
-                        Button(
-                            onClick = { },
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .offset(x = 18.dp, y = 18.dp)
-                                .size(40.dp),
-                            contentPadding = PaddingValues(6.dp),
-                            elevation = null,
-                            shape = CircleShape,
-                            colors = ButtonDefaults.buttonColors(
-                                disabledBackgroundColor = colorResource(id = R.color.white),
-                                disabledContentColor = colorResource(id = R.color.gray05)
-                            ),
-                            enabled = false
-                        ) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_place),
-                                contentDescription = "Place",
-                            )
-                        }
-                    }
-
                     Text(
-                        text = it.data.name ?: "Loading...",
-                        modifier = Modifier.padding(start = 16.dp, top = 16.dp),
-                        textStyle = TextStyle.HEADER_H2,
-                    )
-                    Text(
-                        text = "${it.data.location} · ${it.data.menuSummary}",
-                        modifier = Modifier.padding(start = 16.dp),
-                        textStyle = TextStyle.BODY_MEDIUM,
-                        color = colorResource(id = R.color.gray05)
+                        text = it.data.name ?: "No name",
+                        fontSize=20.sp
                     )
                     Row(
                         modifier = Modifier
@@ -308,7 +241,7 @@ fun EateryDetailScreen(
                 }
         }
     }
-
+    
     BackHandler {
         hideEatery()
     }

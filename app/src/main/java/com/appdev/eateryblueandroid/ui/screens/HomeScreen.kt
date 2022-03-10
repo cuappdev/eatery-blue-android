@@ -11,16 +11,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.core.content.ContextCompat
-import com.appdev.eateryblueandroid.R
+import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
+import androidx.compose.foundation.lazy.LazyListState
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
-import com.appdev.eateryblueandroid.ui.components.general.TopBar
 import com.appdev.eateryblueandroid.ui.components.home.Main
-import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
-import com.appdev.eateryblueandroid.util.LocationHandler
+import com.appdev.eateryblueandroid.ui.components.home.TopBar
 
 @Composable
 fun HomeScreen(
@@ -65,15 +61,10 @@ fun HomeScreen(
         }
     }
     Column {
-        TopBar(
-            label = "Eatery",
-            expanded = scrollState.firstVisibleItemIndex == 0,
-            eateryIcon = true,
-            rightIcon = painterResource(id = R.drawable.ic_search)
-        )
+        TopBar(scrollState = scrollState)
         val state = homeViewModel.state.collectAsState()
         state.value.let {
-            when (it) {
+            when(it) {
                 is HomeViewModel.State.Loading ->
                     Box {}
                 is HomeViewModel.State.Data ->

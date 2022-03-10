@@ -58,7 +58,7 @@ fun MainScreen(
 
 //this defines the behavior and look of each tab
 @Composable
-fun BottomNav(navController: NavHostController, items: List<BottomNavTab>) {
+fun BottomNav(navController: NavHostController, items: List<BottomNavTab> ) {
     BottomNavigation(backgroundColor = colorResource(id = R.color.white)) {
         val currentRoute = currentRoute(navController)
         items.forEach { screen ->

@@ -1,6 +1,5 @@
 package com.appdev.eateryblueandroid.ui.components
 
-import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,12 +9,12 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColor
+import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
@@ -29,30 +28,17 @@ fun EateryCard(
     Surface(
         elevation = 20.dp,
         shape = RoundedCornerShape(10.dp),
-        modifier = Modifier
-            .clickable { selectEatery(eatery) }
-            .fillMaxWidth()
+        modifier = Modifier.clickable { selectEatery(eatery) }.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .background(color = colorResource(id = R.color.white))
         ) {
-            Box () {
-                Image(
-                    url = eatery.imageUrl ?: "",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(2.7f)
-                )
-                if (isClosed(eatery)){
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(2.7f)
-                            .background(color = colorResource(id = R.color.white_transparent))
-                    )
-                }
-            }
+
+            Image(
+                url = eatery.imageUrl ?: "",
+                modifier = Modifier.fillMaxWidth().aspectRatio(2.7f)
+            )
             Column(
                 modifier = Modifier.padding(10.dp)
             ) {
@@ -74,7 +60,7 @@ fun EateryCard(
                 }
 
                 EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact)
-                EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
+                EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact )
             }
         }
     }
@@ -136,7 +122,7 @@ fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean) {
             )
             DotSeparator()
             Text(
-                text = getWaitTimes(eatery) ?: "3-5 minutes",
+                text = "5-7 min wait",
                 color = colorResource(id = R.color.gray05),
                 textStyle = TextStyle.BODY_MEDIUM
             )
@@ -164,9 +150,8 @@ fun EateryMenuSummary(eatery: Eatery) {
             textStyle = TextStyle.BODY_MEDIUM
         )
     } else if (eatery.paymentAcceptsMealSwipes == false &&
-        eatery.paymentAcceptsBrbs == false &&
-        eatery.paymentAcceptsCash == true
-    ) {
+            eatery.paymentAcceptsBrbs == false &&
+            eatery.paymentAcceptsCash == true) {
         Text(
             text = "Cash or credit only",
             maxLines = 1,

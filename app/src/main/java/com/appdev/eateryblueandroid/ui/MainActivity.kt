@@ -12,7 +12,6 @@ import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.navigation.MainScreen
 import com.appdev.eateryblueandroid.ui.viewmodels.*
 
-// TODO: State management with ViewModels is bad. We should switch to RXJava.
 class MainActivity : AppCompatActivity() {
     private val homeTabViewModel = HomeTabViewModel()
     private val eateryListViewModel = HomeViewModel(fetchFromApi = true)

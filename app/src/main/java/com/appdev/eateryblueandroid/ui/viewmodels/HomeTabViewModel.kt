@@ -1,10 +1,11 @@
 package com.appdev.eateryblueandroid.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
+import com.appdev.eateryblueandroid.models.Eatery
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class HomeTabViewModel : ViewModel() {
+class HomeTabViewModel: ViewModel() {
     sealed class State {
         object EateryListVisible: State()
         object EateryDetailVisible: State()

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.models.Eatery
-import com.appdev.eateryblueandroid.networking.internal.ApiService
+import com.appdev.eateryblueandroid.networking.ApiService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     fetchFromApi: Boolean
-) : ViewModel() {
+): ViewModel() {
     sealed class State {
         object Loading : State()
         data class Failure(val errorMsg: String) : State()
@@ -46,7 +46,7 @@ class HomeViewModel(
     private fun eaterySections(): List<EaterySection> {
         return listOf(
             EaterySection("Favorite Eateries") { it.campusArea == "Central" },
-            EaterySection("Nearest to You") { it.campusArea == "West" }
+            EaterySection("Nearest to You") {it.campusArea == "West"}
         )
     }
 }
