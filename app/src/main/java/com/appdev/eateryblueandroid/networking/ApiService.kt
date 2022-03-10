@@ -1,4 +1,4 @@
-package com.appdev.eateryblueandroid.networking.internal
+package com.appdev.eateryblueandroid.networking
 
 import com.appdev.eateryblueandroid.util.Constants
 import com.squareup.moshi.Moshi
@@ -8,7 +8,7 @@ import retrofit2.Retrofit
 
 object ApiService {
     var api: Api? = null
-    fun getInstance(): Api {
+    fun getInstance() : Api {
         if (api == null) {
             val moshi = Moshi.Builder()
                 .add(TimestampAdapter())

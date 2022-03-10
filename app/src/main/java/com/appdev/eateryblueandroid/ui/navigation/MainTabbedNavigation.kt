@@ -14,9 +14,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.screens.HomeTabController
-
-
-import com.appdev.eateryblueandroid.ui.screens.ProfileTabController
 import com.appdev.eateryblueandroid.ui.viewmodels.*
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
@@ -26,10 +23,8 @@ fun MainScreen(
     homeTabViewModel: HomeTabViewModel,
     homeViewModel: HomeViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
-    eateryDetailViewModel: EateryDetailViewModel,                                    
+    eateryDetailViewModel: EateryDetailViewModel,
     searchViewModel: SearchViewModel,
-    profileViewModel: ProfileViewModel,
-    bottomSheetViewModel: BottomSheetViewModel
 ) {
 
     val navController = rememberNavController()
@@ -51,8 +46,6 @@ fun MainScreen(
             expandedSectionViewModel,
             eateryDetailViewModel,
             searchViewModel,
-            profileViewModel,
-            bottomSheetViewModel
         )
     }
 }
@@ -60,7 +53,7 @@ fun MainScreen(
 
 //this defines the behavior and look of each tab
 @Composable
-fun BottomNav(navController: NavHostController, items: List<BottomNavTab>) {
+fun BottomNav(navController: NavHostController, items: List<BottomNavTab> ) {
     BottomNavigation(backgroundColor = colorResource(id = R.color.white)) {
         val currentRoute = currentRoute(navController)
         items.forEach { screen ->
@@ -108,26 +101,6 @@ private fun MainScreenNavigationConfigurations(
             searchViewModel = searchViewModel
         ) }
         composable(profileTab.route){}
-    profileViewModel: ProfileViewModel,
-    bottomSheetViewModel: BottomSheetViewModel
-) {
-    val eateryListScrollState = rememberLazyListState()
-    NavHost(navController = navController, startDestination = homeTab.route) {
-        composable(homeTab.route) {
-            HomeTabController(
-                homeTabViewModel = homeTabViewModel,
-                homeViewModel = homeViewModel,
-                eateryDetailViewModel = eateryDetailViewModel,
-                expandedSectionViewModel = expandedSectionViewModel,
-                eateryListScrollState = eateryListScrollState
-            )
-        }
-        composable(profileTab.route) {
-            ProfileTabController(
-                profileViewModel = profileViewModel,
-                bottomSheetViewModel = bottomSheetViewModel
-            )
-        }
     }
 
 }

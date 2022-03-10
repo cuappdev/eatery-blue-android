@@ -9,7 +9,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.sp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.theme.sfProDisplayFontFamily
@@ -30,8 +29,7 @@ enum class TextStyle {
     LABEL_MEDIUM,
     LABEL_SEMIBOLD,
     MISC_BACK,
-    SUBTITLE,
-    APPDEV_BODY_MEDIUM
+    SUBTITLE
 }
 
 @Composable
@@ -50,7 +48,6 @@ fun Text(
         fontFamily = fontFamily(textStyle),
         fontWeight = fontWeight(textStyle),
         fontSize = fontSize(textStyle),
-        letterSpacing = 0.sp,
         modifier = modifier
     )
 }
@@ -70,8 +67,6 @@ private fun fontFamily(textStyle: TextStyle): FontFamily {
         sfProDisplayFontFamily
     } else if (textStyle == TextStyle.SUBTITLE) {
         sfProDisplayFontFamily
-    } else if (textStyle == TextStyle.APPDEV_BODY_MEDIUM) {
-        sfProDisplayFontFamily
     } else {
         sfProTextFontFamily
     }
@@ -87,7 +82,7 @@ private fun fontSize(textStyle: TextStyle): TextUnit {
     } else if (textStyle == TextStyle.HEADER_H4) {
         18.sp
     } else if (textStyle == TextStyle.HEADER_H5) {
-        17.sp
+       17.sp
     } else if (textStyle == TextStyle.HEADER_H6) {
         17.sp
     } else if (textStyle == TextStyle.BODY_NORMAL) {
@@ -106,8 +101,6 @@ private fun fontSize(textStyle: TextStyle): TextUnit {
         17.sp
     } else if (textStyle == TextStyle.SUBTITLE) {
         20.sp
-    } else if (textStyle == TextStyle.APPDEV_BODY_MEDIUM) {
-        18.sp
     } else {
         100.sp
     }
@@ -142,8 +135,6 @@ private fun fontWeight(textStyle: TextStyle): FontWeight {
         FontWeight.Normal
     } else if (textStyle == TextStyle.SUBTITLE) {
         FontWeight.SemiBold
-    } else if (textStyle == TextStyle.APPDEV_BODY_MEDIUM) {
-        FontWeight.Medium
     } else {
         FontWeight.Black
     }

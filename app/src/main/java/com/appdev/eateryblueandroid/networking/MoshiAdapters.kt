@@ -1,4 +1,4 @@
-package com.appdev.eateryblueandroid.networking.internal
+package com.appdev.eateryblueandroid.networking
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson

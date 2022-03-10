@@ -6,22 +6,16 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.appdev.eateryblueandroid.ui.components.core.Text
-import com.appdev.eateryblueandroid.ui.components.general.BottomSheet
-import com.appdev.eateryblueandroid.ui.components.login.LoginWebView
 
 import com.appdev.eateryblueandroid.ui.navigation.MainScreen
 import com.appdev.eateryblueandroid.ui.viewmodels.*
 
-// TODO: State management with ViewModels is bad. We should switch to RXJava.
 class MainActivity : AppCompatActivity() {
     private val homeTabViewModel = HomeTabViewModel()
     private val eateryListViewModel = HomeViewModel(fetchFromApi = true)
     private val expandedSectionViewModel = ExpandedSectionViewModel()
     private val eateryDetailViewModel = EateryDetailViewModel()
     private val searchViewModel = SearchViewModel(fetchFromApi = true)
-    private val profileViewModel = ProfileViewModel()
-    private val bottomSheetViewModel = BottomSheetViewModel()
-    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -32,14 +26,6 @@ class MainActivity : AppCompatActivity() {
                 expandedSectionViewModel = expandedSectionViewModel,
                 eateryDetailViewModel = eateryDetailViewModel,
                 searchViewModel = searchViewModel,
-                profileViewModel = profileViewModel,
-                bottomSheetViewModel = bottomSheetViewModel
-            )
-            LoginWebView(
-                profileViewModel = profileViewModel,
-            )
-            BottomSheet(
-                bottomSheetViewModel = bottomSheetViewModel
             )
         }
     }
