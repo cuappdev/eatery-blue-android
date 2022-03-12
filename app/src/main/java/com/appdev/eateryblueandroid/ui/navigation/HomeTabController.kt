@@ -58,6 +58,7 @@ fun HomeTabController(
                         homeTabViewModel.transitionEateryDetail()
                     },
                     hideSection = homeTabViewModel::transitionEateryList,
+                    homeViewModel = homeViewModel,
 
                 )
         }

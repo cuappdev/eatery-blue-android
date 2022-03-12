@@ -6,7 +6,9 @@ import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.ui.components.core.Text
+import com.appdev.eateryblueandroid.ui.components.core.search.NoWordsTypedSearchScreen
 import com.appdev.eateryblueandroid.ui.components.core.search.WordsTypedSearchScreen
+import com.appdev.eateryblueandroid.ui.components.home.Main
 import com.appdev.eateryblueandroid.ui.components.home.MainItem
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ExpandedSectionViewModel
@@ -19,20 +21,26 @@ import kotlinx.coroutines.selects.select
 fun SearchingScreen(
     searchViewModel: SearchViewModel,
     selectEatery: (eatery: Eatery) -> Unit,
-    hideSection: () -> Unit
+    hideSection: () -> Unit,
+    homeViewModel: HomeViewModel,
 ){
     val state = searchViewModel.state.collectAsState()
 
-    val eateries = ArrayList<Eatery>()
+    val homeState = homeViewModel.state.collectAsState()
 
-//    //collect the eateries list
-//    state.value.let{
-//        when(it){
-//            SearchViewModel.State.NothingTyped ->{
-//
-//            }
-//        }
-//    }
+    var eateries :List<Eatery> = listOf()
+    var failedToLoadEatery = false;
+    //collect the eateries list
+    homeState.value.let{
+        when(it){
+            is HomeViewModel.State.Loading ->
+                failedToLoadEatery = true
+            is HomeViewModel.State.Data ->
+                eateries = it.eateries
+            is HomeViewModel.State.Failure ->
+                failedToLoadEatery = true
+        }
+    }
 
 
 
@@ -42,10 +50,11 @@ fun SearchingScreen(
             is SearchViewModel.State.Loading ->
                 Text("Loading")
             is SearchViewModel.State.NothingTyped ->
-                Text("Nothing Typed")
+//                NoWordsTypedSearchScreen()
+                searchViewModel.transitionSearchWordsTyped()
             is SearchViewModel.State.WordsTyped ->
                 WordsTypedSearchScreen(
-                    eateries = it.eateries,
+                    eateries = eateries,
                     selectEatery = selectEatery,
                     searchViewModel =searchViewModel
                 )

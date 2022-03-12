@@ -30,6 +30,7 @@ fun Main(
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
     selectSearch: () -> Unit,
+
 ) {
 
     val mainItems: List<MainItem> = listOf(

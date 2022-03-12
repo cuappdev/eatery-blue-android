@@ -14,6 +14,7 @@ import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.components.home.EateryFilters
 import com.appdev.eateryblueandroid.ui.components.home.MainItem
 import com.appdev.eateryblueandroid.ui.components.home.SearchBar
+import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.SearchViewModel
 
 @Composable
@@ -22,8 +23,7 @@ fun WordsTypedSearchScreen(
     eateries: List<Eatery>,
     selectEatery: (eatery: Eatery) -> Unit,
     searchViewModel: SearchViewModel,
-
-){
+    ){
     val searchTextedItem: List<SearchTextedItem> = listOf(
         listOf(SearchTextedItem.SearchBox),
         listOf(SearchTextedItem.FilterOptions),

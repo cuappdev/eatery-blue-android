@@ -74,7 +74,7 @@ fun HomeScreen(
                         sections = it.sections,
                         selectEatery = selectEatery,
                         selectSection = selectSection,
-                        selectSearch = selectSearch
+                        selectSearch = selectSearch,
                     )
                 is HomeViewModel.State.Failure ->
                     Text("FAILURE")

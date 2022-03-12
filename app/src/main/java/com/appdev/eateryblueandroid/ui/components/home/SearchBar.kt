@@ -20,7 +20,8 @@ import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 
 @Composable
-fun SearchBar(selectSearch: () -> Unit) {
+fun SearchBar(
+    selectSearch: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(5.dp),
         modifier = Modifier.clickable {selectSearch() }.fillMaxWidth()
