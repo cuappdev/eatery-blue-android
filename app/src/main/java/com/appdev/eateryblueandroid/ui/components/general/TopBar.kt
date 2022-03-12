@@ -41,7 +41,7 @@ fun TopBar(
     }
     val height by transition.animateDp(label = "TopBarHeight") { state ->
         when (state) {
-            true -> 100.dp
+            true -> 110.dp
             false -> 60.dp
         }
     }
@@ -79,7 +79,7 @@ fun TopBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .padding(bottom = 7.dp)
+                    .padding(bottom = 12.dp)
                     .alpha(minimizedAlpha),
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -94,7 +94,7 @@ fun TopBar(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight()
-                    .padding(bottom = 7.dp)
+                    .padding(bottom = 12.dp)
                     .alpha(minimizedAlpha),
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = Alignment.End

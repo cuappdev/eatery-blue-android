@@ -143,7 +143,7 @@ fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean) {
                 modifier = Modifier.padding(end = 4.dp, top = 1.dp)
             )
             Text(
-                text = getWalkTimes(eatery),
+                text = "${getWalkTimes(eatery)} min walk",
                 color = colorResource(id = R.color.gray05),
                 textStyle = TextStyle.BODY_MEDIUM
             )

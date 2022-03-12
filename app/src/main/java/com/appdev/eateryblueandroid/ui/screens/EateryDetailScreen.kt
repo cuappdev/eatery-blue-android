@@ -1,13 +1,12 @@
 package com.appdev.eateryblueandroid.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -16,13 +15,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -30,22 +29,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.*
-import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
-import com.appdev.eateryblueandroid.ui.components.core.Image
-import com.appdev.eateryblueandroid.ui.components.core.Text
-import com.appdev.eateryblueandroid.ui.components.core.TextStyle
-import com.appdev.eateryblueandroid.ui.components.home.SearchBar
+import com.appdev.eateryblueandroid.ui.components.core.*
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
+import com.appdev.eateryblueandroid.util.Keyboard
+import com.appdev.eateryblueandroid.util.keyboardAsState
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+
 
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel,
     hideEatery: () -> Unit
 ) {
+    val context = LocalContext.current
     val state = eateryDetailViewModel.state.collectAsState()
+    val isKeyboardOpen by keyboardAsState()
+
     state.value.let {
         when (it) {
             is EateryDetailViewModel.State.Empty ->
@@ -54,6 +55,7 @@ fun EateryDetailScreen(
                 Column(
                     modifier = Modifier
                         .padding(0.dp)
+                        .wrapContentHeight()
                         .verticalScroll(rememberScrollState())
                 ) {
                     Box() {
@@ -146,7 +148,22 @@ fun EateryDetailScreen(
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
                         Button(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                val getAppIntent =
+                                    context.packageManager.getLaunchIntentForPackage("com.cbord.get")
+                                if (getAppIntent != null) {
+                                    getAppIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                                    context.startActivity(getAppIntent)
+                                } else {
+                                    val openPlayIntent = Intent(Intent.ACTION_VIEW).apply {
+                                        data = Uri.parse(
+                                            "https://play.google.com/store/apps/details?id=com.cbord.get"
+                                        )
+                                        setPackage("com.android.vending")
+                                    }
+                                    context.startActivity(openPlayIntent)
+                                }
+                            },
                             shape = RoundedCornerShape(100),
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = colorResource(id = R.color.eateryBlue),
@@ -166,7 +183,14 @@ fun EateryDetailScreen(
                             )
                         }
                         Button(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                val mapIntent = Intent(Intent.ACTION_VIEW).apply {
+                                    data =
+                                        Uri.parse("google.navigation:q=${it.data.latitude},${it.data.longitude}&mode=w")
+                                    setPackage("com.google.android.apps.maps")
+                                }
+                                context.startActivity(mapIntent)
+                            },
                             shape = RoundedCornerShape(100),
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = colorResource(id = R.color.gray00),
@@ -273,9 +297,14 @@ fun EateryDetailScreen(
                                 )
                             )
                     )
-                    getCurrentEvents(it.data)?.forEach { event ->
+                    getTodaysEvents(it.data)?.forEach { event ->
                         EateryMenuWidget(event)
                     }
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height( if (isKeyboardOpen == Keyboard.Closed) 54.dp else 800.dp)
+                    )
                 }
         }
     }
@@ -287,6 +316,10 @@ fun EateryDetailScreen(
 
 @Composable
 fun EateryMenuWidget(event: Event) {
+    var openDropdown by remember { mutableStateOf(true) }
+    var filterText by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
     Row(
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -312,74 +345,106 @@ fun EateryMenuWidget(event: Event) {
         }
         CircularBackgroundIcon(
             icon = painterResource(
-                id = R.drawable.ic_baseline_keyboard_arrow_down_24
+                id = if (openDropdown) R.drawable.ic_baseline_keyboard_arrow_down_24 else R.drawable.ic_baseline_keyboard_arrow_up_24
             ),
-            onTap = { /* TODO: */ },
+            onTap = { openDropdown = !openDropdown },
             clickable = true,
             iconHeight = 28.dp,
             iconWidth = 28.dp,
         )
     }
-    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-        SearchBar()
-    }
-    Spacer(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(colorResource(id = R.color.gray00), CircleShape)
-    )
-    event.menu?.forEach { category ->
-        Text(
-            text = category.category ?: "Category",
-            textStyle = TextStyle.HEADER_H4,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-        )
-        category.items?.forEach { menuItem ->
+    if (openDropdown) {
+        Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Column(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                modifier = Modifier.weight(1f),
             ) {
-                Row {
-                    Text(
-                        text = menuItem.name ?: "Item Name",
-                        textStyle = TextStyle.BODY_SEMIBOLD,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if (menuItem.basePrice != null) {
+                TextField(
+                    value = filterText,
+                    onValueChange = { filterText = it },
+                    placeholder = "Search for grub...",
+                    backgroundColor = colorResource(id = R.color.gray00),
+                    focusRequester = focusRequester,
+                    onSubmit = { focusManager.clearFocus() },
+                    leftIcon = painterResource(id = R.drawable.ic_magnifying_glass)
+                )
+            }
+
+            if (filterText.isNotBlank()) {
+                Text(
+                    text = "Cancel",
+                    textStyle = TextStyle.MISC_BACK,
+                    modifier = Modifier
+                        .padding(start = 10.dp, top = 8.dp)
+                        .clickable {
+                            filterText = ""
+                            focusManager.clearFocus()
+                        }
+                )
+            }
+        }
+        Spacer(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(colorResource(id = R.color.gray00), CircleShape)
+        )
+        event.menu?.forEach { category ->
+            val filteredItems = category.items?.filter { it.name?.contains(filterText, true) ?: false }
+            if (filteredItems.isNullOrEmpty())
+                return@forEach
+            Text(
+                text = category.category ?: "Category",
+                textStyle = TextStyle.HEADER_H4,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            )
+            filteredItems.forEachIndexed { index, menuItem ->
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Row {
                         Text(
-                            text = String.format("$%.2f", menuItem.basePrice),
-                            textStyle = TextStyle.BODY_MEDIUM
+                            text = menuItem.name ?: "Item Name",
+                            textStyle = TextStyle.BODY_SEMIBOLD,
+                            modifier = Modifier.weight(1f)
+                        )
+                        if (menuItem.basePrice != null) {
+                            Text(
+                                text = String.format("$%.2f", menuItem.basePrice),
+                                textStyle = TextStyle.BODY_MEDIUM
+                            )
+                        }
+
+                    }
+                    if (!menuItem.description.isNullOrBlank()) {
+                        Text(
+                            text = menuItem.description,
+                            textStyle = TextStyle.BODY_NORMAL,
+                            modifier = Modifier.weight(1f)
                         )
                     }
-
                 }
-                if (!menuItem.description.isNullOrBlank()) {
-                    Text(
-                        text = menuItem.description,
-                        textStyle = TextStyle.BODY_NORMAL,
-                        modifier = Modifier.weight(1f)
+                if (category.items.lastIndex != index) {
+                    Spacer(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(colorResource(id = R.color.gray00), CircleShape)
                     )
                 }
             }
             Spacer(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
                     .fillMaxWidth()
-                    .height(1.dp)
-                    .background(colorResource(id = R.color.gray00), CircleShape)
+                    .height(8.dp)
+                    .background(
+                        colorResource(
+                            id = R.color.gray00
+                        )
+                    )
             )
         }
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp)
-                .background(
-                    colorResource(
-                        id = R.color.gray00
-                    )
-                )
-        )
     }
 }
 

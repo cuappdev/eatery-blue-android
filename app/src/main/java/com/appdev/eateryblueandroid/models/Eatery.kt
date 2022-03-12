@@ -3,9 +3,11 @@ package com.appdev.eateryblueandroid.models
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.appdev.eateryblueandroid.util.saveFavorite
+import android.location.Location
+import com.appdev.eateryblueandroid.util.Constants.AVERAGE_WALK_SPEED
+import com.appdev.eateryblueandroid.util.LocationHandler
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -101,8 +103,19 @@ data class MenuSubItem(
     @Json(name = "additional_price") val additionalPrice: Float? = null
 )
 
-fun getWalkTimes(eatery: Eatery): String {
-    return "3 min walk"
+fun getWalkTimes(eatery: Eatery): Int {
+    val currentLocation = LocationHandler.getLocation()
+    val results = floatArrayOf(0f)
+    if (eatery.latitude == null || eatery.longitude == null || currentLocation == null)
+        return 3
+    Location.distanceBetween(
+        currentLocation.latitude,
+        currentLocation.longitude,
+        eatery.latitude.toDouble(),
+        eatery.longitude.toDouble(),
+        results
+    )
+    return ((results[0] / AVERAGE_WALK_SPEED) / 60).toInt()
 }
 
 fun getWaitTimes(eatery: Eatery): String? {
@@ -121,14 +134,24 @@ fun getWaitTimes(eatery: Eatery): String? {
     return "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)} minutes"
 }
 
+fun getTodaysEvents(eatery: Eatery): List<Event>? {
+    val eventData = eatery.events
+    val currentTime = LocalDateTime.now()
+    if (eventData.isNullOrEmpty())
+        return null
+    return eventData.filter { event ->
+            currentTime.dayOfYear == event.startTime?.dayOfYear
+        }.sortedBy { it.startTime }
+}
+
 fun getCurrentEvents(eatery: Eatery): List<Event>? {
     val eventData = eatery.events
     val currentTime = LocalDateTime.now()
     if (eventData.isNullOrEmpty())
         return null
     return eventData.filter { event ->
-        currentTime.isAfter(event.startTime) && currentTime.isBefore(event.endTime)
-    }
+            currentTime.isAfter(event.startTime) && currentTime.isBefore(event.endTime)
+        }
 }
 
 fun getOpenUntil(eatery: Eatery): String? {
