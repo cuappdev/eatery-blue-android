@@ -6,6 +6,7 @@ import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.networking.internal.ApiService
 import com.appdev.eateryblueandroid.util.*
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
@@ -35,6 +36,7 @@ class HomeViewModel(
                                 eateries = eateries,
                                 sections = eaterySections()
                             )
+                            this.cancel()
                         }
                     } else {
                         res.error?.let { _state.value = State.Failure(it) }

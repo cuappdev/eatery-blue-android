@@ -76,15 +76,10 @@ fun HomeScreen(
                 is HomeViewModel.State.Loading ->
                     Box{}
                 is HomeViewModel.State.Data -> {
-                    // Makes a new list for sections that are NOT empty, passes that instead. Recomposes fine.
-                    val newSections : MutableList<EaterySection> = ArrayList()
-                    it.sections.forEach { section ->
-                        if (it.eateries.any { eatery -> section.filter(eatery) }) { newSections.add(section) }
-                    }
                     Main(
                         scrollState = scrollState,
                         eateries = it.eateries,
-                        sections = newSections,
+                        sections = it.sections,
                         selectEatery = selectEatery,
                         selectSection = selectSection
                     )
