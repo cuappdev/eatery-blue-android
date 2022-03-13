@@ -6,7 +6,6 @@ import androidx.datastore.dataStore
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.util.Constants.DATA_STORE_FILE_NAME
 import com.codelab.android.datastore.UserPreferences
-import com.codelab.android.datastore.UserPreferencesSerializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
