@@ -84,7 +84,7 @@ fun EateryDetailScreen(
                             )
                         }
                         Button(
-                            onClick = { /* TODO */ },
+                            onClick = { it.data.toggleFavorite() },
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .padding(16.dp)
@@ -93,11 +93,11 @@ fun EateryDetailScreen(
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(
                                 backgroundColor = colorResource(id = R.color.white),
-                                contentColor = colorResource(id = R.color.yellow)
+                                contentColor = colorResource(id = if (it.data.isFavorite()) R.color.yellow else R.color.gray05)
                             )
                         ) {
                             Icon(
-                                Icons.Default.Star,
+                                painter = painterResource(id = if (it.data.isFavorite()) R.drawable.ic_star else R.drawable.ic_star_outline),
                                 contentDescription = "Favorite",
                             )
                         }

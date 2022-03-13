@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.networking.internal.ApiService
+import com.appdev.eateryblueandroid.util.*
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
@@ -29,10 +31,12 @@ class HomeViewModel(
                     val res = ApiService.getInstance().fetchEateries()
                     if (res.success) {
                         res.data?.let { eateries ->
+                            initializeFavoriteMap(eateries)
                             _state.value = State.Data(
                                 eateries = eateries,
                                 sections = eaterySections()
                             )
+                            this.cancel()
                         }
                     } else {
                         res.error?.let { _state.value = State.Failure(it) }
@@ -44,7 +48,7 @@ class HomeViewModel(
 
     private fun eaterySections(): List<EaterySection> {
         return listOf(
-            EaterySection("Favorite Eateries") { it.campusArea == "Central" },
+            EaterySection("Favorite Eateries") { it.isFavorite() },
             EaterySection("Nearest to You") { it.campusArea == "West" }
         )
     }
