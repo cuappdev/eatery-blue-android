@@ -1,5 +1,8 @@
 package com.appdev.eateryblueandroid.models
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import com.appdev.eateryblueandroid.util.saveFavorite
 import android.location.Location
 import com.appdev.eateryblueandroid.util.Constants.AVERAGE_WALK_SPEED
 import com.appdev.eateryblueandroid.util.LocationHandler
@@ -27,8 +30,19 @@ data class Eatery(
     @Json(name = "online_order_url") val onlineOrderUrl: String? = null,
     @Json(name = "wait_times") val waitTimes: List<WaitTimeDay>? = null,
     @Json(name = "alerts") val alerts: List<Alert>? = null,
-    var isFavorite: Boolean = false
-)
+
+    @Transient private var isFavorite: MutableState<Boolean> = mutableStateOf(false)
+) {
+    fun toggleFavorite() {
+        isFavorite.value = !isFavorite.value
+        saveFavorite(id!!, isFavorite.value)
+    }
+
+    // Safe to use when recompose is needed.
+    fun isFavorite(): Boolean {
+        return isFavorite.value
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class Alert(

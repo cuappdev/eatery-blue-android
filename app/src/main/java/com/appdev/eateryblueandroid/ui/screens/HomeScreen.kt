@@ -75,8 +75,8 @@ fun HomeScreen(
         state.value.let {
             when (it) {
                 is HomeViewModel.State.Loading ->
-                    Box {}
-                is HomeViewModel.State.Data ->
+                    Box{}
+                is HomeViewModel.State.Data -> {
                     Main(
                         scrollState = scrollState,
                         eateries = it.eateries,
@@ -85,6 +85,7 @@ fun HomeScreen(
                         selectSection = selectSection,
                         selectSearch = selectSearch
                     )
+                }
                 is HomeViewModel.State.Failure ->
                     Text("FAILURE")
             }

@@ -11,7 +11,8 @@ object Constants {
     const val WORLD_DISTANCE_KM = 250000
 
     const val CORNELL_INSTITUTION_ID = "73116ae4-22ad-4c71-8ffd-11ba015407b1"
-    const val FAVORITE_EATERIES_LOCAL_STORAGE = "favorite_eateries"
+
+    const val DATA_STORE_FILE_NAME = "user_prefs.pb"
 
     var currentLocation: Location? = null
 }

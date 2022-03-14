@@ -32,7 +32,8 @@ fun Main(
     val mainItems: List<MainItem> = listOf(
         listOf(MainItem.SearchBox),
         listOf(MainItem.FilterOptions),
-        sections.flatMap { section ->
+        sections.filter{section -> eateries.any{section.filter(it)}}
+            .flatMap { section ->
             listOf(
                 MainItem.EaterySectionLabel(
                     section.name,
