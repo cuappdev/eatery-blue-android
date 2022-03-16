@@ -19,20 +19,24 @@ import kotlinx.coroutines.selects.select
 fun SearchingScreen(
     searchViewModel: SearchViewModel,
     selectEatery: (eatery: Eatery) -> Unit,
-    hideSection: () -> Unit
+    hideSection: () -> Unit,
+    homeViewModel: HomeViewModel,
 ){
     val state = searchViewModel.state.collectAsState()
-
-    val eateries = ArrayList<Eatery>()
-
-//    //collect the eateries list
-//    state.value.let{
-//        when(it){
-//            SearchViewModel.State.NothingTyped ->{
-//
-//            }
-//        }
-//    }
+    val homeState = homeViewModel.state.collectAsState()
+    var eateries :List<Eatery> = listOf()
+    var failedToLoadEatery = false;
+    //collect the eateries list
+    homeState.value.let{
+        when(it){
+            is HomeViewModel.State.Loading ->
+                failedToLoadEatery = true
+            is HomeViewModel.State.Data ->
+                eateries = it.eateries
+            is HomeViewModel.State.Failure ->
+                failedToLoadEatery = true
+        }
+    }
 
 
 
@@ -45,7 +49,7 @@ fun SearchingScreen(
                 Text("Nothing Typed")
             is SearchViewModel.State.WordsTyped ->
                 WordsTypedSearchScreen(
-                    eateries = it.eateries,
+                    eateries = eateries,
                     selectEatery = selectEatery,
                     searchViewModel =searchViewModel
                 )

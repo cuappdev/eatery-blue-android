@@ -1,6 +1,5 @@
 package com.appdev.eateryblueandroid.ui.screens
 
-import android.widget.SearchView
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -15,7 +14,6 @@ fun HomeTabController(
     eateryDetailViewModel: EateryDetailViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
     searchViewModel: SearchViewModel,
-
     eateryListScrollState: LazyListState
 ) {
     val state = homeTabViewModel.state.collectAsState()
@@ -49,6 +47,7 @@ fun HomeTabController(
                     expandedSectionViewModel = expandedSectionViewModel,
                     hideSection = homeTabViewModel::transitionEateryList
                 )
+
             is HomeTabViewModel.State.SearchScreenVisible ->
                 SearchingScreen(
                     searchViewModel = searchViewModel,
@@ -58,8 +57,9 @@ fun HomeTabController(
                         homeTabViewModel.transitionEateryDetail()
                     },
                     hideSection = homeTabViewModel::transitionEateryList,
-
+                    homeViewModel = homeViewModel,
                 )
+
         }
     }
 }

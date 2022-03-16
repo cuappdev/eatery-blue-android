@@ -5,9 +5,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import com.appdev.eateryblueandroid.ui.components.general.BottomSheet
 import com.appdev.eateryblueandroid.ui.components.login.LoginWebView
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
-import com.appdev.eateryblueandroid.ui.components.core.Text
 
 import com.appdev.eateryblueandroid.ui.navigation.MainScreen
 import com.appdev.eateryblueandroid.ui.viewmodels.*
@@ -20,10 +17,9 @@ class MainActivity : AppCompatActivity() {
     private val eateryListViewModel = HomeViewModel(fetchFromApi = true)
     private val expandedSectionViewModel = ExpandedSectionViewModel()
     private val eateryDetailViewModel = EateryDetailViewModel()
-
+    private val searchViewModel = SearchViewModel()
     private val profileViewModel = ProfileViewModel()
     private val bottomSheetViewModel = BottomSheetViewModel()
-    private val searchViewModel = SearchViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appContext = this
@@ -35,17 +31,19 @@ class MainActivity : AppCompatActivity() {
                 expandedSectionViewModel = expandedSectionViewModel,
                 eateryDetailViewModel = eateryDetailViewModel,
                 profileViewModel = profileViewModel,
-                bottomSheetViewModel = bottomSheetViewModel
+                bottomSheetViewModel = bottomSheetViewModel,
+                searchViewModel = searchViewModel,
             )
             LoginWebView(
                 profileViewModel = profileViewModel,
             )
             BottomSheet(
                 bottomSheetViewModel = bottomSheetViewModel
-               
-            ),
-             searchViewModel = searchViewModel,
+
+            )
+
+
+
         }
     }
-
 }

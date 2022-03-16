@@ -6,7 +6,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,7 +26,7 @@ fun MainScreen(
     eateryDetailViewModel: EateryDetailViewModel,
     profileViewModel: ProfileViewModel,
     bottomSheetViewModel: BottomSheetViewModel,
-    searchViewModel: SearchViewModel,
+    searchViewModel : SearchViewModel,
 ) {
 
     val navController = rememberNavController()
@@ -48,13 +47,14 @@ fun MainScreen(
             homeViewModel,
             expandedSectionViewModel,
             eateryDetailViewModel,
+
             profileViewModel,
             bottomSheetViewModel,
             searchViewModel,
+
         )
     }
 }
-
 
 //this defines the behavior and look of each tab
 @Composable
@@ -93,9 +93,9 @@ private fun MainScreenNavigationConfigurations(
     homeViewModel: HomeViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
-    searchViewModel: SearchViewModel,
     profileViewModel: ProfileViewModel,
-    bottomSheetViewModel: BottomSheetViewModel
+    bottomSheetViewModel: BottomSheetViewModel,
+    searchViewModel: SearchViewModel,
 ) {
     val eateryListScrollState = rememberLazyListState()
     NavHost(navController = navController, startDestination = homeTab.route) {
@@ -105,8 +105,8 @@ private fun MainScreenNavigationConfigurations(
                 homeViewModel = homeViewModel,
                 eateryDetailViewModel = eateryDetailViewModel,
                 expandedSectionViewModel = expandedSectionViewModel,
-                eateryListScrollState = eateryListScrollState,
-                searchViewModel = searchViewModel
+                searchViewModel = searchViewModel,
+                eateryListScrollState = eateryListScrollState
             )
         }
         composable(profileTab.route) {
