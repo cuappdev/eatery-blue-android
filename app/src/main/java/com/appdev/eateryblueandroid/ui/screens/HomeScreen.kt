@@ -19,6 +19,7 @@ import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.ui.components.general.TopBar
 import com.appdev.eateryblueandroid.ui.components.home.Main
+import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.util.LocationHandler
 
@@ -27,7 +28,8 @@ fun HomeScreen(
     homeViewModel: HomeViewModel,
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
-    scrollState: LazyListState
+    scrollState: LazyListState,
+    bottomSheetViewModel: BottomSheetViewModel
 ) {
     val context = LocalContext.current
     val locationPermissionRequest = rememberLauncherForActivityResult(
@@ -81,7 +83,8 @@ fun HomeScreen(
                         eateries = it.eateries,
                         sections = it.sections,
                         selectEatery = selectEatery,
-                        selectSection = selectSection
+                        selectSection = selectSection,
+                        bottomSheetViewModel = bottomSheetViewModel
                     )
                 }
                 is HomeViewModel.State.Failure ->

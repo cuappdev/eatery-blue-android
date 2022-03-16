@@ -18,6 +18,7 @@ import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.util.Constants.WORLD_DISTANCE_KM
 
 @Composable
@@ -26,7 +27,8 @@ fun Main(
     sections: List<EaterySection>,
     eateries: List<Eatery>,
     selectEatery: (eatery: Eatery) -> Unit,
-    selectSection: (eaterySection: EaterySection) -> Unit
+    selectSection: (eaterySection: EaterySection) -> Unit,
+    bottomSheetViewModel: BottomSheetViewModel
 ) {
     var mainItems by remember { mutableStateOf(listOf<MainItem>()) }
     var filters by remember { mutableStateOf(listOf<String>()) }
@@ -48,7 +50,6 @@ fun Main(
                 "All Eateries",
                 expandable = false, expandSection = {}
             )),
-            // Why 250k? That's the time in minutes to walk halfway around the world (aka. max on Earth)
             eateries.filter {
                 var isContained = true
                 if (filters.contains("North")) isContained =
