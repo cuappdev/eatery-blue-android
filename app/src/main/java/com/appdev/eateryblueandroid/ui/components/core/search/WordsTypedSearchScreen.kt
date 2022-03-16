@@ -30,7 +30,7 @@ fun WordsTypedSearchScreen(
     eateries.forEach{
         eatery ->
         var eateryName = eatery.name?.lowercase()
-        if(eateryName?.contains(typedText.lowercase() , true) == true){
+        if(eateryName?.startsWith(typedText.lowercase() , true) == true){
             filterEatery.add(eatery)
         }
     }
