@@ -46,7 +46,8 @@ fun SearchingScreen(
             is SearchViewModel.State.Loading ->
                 Text("Loading")
             is SearchViewModel.State.NothingTyped ->
-                Text("Nothing Typed")
+                searchViewModel.transitionSearchWordsTyped()
+            //Text("Nothing Typed")
             is SearchViewModel.State.WordsTyped ->
                 WordsTypedSearchScreen(
                     eateries = eateries,

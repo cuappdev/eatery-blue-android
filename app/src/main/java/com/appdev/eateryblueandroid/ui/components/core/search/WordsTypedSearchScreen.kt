@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.ui.components.EateryCard
@@ -24,10 +25,19 @@ fun WordsTypedSearchScreen(
     searchViewModel: SearchViewModel,
 
 ){
-    val searchTextedItem: List<SearchTextedItem> = listOf(
+    val typedText = searchViewModel.typedText.value
+    var filterEatery = mutableListOf<Eatery>()
+    eateries.forEach{
+        eatery ->
+        var eateryName = eatery.name?.lowercase()
+        if(eateryName?.contains(typedText.lowercase() , true) == true){
+            filterEatery.add(eatery)
+        }
+    }
+       val searchTextedItem: List<SearchTextedItem> = listOf(
         listOf(SearchTextedItem.SearchBox),
         listOf(SearchTextedItem.FilterOptions),
-        eateries.map{ SearchTextedItem.EateryItem(it)}
+           filterEatery.map{ SearchTextedItem.EateryItem(it)}
     ).flatten()
 
 
@@ -37,9 +47,9 @@ fun WordsTypedSearchScreen(
         items(searchTextedItem) { item ->
             when (item) {
                 is SearchTextedItem.SearchBox ->
-                    Column(modifier = Modifier.padding(16.dp, 12.dp)) {
+//                    Column(modifier = Modifier.padding(16.dp, 12.dp)) {
                         TypeableSearchBar(searchViewModel,searchText = "sandwich")
-                    }
+//                    }
                 is SearchTextedItem.FilterOptions -> Column(modifier = Modifier.padding(bottom = 12.dp)) {
                     EateryFilters()
                 }

@@ -26,7 +26,7 @@ class SearchViewModel(
     private var _state = MutableStateFlow<SearchViewModel.State>(SearchViewModel.State.Loading)
     val state = _state.asStateFlow()
 
-    val typedText = mutableStateOf("sandwich")
+    val typedText = mutableStateOf("")
     var recentlySearch = mutableListOf<String>()
 
     fun transitionSearchLoading() {
