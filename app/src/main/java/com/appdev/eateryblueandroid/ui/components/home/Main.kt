@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -28,28 +28,48 @@ fun Main(
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit
 ) {
-    val mainItems: List<MainItem> = listOf(
-        listOf(MainItem.SearchBox),
-        listOf(MainItem.FilterOptions),
-        sections.filter{section -> eateries.any{section.filter(it)}}
-            .flatMap { section ->
-            listOf(
-                MainItem.EaterySectionLabel(
-                    section.name,
-                    expandable = eateries.filter { section.filter(it) }.size > 3,
-                    expandSection = { selectSection(section) }
-                ),
-                MainItem.EaterySectionList(section)
-            )
-        },
-        listOf(MainItem.EaterySectionLabel(
-            "All Eateries",
-            expandable = false, expandSection = {}
-        )),
-        // Why 250k? That's the time in minutes to walk halfway around the world (aka. max on Earth)
-        eateries.sortedByDescending { if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(it) }
-            .map { MainItem.EateryItem(it) }
-    ).flatten()
+    var mainItems by remember { mutableStateOf(listOf<MainItem>()) }
+    var filters by remember { mutableStateOf(listOf<String>()) }
+    fun refreshMainItems() {
+        mainItems = listOf(listOf(MainItem.SearchBox),
+            listOf(MainItem.FilterOptions),
+            sections.filter { section -> eateries.any { section.filter(it) } }
+                .flatMap { section ->
+                    listOf(
+                        MainItem.EaterySectionLabel(
+                            section.name,
+                            expandable = eateries.filter { section.filter(it) }.size > 3,
+                            expandSection = { selectSection(section) }
+                        ),
+                        MainItem.EaterySectionList(section)
+                    )
+                },
+            listOf(MainItem.EaterySectionLabel(
+                "All Eateries",
+                expandable = false, expandSection = {}
+            )),
+            // Why 250k? That's the time in minutes to walk halfway around the world (aka. max on Earth)
+            eateries.filter {
+                var isContained = true
+                if (filters.contains("North")) isContained =
+                    isContained && it.campusArea == "North"
+                if (filters.contains("West")) isContained =
+                    isContained && it.campusArea == "West"
+                if (filters.contains("Central")) isContained =
+                    isContained && it.campusArea == "Central"
+                if (filters.contains("Under 10 minutes")) isContained =
+                    isContained && getWalkTimes(it) < 10
+                if (filters.contains("Favorites")) isContained =
+                    isContained && it.isFavorite()
+                isContained
+            }.sortedByDescending {
+                if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(
+                    it
+                )
+            }.map { MainItem.EateryItem(it) }
+        ).flatten()
+    }
+    refreshMainItems()
 
     LazyColumn(
         state = scrollState,
@@ -61,7 +81,10 @@ fun Main(
                     Column(modifier = Modifier.padding(16.dp, 12.dp)) {
                         SearchBar()
                     }
-                is MainItem.FilterOptions -> EateryFilters()
+                is MainItem.FilterOptions -> EateryFilters(alreadySelected = filters) {
+                    filters = it
+                    refreshMainItems()
+                }
                 is MainItem.EaterySectionLabel ->
                     Row(
                         modifier = Modifier
