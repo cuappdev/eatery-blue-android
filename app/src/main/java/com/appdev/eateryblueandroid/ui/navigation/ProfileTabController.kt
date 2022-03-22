@@ -1,12 +1,12 @@
 package com.appdev.eateryblueandroid.ui.screens
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
-import com.appdev.eateryblueandroid.util.loadData
-import com.appdev.eateryblueandroid.util.loadedPassword
-import com.appdev.eateryblueandroid.util.loadedUsername
+import com.appdev.eateryblueandroid.util.*
+import com.appdev.eateryblueandroid.util.Constants.passwordAlias
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -22,14 +22,30 @@ fun ProfileTabController(
     display.value.let {
         when (it) {
             is ProfileViewModel.Display.Login -> {
-                LoginScreen(
-                    profileViewModel = profileViewModel
-                )
-                CoroutineScope(Dispatchers.IO).launch {
-                    val loadJob : Job = loadData()
-                    loadJob.join()
-                    if (loadedUsername != null && loadedUsername!!.isNotEmpty())
-                        profileViewModel.initiateLogin(loadedUsername!!, loadedPassword!!)
+                if (CachedAccountInfo.cached) {
+                    ProfileScreen(
+                        profileViewModel = profileViewModel,
+                        bottomSheetViewModel = bottomSheetViewModel
+                    )
+                    if (loadedUsername != null && loadedUsername!!.isNotEmpty()
+                        && loadedPassword != null && loadedPassword!!.isNotEmpty() && !hasLoaded
+                    ) {
+                        hasLoaded = true
+                        CoroutineScope(Dispatchers.Default).launch {
+                            profileViewModel.initiateLogin(
+                                loadedUsername!!,
+                                decryptData(passwordAlias, loadedPassword!!)
+                            )
+                            Log.i(
+                                "Login",
+                                "Attempting Login with username " + loadedUsername + " and password " + loadedPassword
+                            )
+                        }
+                    }
+                } else {
+                    LoginScreen(
+                        profileViewModel = profileViewModel
+                    )
                 }
 
             }

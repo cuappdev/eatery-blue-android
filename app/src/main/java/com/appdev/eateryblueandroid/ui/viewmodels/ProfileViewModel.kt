@@ -8,6 +8,8 @@ import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
 import com.appdev.eateryblueandroid.util.appContext
+import com.appdev.eateryblueandroid.util.cacheAccountInfo
+import com.appdev.eateryblueandroid.util.makeCachedUser
 import com.appdev.eateryblueandroid.util.saveLoginInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,11 +21,11 @@ import java.util.*
 class ProfileViewModel : ViewModel() {
     sealed class State {
         object Empty : State()
-        data class LoggingIn(val netid: String, val password: String) : State()
+        data class LoggingIn(val netid: String, val password: String, val cachedLoginData: ProfileData) : State()
         data class ProfileData(
             val user: User,
             val query: String,
-            val accountFilter: AccountType
+            var accountFilter: AccountType
         ) : State()
 
         data class LoginFailure(val error: LoginFailureType) : State()
@@ -42,7 +44,7 @@ class ProfileViewModel : ViewModel() {
     val display = _display.asStateFlow()
 
     fun initiateLogin(netid: String, password: String) {
-        _state.value = State.LoggingIn(netid, password)
+        _state.value = State.LoggingIn(netid, password, State.ProfileData(makeCachedUser(),"", AccountType.MEALPLAN))
         _display.value = Display.Login(authenticating = true, progress = 0.3f)
     }
 
@@ -101,12 +103,16 @@ class ProfileViewModel : ViewModel() {
             }
             user.accounts = res2.response?.accounts
             user.transactions = res3.response?.transactions
+
+            val cachedProfile : State.ProfileData = (_state.value as State.LoggingIn).cachedLoginData
             _state.value = State.ProfileData(
                 user = user,
-                query = "",
-                accountFilter = AccountType.MEALPLAN
+                query = cachedProfile.query,
+                accountFilter = cachedProfile.accountFilter,
             )
             _display.value = Display.Profile
+
+            cacheAccountInfo(user.accounts!!, user.transactions!!)
         }
     }
 
@@ -116,12 +122,18 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun updateAccountFilter(updatedFilter: AccountType) {
-        val currentProfileData = _state.value as? State.ProfileData ?: return
-        _state.value = State.ProfileData(
-            user = currentProfileData.user,
-            query = currentProfileData.query,
-            accountFilter = updatedFilter
-        )
+        if (_state.value is State.ProfileData) {
+            val currentProfileData = _state.value as? State.ProfileData ?: return
+            _state.value = State.ProfileData(
+                user = currentProfileData.user,
+                query = currentProfileData.query,
+                accountFilter = updatedFilter
+            )
+        }
+        else {
+            val currentProfileData = (_state.value as? State.LoggingIn)?.cachedLoginData ?: return
+            currentProfileData.accountFilter = updatedFilter
+        }
     }
 
     fun updateQuery(updatedQuery: String) {

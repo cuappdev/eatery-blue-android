@@ -15,34 +15,31 @@ message UserPreferences {
   // If the user was previously logged in, this field is true and
   // indicates cached data should be loaded.
   bool wasLoggedIn = 5;
-  repeated Account accounts = 6;
-  repeated Transaction transactionHistory = 7;
+  repeated AccountProto accounts = 6;
+  repeated TransactionProto transactionHistory = 7;
 }
 
-enum AccountType {
-  LAUNDRY = 0;
-  MEALPLAN = 1;
-  BRBS = 2;
-  CITYBUCKS = 3;
-  OTHER = 4;
-}
-
-message Account {
-  AccountType type = 1;
+message AccountProto {
+  int32 type = 1;
   double balance = 2;
 }
 
-message Transaction {
+message TransactionProto {
   string id = 1;
   double amount = 2;
   double resultingBalance = 3;
   // date here
-  enum TransactionType {
-    DEPOSIT = 0;
-    SPEND = 1;
-    NOOP = 2;
-  }
-  TransactionType transactionType = 4;
-  AccountType accountType = 5;
+  Date date = 7;
+
+  int32 transactionType = 4;
+  int32 accountType = 5;
   string location = 6;
+}
+
+message Date {
+  int32 year = 1;
+  int32 month = 2;
+  int32 day = 3;
+  int32 hour = 4;
+  int32 minute = 5;
 }

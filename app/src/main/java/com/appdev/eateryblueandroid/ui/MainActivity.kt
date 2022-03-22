@@ -9,7 +9,9 @@ import com.appdev.eateryblueandroid.ui.components.login.LoginWebView
 import com.appdev.eateryblueandroid.ui.navigation.MainScreen
 import com.appdev.eateryblueandroid.ui.viewmodels.*
 import com.appdev.eateryblueandroid.util.appContext
+import com.appdev.eateryblueandroid.util.checkProfileCache
 import com.appdev.eateryblueandroid.util.initializeFavoriteMap
+import com.appdev.eateryblueandroid.util.initializeLoginData
 
 // TODO: State management with ViewModels is bad. We should switch to RXJava.
 class MainActivity : AppCompatActivity() {
@@ -23,6 +25,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appContext = this
+        checkProfileCache()
+        initializeLoginData()
         setContent {
             MainScreen(
                 context = this,
