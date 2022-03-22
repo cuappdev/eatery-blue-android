@@ -99,7 +99,7 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
         )
         state.value.let {
             if (it is ProfileViewModel.State.ProfileData) {
-                LogoutSection(profileViewModel::logout)
+                LogoutSection(profileViewModel::logout, (state.value as ProfileViewModel.State.ProfileData).user.userName!!)
             }
         }
     }
@@ -157,7 +157,9 @@ fun SettingsLineSeparator() {
 }
 
 @Composable
-fun LogoutSection(logout: () -> Unit) {
+fun LogoutSection(logout: () -> Unit, netId : String) {
+    var id = netId
+    if (id.contains("@")) id = netId.substring(0,netId.indexOf("@"))
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -166,7 +168,7 @@ fun LogoutSection(logout: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Logged in as cyr7",
+            text = "Logged in as " + id,
             textStyle = TextStyle.HEADER_H4,
             color = colorResource(id = R.color.gray05)
         )

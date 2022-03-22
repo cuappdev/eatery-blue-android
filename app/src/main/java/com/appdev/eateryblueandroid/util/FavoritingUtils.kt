@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.util.Constants.DATA_STORE_FILE_NAME
+import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
 import com.codelab.android.datastore.UserPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,10 +17,10 @@ import kotlinx.coroutines.launch
 var appContext: Context? = null
 private val favoriteMap: HashMap<Int, Boolean> = hashMapOf()
 
-private val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
+/*private val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
     fileName = DATA_STORE_FILE_NAME,
     serializer = UserPreferencesSerializer
-)
+)*/
 
 private var fetchedStates: Boolean = false
 

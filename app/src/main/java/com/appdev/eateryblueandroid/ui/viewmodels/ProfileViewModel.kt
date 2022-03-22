@@ -4,14 +4,16 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.AccountType
-import com.appdev.eateryblueandroid.models.Transaction
 import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
+import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
+import com.appdev.eateryblueandroid.util.appContext
+import com.appdev.eateryblueandroid.util.saveLoginInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.util.*
 
 class ProfileViewModel : ViewModel() {
@@ -62,11 +64,13 @@ class ProfileViewModel : ViewModel() {
 
     fun logout() {
         _state.value = State.Empty
+        saveLoginInfo("", "")
         transitionLogin()
     }
 
     fun loginSuccess(sessionId: String) {
         _display.value = Display.Login(authenticating = true, progress = 0.9f)
+        saveLoginInfo((state.value as State.LoggingIn).netid, (state.value as State.LoggingIn).password)
         viewModelScope.launch {
             val res1 = GetApiService.getInstance().fetchUser(
                 GetApiService.generateUserBody(sessionId = sessionId)
@@ -128,6 +132,7 @@ class ProfileViewModel : ViewModel() {
             accountFilter = currentProfileData.accountFilter
         )
     }
+
 }
 
 enum class LoginFailureType {

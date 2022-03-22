@@ -1,6 +1,10 @@
 package com.appdev.eateryblueandroid.util
 
+import android.content.Context
 import android.location.Location
+import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
+import com.codelab.android.datastore.UserPreferences
 
 object Constants {
     const val BACKEND_URL = "https://eatery-dev.cornellappdev.com/"
@@ -15,4 +19,11 @@ object Constants {
     const val DATA_STORE_FILE_NAME = "user_prefs.pb"
 
     var currentLocation: Location? = null
+
+    val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
+        fileName = DATA_STORE_FILE_NAME,
+        serializer = UserPreferencesSerializer
+    )
+
+    val passwordAlias = "passwordy password"
 }

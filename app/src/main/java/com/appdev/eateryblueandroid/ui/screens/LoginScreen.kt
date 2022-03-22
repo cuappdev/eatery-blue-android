@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -12,6 +13,13 @@ import com.appdev.eateryblueandroid.ui.components.login.TextInputs
 import com.appdev.eateryblueandroid.ui.components.login.TitleSection
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
+import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
+import com.appdev.eateryblueandroid.util.appContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.cancellable
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 
 @Composable
 fun LoginScreen(profileViewModel: ProfileViewModel) {
