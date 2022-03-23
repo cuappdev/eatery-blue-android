@@ -2,10 +2,10 @@ package com.appdev.eateryblueandroid.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.models.Eatery
+import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.networking.internal.ApiService
-import com.appdev.eateryblueandroid.util.*
+import com.appdev.eateryblueandroid.util.initializeFavoriteMap
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,7 +18,11 @@ class HomeViewModel(
     sealed class State {
         object Loading : State()
         data class Failure(val errorMsg: String) : State()
-        data class Data(val eateries: List<Eatery>, val sections: List<EaterySection>) : State()
+        data class Data(
+            val eateries: List<Eatery>,
+            val sections: List<EaterySection>,
+            val filters: List<String>
+        ) : State()
     }
 
     private var _state = MutableStateFlow<State>(State.Loading)
@@ -34,7 +38,8 @@ class HomeViewModel(
                             initializeFavoriteMap(eateries)
                             _state.value = State.Data(
                                 eateries = eateries,
-                                sections = eaterySections()
+                                sections = eaterySections(),
+                                filters = listOf()
                             )
                             this.cancel()
                         }
@@ -43,6 +48,16 @@ class HomeViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun updateFilters(selection: List<String>){
+        if (state.value is State.Data) {
+            _state.value = State.Data(
+                eateries = (state.value as State.Data).eateries,
+                sections = (state.value as State.Data).sections,
+                filters = selection
+            )
         }
     }
 

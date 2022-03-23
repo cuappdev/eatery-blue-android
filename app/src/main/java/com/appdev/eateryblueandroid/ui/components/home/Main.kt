@@ -26,51 +26,50 @@ fun Main(
     scrollState: LazyListState,
     sections: List<EaterySection>,
     eateries: List<Eatery>,
+    filters: List<String>,
+    setFilters: (selection: List<String>) -> Unit,
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
     bottomSheetViewModel: BottomSheetViewModel
 ) {
     var mainItems by remember { mutableStateOf(listOf<MainItem>()) }
-    var filters by remember { mutableStateOf(listOf<String>()) }
-    fun refreshMainItems() {
-        mainItems = listOf(listOf(MainItem.SearchBox),
-            listOf(MainItem.FilterOptions),
-            sections.filter { section -> eateries.any { section.filter(it) } }
-                .flatMap { section ->
-                    listOf(
-                        MainItem.EaterySectionLabel(
-                            section.name,
-                            expandable = eateries.filter { section.filter(it) }.size > 3,
-                            expandSection = { selectSection(section) }
-                        ),
-                        MainItem.EaterySectionList(section)
-                    )
-                },
-            listOf(MainItem.EaterySectionLabel(
-                "All Eateries",
-                expandable = false, expandSection = {}
-            )),
-            eateries.filter {
-                var isContained = true
-                if (filters.contains("North")) isContained =
-                    isContained && it.campusArea == "North"
-                if (filters.contains("West")) isContained =
-                    isContained && it.campusArea == "West"
-                if (filters.contains("Central")) isContained =
-                    isContained && it.campusArea == "Central"
-                if (filters.contains("Under 10 minutes")) isContained =
-                    isContained && getWalkTimes(it) < 10
-                if (filters.contains("Favorites")) isContained =
-                    isContained && it.isFavorite()
-                isContained
-            }.sortedByDescending {
-                if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(
-                    it
+
+    mainItems = listOf(listOf(MainItem.SearchBox),
+        listOf(MainItem.FilterOptions),
+        sections.filter { section -> eateries.any { section.filter(it) } }
+            .flatMap { section ->
+                listOf(
+                    MainItem.EaterySectionLabel(
+                        section.name,
+                        expandable = eateries.filter { section.filter(it) }.size > 3,
+                        expandSection = { selectSection(section) }
+                    ),
+                    MainItem.EaterySectionList(section)
                 )
-            }.map { MainItem.EateryItem(it) }
-        ).flatten()
-    }
-    refreshMainItems()
+            },
+        listOf(MainItem.EaterySectionLabel(
+            "All Eateries",
+            expandable = false, expandSection = {}
+        )),
+        eateries.filter {
+            var isContained = true
+            if (filters.contains("North")) isContained =
+                isContained && it.campusArea == "North"
+            if (filters.contains("West")) isContained =
+                isContained && it.campusArea == "West"
+            if (filters.contains("Central")) isContained =
+                isContained && it.campusArea == "Central"
+            if (filters.contains("Under 10 minutes")) isContained =
+                isContained && getWalkTimes(it) < 10
+            if (filters.contains("Favorites")) isContained =
+                isContained && it.isFavorite()
+            isContained
+        }.sortedByDescending {
+            if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(
+                it
+            )
+        }.map { MainItem.EateryItem(it) }
+    ).flatten()
 
     LazyColumn(
         state = scrollState,
@@ -83,8 +82,7 @@ fun Main(
                         SearchBar()
                     }
                 is MainItem.FilterOptions -> EateryFilters(alreadySelected = filters) {
-                    filters = it
-                    refreshMainItems()
+                    setFilters(it)
                 }
                 is MainItem.EaterySectionLabel ->
                     Row(

@@ -82,6 +82,8 @@ fun HomeScreen(
                         scrollState = scrollState,
                         eateries = it.eateries,
                         sections = it.sections,
+                        filters = it.filters,
+                        setFilters = {s -> homeViewModel.updateFilters(s)},
                         selectEatery = selectEatery,
                         selectSection = selectSection,
                         bottomSheetViewModel = bottomSheetViewModel
