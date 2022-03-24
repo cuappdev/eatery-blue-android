@@ -14,6 +14,7 @@ fun formatLocation(location: String?): String {
     else if (location?.contains("Robert Purcell") == true) return "Robert Purcell Marketplace Eatery"
     else if (location?.contains("Jansens Market") == true) return "Jansen's Marketplace"
     else if (location?.contains("NorthStar") == true) return "North Star Dining Room"
+    else if (location?.contains("Morrison") == true) return "Morrison Dining"
     else return location ?: ""
 }
 

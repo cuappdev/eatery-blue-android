@@ -43,7 +43,7 @@ fun Main(
         items(profileItems) { item ->
             when (item) {
                 is ProfileItem.AccountSummary ->
-                    AccountSummaries(user.accounts)
+                    AccountSummaries(user.accounts, user.swipesType, user.mealPlanName)
                 is ProfileItem.SectionSeparator ->
                     SectionSeparator()
                 is ProfileItem.TransactionHistoryHeader ->

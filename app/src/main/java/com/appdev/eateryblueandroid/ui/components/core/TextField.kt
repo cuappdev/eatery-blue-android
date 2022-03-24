@@ -88,7 +88,7 @@ fun TextField(
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,
                     autoCorrect = false,
-                    keyboardType = KeyboardType.Text,
+                    keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text,
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {

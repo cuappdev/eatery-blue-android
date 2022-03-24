@@ -14,7 +14,9 @@ data class User(
     @Json(name = "email") val email: String? = null,
     @Json(name = "phone") val phone: String? = null,
     var accounts: List<Account>? = null,
-    var transactions: List<Transaction>? = listOf()
+    var transactions: List<Transaction>? = listOf(),
+    @Transient var swipesType: SwipesType = SwipesType.NONE,
+    @Transient var mealPlanName : String = ""
 )
 
 data class AccountsResponse(
@@ -44,6 +46,17 @@ data class Transaction(
 
 enum class AccountType {
     LAUNDRY, MEALPLAN, BRBS, CITYBUCKS, OTHER
+}
+
+
+enum class SwipesType {
+    WEEKLY, SEMESTERLY, UNLIMITED,
+
+    /**
+     * Use if this meal plan does not have meal swipes or would not be concerned with how many
+     * swipes they have. Default.
+     */
+    NONE
 }
 
 enum class TransactionType {

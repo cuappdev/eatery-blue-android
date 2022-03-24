@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.AccountType
+import com.appdev.eateryblueandroid.models.SwipesType
 import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
@@ -17,6 +18,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
+
+
+var pulledSwipesType : SwipesType = SwipesType.NONE
+var formattedMealPlanName : String = ""
 
 class ProfileViewModel : ViewModel() {
     sealed class State {
@@ -103,6 +108,10 @@ class ProfileViewModel : ViewModel() {
             }
             user.accounts = res2.response?.accounts
             user.transactions = res3.response?.transactions
+            user.swipesType = pulledSwipesType
+            user.mealPlanName = formattedMealPlanName
+
+            Log.i("Login", user.transactions.toString())
 
             val cachedProfile : State.ProfileData = (_state.value as State.LoggingIn).cachedLoginData
             _state.value = State.ProfileData(
@@ -112,7 +121,7 @@ class ProfileViewModel : ViewModel() {
             )
             _display.value = Display.Profile
 
-            cacheAccountInfo(user.accounts!!, user.transactions!!)
+            cacheAccountInfo(user.accounts!!, user.transactions!!, pulledSwipesType, formattedMealPlanName)
         }
     }
 

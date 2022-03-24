@@ -95,11 +95,17 @@ fun ordinalToTransactionType(ordinal: Int): TransactionType {
     return TransactionType.values()[ordinal]
 }
 
+fun ordinalToSwipesType(ordinal: Int): SwipesType {
+    return SwipesType.values()[ordinal]
+}
+
 
 object CachedAccountInfo {
     var accounts: MutableList<Account> = mutableListOf()
     var transactions: MutableList<Transaction> = mutableListOf()
+    var swipesType: SwipesType = SwipesType.NONE
     var cached : Boolean = false
+    var mealPlanName : String = ""
 }
 
 /**
@@ -134,6 +140,28 @@ private fun initializeCachedAccountInfo() {
         .map { userPrefs ->
             userPrefs.transactionHistoryList
         }
+    val swipesFlow: Flow<Int> = appContext!!.userPreferencesStore.data
+        .map { userPrefs ->
+            userPrefs.swipesType
+        }
+    val nameFlow: Flow<String> = appContext!!.userPreferencesStore.data
+        .map { userPrefs ->
+            userPrefs.mealPlanName
+        }
+
+    CoroutineScope(Dispatchers.IO).launch {
+        swipesFlow.collect { swipesType ->
+            cache.swipesType = ordinalToSwipesType(swipesType)
+            this.cancel()
+        }
+    }
+
+    CoroutineScope(Dispatchers.IO).launch {
+        nameFlow.collect { name ->
+            cache.mealPlanName = name
+            this.cancel()
+        }
+    }
 
     CoroutineScope(Dispatchers.IO).launch {
         accountFlow.collect { accounts ->
@@ -167,7 +195,7 @@ private fun initializeCachedAccountInfo() {
     }
 }
 
-fun cacheAccountInfo(accounts: List<Account>, transactions: List<Transaction>) {
+fun cacheAccountInfo(accounts: List<Account>, transactions: List<Transaction>, swipesType: SwipesType, mealPlanName : String) {
     val accMutable: MutableList<AccountProto> = mutableListOf()
     accounts.forEach { acc ->
         accMutable.add(AccountProto.newBuilder().setType(acc.type!!.ordinal).setBalance(acc.balance ?: 0.0).build())
@@ -207,6 +235,8 @@ fun cacheAccountInfo(accounts: List<Account>, transactions: List<Transaction>) {
                 .addAllAccounts(accMutable)
                 .clearTransactionHistory()
                 .addAllTransactionHistory(transactionsMutable)
+                .setSwipesType(swipesType.ordinal)
+                .setMealPlanName(mealPlanName)
                 .build()
         }
     }
@@ -218,6 +248,8 @@ fun makeCachedUser() : User {
     return User(
         id = loadedUsername,
         accounts = CachedAccountInfo.accounts,
-        transactions = CachedAccountInfo.transactions
+        transactions = CachedAccountInfo.transactions,
+        swipesType = CachedAccountInfo.swipesType,
+        mealPlanName = CachedAccountInfo.mealPlanName
     )
 }

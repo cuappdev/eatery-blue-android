@@ -1,15 +1,18 @@
 package com.appdev.eateryblueandroid.networking.get
 
-import android.util.Log
 import com.appdev.eateryblueandroid.models.AccountType
+import com.appdev.eateryblueandroid.models.SwipesType
 import com.appdev.eateryblueandroid.models.TransactionType
+import com.appdev.eateryblueandroid.ui.viewmodels.formattedMealPlanName
+import com.appdev.eateryblueandroid.ui.viewmodels.pulledSwipesType
+import com.appdev.eateryblueandroid.util.Constants.mealPlanMap
+import com.appdev.eateryblueandroid.util.Constants.mealPlanNameMap
+import com.appdev.eateryblueandroid.util.Constants.mealPlans
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson
 import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 class DateTimeAdapter {
     @ToJson
@@ -71,19 +74,32 @@ class AccountTypeAdapter {
         }
     }
 
+    private fun accountNameHasMealPlan(accountName: String) : Boolean {
+        mealPlans.forEach {
+            if (accountName.contains(it, ignoreCase = true))
+                return true
+        }
+        return false
+    }
+
     @FromJson
     fun fromJson(accountName: String): AccountType {
+        if (accountNameHasMealPlan(accountName)) {
+            mealPlans.forEach {
+                if (accountName.contains(it, ignoreCase = true)) {
+                    pulledSwipesType =  mealPlanMap[it] ?: SwipesType.NONE
+                    formattedMealPlanName = mealPlanNameMap[it] ?: ""
+                }
+            }
+            return AccountType.MEALPLAN
+        }
+
         return if (accountName.contains("brb", ignoreCase = true)) {
             AccountType.BRBS
         } else if (accountName.contains("city bucks", ignoreCase = true)) {
             AccountType.CITYBUCKS
         } else if (accountName.contains("laundry", ignoreCase = true)) {
             AccountType.LAUNDRY
-        } else if (accountName.contains("meal plan", ignoreCase = true) ||
-            accountName.contains("off-campus value", ignoreCase = true) ||
-            accountName.contains("bear traditional", ignoreCase = true)
-        ) {
-            AccountType.MEALPLAN
         } else {
             AccountType.OTHER
         }

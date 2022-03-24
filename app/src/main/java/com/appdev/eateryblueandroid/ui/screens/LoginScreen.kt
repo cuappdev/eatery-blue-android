@@ -54,7 +54,10 @@ fun LoginScreen(profileViewModel: ProfileViewModel) {
             }
             LoginButton(
                 profileViewModel = profileViewModel,
-                login = { profileViewModel.initiateLogin(netid, password) }
+                login = {
+                    if (netid.isNotEmpty() && password.isNotEmpty())
+                        profileViewModel.initiateLogin(netid, password)
+                }
             )
         }
     }
