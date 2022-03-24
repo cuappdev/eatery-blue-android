@@ -54,7 +54,8 @@ fun AccountSummaries(accounts: List<Account>?, swipesType: SwipesType, mealPlanN
                         )
                     }
                     else {
-                        Text(text = "Unlimited swipes", textStyle = TextStyle.BODY_SEMIBOLD)
+                        Text(text = "Unlimited", textStyle = TextStyle.BODY_SEMIBOLD)
+                        Text(text = " swipes", textStyle = TextStyle.BODY_SEMIBOLD, color = colorResource(id = R.color.gray05))
                     }
                 }
             }
