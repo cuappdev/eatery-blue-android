@@ -33,6 +33,27 @@ fun Main(
     bottomSheetViewModel: BottomSheetViewModel
 ) {
     var mainItems by remember { mutableStateOf(listOf<MainItem>()) }
+    val showBottomSheet = {
+        val updatedFilter = mutableStateOf(filters)
+        val toggleFilter = { selected: String ->
+            if (updatedFilter.value.contains(selected)) {
+                updatedFilter.value = updatedFilter.value.filter { it != selected }
+            } else {
+                updatedFilter.value = updatedFilter.value + selected
+            }
+        }
+        bottomSheetViewModel.show {
+            PaymentMethodFilter(
+                selectedFilter = updatedFilter,
+                toggleFilter = toggleFilter,
+                saveFilter = setFilters,
+                hide = bottomSheetViewModel::hide
+            )
+        }
+    }
+    if (filters.contains("Payment Options")) {
+        showBottomSheet()
+    }
 
     mainItems = listOf(listOf(MainItem.SearchBox),
         listOf(MainItem.FilterOptions),
@@ -63,6 +84,10 @@ fun Main(
                 isContained && getWalkTimes(it) < 10
             if (filters.contains("Favorites")) isContained =
                 isContained && it.isFavorite()
+            isContained = isContained &&
+                    ((filters.contains("Meal swipes") && it.paymentAcceptsMealSwipes == true) ||
+                            (filters.contains("BRBs") && it.paymentAcceptsBrbs == true) ||
+                            (filters.contains("Cash or credit") && it.paymentAcceptsCash == true))
             isContained
         }.sortedByDescending {
             if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(

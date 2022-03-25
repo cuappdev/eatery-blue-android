@@ -39,7 +39,7 @@ class HomeViewModel(
                             _state.value = State.Data(
                                 eateries = eateries,
                                 sections = eaterySections(),
-                                filters = listOf()
+                                filters = listOf("Meal swipes", "BRBs", "Cash or credit")
                             )
                             this.cancel()
                         }
