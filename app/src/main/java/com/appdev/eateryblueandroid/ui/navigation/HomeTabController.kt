@@ -5,10 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
-import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.ExpandedSectionViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
-import com.appdev.eateryblueandroid.ui.viewmodels.HomeTabViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.*
 
 @Composable
 fun HomeTabController(
@@ -16,7 +13,8 @@ fun HomeTabController(
     homeViewModel: HomeViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
-    eateryListScrollState: LazyListState
+    eateryListScrollState: LazyListState,
+    bottomSheetViewModel: BottomSheetViewModel
 ) {
     val state = homeTabViewModel.state.collectAsState()
 
@@ -33,7 +31,8 @@ fun HomeTabController(
                         expandedSectionViewModel.expandSection(section)
                         homeTabViewModel.transitionExpandedSection()
                     },
-                    scrollState = eateryListScrollState
+                    scrollState = eateryListScrollState,
+                    bottomSheetViewModel = bottomSheetViewModel
                 )
             is HomeTabViewModel.State.EateryDetailVisible ->
                 EateryDetailScreen(
