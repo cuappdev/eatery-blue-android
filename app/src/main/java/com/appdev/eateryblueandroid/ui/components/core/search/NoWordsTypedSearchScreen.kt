@@ -40,6 +40,7 @@ fun NoWordsTypedSearchScreen(
 //        }
 //    }
 
+
     val searchItem: List<SearchItem> = listOf(
 //        listOf(SearchItem.SearchBox),
         listOf(SearchItem.FavoriteLabel),
@@ -94,7 +95,7 @@ fun NoWordsTypedSearchScreen(
                         )
                     }
                 is SearchItem.RecentlySearched ->
-                    RecentSearchList(selectEatery = selectEatery)
+                    RecentSearchList(eateries = eateries, selectEatery = selectEatery)
 
             }
         }
