@@ -1,11 +1,8 @@
 package com.appdev.eateryblueandroid.networking.get
 
 import com.appdev.eateryblueandroid.models.AccountType
-import com.appdev.eateryblueandroid.models.SwipesType
 import com.appdev.eateryblueandroid.models.TransactionType
-import com.appdev.eateryblueandroid.ui.viewmodels.formattedMealPlanName
-import com.appdev.eateryblueandroid.ui.viewmodels.pulledSwipesType
-import com.appdev.eateryblueandroid.util.Constants.mealPlanMap
+import com.appdev.eateryblueandroid.util.Constants.mealPlanAccountMap
 import com.appdev.eateryblueandroid.util.Constants.mealPlanNameMap
 import com.appdev.eateryblueandroid.util.Constants.mealPlans
 import com.squareup.moshi.FromJson
@@ -67,7 +64,7 @@ class AccountTypeAdapter {
             "city bucks"
         } else if (accountType == AccountType.LAUNDRY) {
             "laundry"
-        } else if (accountType == AccountType.MEALPLAN) {
+        } else if (accountType == AccountType.MEALSWIPES) {
             "meal plan"
         } else {
             "other"
@@ -87,11 +84,9 @@ class AccountTypeAdapter {
         if (accountNameHasMealPlan(accountName)) {
             mealPlans.forEach {
                 if (accountName.contains(it, ignoreCase = true)) {
-                    pulledSwipesType =  mealPlanMap[it] ?: SwipesType.NONE
-                    formattedMealPlanName = mealPlanNameMap[it] ?: ""
+                    return mealPlanAccountMap[it] ?: AccountType.OTHER
                 }
             }
-            return AccountType.MEALPLAN
         }
 
         return if (accountName.contains("brb", ignoreCase = true)) {
@@ -100,7 +95,8 @@ class AccountTypeAdapter {
             AccountType.CITYBUCKS
         } else if (accountName.contains("laundry", ignoreCase = true)) {
             AccountType.LAUNDRY
-        } else {
+        }
+        else {
             AccountType.OTHER
         }
     }

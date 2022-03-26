@@ -32,7 +32,7 @@ fun ProfileTabController(
                     ) {
                         hasLoaded = true
                         CoroutineScope(Dispatchers.Default).launch {
-                            profileViewModel.initiateLogin(
+                            profileViewModel.autoLogin(
                                 loadedUsername!!,
                                 decryptData(passwordAlias, loadedPassword!!)
                             )

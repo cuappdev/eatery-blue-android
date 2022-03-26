@@ -4,7 +4,8 @@ import android.content.Context
 import android.location.Location
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
-import com.appdev.eateryblueandroid.models.SwipesType
+import com.appdev.eateryblueandroid.models.AccountType.*
+import com.appdev.eateryblueandroid.models.AccountType
 import com.codelab.android.datastore.UserPreferences
 
 object Constants {
@@ -26,30 +27,43 @@ object Constants {
         serializer = UserPreferencesSerializer
     )
 
-    val passwordAlias = "passwordy password"
+    const val passwordAlias = "passwordy password"
 
-    val mealPlans = listOf("meal plan", "off-campus value", "bear traditional", "unlimited",
-        "bear choice", "bear basic", "house", "flex")
+    val mealPlans = listOf(
+        "off-campus value", "bear traditional", "unlimited",
+        "bear choice", "bear basic", "house", "flex"
+    )
 
-    val mealPlanMap = hashMapOf(
-        "off-campus value" to SwipesType.SEMESTERLY,
-        "bear traditional" to SwipesType.WEEKLY,
-        "unlimited" to SwipesType.UNLIMITED,
-        "bear basic" to SwipesType.WEEKLY,
-        "bear choice" to SwipesType.WEEKLY,
-        "house meal plan" to SwipesType.UNLIMITED,
-        "house affiliate" to SwipesType.WEEKLY,
-        "flex" to SwipesType.SEMESTERLY)
+    val mealPlanAccountMap: HashMap<String, AccountType> = hashMapOf(
+        "off-campus value" to OFF_CAMPUS,
+        "bear traditional" to BEAR_TRADITIONAL,
+        "unlimited" to UNLIMITED,
+        "bear basic" to BEAR_BASIC,
+        "bear choice" to BEAR_CHOICE,
+        "house meal plan" to HOUSE_MEALPLAN,
+        "house affiliate" to HOUSE_AFFILIATE,
+        "flex" to FLEX,
+        "bucks" to JUST_BUCKS
+    )
+
+    val mealPlanTypes = listOf(
+        OFF_CAMPUS, BEAR_TRADITIONAL, UNLIMITED, BEAR_BASIC, BEAR_CHOICE, HOUSE_MEALPLAN,
+        HOUSE_AFFILIATE, FLEX, JUST_BUCKS)
 
     // Each of these will have "Meal Plan" appended to it when displayed to the user.
     val mealPlanNameMap = hashMapOf(
-        "off-campus value" to "Off-Campus Value",
-        "bear traditional" to "Bear Traditional",
-        "unlimited" to "Unlimited",
-        "bear basic" to "Bear Basic",
-        "bear choice" to "Bear Choice",
-        "house meal plan" to "House",
-        "house affiliate" to "House Affiliate",
-        "flex" to "Flex 10/500",
-        "bucks" to "Just Bucks")
+        OFF_CAMPUS to "Off-Campus Value",
+        BEAR_TRADITIONAL to "Bear Traditional",
+        UNLIMITED to "Unlimited",
+        BEAR_BASIC to "Bear Basic",
+        BEAR_CHOICE to "Bear Choice",
+        HOUSE_MEALPLAN to "House",
+        HOUSE_AFFILIATE to "House Affiliate",
+        FLEX to "Flex 10/500",
+        JUST_BUCKS to "Just Bucks"
+    )
+
+    val semesterlyMealPlans = listOf(OFF_CAMPUS, FLEX)
+
+    val weeklyMealPlans = listOf(BEAR_TRADITIONAL, BEAR_BASIC, BEAR_CHOICE, HOUSE_AFFILIATE)
 }

@@ -14,10 +14,10 @@ data class User(
     @Json(name = "email") val email: String? = null,
     @Json(name = "phone") val phone: String? = null,
     var accounts: List<Account>? = null,
-    var transactions: List<Transaction>? = listOf(),
-    @Transient var swipesType: SwipesType = SwipesType.NONE,
-    @Transient var mealPlanName : String = ""
+    var transactions: List<Transaction>? = listOf()
 )
+
+
 
 data class AccountsResponse(
     @Json(name = "accounts") val accounts: List<Account>? = null
@@ -45,18 +45,14 @@ data class Transaction(
 )
 
 enum class AccountType {
-    LAUNDRY, MEALPLAN, BRBS, CITYBUCKS, OTHER
-}
+    // MEALSWIPES is used for transaction history filtering, only. For anything else, use the actual
+    // meal plan types in the block below (OFF_CAMPUS, BEAR_TRADITIONAL, etc.).
+    LAUNDRY, MEALSWIPES, BRBS, CITYBUCKS,
 
+    OFF_CAMPUS, BEAR_TRADITIONAL, UNLIMITED, BEAR_BASIC,
+    BEAR_CHOICE, HOUSE_MEALPLAN, HOUSE_AFFILIATE, FLEX, JUST_BUCKS,
 
-enum class SwipesType {
-    WEEKLY, SEMESTERLY, UNLIMITED,
-
-    /**
-     * Use if this meal plan does not have meal swipes or would not be concerned with how many
-     * swipes they have. Default.
-     */
-    NONE
+    OTHER
 }
 
 enum class TransactionType {

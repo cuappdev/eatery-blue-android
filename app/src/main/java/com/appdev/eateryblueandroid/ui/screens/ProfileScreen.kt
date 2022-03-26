@@ -38,7 +38,7 @@ fun ProfileScreen(
         val currentFilter =
             if (state.value is ProfileViewModel.State.ProfileData)
                 (state.value as ProfileViewModel.State.ProfileData).accountFilter
-            else (state.value as ProfileViewModel.State.LoggingIn).cachedLoginData.accountFilter
+            else (state.value as ProfileViewModel.State.AutoLoggingIn).cachedProfileData.accountFilter
         val updatedFilter = mutableStateOf(currentFilter)
         val toggleFilter = { filter: AccountType ->
             updatedFilter.value = filter
@@ -66,7 +66,7 @@ fun ProfileScreen(
                     .padding(top = 24.dp, end = 16.dp, start = 16.dp).fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                if (state.value is ProfileViewModel.State.LoggingIn)
+                if (state.value is ProfileViewModel.State.AutoLoggingIn)
                     CircularProgressIndicator(
                         color = colorResource(id = R.color.white),
                         modifier = Modifier.size(24.dp).fillMaxWidth(),
@@ -95,12 +95,11 @@ fun ProfileScreen(
                         showBottomSheet = showBottomSheet
                     )
                 }
-                is ProfileViewModel.State.LoggingIn -> {
-                    //Text("FAILURE STATE")
+                is ProfileViewModel.State.AutoLoggingIn -> {
                     Main(
-                        user = it.cachedLoginData.user,
-                        accountFilter = it.cachedLoginData.accountFilter,
-                        transactionQuery = it.cachedLoginData.query,
+                        user = it.cachedProfileData.user,
+                        accountFilter = it.cachedProfileData.accountFilter,
+                        transactionQuery = it.cachedProfileData.query,
                         updateQuery = profileViewModel::updateQuery,
                         showBottomSheet = showBottomSheet
                     )

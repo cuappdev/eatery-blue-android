@@ -4,29 +4,21 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.AccountType
-import com.appdev.eateryblueandroid.models.SwipesType
 import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
-import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
-import com.appdev.eateryblueandroid.util.appContext
 import com.appdev.eateryblueandroid.util.cacheAccountInfo
 import com.appdev.eateryblueandroid.util.makeCachedUser
 import com.appdev.eateryblueandroid.util.saveLoginInfo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
-
-var pulledSwipesType : SwipesType = SwipesType.NONE
-var formattedMealPlanName : String = ""
-
 class ProfileViewModel : ViewModel() {
     sealed class State {
         object Empty : State()
-        data class LoggingIn(val netid: String, val password: String, val cachedLoginData: ProfileData) : State()
+        data class LoggingIn(val netid: String, val password: String) : State()
+        data class AutoLoggingIn (val netid: String, val password: String, val cachedProfileData: ProfileData) : State()
         data class ProfileData(
             val user: User,
             val query: String,
@@ -49,7 +41,12 @@ class ProfileViewModel : ViewModel() {
     val display = _display.asStateFlow()
 
     fun initiateLogin(netid: String, password: String) {
-        _state.value = State.LoggingIn(netid, password, State.ProfileData(makeCachedUser(),"", AccountType.MEALPLAN))
+        _state.value = State.LoggingIn(netid, password)
+        _display.value = Display.Login(authenticating = true, progress = 0.3f)
+    }
+
+    fun autoLogin(netid: String, password: String) {
+        _state.value = State.AutoLoggingIn(netid, password, State.ProfileData(makeCachedUser(), "", AccountType.MEALSWIPES))
         _display.value = Display.Login(authenticating = true, progress = 0.3f)
     }
 
@@ -77,7 +74,10 @@ class ProfileViewModel : ViewModel() {
 
     fun loginSuccess(sessionId: String) {
         _display.value = Display.Login(authenticating = true, progress = 0.9f)
-        saveLoginInfo((state.value as State.LoggingIn).netid, (state.value as State.LoggingIn).password)
+        if (state.value is State.LoggingIn)
+            saveLoginInfo((state.value as State.LoggingIn).netid, (state.value as State.LoggingIn).password)
+        else
+            saveLoginInfo((state.value as State.AutoLoggingIn).netid, (state.value as State.AutoLoggingIn).password)
         viewModelScope.launch {
             val res1 = GetApiService.getInstance().fetchUser(
                 GetApiService.generateUserBody(sessionId = sessionId)
@@ -108,20 +108,19 @@ class ProfileViewModel : ViewModel() {
             }
             user.accounts = res2.response?.accounts
             user.transactions = res3.response?.transactions
-            user.swipesType = pulledSwipesType
-            user.mealPlanName = formattedMealPlanName
 
             Log.i("Login", user.transactions.toString())
 
-            val cachedProfile : State.ProfileData = (_state.value as State.LoggingIn).cachedLoginData
+
+            val cachedProfile : State.ProfileData? = if (_state.value is State.AutoLoggingIn) (_state.value as State.AutoLoggingIn).cachedProfileData else null
             _state.value = State.ProfileData(
                 user = user,
-                query = cachedProfile.query,
-                accountFilter = cachedProfile.accountFilter,
+                query = cachedProfile?.query ?: "",
+                accountFilter = cachedProfile?.accountFilter ?: AccountType.MEALSWIPES,
             )
             _display.value = Display.Profile
 
-            cacheAccountInfo(user.accounts!!, user.transactions!!, pulledSwipesType, formattedMealPlanName)
+            cacheAccountInfo(user.accounts!!, user.transactions!!)
         }
     }
 
@@ -140,7 +139,7 @@ class ProfileViewModel : ViewModel() {
             )
         }
         else {
-            val currentProfileData = (_state.value as? State.LoggingIn)?.cachedLoginData ?: return
+            val currentProfileData = (_state.value as? State.AutoLoggingIn)?.cachedProfileData ?: return
             currentProfileData.accountFilter = updatedFilter
         }
     }

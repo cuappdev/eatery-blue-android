@@ -17,8 +17,6 @@ message UserPreferences {
   bool wasLoggedIn = 5;
   repeated AccountProto accounts = 6;
   repeated TransactionProto transactionHistory = 7;
-  int32 swipesType = 8;
-  string mealPlanName = 9;
 }
 
 message AccountProto {
@@ -30,7 +28,6 @@ message TransactionProto {
   string id = 1;
   double amount = 2;
   double resultingBalance = 3;
-  // date here
   Date date = 7;
 
   int32 transactionType = 4;
