@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -18,6 +18,7 @@ import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.util.Constants.WORLD_DISTANCE_KM
 
 @Composable
@@ -25,31 +26,75 @@ fun Main(
     scrollState: LazyListState,
     sections: List<EaterySection>,
     eateries: List<Eatery>,
+    filters: List<String>,
+    setFilters: (selection: List<String>) -> Unit,
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
     selectSearch: () -> Unit,
+    bottomSheetViewModel: BottomSheetViewModel
 ) {
-    val mainItems: List<MainItem> = listOf(
-        listOf(MainItem.SearchBox),
-        listOf(MainItem.FilterOptions),
-        sections.filter{section -> eateries.any{section.filter(it)}}
-            .flatMap { section ->
-            listOf(
-                MainItem.EaterySectionLabel(
-                    section.name,
-                    expandable = eateries.filter { section.filter(it) }.size > 3,
-                    expandSection = { selectSection(section) }
-                ),
-                MainItem.EaterySectionList(section)
+    var mainItems by remember { mutableStateOf(listOf<MainItem>()) }
+    val showBottomSheet = {
+        val updatedFilter = mutableStateOf(filters)
+        val toggleFilter = { selected: String ->
+            if (updatedFilter.value.contains(selected)) {
+                updatedFilter.value = updatedFilter.value.filter { it != selected }
+            } else {
+                updatedFilter.value = updatedFilter.value + selected
+            }
+        }
+        bottomSheetViewModel.show {
+            PaymentMethodFilter(
+                selectedFilter = updatedFilter,
+                toggleFilter = toggleFilter,
+                saveFilter = setFilters,
+                hide = bottomSheetViewModel::hide
             )
-        },
+        }
+    }
+    if (filters.contains("Payment Options")) {
+        showBottomSheet()
+    }
+
+    mainItems = listOf(listOf(MainItem.SearchBox),
+        listOf(MainItem.FilterOptions),
+        sections.filter { section -> eateries.any { section.filter(it) } }
+            .flatMap { section ->
+                listOf(
+                    MainItem.EaterySectionLabel(
+                        section.name,
+                        expandable = eateries.filter { section.filter(it) }.size > 3,
+                        expandSection = { selectSection(section) }
+                    ),
+                    MainItem.EaterySectionList(section)
+                )
+            },
         listOf(MainItem.EaterySectionLabel(
             "All Eateries",
             expandable = false, expandSection = {}
         )),
-        // Why 250k? That's the time in minutes to walk halfway around the world (aka. max on Earth)
-        eateries.sortedByDescending { if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(it) }
-            .map { MainItem.EateryItem(it) }
+        eateries.filter {
+            var isContained = true
+            if (filters.contains("North")) isContained =
+                isContained && it.campusArea == "North"
+            if (filters.contains("West")) isContained =
+                isContained && it.campusArea == "West"
+            if (filters.contains("Central")) isContained =
+                isContained && it.campusArea == "Central"
+            if (filters.contains("Under 10 minutes")) isContained =
+                isContained && getWalkTimes(it) < 10
+            if (filters.contains("Favorites")) isContained =
+                isContained && it.isFavorite()
+            isContained = isContained &&
+                    ((filters.contains("Meal swipes") && it.paymentAcceptsMealSwipes == true) ||
+                            (filters.contains("BRBs") && it.paymentAcceptsBrbs == true) ||
+                            (filters.contains("Cash or credit") && it.paymentAcceptsCash == true))
+            isContained
+        }.sortedByDescending {
+            if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(
+                it
+            )
+        }.map { MainItem.EateryItem(it) }
     ).flatten()
 
     LazyColumn(
@@ -62,7 +107,9 @@ fun Main(
                     Column(modifier = Modifier.padding(16.dp, 12.dp)) {
                         SearchBar(selectSearch = selectSearch)
                     }
-                is MainItem.FilterOptions -> EateryFilters()
+                is MainItem.FilterOptions -> EateryFilters(alreadySelected = filters) {
+                    setFilters(it)
+                }
                 is MainItem.EaterySectionLabel ->
                     Row(
                         modifier = Modifier

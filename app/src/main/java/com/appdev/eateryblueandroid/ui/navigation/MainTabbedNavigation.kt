@@ -106,7 +106,8 @@ private fun MainScreenNavigationConfigurations(
                 eateryDetailViewModel = eateryDetailViewModel,
                 expandedSectionViewModel = expandedSectionViewModel,
                 searchViewModel = searchViewModel,
-                eateryListScrollState = eateryListScrollState
+                eateryListScrollState = eateryListScrollState,
+                bottomSheetViewModel = bottomSheetViewModel
             )
         }
         composable(profileTab.route) {
