@@ -52,7 +52,7 @@ fun saveLoginInfo(username: String, password: String) {
     loadedPassword = password
     var loggedIn = false
     if (username.isNotEmpty() && password.isNotEmpty()) loggedIn = true
-    if (loggedIn == false)
+    if (!loggedIn)
         CachedAccountInfo.cached = false
 
     Log.i("IO", "Attempting save with username $username and its password.")

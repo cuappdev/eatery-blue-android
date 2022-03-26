@@ -21,7 +21,7 @@ class ProfileViewModel : ViewModel() {
         data class AutoLoggingIn (val netid: String, val password: String, val cachedProfileData: ProfileData) : State()
         data class ProfileData(
             val user: User,
-            val query: String,
+            var query: String,
             var accountFilter: AccountType
         ) : State()
 
@@ -145,12 +145,18 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun updateQuery(updatedQuery: String) {
-        val currentProfileData = _state.value as? State.ProfileData ?: return
-        _state.value = State.ProfileData(
-            user = currentProfileData.user,
-            query = updatedQuery,
-            accountFilter = currentProfileData.accountFilter
-        )
+        if (_state.value is State.ProfileData) {
+            val currentProfileData = _state.value as? State.ProfileData ?: return
+            _state.value = State.ProfileData(
+                user = currentProfileData.user,
+                query = updatedQuery,
+                accountFilter = currentProfileData.accountFilter
+            )
+        }
+        else {
+            val currentProfileData = (_state.value as? State.AutoLoggingIn)?.cachedProfileData ?: return
+            currentProfileData.query = updatedQuery
+        }
     }
 
 }
