@@ -1,19 +1,14 @@
 package com.appdev.eateryblueandroid.ui.components.core
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.sp
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.ui.theme.sfProDisplayFontFamily
-import com.appdev.eateryblueandroid.ui.theme.sfProTextFontFamily
 import androidx.compose.material.Text as AndroidText
 
 enum class TextStyle {
@@ -47,34 +42,11 @@ fun Text(
         maxLines = maxLines,
         overflow = TextOverflow.Ellipsis,
         color = color,
-        fontFamily = fontFamily(textStyle),
         fontWeight = fontWeight(textStyle),
         fontSize = fontSize(textStyle),
         letterSpacing = 0.sp,
         modifier = modifier
     )
-}
-
-private fun fontFamily(textStyle: TextStyle): FontFamily {
-    return if (textStyle == TextStyle.HEADER_H1) {
-        sfProDisplayFontFamily
-    } else if (textStyle == TextStyle.HEADER_H2) {
-        sfProDisplayFontFamily
-    } else if (textStyle == TextStyle.HEADER_H3) {
-        sfProDisplayFontFamily
-    } else if (textStyle == TextStyle.HEADER_H4) {
-        sfProDisplayFontFamily
-    } else if (textStyle == TextStyle.HEADER_H5) {
-        sfProDisplayFontFamily
-    } else if (textStyle == TextStyle.HEADER_H6) {
-        sfProDisplayFontFamily
-    } else if (textStyle == TextStyle.SUBTITLE) {
-        sfProDisplayFontFamily
-    } else if (textStyle == TextStyle.APPDEV_BODY_MEDIUM) {
-        sfProDisplayFontFamily
-    } else {
-        sfProTextFontFamily
-    }
 }
 
 private fun fontSize(textStyle: TextStyle): TextUnit {

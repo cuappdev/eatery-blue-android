@@ -11,15 +11,21 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import com.appdev.eateryblueandroid.R
+import com.appdev.eateryblueandroid.models.AccountType
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.ui.components.general.TopBar
 import com.appdev.eateryblueandroid.ui.components.home.Main
+import com.appdev.eateryblueandroid.ui.components.home.PaymentMethodFilter
+import com.appdev.eateryblueandroid.ui.components.profile.PaymentMethodSelector
+import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 import com.appdev.eateryblueandroid.util.LocationHandler
 
 @Composable
@@ -27,7 +33,8 @@ fun HomeScreen(
     homeViewModel: HomeViewModel,
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
-    scrollState: LazyListState
+    scrollState: LazyListState,
+    bottomSheetViewModel: BottomSheetViewModel
 ) {
     val context = LocalContext.current
     val locationPermissionRequest = rememberLauncherForActivityResult(
@@ -45,6 +52,7 @@ fun HomeScreen(
             }
         }
     }
+
     SideEffect {
         when (PackageManager.PERMISSION_GRANTED) {
             ContextCompat.checkSelfPermission(
@@ -80,8 +88,11 @@ fun HomeScreen(
                         scrollState = scrollState,
                         eateries = it.eateries,
                         sections = it.sections,
+                        filters = it.filters,
+                        setFilters = {s -> homeViewModel.updateFilters(s)},
                         selectEatery = selectEatery,
-                        selectSection = selectSection
+                        selectSection = selectSection,
+                        bottomSheetViewModel = bottomSheetViewModel
                     )
                 }
                 is HomeViewModel.State.Failure ->

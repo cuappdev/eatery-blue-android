@@ -17,7 +17,7 @@ object LocationHandler {
         updateLocation(context)
     }
 
-    fun updateLocation(context: Context) {
+    private fun updateLocation(context: Context) {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -29,7 +29,9 @@ object LocationHandler {
             return
         }
         fusedLocationClient.lastLocation.addOnSuccessListener {
-            currentLocation = it
+            if (it != null) {
+                currentLocation = it
+            }
         }
     }
 
