@@ -17,6 +17,8 @@ data class User(
     var transactions: List<Transaction>? = listOf()
 )
 
+
+
 data class AccountsResponse(
     @Json(name = "accounts") val accounts: List<Account>? = null
 )
@@ -43,7 +45,14 @@ data class Transaction(
 )
 
 enum class AccountType {
-    LAUNDRY, MEALPLAN, BRBS, CITYBUCKS, OTHER
+    // MEALSWIPES is used for transaction history filtering, only. For anything else, use the actual
+    // meal plan types in the block below (OFF_CAMPUS, BEAR_TRADITIONAL, etc.).
+    LAUNDRY, MEALSWIPES, BRBS, CITYBUCKS,
+
+    OFF_CAMPUS, BEAR_TRADITIONAL, UNLIMITED, BEAR_BASIC,
+    BEAR_CHOICE, HOUSE_MEALPLAN, HOUSE_AFFILIATE, FLEX, JUST_BUCKS,
+
+    OTHER
 }
 
 enum class TransactionType {

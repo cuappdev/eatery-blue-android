@@ -4,6 +4,41 @@ option java_package = "com.codelab.android.datastore";
 option java_multiple_files = true;
 
 message UserPreferences {
-  // filter for showing / hiding completed tasks
   map<int32, bool> favorites = 1;
+  repeated int32 recentSearches = 2;
+  string username = 3;
+  // Must be encrypted / decrypted.
+  string password = 4;
+
+  //** START OF CACHED LOGIN DATA ******
+
+  // If the user was previously logged in, this field is true and
+  // indicates cached data should be loaded.
+  bool wasLoggedIn = 5;
+  repeated AccountProto accounts = 6;
+  repeated TransactionProto transactionHistory = 7;
+}
+
+message AccountProto {
+  int32 type = 1;
+  double balance = 2;
+}
+
+message TransactionProto {
+  string id = 1;
+  double amount = 2;
+  double resultingBalance = 3;
+  Date date = 7;
+
+  int32 transactionType = 4;
+  int32 accountType = 5;
+  string location = 6;
+}
+
+message Date {
+  int32 year = 1;
+  int32 month = 2;
+  int32 day = 3;
+  int32 hour = 4;
+  int32 minute = 5;
 }

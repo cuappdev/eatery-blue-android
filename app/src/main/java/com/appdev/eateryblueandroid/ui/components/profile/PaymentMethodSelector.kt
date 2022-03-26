@@ -52,8 +52,8 @@ fun PaymentMethodSelector(
 
         PaymentMethodOption(
             text = "Meal Swipes",
-            selected = selectedFilter.value == AccountType.MEALPLAN,
-            onSelect = { toggleFilter(AccountType.MEALPLAN) }
+            selected = selectedFilter.value == AccountType.MEALSWIPES,
+            onSelect = { toggleFilter(AccountType.MEALSWIPES) }
 
         )
         HorizontalSeparator()

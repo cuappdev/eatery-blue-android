@@ -4,24 +4,25 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.AccountType
-import com.appdev.eateryblueandroid.models.Transaction
 import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
+import com.appdev.eateryblueandroid.util.cacheAccountInfo
+import com.appdev.eateryblueandroid.util.makeCachedUser
+import com.appdev.eateryblueandroid.util.saveLoginInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.util.*
 
 class ProfileViewModel : ViewModel() {
     sealed class State {
         object Empty : State()
         data class LoggingIn(val netid: String, val password: String) : State()
+        data class AutoLoggingIn (val netid: String, val password: String, val cachedProfileData: ProfileData) : State()
         data class ProfileData(
             val user: User,
-            val query: String,
-            val accountFilter: AccountType
+            var query: String,
+            var accountFilter: AccountType
         ) : State()
 
         data class LoginFailure(val error: LoginFailureType) : State()
@@ -44,6 +45,11 @@ class ProfileViewModel : ViewModel() {
         _display.value = Display.Login(authenticating = true, progress = 0.3f)
     }
 
+    fun autoLogin(netid: String, password: String) {
+        _state.value = State.AutoLoggingIn(netid, password, State.ProfileData(makeCachedUser(), "", AccountType.MEALSWIPES))
+        _display.value = Display.Login(authenticating = true, progress = 0.3f)
+    }
+
     fun webpageLoaded() {
         _display.value = Display.Login(authenticating = true, progress = 0.6f)
     }
@@ -62,11 +68,16 @@ class ProfileViewModel : ViewModel() {
 
     fun logout() {
         _state.value = State.Empty
+        saveLoginInfo("", "")
         transitionLogin()
     }
 
     fun loginSuccess(sessionId: String) {
         _display.value = Display.Login(authenticating = true, progress = 0.9f)
+        if (state.value is State.LoggingIn)
+            saveLoginInfo((state.value as State.LoggingIn).netid, (state.value as State.LoggingIn).password)
+        else
+            saveLoginInfo((state.value as State.AutoLoggingIn).netid, (state.value as State.AutoLoggingIn).password)
         viewModelScope.launch {
             val res1 = GetApiService.getInstance().fetchUser(
                 GetApiService.generateUserBody(sessionId = sessionId)
@@ -97,12 +108,19 @@ class ProfileViewModel : ViewModel() {
             }
             user.accounts = res2.response?.accounts
             user.transactions = res3.response?.transactions
+
+            Log.i("Login", user.transactions.toString())
+
+
+            val cachedProfile : State.ProfileData? = if (_state.value is State.AutoLoggingIn) (_state.value as State.AutoLoggingIn).cachedProfileData else null
             _state.value = State.ProfileData(
                 user = user,
-                query = "",
-                accountFilter = AccountType.MEALPLAN
+                query = cachedProfile?.query ?: "",
+                accountFilter = cachedProfile?.accountFilter ?: AccountType.MEALSWIPES,
             )
             _display.value = Display.Profile
+
+            cacheAccountInfo(user.accounts!!, user.transactions!!)
         }
     }
 
@@ -112,22 +130,35 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun updateAccountFilter(updatedFilter: AccountType) {
-        val currentProfileData = _state.value as? State.ProfileData ?: return
-        _state.value = State.ProfileData(
-            user = currentProfileData.user,
-            query = currentProfileData.query,
-            accountFilter = updatedFilter
-        )
+        if (_state.value is State.ProfileData) {
+            val currentProfileData = _state.value as? State.ProfileData ?: return
+            _state.value = State.ProfileData(
+                user = currentProfileData.user,
+                query = currentProfileData.query,
+                accountFilter = updatedFilter
+            )
+        }
+        else {
+            val currentProfileData = (_state.value as? State.AutoLoggingIn)?.cachedProfileData ?: return
+            currentProfileData.accountFilter = updatedFilter
+        }
     }
 
     fun updateQuery(updatedQuery: String) {
-        val currentProfileData = _state.value as? State.ProfileData ?: return
-        _state.value = State.ProfileData(
-            user = currentProfileData.user,
-            query = updatedQuery,
-            accountFilter = currentProfileData.accountFilter
-        )
+        if (_state.value is State.ProfileData) {
+            val currentProfileData = _state.value as? State.ProfileData ?: return
+            _state.value = State.ProfileData(
+                user = currentProfileData.user,
+                query = updatedQuery,
+                accountFilter = currentProfileData.accountFilter
+            )
+        }
+        else {
+            val currentProfileData = (_state.value as? State.AutoLoggingIn)?.cachedProfileData ?: return
+            currentProfileData.query = updatedQuery
+        }
     }
+
 }
 
 enum class LoginFailureType {

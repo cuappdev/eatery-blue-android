@@ -23,14 +23,16 @@ fun LoginWebView(profileViewModel: ProfileViewModel) {
     CookieManager.getInstance().flush()
 
     state.value.let { loginState ->
-        if (loginState is ProfileViewModel.State.LoggingIn) {
+        if (loginState is ProfileViewModel.State.LoggingIn || loginState is ProfileViewModel.State.AutoLoggingIn) {
             AndroidView(factory = {
                 WebView(it).apply {
                     layoutParams = ViewGroup.LayoutParams(0, 0)
                     settings.javaScriptEnabled = true
                     webViewClient = SessionIdWebViewClient(
-                        netid = loginState.netid,
-                        password = loginState.password,
+                        netid = (loginState as? ProfileViewModel.State.LoggingIn)?.netid
+                            ?: (loginState as ProfileViewModel.State.AutoLoggingIn).netid,
+                        password = (loginState as? ProfileViewModel.State.LoggingIn)?.password
+                            ?: (loginState as ProfileViewModel.State.AutoLoggingIn).password,
                         loginSuccess = profileViewModel::loginSuccess,
                         loginFailure = profileViewModel::loginFailure,
                         webpageLoaded = profileViewModel::webpageLoaded
