@@ -64,11 +64,6 @@ fun EateryFilters(alreadySelected: List<String>, onFiltersChange: (updated: List
         }
     }
 }
-//@Preview
-//@Composable
-//fun PreviewEateryFilters() {
-//    EateryFilters()
-//}
 
 @Composable
 fun EateryFilter(text: String, isSelected: Boolean, chevronOn: Boolean = false, onClicked: () -> Unit) {
@@ -101,8 +96,3 @@ fun EateryFilter(text: String, isSelected: Boolean, chevronOn: Boolean = false, 
         }
     }
 }
-//@Preview
-//@Composable
-//fun PreviewEateryFiltersText() {
-//    EateryFilter("Hello")
-//}

@@ -19,7 +19,6 @@ class SearchViewModel(
         object NothingTyped: State()
         object WordsTyped: State()
         // WordsTyped(val eateries: List<Eatery>): State()
-        object SearchResults: State()
 
         data class Failure(val errorMsg: String) : State()
     }
@@ -39,9 +38,6 @@ class SearchViewModel(
 
     fun transitionSearchNothingTyped() {
         _state.value = SearchViewModel.State.NothingTyped
-    }
-    fun transitionSearchResults() {
-        _state.value = SearchViewModel.State.SearchResults
     }
     fun onTextChange(input : String){
         typedText.value = input

@@ -104,7 +104,7 @@ fun FavoriteItem(
          eatery.name?.let {
              Text(
                  text = it,
-                 textStyle = TextStyle.BODY_SEMIBOLD ,
+                 textStyle = TextStyle.BODY_SEMIBOLD,
                  textAlign = TextAlign.Center,
                  modifier = Modifier.align(Alignment.CenterHorizontally)
              )

@@ -25,18 +25,22 @@ fun SearchingScreen(
     hideSection: () -> Unit,
     homeViewModel: HomeViewModel,
     selectSection: (eaterySection: EaterySection) -> Unit,
-){
+) {
     val state = searchViewModel.state.collectAsState()
     val homeState = homeViewModel.state.collectAsState()
-    var eateries :List<Eatery> = listOf()
+    var eateries: List<Eatery> = listOf()
+    var filters: List<String> = listOf()
+
     var failedToLoadEatery = false;
     //collect the eateries list
-    homeState.value.let{
-        when(it){
+    homeState.value.let {
+        when (it) {
             is HomeViewModel.State.Loading ->
                 failedToLoadEatery = true
-            is HomeViewModel.State.Data ->
+            is HomeViewModel.State.Data -> {
                 eateries = it.eateries
+                filters = it.filters
+            }
             is HomeViewModel.State.Failure ->
                 failedToLoadEatery = true
         }
@@ -67,10 +71,10 @@ fun SearchingScreen(
                     WordsTypedSearchScreen(
                         eateries = eateries,
                         selectEatery = selectEatery,
-                        searchViewModel = searchViewModel
+                        searchViewModel = searchViewModel,
+                        filters = filters,
+                        setFilters = {s -> homeViewModel.updateFilters(s)},
                     )
-                is SearchViewModel.State.SearchResults ->
-                    Text("Search Results")
                 is SearchViewModel.State.Failure ->
                     Text("Failed to load")
             }
@@ -80,8 +84,9 @@ fun SearchingScreen(
         hideSection()
     }
 }
+
 sealed class SearchTextedItem {
-    object SearchBox: SearchTextedItem()
-    object FilterOptions: SearchTextedItem()
-    data class EateryItem(val eatery: Eatery): SearchTextedItem()
+    object SearchBox : SearchTextedItem()
+    object FilterOptions : SearchTextedItem()
+    data class EateryItem(val eatery: Eatery) : SearchTextedItem()
 }

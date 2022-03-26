@@ -64,6 +64,7 @@ fun HomeTabController(
                         expandedSectionViewModel.expandSection(section)
                         homeTabViewModel.transitionExpandedSection()
                     },
+
                 )
 
         }

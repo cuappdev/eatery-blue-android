@@ -149,7 +149,6 @@ fun TextField(
                 visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
                 textStyle = AndroidTextStyle(
                     color = Color.Black,
-                    fontFamily = sfProTextFontFamily,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 ),

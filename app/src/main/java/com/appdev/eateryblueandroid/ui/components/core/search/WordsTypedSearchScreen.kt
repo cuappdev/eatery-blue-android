@@ -23,6 +23,8 @@ fun WordsTypedSearchScreen(
     eateries: List<Eatery>,
     selectEatery: (eatery: Eatery) -> Unit,
     searchViewModel: SearchViewModel,
+    filters: List<String>,
+    setFilters: (selection: List<String>) -> Unit,
 
 ){
     val typedText = searchViewModel.typedText.value
@@ -47,11 +49,12 @@ fun WordsTypedSearchScreen(
         items(searchTextedItem) { item ->
             when (item) {
 //                is SearchTextedItem.SearchBox ->
-//
 //                        TypeableSearchBar(searchViewModel)
 //                    }
                 is SearchTextedItem.FilterOptions -> Column(modifier = Modifier.padding(bottom = 12.dp)) {
-                    EateryFilters()
+                    EateryFilters(alreadySelected = filters) {
+                        setFilters(it)
+                    }
                 }
                 is SearchTextedItem.EateryItem ->
                     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)) {
