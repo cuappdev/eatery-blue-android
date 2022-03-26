@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
@@ -54,7 +55,28 @@ fun Text(
         modifier = modifier
     )
 }
-
+@Composable
+fun Text(
+    text: String,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = TextStyle.BODY_NORMAL,
+    color: Color = colorResource(id = R.color.black),
+    maxLines: Int = Integer.MAX_VALUE,
+    textAlign: TextAlign
+) {
+    AndroidText(
+        text = text,
+        maxLines = maxLines,
+        overflow = TextOverflow.Ellipsis,
+        color = color,
+        fontFamily = fontFamily(textStyle),
+        fontWeight = fontWeight(textStyle),
+        fontSize = fontSize(textStyle),
+        letterSpacing = 0.sp,
+        modifier = modifier ,
+        textAlign = textAlign
+    )
+}
 private fun fontFamily(textStyle: TextStyle): FontFamily {
     return if (textStyle == TextStyle.HEADER_H1) {
         sfProDisplayFontFamily

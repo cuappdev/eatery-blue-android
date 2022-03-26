@@ -35,3 +35,27 @@ fun Image(url: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Composable
+fun Image(url: String, modifier: Modifier = Modifier, contentScale: ContentScale) {
+    GlideImage(
+        imageModel = url,
+        contentScale = contentScale,
+        modifier = modifier,
+        shimmerParams = ShimmerParams(
+            baseColor = colorResource(id = R.color.white),
+            highlightColor = colorResource(id = R.color.gray00),
+            durationMillis = 350,
+            dropOff = 0.65f,
+            tilt = 20f
+        ),
+        failure = {
+            androidx.compose.foundation.Image(
+                painter = painterResource(R.drawable.blank_eatery),
+                contentDescription = "Eatery Image",
+                contentScale = ContentScale.FillWidth,
+                modifier = modifier
+            )
+        }
+    )
+}
+

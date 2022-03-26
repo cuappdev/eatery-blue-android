@@ -50,7 +50,6 @@ fun CircularBackgroundIcon(
                 modifier = Modifier
                     .width(iconWidth)
                     .height(iconHeight)
-
             )
         }
     }

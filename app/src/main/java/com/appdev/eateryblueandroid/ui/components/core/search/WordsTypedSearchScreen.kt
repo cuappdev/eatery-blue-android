@@ -48,7 +48,7 @@ fun WordsTypedSearchScreen(
             when (item) {
                 is SearchTextedItem.SearchBox ->
 //                    Column(modifier = Modifier.padding(16.dp, 12.dp)) {
-                        TypeableSearchBar(searchViewModel,searchText = "sandwich")
+                        TypeableSearchBar(searchViewModel,searchText = "")
 //                    }
                 is SearchTextedItem.FilterOptions -> Column(modifier = Modifier.padding(bottom = 12.dp)) {
                     EateryFilters()

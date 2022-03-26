@@ -58,6 +58,10 @@ fun HomeTabController(
                     },
                     hideSection = homeTabViewModel::transitionEateryList,
                     homeViewModel = homeViewModel,
+                    selectSection = fun(section: EaterySection) {
+                        expandedSectionViewModel.expandSection(section)
+                        homeTabViewModel.transitionExpandedSection()
+                    },
                 )
 
         }

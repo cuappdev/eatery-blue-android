@@ -6,4 +6,5 @@ option java_multiple_files = true;
 message UserPreferences {
   // filter for showing / hiding completed tasks
   map<int32, bool> favorites = 1;
+  repeated int recentSearches = 2;
 }

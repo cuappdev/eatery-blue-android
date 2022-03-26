@@ -36,7 +36,6 @@ fun TypeableSearchBar(
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-
     Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
         Column(
             modifier = Modifier.weight(1f),
@@ -52,7 +51,9 @@ fun TypeableSearchBar(
             )
         }
 
+
         if (typedText.isNotBlank()) {
+            searchViewModel.transitionSearchWordsTyped()
             Text(
                 text = "Cancel",
                 textStyle = TextStyle.MISC_BACK,

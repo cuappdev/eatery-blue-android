@@ -6,6 +6,7 @@ import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.ui.components.core.Text
+import com.appdev.eateryblueandroid.ui.components.core.search.NoWordsTypedSearchScreen
 import com.appdev.eateryblueandroid.ui.components.core.search.WordsTypedSearchScreen
 import com.appdev.eateryblueandroid.ui.components.home.MainItem
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
@@ -21,6 +22,7 @@ fun SearchingScreen(
     selectEatery: (eatery: Eatery) -> Unit,
     hideSection: () -> Unit,
     homeViewModel: HomeViewModel,
+    selectSection: (eaterySection: EaterySection) -> Unit,
 ){
     val state = searchViewModel.state.collectAsState()
     val homeState = homeViewModel.state.collectAsState()
@@ -46,8 +48,15 @@ fun SearchingScreen(
             is SearchViewModel.State.Loading ->
                 Text("Loading")
             is SearchViewModel.State.NothingTyped ->
-                searchViewModel.transitionSearchWordsTyped()
+//                searchViewModel.transitionSearchWordsTyped()
             //Text("Nothing Typed")
+                NoWordsTypedSearchScreen(
+                    eateries = eateries,
+                    selectEatery = selectEatery,
+                    searchViewModel =searchViewModel,
+                    homeViewModel = homeViewModel,
+                    selectSection = selectSection,
+                )
             is SearchViewModel.State.WordsTyped ->
                 WordsTypedSearchScreen(
                     eateries = eateries,
