@@ -16,6 +16,7 @@ import com.appdev.eateryblueandroid.ui.components.home.EateryFilters
 import com.appdev.eateryblueandroid.ui.components.home.MainItem
 import com.appdev.eateryblueandroid.ui.components.home.SearchBar
 import com.appdev.eateryblueandroid.ui.viewmodels.SearchViewModel
+import com.appdev.eateryblueandroid.util.saveRecentSearch
 
 @Composable
 fun WordsTypedSearchScreen(
@@ -26,25 +27,27 @@ fun WordsTypedSearchScreen(
     filters: List<String>,
     setFilters: (selection: List<String>) -> Unit,
 
-){
+    ) {
     val typedText = searchViewModel.typedText.value
     var filterEatery = mutableListOf<Eatery>()
-    eateries.forEach{
-        eatery ->
+    eateries.forEach { eatery ->
         var eateryName = eatery.name?.lowercase()
-        if(eateryName?.startsWith(typedText.lowercase() , true) == true){
+        if (eateryName?.startsWith(typedText.lowercase(), true) == true) {
             filterEatery.add(eatery)
         }
     }
-       val searchTextedItem: List<SearchTextedItem> = listOf(
+    val searchTextedItem: List<SearchTextedItem> = listOf(
 //        listOf(SearchTextedItem.SearchBox),
         listOf(SearchTextedItem.FilterOptions),
-           filterEatery.map{ SearchTextedItem.EateryItem(it)}
+        filterEatery.map { SearchTextedItem.EateryItem(it) }
     ).flatten()
 
-
-    LazyColumn(
-        contentPadding = PaddingValues(bottom=30.dp)
+    val selectEaterySave = fun(eatery: Eatery) {
+        eatery.id?.let { saveRecentSearch(it) }
+        selectEatery(eatery)
+    }
+        LazyColumn(
+        contentPadding = PaddingValues(bottom = 30.dp)
     ) {
         items(searchTextedItem) { item ->
             when (item) {
@@ -57,17 +60,28 @@ fun WordsTypedSearchScreen(
                     }
                 }
                 is SearchTextedItem.EateryItem ->
-                    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)) {
-                        EateryCard(eatery = item.eatery, selectEatery = selectEatery)
+                    Column(
+                        modifier = Modifier.padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = 12.dp
+                        )
+                    ) {
+                        EateryCard(eatery = item.eatery,
+                            selectEatery = selectEaterySave)
                     }
-                }
             }
         }
     }
+}
+//fun selectEateryOverload(eatery : Eatery){
+//    eatery.id?.let { it1 -> saveRecentSearch(it1) }
+//    selectEatery(eatery)
+//}
 
 
 sealed class SearchTextedItem {
-//    object SearchBox: SearchTextedItem()
-    object FilterOptions: SearchTextedItem()
-    data class EateryItem(val eatery: Eatery): SearchTextedItem()
+    //    object SearchBox: SearchTextedItem()
+    object FilterOptions : SearchTextedItem()
+    data class EateryItem(val eatery: Eatery) : SearchTextedItem()
 }

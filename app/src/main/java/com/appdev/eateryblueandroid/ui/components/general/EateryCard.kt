@@ -21,6 +21,7 @@ import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.util.saveRecentSearch
 
 import kotlin.coroutines.coroutineContext
 
@@ -35,7 +36,9 @@ fun EateryCard(
         elevation = 20.dp,
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier
-            .clickable { selectEatery(eatery) }
+            .clickable {
+
+                selectEatery(eatery) }
             .fillMaxWidth()
     ) {
         Column(

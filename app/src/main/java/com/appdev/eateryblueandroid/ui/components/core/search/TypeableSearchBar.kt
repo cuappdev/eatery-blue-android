@@ -26,6 +26,7 @@ import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextField
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.viewmodels.SearchViewModel
+import com.appdev.eateryblueandroid.util.saveRecentSearch
 
 @Composable
 fun TypeableSearchBar(
@@ -79,7 +80,9 @@ fun TypeableSearchBar(
     }
     DisposableEffect(key1 =  searchViewModel){
         onDispose {
+
             searchViewModel.onTextChange("")
+
         }
     }
 

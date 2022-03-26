@@ -15,18 +15,18 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.util.recentSearches
 
 @Composable
 fun RecentSearchList(
     eateries: List<Eatery>,
     selectEatery: (eatery: Eatery) -> Unit,
 ){
-    var recentlySearchID = mutableListOf<Int>();
     var recentlySearchEateries = mutableListOf<Eatery>();
-    recentlySearchID.add(1)
+
     eateries.forEach{
 
-        if(recentlySearchID.contains(it.id)){
+        if(recentSearches.contains(it.id)){
             recentlySearchEateries.add(it)
         }
     }
