@@ -1,6 +1,5 @@
 package com.appdev.eateryblueandroid.ui.components.profile
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -10,13 +9,12 @@ import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.AccountType
 import com.appdev.eateryblueandroid.models.Transaction
-import com.appdev.eateryblueandroid.models.TransactionType
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.util.Constants.mealPlanTypes
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import com.appdev.eateryblueandroid.util.formatLocation
-import java.util.*
 
 @Composable
 fun TransactionHistory(transaction: Transaction) {
@@ -52,7 +50,7 @@ fun TransactionHistorySpendAmount(
 ) {
 
     val text =
-        if (accountType == AccountType.MEALPLAN) "%.0f".format(amount)
+        if (accountType == AccountType.MEALSWIPES || mealPlanTypes.contains(accountType)) "%.0f".format(amount)
         else "$%.2f".format(amount)
 
     Row {
@@ -60,7 +58,7 @@ fun TransactionHistorySpendAmount(
             text = text,
             textStyle = TextStyle.BODY_SEMIBOLD
         )
-        if (accountType == AccountType.MEALPLAN) {
+        if (accountType == AccountType.MEALSWIPES || mealPlanTypes.contains(accountType)) {
             Text(
                 text = if (amount > 1) "swipes" else "swipe",
                 color = colorResource(id = R.color.gray05),

@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.util.Constants.mealPlanTypes
 import com.appdev.eateryblueandroid.util.formatLocation
 import com.appdev.eateryblueandroid.util.removeSpecialCharacters
 
@@ -22,7 +23,8 @@ fun Main(
 ) {
     var displayQuery by remember { mutableStateOf(transactionQuery) }
     val transactionHistoryList = user.transactions?.filter {
-        it.transactionType == TransactionType.SPEND && it.accountType == accountFilter
+        it.transactionType == TransactionType.SPEND
+                && (it.accountType == accountFilter || mealPlanTypes.contains(it.accountType) && accountFilter == AccountType.MEALSWIPES)
                 && removeSpecialCharacters(formatLocation(it.location)).contains(
             removeSpecialCharacters(transactionQuery)
         )

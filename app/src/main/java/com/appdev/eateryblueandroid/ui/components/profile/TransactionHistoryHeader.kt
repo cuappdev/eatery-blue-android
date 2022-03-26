@@ -40,7 +40,7 @@ fun TransactionHistoryHeader(
 }
 
 fun accountToString(account: AccountType): String {
-    if (account == AccountType.MEALPLAN) {
+    if (account == AccountType.MEALSWIPES) {
         return "Meal Swipes"
     } else if (account == AccountType.CITYBUCKS) {
         return "City Bucks"
