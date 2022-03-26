@@ -35,7 +35,7 @@ fun WordsTypedSearchScreen(
         }
     }
        val searchTextedItem: List<SearchTextedItem> = listOf(
-        listOf(SearchTextedItem.SearchBox),
+//        listOf(SearchTextedItem.SearchBox),
         listOf(SearchTextedItem.FilterOptions),
            filterEatery.map{ SearchTextedItem.EateryItem(it)}
     ).flatten()
@@ -46,9 +46,9 @@ fun WordsTypedSearchScreen(
     ) {
         items(searchTextedItem) { item ->
             when (item) {
-                is SearchTextedItem.SearchBox ->
-//                    Column(modifier = Modifier.padding(16.dp, 12.dp)) {
-                        TypeableSearchBar(searchViewModel,searchText = "")
+//                is SearchTextedItem.SearchBox ->
+//
+//                        TypeableSearchBar(searchViewModel)
 //                    }
                 is SearchTextedItem.FilterOptions -> Column(modifier = Modifier.padding(bottom = 12.dp)) {
                     EateryFilters()
@@ -64,7 +64,7 @@ fun WordsTypedSearchScreen(
 
 
 sealed class SearchTextedItem {
-    object SearchBox: SearchTextedItem()
+//    object SearchBox: SearchTextedItem()
     object FilterOptions: SearchTextedItem()
     data class EateryItem(val eatery: Eatery): SearchTextedItem()
 }

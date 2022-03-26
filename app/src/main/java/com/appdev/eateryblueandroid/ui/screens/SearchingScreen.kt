@@ -1,12 +1,14 @@
 package com.appdev.eateryblueandroid.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.search.NoWordsTypedSearchScreen
+import com.appdev.eateryblueandroid.ui.components.core.search.TypeableSearchBar
 import com.appdev.eateryblueandroid.ui.components.core.search.WordsTypedSearchScreen
 import com.appdev.eateryblueandroid.ui.components.home.MainItem
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
@@ -42,31 +44,36 @@ fun SearchingScreen(
 
 
 
-
-    state.value.let {
-        when (it) {
-            is SearchViewModel.State.Loading ->
-                Text("Loading")
-            is SearchViewModel.State.NothingTyped ->
+    Column() {
+        TypeableSearchBar(searchViewModel)
+        state.value.let {
+            when (it) {
+                is SearchViewModel.State.Loading ->
+                    Text("Loading")
+                is SearchViewModel.State.NothingTyped ->
 //                searchViewModel.transitionSearchWordsTyped()
-            //Text("Nothing Typed")
-                NoWordsTypedSearchScreen(
-                    eateries = eateries,
-                    selectEatery = selectEatery,
-                    searchViewModel =searchViewModel,
-                    homeViewModel = homeViewModel,
-                    selectSection = selectSection,
-                )
-            is SearchViewModel.State.WordsTyped ->
-                WordsTypedSearchScreen(
-                    eateries = eateries,
-                    selectEatery = selectEatery,
-                    searchViewModel =searchViewModel
-                )
-            is SearchViewModel.State.SearchResults ->
-                Text("Search Results")
-            is SearchViewModel.State.Failure ->
-                Text("Failed to load")
+                    //Text("Nothing Typed")
+
+                    NoWordsTypedSearchScreen(
+                        eateries = eateries,
+                        selectEatery = selectEatery,
+                        searchViewModel = searchViewModel,
+                        homeViewModel = homeViewModel,
+                        selectSection = selectSection,
+                    )
+
+
+                is SearchViewModel.State.WordsTyped ->
+                    WordsTypedSearchScreen(
+                        eateries = eateries,
+                        selectEatery = selectEatery,
+                        searchViewModel = searchViewModel
+                    )
+                is SearchViewModel.State.SearchResults ->
+                    Text("Search Results")
+                is SearchViewModel.State.Failure ->
+                    Text("Failed to load")
+            }
         }
     }
     BackHandler {

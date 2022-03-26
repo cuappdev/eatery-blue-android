@@ -27,8 +27,7 @@ import com.appdev.eateryblueandroid.ui.viewmodels.SearchViewModel
 
 @Composable
 fun TypeableSearchBar(
-    searchViewModel: SearchViewModel,
-    searchText : String) {
+    searchViewModel: SearchViewModel) {
 
     val typedText = searchViewModel.typedText.value
 

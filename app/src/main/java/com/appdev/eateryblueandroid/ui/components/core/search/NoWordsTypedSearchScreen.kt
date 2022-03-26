@@ -41,7 +41,7 @@ fun NoWordsTypedSearchScreen(
 //    }
 
     val searchItem: List<SearchItem> = listOf(
-        listOf(SearchItem.SearchBox),
+//        listOf(SearchItem.SearchBox),
         listOf(SearchItem.FavoriteLabel),
         listOf(SearchItem.Favorite),
         listOf(SearchItem.RecentSearchLabel),
@@ -54,8 +54,8 @@ fun NoWordsTypedSearchScreen(
     ) {
                 items(searchItem) { item ->
             when (item) {
-                is SearchItem.SearchBox ->
-                    TypeableSearchBar(searchViewModel,searchText = "")
+//                is SearchItem.SearchBox ->
+//                    TypeableSearchBar(searchViewModel)
                 is SearchItem.FavoriteLabel ->
                     Row(
                         modifier = Modifier
@@ -105,7 +105,7 @@ fun NoWordsTypedSearchScreen(
 }
 
 sealed class SearchItem {
-    object SearchBox: SearchItem()
+//    object SearchBox: SearchItem()
     object RecentlySearched: SearchItem()
     object Favorite: SearchItem()
     object FavoriteLabel:  SearchItem()
