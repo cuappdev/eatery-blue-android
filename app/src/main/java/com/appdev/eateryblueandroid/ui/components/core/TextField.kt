@@ -1,7 +1,6 @@
 package com.appdev.eateryblueandroid.ui.components.core
 
 import android.view.KeyEvent
-import android.view.RoundedCorner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,7 +9,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,7 +17,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -29,7 +26,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.ui.theme.sfProTextFontFamily
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import androidx.compose.ui.text.TextStyle as AndroidTextStyle
 
@@ -69,7 +65,6 @@ fun TextField(
                 visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
                 textStyle = AndroidTextStyle(
                     color = Color.Black,
-                    fontFamily = sfProTextFontFamily,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 ),
