@@ -23,9 +23,9 @@ import com.appdev.eateryblueandroid.ui.components.home.MainItem
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.SearchViewModel
 
+//The Search Screen with no words typed with the Favoriting list and recently searched on the screen
 @Composable
 fun NoWordsTypedSearchScreen(
-
     eateries: List<Eatery>,
     selectEatery: (eatery: Eatery) -> Unit,
     searchViewModel: SearchViewModel,
@@ -56,7 +56,6 @@ fun NoWordsTypedSearchScreen(
                             text = "Favorites",
                             textStyle = TextStyle.HEADER_H3
                         )
-
                         CircularBackgroundIcon(
                             icon = painterResource(
                                 id = R.drawable.ic_rightarrow

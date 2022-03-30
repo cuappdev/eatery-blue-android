@@ -28,6 +28,7 @@ import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.viewmodels.SearchViewModel
 import com.appdev.eateryblueandroid.util.saveRecentSearch
 
+//The typeable search bar the user can use to search up eateries
 @Composable
 fun TypeableSearchBar(
     searchViewModel: SearchViewModel
@@ -55,6 +56,8 @@ fun TypeableSearchBar(
             )
         }
 
+        //If the text is blank then don't have a cancel button, else it will have a cancel button
+        //to remove all text in the search bar
         if (typedText.isNotBlank()) {
             searchViewModel.transitionSearchWordsTyped()
             Text(
@@ -69,14 +72,14 @@ fun TypeableSearchBar(
             )
         }
     }
-
+    //upon launch, request focus on keyboard to pull it up when screen is launched
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
+    //when you leave this screen, remove the text in the search bar
     DisposableEffect(key1 = searchViewModel) {
         onDispose {
             searchViewModel.onTextChange("")
-
         }
     }
 }

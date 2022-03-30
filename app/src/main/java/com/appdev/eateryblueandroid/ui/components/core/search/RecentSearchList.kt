@@ -24,12 +24,18 @@ fun RecentSearchList(
 ){
     var recentlySearchEateries = mutableListOf<Eatery>();
 
-    eateries.forEach{
-
-        if(recentSearches.contains(it.id)){
-            recentlySearchEateries.add(it)
+    recentSearches.forEach{ id ->
+        eateries.forEach{ eatery ->
+            if(eatery.id == id){
+                recentlySearchEateries.add(eatery)
+            }
         }
     }
+//    eateries.forEach{
+//        if(recentSearches.contains(it.id)){
+//            recentlySearchEateries.add(it)
+//        }
+//    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -50,12 +56,10 @@ fun RecentSearchItem(
     }) {
         Row(
             verticalAlignment = Alignment.CenterVertically
-//     modifier = Modifier.padding(start = 16.dp)
         ){
             Icon(
                 painter = painterResource(id = R.drawable.ic_recent_eatery_icon),
                 tint = colorResource(id = R.color.eateryBlue),
-//         modifier = Modifier.size(15.dp , 15.dp),
                 contentDescription = null
             )
             eatery.name?.let {
@@ -64,11 +68,8 @@ fun RecentSearchItem(
                     modifier = Modifier.padding(start = 9.dp),
                     textStyle = TextStyle.BODY_MEDIUM,
                     color = colorResource(id = R.color.eateryBlue),
-
                     )
             }
-
         }
     }
-
 }
