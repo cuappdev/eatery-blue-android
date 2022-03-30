@@ -3,10 +3,12 @@ package com.appdev.eateryblueandroid.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -45,61 +47,63 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
                 painter = painterResource(id = R.drawable.ic_leftarrow),
                 contentDescription = null,
                 tint = colorResource(id = R.color.black),
-                modifier = Modifier.clickable {
-                    onBack()
-                }
+                modifier = Modifier
+                    .clickable { onBack() }
             )
         }
         Text(
             text = "Settings",
             color = colorResource(id = R.color.eateryBlue),
             textStyle = TextStyle.HEADER_H1,
-            modifier = Modifier.padding(top = 7.dp)
+            modifier = Modifier.padding(top = 7.dp, bottom = 7.dp)
         )
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_appdev),
             title = "About Eatery",
             description = "Learn more about Cornell AppDev",
-            onClick = {}
+            onClick = { profileViewModel.transitionAbout() }
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_star_outline),
             title = "Favorites",
             description = "Manage your favorite eateries and items",
-            onClick = {}
+            onClick = { profileViewModel.transitionFavorites() }
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_bell),
             title = "Notifications",
             description = "Manage item and promotional notifications",
-            onClick = {}
+            onClick = { profileViewModel.transitionNotifications() }
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_lock),
             title = "Privacy",
             description = "Manage permissions and analytics",
-            onClick = {}
+            onClick = { profileViewModel.transitionPrivacy() }
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_gavel),
             title = "Legal",
             description = "Find terms, conditions, and privacy policy",
-            onClick = {}
+            onClick = { profileViewModel.transitionLegal() }
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_question_circ),
             title = "Support",
             description = "Report issues and contact Cornell Appdev",
-            onClick = {}
+            onClick = { profileViewModel.transitionSupport() }
         )
         state.value.let {
             if (it is ProfileViewModel.State.ProfileData) {
-                LogoutSection(profileViewModel::logout, (state.value as ProfileViewModel.State.ProfileData).user.userName!!)
+                LogoutSection(
+                    profileViewModel::logout,
+                    (state.value as ProfileViewModel.State.ProfileData).user.userName!!
+                )
             }
         }
     }
@@ -110,37 +114,48 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
 }
 
 @Composable
-fun SettingsOption(icon: Painter, title: String, description: String, onClick: () -> Unit) {
+fun SettingsOption(icon: Painter?, title: String, description: String, onClick: () -> Unit) {
+    val interactionSource = MutableInteractionSource()
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 11.dp, bottom = 11.dp)
-            .clickable {},
+            .clickable(
+                onClick = { onClick() },
+                interactionSource = interactionSource,
+                indication = rememberRipple()
+            ),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = (if (icon != null) 5 else 0).dp)
         ) {
-            Icon(
-                painter = icon,
-                contentDescription = null,
-                tint = colorResource(id = R.color.gray05),
-            )
-            Column(modifier = Modifier.padding(start = 10.dp)) {
-                Text(title, textStyle = TextStyle.HEADER_H4)
-                Text(
-                    text = description,
-                    textStyle = TextStyle.LABEL_SEMIBOLD,
-                    color = colorResource(id = R.color.gray05),
-                    modifier = Modifier.padding(top = 4.dp)
+            if (icon != null)
+                Icon(
+                    painter = icon,
+                    contentDescription = null,
+                    tint = colorResource(id = R.color.gray05),
                 )
+            Column(modifier = Modifier.padding(start = (if (icon != null) 10 else 0).dp)) {
+                Text(
+                    title,
+                    textStyle = TextStyle.HEADER_H4,
+                    modifier = if (description.isNotEmpty()) Modifier.padding(top = 12.dp) else Modifier.padding(top = 16.dp, bottom = 16.dp))
+                if (description.isNotEmpty())
+                    Text(
+                        text = description,
+                        textStyle = TextStyle.LABEL_SEMIBOLD,
+                        color = colorResource(id = R.color.gray05),
+                        modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
+                    )
             }
         }
         Icon(
             painter = painterResource(id = R.drawable.ic_chevron_right),
             contentDescription = null,
             tint = colorResource(id = R.color.eateryBlue),
+            modifier = Modifier.padding(end = 5.dp),
         )
     }
 }
@@ -157,9 +172,9 @@ fun SettingsLineSeparator() {
 }
 
 @Composable
-fun LogoutSection(logout: () -> Unit, netId : String) {
+fun LogoutSection(logout: () -> Unit, netId: String) {
     var id = netId
-    if (id.contains("@")) id = netId.substring(0,netId.indexOf("@"))
+    if (id.contains("@")) id = netId.substring(0, netId.indexOf("@"))
     Row(
         modifier = Modifier
             .fillMaxWidth()

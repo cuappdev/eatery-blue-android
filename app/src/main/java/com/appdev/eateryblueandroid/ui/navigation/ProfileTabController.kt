@@ -3,6 +3,7 @@ package com.appdev.eateryblueandroid.ui.screens
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import com.appdev.eateryblueandroid.ui.screens.settings.*
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 import com.appdev.eateryblueandroid.util.*
@@ -56,6 +57,19 @@ fun ProfileTabController(
                 )
             is ProfileViewModel.Display.Settings ->
                 SettingsScreen(profileViewModel)
+            is ProfileViewModel.Display.About ->
+                AboutScreen(profileViewModel)
+            is ProfileViewModel.Display.Favorites ->
+                FavoritesScreen(profileViewModel)
+            is ProfileViewModel.Display.Notifications ->
+                NotificationsScreen(profileViewModel)
+            is ProfileViewModel.Display.Privacy ->
+                PrivacyScreen(profileViewModel)
+            is ProfileViewModel.Display.Legal ->
+                LegalScreen(profileViewModel)
+            is ProfileViewModel.Display.Support ->
+                SupportScreen(profileViewModel)
+
         }
     }
 }
