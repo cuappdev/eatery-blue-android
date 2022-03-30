@@ -31,12 +31,6 @@ fun RecentSearchList(
             }
         }
     }
-//    eateries.forEach{
-//        if(recentSearches.contains(it.id)){
-//            recentlySearchEateries.add(it)
-//        }
-//    }
-
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.padding(start = 16.dp),
