@@ -32,31 +32,18 @@ fun NoWordsTypedSearchScreen(
     homeViewModel: HomeViewModel,
     selectSection: (eaterySection: EaterySection) -> Unit,
 ) {
-//    var filterEatery = mutableListOf<Eatery>()
-//    eateries.forEach{
-//            eatery ->
-//        if(eatery.isFavorite()){
-//            filterEatery.add(eatery)
-//        }
-//    }
-
-
     val searchItem: List<SearchItem> = listOf(
-//        listOf(SearchItem.SearchBox),
         listOf(SearchItem.FavoriteLabel),
         listOf(SearchItem.Favorite),
         listOf(SearchItem.RecentSearchLabel),
         listOf(SearchItem.RecentlySearched),
-
     ).flatten()
 
     LazyColumn(
-        contentPadding = PaddingValues(bottom=30.dp)
+        contentPadding = PaddingValues(bottom = 30.dp)
     ) {
-                items(searchItem) { item ->
+        items(searchItem) { item ->
             when (item) {
-//                is SearchItem.SearchBox ->
-//                    TypeableSearchBar(searchViewModel)
                 is SearchItem.FavoriteLabel ->
                     Row(
                         modifier = Modifier
@@ -70,14 +57,13 @@ fun NoWordsTypedSearchScreen(
                             textStyle = TextStyle.HEADER_H3
                         )
 
-                            CircularBackgroundIcon(
-                                icon = painterResource(
-                                    id = R.drawable.ic_rightarrow
-                                ),
-                                onTap = {selectSection(EaterySection("Favorite Eateries") { it.isFavorite() })},
-                                clickable = true,
-                            )
-
+                        CircularBackgroundIcon(
+                            icon = painterResource(
+                                id = R.drawable.ic_rightarrow
+                            ),
+                            onTap = { selectSection(EaterySection("Favorite Eateries") { it.isFavorite() }) },
+                            clickable = true,
+                        )
                     }
                 is SearchItem.Favorite ->
                     SearchFavoriteList(eateries = eateries, selectEatery = selectEatery)
@@ -96,26 +82,14 @@ fun NoWordsTypedSearchScreen(
                     }
                 is SearchItem.RecentlySearched ->
                     RecentSearchList(eateries = eateries, selectEatery = selectEatery)
-
             }
         }
-//        SearchFavoriteList(eateries, selectEatery)
     }
-
-
 }
 
 sealed class SearchItem {
-//    object SearchBox: SearchItem()
-    object RecentlySearched: SearchItem()
-    object Favorite: SearchItem()
-    object FavoriteLabel:  SearchItem()
-    object RecentSearchLabel:  SearchItem()
+    object RecentlySearched : SearchItem()
+    object Favorite : SearchItem()
+    object FavoriteLabel : SearchItem()
+    object RecentSearchLabel : SearchItem()
 }
-
-//
-//@Preview
-//@Composable
-//fun ComposablePreview() {
-//    NoWordsTypedSearchScreen()
-//}

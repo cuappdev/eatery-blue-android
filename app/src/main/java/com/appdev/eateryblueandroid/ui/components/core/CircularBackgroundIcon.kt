@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 
-
 @Composable
 fun CircularBackgroundIcon(
     icon: Painter,

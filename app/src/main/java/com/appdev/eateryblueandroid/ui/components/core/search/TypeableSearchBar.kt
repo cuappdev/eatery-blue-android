@@ -30,11 +30,9 @@ import com.appdev.eateryblueandroid.util.saveRecentSearch
 
 @Composable
 fun TypeableSearchBar(
-    searchViewModel: SearchViewModel) {
-
+    searchViewModel: SearchViewModel
+) {
     val typedText = searchViewModel.typedText.value
-//    val lifecycleOwner = LocalLifecycleOwner.current
-//    var filterText by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
@@ -43,21 +41,19 @@ fun TypeableSearchBar(
             modifier = Modifier.weight(1f),
         ) {
             TextField(
-
                 value = typedText,
-                onValueChange = {  searchViewModel.onTextChange(it) },
-                modifier = Modifier.focusRequester(focusRequester)
+                onValueChange = { searchViewModel.onTextChange(it) },
+                modifier = Modifier
+                    .focusRequester(focusRequester)
                     .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp),
+                    .padding(12.dp),
                 placeholder = "Search for grub...",
                 backgroundColor = colorResource(id = R.color.gray00),
                 focusRequester = focusRequester,
                 onSubmit = { focusManager.clearFocus() },
                 leftIcon = painterResource(id = R.drawable.ic_magnifying_glass),
-
             )
         }
-
 
         if (typedText.isNotBlank()) {
             searchViewModel.transitionSearchWordsTyped()
@@ -76,85 +72,12 @@ fun TypeableSearchBar(
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-//        searchViewModel.onTextChange("")
     }
-    DisposableEffect(key1 =  searchViewModel){
+    DisposableEffect(key1 = searchViewModel) {
         onDispose {
-
             searchViewModel.onTextChange("")
 
         }
     }
-
-//    Surface(
-//        shape = RoundedCornerShape(5.dp),
-//        modifier = Modifier.clickable {}.fillMaxWidth()
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth(),
-////                .padding(10.dp),
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ){
-//            Row(
-//                modifier = Modifier
-//                    .background(colorResource(id = R.color.gray00))
-//                    .padding(10.dp)
-//                    .width(250.dp)
-//
-//            ) {
-//                Icon(
-//                    painter = painterResource(id = R.drawable.ic_magnifying_glass),
-//                    tint = colorResource(id = R.color.gray05),
-//                    contentDescription = null,
-//                    modifier = Modifier.padding(top = 3.dp)
-//                )
-
-//                TextField(
-//                    value = typedText,
-//                    onValueChange = {newValue ->
-//                        searchViewModel.onTextChange(newValue)
-//                    },
-////                    color = colorResource(id = R.color.gray05),
-////                    textStyle = TextStyle.BODY_MEDIUM,
-//                    modifier = Modifier
-//                        .fillMaxWidth(0.8f)
-//                        .padding(start = 5.dp),
-//                    placeholder = {
-//                        Text(
-//                            text = "Search for grub...",
-//                            color = colorResource(id = R.color.gray05),
-//                            textStyle = TextStyle.BODY_MEDIUM,
-//                    ) },
-//                    keyboardOptions = KeyboardOptions(
-//                        keyboardType = KeyboardType.Text,
-//                        imeAction = ImeAction.Search,
-//                    ),
-//                    leadingIcon = {
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.ic_magnifying_glass),
-//                            tint = colorResource(id = R.color.gray05),
-//                            contentDescription = null,
-//                            modifier = Modifier.padding(top = 3.dp)
-//                        )
-//                    }
-//                )
-////            }
-//            Text(
-//                text = "Cancel",
-//                textStyle = TextStyle.BODY_MEDIUM,
-//                color = colorResource(id = R.color.black),
-//                modifier = Modifier
-//                    .padding(start = 12.dp)
-//                    .align(Alignment.CenterVertically)
-//            )
-//        }
-//
-//    }
 }
 
-//@Preview
-//@Composable
-//fun PreviewTypeableSearchBar(){
-//    TypeableSearchBar("hello")
-//}

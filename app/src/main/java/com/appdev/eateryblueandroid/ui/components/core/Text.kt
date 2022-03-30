@@ -53,7 +53,6 @@ fun Text(
 }
 
 
-
 private fun fontSize(textStyle: TextStyle): TextUnit {
     return if (textStyle == TextStyle.HEADER_H1) {
         36.sp

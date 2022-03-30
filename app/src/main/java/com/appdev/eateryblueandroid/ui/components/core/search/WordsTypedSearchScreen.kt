@@ -20,14 +20,12 @@ import com.appdev.eateryblueandroid.util.saveRecentSearch
 
 @Composable
 fun WordsTypedSearchScreen(
-//    scrollState: LazyListState,
     eateries: List<Eatery>,
     selectEatery: (eatery: Eatery) -> Unit,
     searchViewModel: SearchViewModel,
     filters: List<String>,
     setFilters: (selection: List<String>) -> Unit,
-
-    ) {
+) {
     val typedText = searchViewModel.typedText.value
     var filterEatery = mutableListOf<Eatery>()
     eateries.forEach { eatery ->
@@ -37,7 +35,6 @@ fun WordsTypedSearchScreen(
         }
     }
     val searchTextedItem: List<SearchTextedItem> = listOf(
-//        listOf(SearchTextedItem.SearchBox),
         listOf(SearchTextedItem.FilterOptions),
         filterEatery.map { SearchTextedItem.EateryItem(it) }
     ).flatten()
@@ -46,14 +43,11 @@ fun WordsTypedSearchScreen(
         eatery.id?.let { saveRecentSearch(it) }
         selectEatery(eatery)
     }
-        LazyColumn(
+    LazyColumn(
         contentPadding = PaddingValues(bottom = 30.dp)
     ) {
         items(searchTextedItem) { item ->
             when (item) {
-//                is SearchTextedItem.SearchBox ->
-//                        TypeableSearchBar(searchViewModel)
-//                    }
                 is SearchTextedItem.FilterOptions -> Column(modifier = Modifier.padding(bottom = 12.dp)) {
                     EateryFilters(alreadySelected = filters) {
                         setFilters(it)
@@ -67,21 +61,17 @@ fun WordsTypedSearchScreen(
                             bottom = 12.dp
                         )
                     ) {
-                        EateryCard(eatery = item.eatery,
-                            selectEatery = selectEaterySave)
+                        EateryCard(
+                            eatery = item.eatery,
+                            selectEatery = selectEaterySave
+                        )
                     }
             }
         }
     }
 }
-//fun selectEateryOverload(eatery : Eatery){
-//    eatery.id?.let { it1 -> saveRecentSearch(it1) }
-//    selectEatery(eatery)
-//}
-
 
 sealed class SearchTextedItem {
-    //    object SearchBox: SearchTextedItem()
     object FilterOptions : SearchTextedItem()
     data class EateryItem(val eatery: Eatery) : SearchTextedItem()
 }

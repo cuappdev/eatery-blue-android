@@ -32,16 +32,17 @@ fun SearchFavoriteList(
     selectEatery: (eatery: Eatery) -> Unit,
 ) {
     var favoriteEatery = mutableListOf<Eatery>()
-    eateries.forEach{
-            eatery ->  if(eatery.isFavorite()){
-        favoriteEatery.add(eatery)
-    }
+    eateries.forEach { eatery ->
+        if (eatery.isFavorite()) {
+            favoriteEatery.add(eatery)
+        }
     }
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(16.dp, 0.dp)) {
-        items(favoriteEatery){ eatery ->
-            if(eatery.isFavorite()){
+        contentPadding = PaddingValues(16.dp, 0.dp)
+    ) {
+        items(favoriteEatery) { eatery ->
+            if (eatery.isFavorite()) {
                 FavoriteItem(eatery, selectEatery)
             }
         }
@@ -53,64 +54,51 @@ fun FavoriteItem(
     eatery: Eatery,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
-
     val interactionSource = MutableInteractionSource()
+    Column(
+        verticalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.width(96.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(96.dp, 96.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(92.dp, 92.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    modifier = Modifier
+                        .clickable { selectEatery(eatery) }
+                        .fillMaxSize()
+                ) {
+                    Image(
+                        url = eatery.imageUrl ?: "",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
 
-     Column(
-         verticalArrangement = Arrangement.SpaceBetween,
-         modifier = Modifier.width(96.dp)
-     ){
-         Box(
-             modifier = Modifier
-                 .size(96.dp, 96.dp)
-//        elevation = 20.dp,
-//        shape = RoundedCornerShape(10.dp),
-//        modifier = Modifier
-//            .clickable { selectEatery(eatery) }
-//           .width(96.dp)
-//            .height(96.dp)
-         ) {
-             Box(
-                 modifier = Modifier
-                     .size(92.dp, 92.dp)
-             ) {
-                 Surface(
-                     shape = RoundedCornerShape(10.dp),
-                     modifier = Modifier
-                         .clickable { selectEatery(eatery) }
-                         .fillMaxSize()
-                 ) {
-                     Image(
-                         url = eatery.imageUrl ?: "",
-                         modifier = Modifier.fillMaxSize(),
-                         contentScale = ContentScale.Crop
-                     )
-                 }
-
-             }
-             Box(
-                 modifier = Modifier.align(Alignment.BottomEnd)
-                         .padding(start = 12.dp , top = 12.dp),
-             ) {
-                 androidx.compose.foundation.Image(
-                     painter = painterResource(id = R.drawable.ic_starwhite_bg),
-
-                     contentDescription = null
-                 )
-             }
-
-
-         }
-         eatery.name?.let {
-             Text(
-                 text = it,
-                 textStyle = TextStyle.BODY_SEMIBOLD,
-                 textAlign = TextAlign.Center,
-                 modifier = Modifier.align(Alignment.CenterHorizontally)
-             )
-         }
-
-     }
-
-
+            }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(start = 12.dp, top = 12.dp),
+            ) {
+                androidx.compose.foundation.Image(
+                    painter = painterResource(id = R.drawable.ic_starwhite_bg),
+                    contentDescription = null
+                )
+            }
+        }
+        eatery.name?.let {
+            Text(
+                text = it,
+                textStyle = TextStyle.BODY_SEMIBOLD,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+    }
 }

@@ -15,27 +15,21 @@ class SearchViewModel(
 ): ViewModel() {
     sealed class State{
         object Loading : State()
-        //        data class WordsTyped(val eateries: List<Eatery>): State()
         object NothingTyped: State()
         object WordsTyped: State()
-        // WordsTyped(val eateries: List<Eatery>): State()
-
         data class Failure(val errorMsg: String) : State()
     }
     private var _state = MutableStateFlow<SearchViewModel.State>(SearchViewModel.State.Loading)
     val state = _state.asStateFlow()
 
     val typedText = mutableStateOf("")
-    var recentlySearch = mutableListOf<String>()
 
     fun transitionSearchLoading() {
         _state.value = SearchViewModel.State.Loading
     }
-
     fun transitionSearchWordsTyped() {
         _state.value = SearchViewModel.State.WordsTyped
     }
-
     fun transitionSearchNothingTyped() {
         _state.value = SearchViewModel.State.NothingTyped
     }
@@ -44,8 +38,5 @@ class SearchViewModel(
     }
     fun getSearchText(): MutableState<String> {
         return typedText
-    }
-    fun newSearch(query: String){
-
     }
 }

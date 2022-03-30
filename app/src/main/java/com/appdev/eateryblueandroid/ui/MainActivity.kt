@@ -41,11 +41,7 @@ class MainActivity : AppCompatActivity() {
             )
             BottomSheet(
                 bottomSheetViewModel = bottomSheetViewModel
-
             )
-
-
-
         }
     }
 }

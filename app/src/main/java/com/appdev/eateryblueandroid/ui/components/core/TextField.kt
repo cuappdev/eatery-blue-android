@@ -38,89 +38,6 @@ fun TextField(
     backgroundColor: Color = colorResource(id = R.color.white),
     focusRequester: FocusRequester? = null,
     isPassword: Boolean = false,
-    leftIcon: Painter? = null
-) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-    ) {
-        Row(
-            modifier = Modifier
-                .background(backgroundColor)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (leftIcon != null) {
-                Icon(
-                    painter = leftIcon,
-                    contentDescription = null,
-                    tint = colorResource(id = R.color.gray05),
-                    modifier = Modifier.padding(start = 12.dp)
-                )
-            }
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                maxLines = 1,
-                singleLine = true,
-                visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-                textStyle = AndroidTextStyle(
-                    color = Color.Black,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                ),
-                decorationBox = { innerTextField ->
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        if (value.isEmpty()) {
-                            Text(
-                                text = placeholder,
-                                textStyle = TextStyle.BODY_MEDIUM,
-                                color = colorResource(id = R.color.gray05),
-                            )
-                        }
-                    }
-                    innerTextField()
-                },
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
-                    autoCorrect = false,
-                    keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text,
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        onSubmit()
-                    }
-                ),
-                modifier = Modifier
-                    .onKeyEvent {
-                        if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
-                            onSubmit()
-                            true
-                        } else {
-                            false
-                        }
-                    }
-                    .then(
-                        if (focusRequester != null)
-                            Modifier.focusRequester(focusRequester)
-                        else Modifier
-                    )
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)
-            )
-        }
-    }
-}
-
-
-@Composable
-fun TextField(
-    value: String,
-    onValueChange: (updated: String) -> Unit,
-    placeholder: String,
-    onSubmit: () -> Unit = {},
-    backgroundColor: Color = colorResource(id = R.color.white),
-    focusRequester: FocusRequester? = null,
-    isPassword: Boolean = false,
     leftIcon: Painter? = null,
     modifier: Modifier? = null,
 ) {
@@ -174,9 +91,9 @@ fun TextField(
                         onSubmit()
                     }
                 ),
-                modifier = if(modifier != null){
+                modifier = if (modifier != null) {
                     modifier
-                }else {
+                } else {
                     Modifier
                         .onKeyEvent {
                             if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {

@@ -45,9 +45,6 @@ fun SearchingScreen(
                 failedToLoadEatery = true
         }
     }
-
-
-
     Column() {
         TypeableSearchBar(searchViewModel)
         state.value.let {
@@ -55,9 +52,6 @@ fun SearchingScreen(
                 is SearchViewModel.State.Loading ->
                     Text("Loading")
                 is SearchViewModel.State.NothingTyped ->
-//                searchViewModel.transitionSearchWordsTyped()
-                    //Text("Nothing Typed")
-
                     NoWordsTypedSearchScreen(
                         eateries = eateries,
                         selectEatery = selectEatery,
@@ -65,15 +59,13 @@ fun SearchingScreen(
                         homeViewModel = homeViewModel,
                         selectSection = selectSection,
                     )
-
-
                 is SearchViewModel.State.WordsTyped ->
                     WordsTypedSearchScreen(
                         eateries = eateries,
                         selectEatery = selectEatery,
                         searchViewModel = searchViewModel,
                         filters = filters,
-                        setFilters = {s -> homeViewModel.updateFilters(s)},
+                        setFilters = { s -> homeViewModel.updateFilters(s) },
                     )
                 is SearchViewModel.State.Failure ->
                     Text("Failed to load")
