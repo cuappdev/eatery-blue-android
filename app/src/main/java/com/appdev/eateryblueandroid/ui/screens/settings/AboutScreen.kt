@@ -1,9 +1,6 @@
 package com.appdev.eateryblueandroid.ui.screens.settings
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
@@ -13,10 +10,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.colorResource
@@ -113,7 +110,7 @@ fun AboutScreen(profileViewModel: ProfileViewModel) {
         }
         //TOP PART END
 
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        Column {
             TeamPosition.values().forEach {
                 CreditsRow(position = it)
             }
@@ -218,24 +215,34 @@ fun CreditsRow(position: TeamPosition) {
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    var scrolled by remember {mutableStateOf(false)}
+    val alpha = animateFloatAsState(targetValue = if (scrolled) 1.0f else 0.0f, animationSpec = tween(250, 0, LinearEasing))
 
     val configuration = LocalConfiguration.current
     val screenDensity = configuration.densityDpi / 160f
-    val screenWidth = configuration.screenWidthDp.toFloat() * screenDensity
 
     LazyRow(
         modifier = Modifier
             .padding(top = 12.dp, bottom = 12.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .alpha(alpha.value),
         state = listState,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val scrollDist = screenWidth/2 + (Math.random()*screenWidth).toFloat()
-        val multFactor = 50000
-        coroutineScope.launch {
-            //listState.scrollToItem(index = lazyRowList.size * 500,0)
-            listState.animateScrollBy(5000.0f, snap(0))
-            listState.animateScrollBy(scrollDist * multFactor, tween(5000 * multFactor, 0, LinearEasing))
+        if (!scrolled) {
+            val screenWidth = configuration.screenWidthDp.toFloat() * screenDensity
+            val scrollDist = screenWidth/2 + (Math.random()*screenWidth).toFloat()
+            val multFactor = 50000
+            coroutineScope.launch {
+                //listState.scrollToItem(index = lazyRowList.size * 500,0)
+                listState.animateScrollBy(5000.0f, snap(0))
+                scrolled = true
+                listState.animateScrollBy(
+                    scrollDist * multFactor,
+                    tween(5000 * multFactor, 0, LinearEasing)
+                )
+
+            }
         }
         items(
             count = Int.MAX_VALUE,
