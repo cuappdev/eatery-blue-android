@@ -18,14 +18,15 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 
 @Composable
 fun SettingsScreen(profileViewModel: ProfileViewModel) {
     val state = profileViewModel.state.collectAsState()
+    val interactionSource = MutableInteractionSource()
     val onBack = {
         if (state.value is ProfileViewModel.State.ProfileData) {
             profileViewModel.transitionProfile()
@@ -47,8 +48,11 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
                 painter = painterResource(id = R.drawable.ic_leftarrow),
                 contentDescription = null,
                 tint = colorResource(id = R.color.black),
-                modifier = Modifier
-                    .clickable { onBack() }
+                modifier = Modifier.clickable(
+                    onClick = { onBack() },
+                    interactionSource = interactionSource,
+                    indication = null
+                )
             )
         }
         Text(
@@ -110,53 +114,6 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
 
     BackHandler {
         onBack()
-    }
-}
-
-@Composable
-fun SettingsOption(icon: Painter?, title: String, description: String, onClick: () -> Unit) {
-    val interactionSource = MutableInteractionSource()
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(
-                onClick = { onClick() },
-                interactionSource = interactionSource,
-                indication = rememberRipple()
-            ),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(start = (if (icon != null) 5 else 0).dp)
-        ) {
-            if (icon != null)
-                Icon(
-                    painter = icon,
-                    contentDescription = null,
-                    tint = colorResource(id = R.color.gray05),
-                )
-            Column(modifier = Modifier.padding(start = (if (icon != null) 10 else 0).dp)) {
-                Text(
-                    title,
-                    textStyle = TextStyle.HEADER_H4,
-                    modifier = if (description.isNotEmpty()) Modifier.padding(top = 12.dp) else Modifier.padding(top = 16.dp, bottom = 16.dp))
-                if (description.isNotEmpty())
-                    Text(
-                        text = description,
-                        textStyle = TextStyle.LABEL_SEMIBOLD,
-                        color = colorResource(id = R.color.gray05),
-                        modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
-                    )
-            }
-        }
-        Icon(
-            painter = painterResource(id = R.drawable.ic_chevron_right),
-            contentDescription = null,
-            tint = colorResource(id = R.color.eateryBlue),
-            modifier = Modifier.padding(end = 5.dp),
-        )
     }
 }
 

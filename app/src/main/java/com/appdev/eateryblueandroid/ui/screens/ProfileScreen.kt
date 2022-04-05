@@ -1,32 +1,26 @@
 package com.appdev.eateryblueandroid.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.AccountType
-import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.ui.components.core.Text
-import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.components.general.TopBar
 import com.appdev.eateryblueandroid.ui.components.profile.Main
 import com.appdev.eateryblueandroid.ui.components.profile.PaymentMethodSelector
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
-import com.appdev.eateryblueandroid.util.CachedAccountInfo
-import com.appdev.eateryblueandroid.util.loadedUsername
-import okhttp3.Cache
 
 @Composable
 fun ProfileScreen(
@@ -34,6 +28,7 @@ fun ProfileScreen(
     bottomSheetViewModel: BottomSheetViewModel
 ) {
     val state = profileViewModel.state.collectAsState()
+    val interactionSource = MutableInteractionSource()
     val showBottomSheet = {
         val currentFilter =
             if (state.value is ProfileViewModel.State.ProfileData)
@@ -63,13 +58,16 @@ fun ProfileScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 24.dp, end = 16.dp, start = 16.dp).fillMaxWidth(),
+                    .padding(top = 24.dp, end = 16.dp, start = 16.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 if (state.value is ProfileViewModel.State.AutoLoggingIn)
                     CircularProgressIndicator(
                         color = colorResource(id = R.color.white),
-                        modifier = Modifier.size(24.dp).fillMaxWidth(),
+                        modifier = Modifier
+                            .size(24.dp)
+                            .fillMaxWidth(),
                         strokeWidth = 2.dp
                     )
                 else
@@ -78,7 +76,11 @@ fun ProfileScreen(
                     painter = painterResource(id = R.drawable.ic_settings),
                     tint = colorResource(id = R.color.white),
                     contentDescription = "Settings",
-                    modifier = Modifier.clickable { profileViewModel.transitionSettings() }
+                    modifier = Modifier.clickable(
+                        onClick = { profileViewModel.transitionSettings() },
+                        interactionSource = interactionSource,
+                        indication = rememberRipple(radius = 12.dp)
+                    )
                 )
             }
         }

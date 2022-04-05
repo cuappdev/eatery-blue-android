@@ -10,19 +10,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
 import com.appdev.eateryblueandroid.ui.screens.SettingsLineSeparator
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 
 @Composable
 fun LegalScreen(profileViewModel: ProfileViewModel) {
-    fun onBack() { profileViewModel.transitionSettings() }
+    fun onBack() {
+        profileViewModel.transitionSettings()
+    }
 
     Column(
         modifier = Modifier
@@ -58,9 +60,17 @@ fun LegalScreen(profileViewModel: ProfileViewModel) {
             modifier = Modifier.padding(top = 7.dp, bottom = 12.dp)
         )
 
-        LegalOption("Terms and Conditions", {})
+        SettingsOption(
+            title = "Terms and Conditions",
+            onClick = {},
+            pointerIcon = painterResource(id = R.drawable.ic_upright_transfer_arrow)
+        )
         SettingsLineSeparator()
-        LegalOption("Privacy Policy", {})
+        SettingsOption(
+            title = "Privacy Policy",
+            onClick = {},
+            pointerIcon = painterResource(id = R.drawable.ic_upright_transfer_arrow)
+        )
     }
 }
 
@@ -82,15 +92,15 @@ fun LegalOption(title: String, onClick: () -> Unit) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-                Text(
-                    text = title,
-                    textStyle = TextStyle.HEADER_H4,
-                    color = colorResource(id = R.color.black),
-                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
-                )
+            Text(
+                text = title,
+                textStyle = TextStyle.HEADER_H4,
+                color = colorResource(id = R.color.black),
+                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
+            )
         }
         Icon(
-            painter = painterResource(id = R.drawable.ic_upright_arrow),
+            painter = painterResource(id = R.drawable.ic_upright_transfer_arrow),
             contentDescription = null,
             tint = colorResource(id = R.color.eateryBlue),
             modifier = Modifier.padding(end = 4.6.dp)

@@ -2,6 +2,7 @@ package com.appdev.eateryblueandroid.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import com.appdev.eateryblueandroid.ui.components.general.BottomSheet
 import com.appdev.eateryblueandroid.ui.components.login.LoginWebView
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         checkProfileCache()
         initializeLoginData()
         initializeRecentSearches()
+
         setContent {
             MainScreen(
                 context = this,
@@ -43,4 +45,5 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
+
 }
