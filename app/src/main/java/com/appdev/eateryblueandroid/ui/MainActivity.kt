@@ -27,6 +27,7 @@ class MainActivity : AppCompatActivity() {
         checkProfileCache()
         initializeLoginData()
         initializeRecentSearches()
+        initializeNotificationsSettings()
 
         setContent {
             MainScreen(

@@ -9,8 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
@@ -23,14 +22,17 @@ import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
 import com.appdev.eateryblueandroid.ui.components.settings.SwitchOption
 import com.appdev.eateryblueandroid.ui.screens.SettingsLineSeparator
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
-
-var pausedNotifications = mutableStateOf(false)
+import com.appdev.eateryblueandroid.util.NotificationsSettingsType
+import com.appdev.eateryblueandroid.util.notificationSettingsMap
+import com.appdev.eateryblueandroid.util.saveNotificationSetting
 
 @Composable
 fun NotificationsScreen(profileViewModel: ProfileViewModel) {
     fun onBack() {
         profileViewModel.transitionSettings()
     }
+
+    var pausedNotifications by remember { mutableStateOf(notificationSettingsMap[NotificationsSettingsType.PAUSED]!!) }
 
     val interactionSource = MutableInteractionSource()
     Column(
@@ -72,30 +74,54 @@ fun NotificationsScreen(profileViewModel: ProfileViewModel) {
         )
 
         SwitchOption(
-            "Pause All Notifications",
-            "",
-            disableOnPause = false,
-            initialValue = false,
+            title = "Pause All Notifications",
+            description = "",
+            enabled = true,
+            initialValue = notificationSettingsMap[NotificationsSettingsType.PAUSED]!!,
             onCheckedChange = { switched ->
-                pausedNotifications.value = switched
+                pausedNotifications = switched
+                saveNotificationSetting(NotificationsSettingsType.PAUSED, switched)
             })
         SettingsLineSeparator()
         SwitchOption(
-            "Favorite Item Notifications",
-            "Get notified when favorite items are served",
-            {})
+            title = "Favorite Item Notifications",
+            description = "Get notified when favorite items are served",
+            enabled = !pausedNotifications,
+            initialValue = notificationSettingsMap[NotificationsSettingsType.FAVORITE_ITEMS]!!,
+            onCheckedChange = { switched ->
+                saveNotificationSetting(NotificationsSettingsType.FAVORITE_ITEMS, switched)
+            }
+        )
         SettingsLineSeparator()
         SwitchOption(
-            "Cornell AppDev Notifications",
-            "Get notified about new releases and feedback",
-            {})
+            title = "Cornell AppDev Notifications",
+            description = "Get notified about new releases and feedback",
+            enabled = !pausedNotifications,
+            initialValue = notificationSettingsMap[NotificationsSettingsType.APPDEV]!!,
+            onCheckedChange = { switched ->
+                saveNotificationSetting(NotificationsSettingsType.APPDEV, switched)
+            }
+        )
         SettingsLineSeparator()
         SwitchOption(
-            "Cornell Dining Notifications",
-            "Get notified about special menus and meals",
-            {})
+            title = "Cornell Dining Notifications",
+            description = "Get notified about special menus and meals",
+            enabled = !pausedNotifications,
+            initialValue = notificationSettingsMap[NotificationsSettingsType.DINING]!!,
+            onCheckedChange = { switched ->
+                saveNotificationSetting(NotificationsSettingsType.DINING, switched)
+            }
+        )
         SettingsLineSeparator()
-        SwitchOption("Account Notifications", "Get notified about account security and privacy", {})
+        SwitchOption(
+            title = "Account Notifications",
+            description = "Get notified about account security and privacy",
+            enabled = !pausedNotifications,
+            initialValue = notificationSettingsMap[NotificationsSettingsType.ACCOUNT]!!,
+            onCheckedChange = { switched ->
+                saveNotificationSetting(NotificationsSettingsType.ACCOUNT, switched)
+            }
+        )
         SettingsLineSeparator()
         SettingsOption(
             icon = null,

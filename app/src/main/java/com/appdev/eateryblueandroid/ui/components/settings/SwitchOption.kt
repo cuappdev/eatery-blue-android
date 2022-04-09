@@ -10,14 +10,13 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.components.profile.Switch
-import com.appdev.eateryblueandroid.ui.screens.settings.pausedNotifications
 
 @Composable
 fun SwitchOption(
     title: String,
     description: String,
     onCheckedChange: (Boolean) -> Unit,
-    disableOnPause: Boolean = true,
+    enabled: Boolean = true,
     initialValue: Boolean = true
 ) {
     var switched by remember { mutableStateOf(initialValue) }
@@ -51,7 +50,7 @@ fun SwitchOption(
                 switched = !switched
                 onCheckedChange(switched)
             },
-            enabled = (!pausedNotifications.value || pausedNotifications.value && !disableOnPause),
+            enabled = enabled,
             checkedThumbColor = colorResource(id = R.color.white),
             uncheckedThumbColor = colorResource(id = R.color.white),
             checkedTrackColor = colorResource(id = R.color.eateryBlue),

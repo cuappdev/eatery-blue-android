@@ -26,7 +26,10 @@ import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
 import com.appdev.eateryblueandroid.ui.components.settings.SwitchOption
 import com.appdev.eateryblueandroid.ui.screens.SettingsLineSeparator
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
+import com.appdev.eateryblueandroid.util.NotificationsSettingsType
 import com.appdev.eateryblueandroid.util.appContext
+import com.appdev.eateryblueandroid.util.notificationSettingsMap
+import com.appdev.eateryblueandroid.util.saveNotificationSetting
 
 @Composable
 fun PrivacyScreen(profileViewModel: ProfileViewModel) {
@@ -125,7 +128,10 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
         SwitchOption(
             title = "Share with Cornell AppDev",
             description = "Help us improve products and services",
-            onCheckedChange = {}
+            initialValue = notificationSettingsMap[NotificationsSettingsType.ANALYTICS]!!,
+            onCheckedChange = { switched ->
+                saveNotificationSetting(NotificationsSettingsType.ANALYTICS, switched)
+            }
         )
         SettingsLineSeparator()
         SettingsOption(

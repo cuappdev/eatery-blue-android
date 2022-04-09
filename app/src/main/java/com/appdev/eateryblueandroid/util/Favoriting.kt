@@ -15,12 +15,6 @@ import kotlinx.coroutines.launch
 
 var appContext: Context? = null
 private val favoriteMap: HashMap<Int, Boolean> = hashMapOf()
-
-/*private val Context.userPreferencesStore: DataStore<UserPreferences> by dataStore(
-    fileName = DATA_STORE_FILE_NAME,
-    serializer = UserPreferencesSerializer
-)*/
-
 private var fetchedStates: Boolean = false
 
 /**
