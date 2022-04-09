@@ -1,14 +1,19 @@
 package com.appdev.eateryblueandroid.ui.screens.settings
 
+import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -23,7 +29,6 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -31,7 +36,9 @@ fun AboutScreen(profileViewModel: ProfileViewModel) {
     fun onBack() {
         profileViewModel.transitionSettings()
     }
-    Column {
+    val uriCurrent = LocalUriHandler.current
+    val interactionSource = MutableInteractionSource()
+    Column (modifier = Modifier.verticalScroll(rememberScrollState())) {
         Column(
             modifier = Modifier
                 .padding(top = 36.dp, start = 16.dp, end = 16.dp)
@@ -47,7 +54,11 @@ fun AboutScreen(profileViewModel: ProfileViewModel) {
                     contentDescription = null,
                     tint = colorResource(id = R.color.black),
                     modifier = Modifier
-                        .clickable { onBack() }
+                        .clickable(
+                            onClick = { onBack() },
+                            interactionSource = interactionSource,
+                            indication = null
+                        )
                         .clip(CircleShape)
 
                 )
@@ -117,6 +128,36 @@ fun AboutScreen(profileViewModel: ProfileViewModel) {
 
         }
 
+        Button(
+            shape = RoundedCornerShape(corner = CornerSize(24.dp)),
+            modifier = Modifier
+                .padding(top = 70.dp, start = 16.dp, end = 16.dp, bottom = 60.dp)
+                .height(48.dp)
+                .fillMaxWidth(),
+            onClick = {
+                uriCurrent.openUri("https://www.cornellappdev.com/")
+            },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = colorResource(id = R.color.gray01),
+                contentColor = colorResource(id = R.color.black)
+            )
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically)
+            {
+                Icon(painter = painterResource(id = R.drawable.ic_globe), "")
+                Text(
+                    text = "Visit our website",
+                    textStyle = TextStyle.HEADER_H4,
+                    color = colorResource(id = R.color.black),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+        }
+
+    }
+
+    BackHandler {
+        onBack()
     }
 }
 

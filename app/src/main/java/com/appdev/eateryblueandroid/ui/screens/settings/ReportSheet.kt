@@ -141,7 +141,10 @@ fun ReportSheet(
                 .height(64.dp)
                 .fillMaxWidth()
                 .padding(top = 16.dp),
-            onClick = {},
+            onClick = {
+                // Send in report... and then
+                bottomSheetViewModel.hide()
+            },
             enabled = textEntry.isNotEmpty() && selectedIssue != Issue.NONE,
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = colorResource(id = R.color.eateryBlue),

@@ -24,7 +24,6 @@ class ProfileViewModel : ViewModel() {
             var query: String,
             var accountFilter: AccountType
         ) : State()
-
         data class LoginFailure(val error: LoginFailureType) : State()
     }
 
@@ -39,6 +38,7 @@ class ProfileViewModel : ViewModel() {
         object Privacy : Display()
         object Legal : Display()
         object Support : Display()
+        object EateryDetailVisible : Display()
     }
 
     private var _state = MutableStateFlow<State>(State.Empty)
@@ -95,6 +95,10 @@ class ProfileViewModel : ViewModel() {
 
     fun transitionFavorites() {
         _display.value = Display.Favorites
+    }
+
+    fun transitionEateryDetail() {
+        _display.value = Display.EateryDetailVisible
     }
 
     fun logout() {

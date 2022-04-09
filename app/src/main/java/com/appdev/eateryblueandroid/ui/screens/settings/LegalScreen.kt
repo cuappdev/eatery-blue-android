@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.ui.screens.settings
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -26,6 +27,7 @@ fun LegalScreen(profileViewModel: ProfileViewModel) {
         profileViewModel.transitionSettings()
     }
 
+    val interactionSource = MutableInteractionSource()
     Column(
         modifier = Modifier
             .padding(top = 36.dp, start = 16.dp, end = 16.dp)
@@ -41,7 +43,11 @@ fun LegalScreen(profileViewModel: ProfileViewModel) {
                 contentDescription = null,
                 tint = colorResource(id = R.color.black),
                 modifier = Modifier
-                    .clickable { onBack() }
+                    .clickable(
+                        onClick = { onBack() },
+                        interactionSource = interactionSource,
+                        indication = null
+                    )
                     .clip(CircleShape)
 
             )
@@ -71,6 +77,9 @@ fun LegalScreen(profileViewModel: ProfileViewModel) {
             onClick = {},
             pointerIcon = painterResource(id = R.drawable.ic_upright_transfer_arrow)
         )
+    }
+    BackHandler {
+        onBack()
     }
 }
 

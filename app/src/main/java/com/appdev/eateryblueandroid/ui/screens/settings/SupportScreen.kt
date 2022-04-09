@@ -2,10 +2,12 @@ package com.appdev.eateryblueandroid.ui.screens.settings
 
 import android.content.Intent
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -44,11 +46,12 @@ fun SupportScreen(profileViewModel: ProfileViewModel) {
     }
     val bottomSheetViewModel = BottomSheetViewModel()
     val issueViewModel = BottomSheetViewModel()
+    val interactionSource = MutableInteractionSource()
     Column(
         modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp)
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
+            .padding(start = 16.dp, end = 16.dp)
     ) {
         Row(
             modifier = Modifier
@@ -60,7 +63,11 @@ fun SupportScreen(profileViewModel: ProfileViewModel) {
                 contentDescription = null,
                 tint = colorResource(id = R.color.black),
                 modifier = Modifier
-                    .clickable { onBack() }
+                    .clickable(
+                        onClick = { onBack() },
+                        interactionSource = interactionSource,
+                        indication = null
+                    )
                     .clip(CircleShape)
 
             )
@@ -218,6 +225,10 @@ fun SupportScreen(profileViewModel: ProfileViewModel) {
     }
     BottomSheet(bottomSheetViewModel = bottomSheetViewModel)
     BottomSheet(bottomSheetViewModel = issueViewModel)
+
+    BackHandler {
+        onBack()
+    }
 }
 
 @Composable

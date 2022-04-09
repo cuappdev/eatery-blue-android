@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
     private val eateryListViewModel = HomeViewModel(fetchFromApi = true)
     private val expandedSectionViewModel = ExpandedSectionViewModel()
     private val eateryDetailViewModel = EateryDetailViewModel()
+    private val profileEateryDetailViewModel = EateryDetailViewModel()
 
     private val profileViewModel = ProfileViewModel()
     private val bottomSheetViewModel = BottomSheetViewModel()
@@ -35,7 +36,8 @@ class MainActivity : AppCompatActivity() {
                 expandedSectionViewModel = expandedSectionViewModel,
                 eateryDetailViewModel = eateryDetailViewModel,
                 profileViewModel = profileViewModel,
-                bottomSheetViewModel = bottomSheetViewModel
+                bottomSheetViewModel = bottomSheetViewModel,
+                profileEateryDetailViewModel = profileEateryDetailViewModel
             )
             LoginWebView(
                 profileViewModel = profileViewModel,

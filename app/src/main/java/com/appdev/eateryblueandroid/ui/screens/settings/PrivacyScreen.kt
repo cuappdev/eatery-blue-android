@@ -1,6 +1,10 @@
 package com.appdev.eateryblueandroid.ui.screens.settings
 
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +14,11 @@ import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
@@ -20,6 +26,7 @@ import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
 import com.appdev.eateryblueandroid.ui.components.settings.SwitchOption
 import com.appdev.eateryblueandroid.ui.screens.SettingsLineSeparator
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
+import com.appdev.eateryblueandroid.util.appContext
 
 @Composable
 fun PrivacyScreen(profileViewModel: ProfileViewModel) {
@@ -27,6 +34,9 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
         profileViewModel.transitionSettings()
     }
 
+    val context = LocalContext.current
+
+    val interactionSource = MutableInteractionSource()
     Column(
         modifier = Modifier
             .padding(top = 36.dp, start = 16.dp, end = 16.dp)
@@ -42,7 +52,11 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
                 contentDescription = null,
                 tint = colorResource(id = R.color.black),
                 modifier = Modifier
-                    .clickable { onBack() }
+                    .clickable(
+                        onClick = { onBack() },
+                        interactionSource = interactionSource,
+                        indication = null
+                    )
                     .clip(CircleShape)
 
             )
@@ -68,14 +82,32 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
         SettingsOption(
             title = "Location Access",
             description = "Used to find eateries near you",
-            onClick = {},
+            onClick = {
+                startActivity(
+                    context,
+                    Intent(
+                        android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.fromParts("package", appContext!!.packageName, null)
+                    ),
+                    null
+                )
+            },
             pointerIcon = painterResource(R.drawable.ic_upright_transfer_arrow)
         )
         SettingsLineSeparator()
         SettingsOption(
             title = "Notification Access",
             description = "Used to send device notifications",
-            onClick = {},
+            onClick = {
+                val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                intent.putExtra("app_package", appContext!!.packageName)
+                intent.putExtra("app_uid", appContext!!.applicationInfo.uid)
+                intent.putExtra("android.provider.extra.APP_PACKAGE", appContext!!.packageName)
+
+                startActivity(context, intent, null)
+            },
             pointerIcon = painterResource(R.drawable.ic_upright_transfer_arrow)
         )
         SettingsLineSeparator()
@@ -101,5 +133,9 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
             onClick = {},
             pointerIcon = painterResource(R.drawable.ic_upright_transfer_arrow)
         )
+    }
+
+    BackHandler {
+        onBack()
     }
 }

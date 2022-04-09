@@ -3,7 +3,9 @@ package com.appdev.eateryblueandroid.ui.navigation
 import android.content.Context
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
@@ -25,7 +27,8 @@ fun MainScreen(
     expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
     profileViewModel: ProfileViewModel,
-    bottomSheetViewModel: BottomSheetViewModel
+    bottomSheetViewModel: BottomSheetViewModel,
+    profileEateryDetailViewModel: EateryDetailViewModel
 ) {
 
     val navController = rememberNavController()
@@ -47,7 +50,8 @@ fun MainScreen(
             expandedSectionViewModel,
             eateryDetailViewModel,
             profileViewModel,
-            bottomSheetViewModel
+            bottomSheetViewModel,
+            profileEateryDetailViewModel
         )
     }
 }
@@ -90,7 +94,8 @@ private fun MainScreenNavigationConfigurations(
     expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
     profileViewModel: ProfileViewModel,
-    bottomSheetViewModel: BottomSheetViewModel
+    bottomSheetViewModel: BottomSheetViewModel,
+    profileEateryDetailViewModel: EateryDetailViewModel
 ) {
     val eateryListScrollState = rememberLazyListState()
     NavHost(navController = navController, startDestination = homeTab.route) {
@@ -107,7 +112,9 @@ private fun MainScreenNavigationConfigurations(
         composable(profileTab.route) {
             ProfileTabController(
                 profileViewModel = profileViewModel,
-                bottomSheetViewModel = bottomSheetViewModel
+                bottomSheetViewModel = bottomSheetViewModel,
+                homeViewModel.state.collectAsState(),
+                profileEateryDetailViewModel = profileEateryDetailViewModel
             )
         }
     }
