@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -38,6 +39,7 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
     }
 
     val context = LocalContext.current
+    val uriCurrent = LocalUriHandler.current
 
     val interactionSource = MutableInteractionSource()
     Column(
@@ -136,7 +138,7 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
         SettingsLineSeparator()
         SettingsOption(
             title = "Privacy Policy",
-            onClick = {},
+            onClick = { uriCurrent.openUri("https://www.cornellappdev.com/privacy") },
             pointerIcon = painterResource(R.drawable.ic_upright_transfer_arrow)
         )
     }

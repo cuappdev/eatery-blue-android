@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ fun LegalScreen(profileViewModel: ProfileViewModel) {
     }
 
     val interactionSource = MutableInteractionSource()
+    val uriCurrent = LocalUriHandler.current
     Column(
         modifier = Modifier
             .padding(top = 36.dp, start = 16.dp, end = 16.dp)
@@ -74,7 +76,7 @@ fun LegalScreen(profileViewModel: ProfileViewModel) {
         SettingsLineSeparator()
         SettingsOption(
             title = "Privacy Policy",
-            onClick = {},
+            onClick = { uriCurrent.openUri("https://www.cornellappdev.com/privacy") },
             pointerIcon = painterResource(id = R.drawable.ic_upright_transfer_arrow)
         )
     }
