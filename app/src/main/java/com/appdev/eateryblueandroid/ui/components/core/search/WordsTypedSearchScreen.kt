@@ -18,6 +18,10 @@ import com.appdev.eateryblueandroid.ui.components.home.SearchBar
 import com.appdev.eateryblueandroid.ui.viewmodels.SearchViewModel
 import com.appdev.eateryblueandroid.util.saveRecentSearch
 
+/**
+* The screen where the search bar has text inside and it will auto search as words are being typed
+ * into the search bar
+ */
 @Composable
 fun WordsTypedSearchScreen(
     eateries: List<Eatery>,
@@ -27,6 +31,8 @@ fun WordsTypedSearchScreen(
     setFilters: (selection: List<String>) -> Unit,
 ) {
     val typedText = searchViewModel.typedText.value
+
+    // create a list of the filtered eateries when the words are typed
     var filterEatery = mutableListOf<Eatery>()
     eateries.forEach { eatery ->
         var eateryName = eatery.name?.lowercase()
@@ -39,6 +45,7 @@ fun WordsTypedSearchScreen(
         filterEatery.map { SearchTextedItem.EateryItem(it) }
     ).flatten()
 
+    // New select eatery function that also adds eatery into the recently saved list
     val selectEaterySave = fun(eatery: Eatery) {
         eatery.id?.let { saveRecentSearch(it) }
         selectEatery(eatery)

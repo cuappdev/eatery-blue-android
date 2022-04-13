@@ -25,7 +25,9 @@ import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 
-//List of the favorited items within the screen view
+/**
+ * List of the favorited items within the screen view
+ */
 @Composable
 fun SearchFavoriteList(
     eateries: List<Eatery>,
@@ -49,7 +51,9 @@ fun SearchFavoriteList(
     }
 }
 
-//each favorited item within the favoted list
+/**
+ * Each favorited item within the favorited list
+ */
 @Composable
 fun FavoriteItem(
     eatery: Eatery,
@@ -60,6 +64,7 @@ fun FavoriteItem(
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.width(96.dp)
     ) {
+        // Use box to overlay the star over the eatery
         Box(
             modifier = Modifier
                 .size(96.dp, 96.dp)

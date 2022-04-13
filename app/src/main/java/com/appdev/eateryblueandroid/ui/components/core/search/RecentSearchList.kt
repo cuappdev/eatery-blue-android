@@ -17,6 +17,11 @@ import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.util.recentSearches
 
+/**
+ * recently searched list where they can click on their recently searched
+ * and instantly get to that eatery
+ */
+
 @Composable
 fun RecentSearchList(
     eateries: List<Eatery>,
@@ -24,6 +29,7 @@ fun RecentSearchList(
 ){
     var recentlySearchEateries = mutableListOf<Eatery>();
 
+    // Get the recently searched eateries
     recentSearches.forEach{ id ->
         eateries.forEach{ eatery ->
             if(eatery.id == id){
@@ -40,6 +46,10 @@ fun RecentSearchList(
         }
     }
 }
+
+/**
+ * Each individual recently searched items
+ */
 @Composable
 fun RecentSearchItem(
     eatery: Eatery,
