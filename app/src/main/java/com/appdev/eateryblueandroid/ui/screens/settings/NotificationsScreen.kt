@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -39,6 +41,7 @@ fun NotificationsScreen(profileViewModel: ProfileViewModel) {
         modifier = Modifier
             .padding(top = 36.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
     ) {
         Row(
             modifier = Modifier

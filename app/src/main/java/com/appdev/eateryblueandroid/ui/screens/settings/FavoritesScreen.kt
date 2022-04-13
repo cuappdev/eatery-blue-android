@@ -1,16 +1,13 @@
 package com.appdev.eateryblueandroid.ui.screens.settings
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -32,12 +29,13 @@ import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 fun FavoritesScreen(
     profileViewModel: ProfileViewModel,
     eateryState: State<HomeViewModel.State>,
-    profileEateryDetailViewModel : EateryDetailViewModel
+    profileEateryDetailViewModel: EateryDetailViewModel
 ) {
     fun onBack() {
         profileViewModel.transitionSettings()
     }
-    val eateryDataList : MutableList<Any> = mutableListOf()
+
+    val eateryDataList: MutableList<Any> = mutableListOf()
     (eateryState.value as HomeViewModel.State.Data).eateries.forEach {
         if (it.isFavorite()) eateryDataList.add(it)
     }

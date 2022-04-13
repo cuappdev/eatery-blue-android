@@ -3,9 +3,7 @@ package com.appdev.eateryblueandroid.ui.screens.settings
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -18,7 +16,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +41,7 @@ fun SupportScreen(profileViewModel: ProfileViewModel) {
     fun onBack() {
         profileViewModel.transitionSettings()
     }
+
     val bottomSheetViewModel = BottomSheetViewModel()
     val issueViewModel = BottomSheetViewModel()
     val interactionSource = MutableInteractionSource()
@@ -124,19 +122,6 @@ fun SupportScreen(profileViewModel: ProfileViewModel) {
         // Send email Section
         Row(
             modifier = Modifier
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            val intent = Intent(Intent.ACTION_SEND)
-                            intent.data = Uri.parse("mailto:")
-                            intent.type = "text/plain"
-
-                            intent.putExtra(Intent.EXTRA_EMAIL, "team@cornellappdev.com")
-                            intent.putExtra(Intent.EXTRA_SUBJECT, "Eatery - Reporting an Issue")
-                            startActivity(context, intent, null)
-                        }
-                    )
-                }
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
@@ -145,7 +130,21 @@ fun SupportScreen(profileViewModel: ProfileViewModel) {
                 text = "Shoot us an email",
                 textStyle = TextStyle.BODY_SEMIBOLD,
                 color = colorResource(id = R.color.eateryBlue),
-                modifier = Modifier.padding(end = 6.67.dp, top = 12.dp)
+                modifier = Modifier
+                    .padding(end = 6.67.dp, top = 12.dp)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                val intent = Intent(Intent.ACTION_SEND)
+                                intent.data = Uri.parse("mailto:")
+                                intent.type = "text/plain"
+
+                                intent.putExtra(Intent.EXTRA_EMAIL, "team@cornellappdev.com")
+                                intent.putExtra(Intent.EXTRA_SUBJECT, "Eatery - Reporting an Issue")
+                                startActivity(context, intent, null)
+                            }
+                        )
+                    }
             )
             Icon(
                 painter = painterResource(id = R.drawable.ic_upright_transfer_arrow),
@@ -232,7 +231,11 @@ fun SupportScreen(profileViewModel: ProfileViewModel) {
 }
 
 @Composable
-private fun ReportButton(issue: Issue, bottomSheetViewModel: BottomSheetViewModel, issueSheetViewModel: BottomSheetViewModel) {
+private fun ReportButton(
+    issue: Issue,
+    bottomSheetViewModel: BottomSheetViewModel,
+    issueSheetViewModel: BottomSheetViewModel
+) {
     Button(
         shape = RoundedCornerShape(corner = CornerSize(17.dp)),
         modifier = Modifier
@@ -259,8 +262,16 @@ private fun ReportButton(issue: Issue, bottomSheetViewModel: BottomSheetViewMode
 }
 
 
-fun beginReport(issue: Issue, bottomSheetViewModel: BottomSheetViewModel, issueSheetViewModel: BottomSheetViewModel) {
+fun beginReport(
+    issue: Issue,
+    bottomSheetViewModel: BottomSheetViewModel,
+    issueSheetViewModel: BottomSheetViewModel
+) {
     bottomSheetViewModel.show {
-        ReportSheet(issue = issue, bottomSheetViewModel = bottomSheetViewModel, issueViewModel = issueSheetViewModel)
+        ReportSheet(
+            issue = issue,
+            bottomSheetViewModel = bottomSheetViewModel,
+            issueViewModel = issueSheetViewModel
+        )
     }
 }

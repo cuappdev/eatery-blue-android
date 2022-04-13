@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,20 +22,13 @@ import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
 import com.appdev.eateryblueandroid.ui.screens.SettingsLineSeparator
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
+import com.appdev.eateryblueandroid.util.Constants.issueMap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-enum class Issue {
-    ITEM, PRICE, HOURS, WAIT_TIMES, DESCRIPTION, OTHER, NONE
-}
-
-private val issueMap = hashMapOf(
-    Issue.ITEM to "Inaccurate or missing item",
-    Issue.PRICE to "Different price than listed",
-    Issue.HOURS to "Incorrect hours",
-    Issue.WAIT_TIMES to "Inaccurate wait times",
-    Issue.DESCRIPTION to "Inaccurate description",
-    Issue.OTHER to "Other",
-    Issue.NONE to "Choose an option..."
-)
+enum class Issue { ITEM, PRICE, HOURS, WAIT_TIMES, DESCRIPTION, OTHER, NONE }
 
 data class IssueItem(val issue: Issue, val onClick: () -> Unit)
 
@@ -47,6 +41,7 @@ fun ReportSheet(
     val focusManager = LocalFocusManager.current
     var textEntry by remember { mutableStateOf("") }
     var selectedIssue by remember { mutableStateOf(issue) }
+    var isSending by remember { mutableStateOf(false)}
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -138,14 +133,21 @@ fun ReportSheet(
         Button(
             shape = RoundedCornerShape(corner = CornerSize(24.dp)),
             modifier = Modifier
-                .height(64.dp)
                 .fillMaxWidth()
-                .padding(top = 16.dp),
+                .padding(top = 16.dp)
+                .height(48.dp),
             onClick = {
-                // Send in report... and then
-                bottomSheetViewModel.hide()
+                if (!isSending) {
+                    isSending = true
+                    CoroutineScope(Dispatchers.Default).launch {
+                        // Send in report... and then
+                        delay(1000L)
+                        isSending = false
+                        bottomSheetViewModel.hide()
+                    }
+                }
             },
-            enabled = textEntry.isNotEmpty() && selectedIssue != Issue.NONE,
+            enabled = textEntry.isNotEmpty() && selectedIssue != Issue.NONE && !isSending,
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = colorResource(id = R.color.eateryBlue),
                 contentColor = colorResource(id = R.color.white),
@@ -153,13 +155,21 @@ fun ReportSheet(
                 disabledContentColor = colorResource(id = R.color.white)
             )
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically)
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            )
             {
-                Text(
-                    text = "Submit",
-                    textStyle = TextStyle.HEADER_H4,
-                    color = colorResource(id = R.color.white)
-                )
+                if (!isSending)
+                    Text(
+                        text = "Submit",
+                        textStyle = TextStyle.HEADER_H4,
+                        color = colorResource(id = R.color.white)
+                    )
+                else
+                    CircularProgressIndicator(
+                        color = colorResource(id = R.color.white),
+                        modifier = Modifier.size(30.dp)
+                    )
             }
         }
 

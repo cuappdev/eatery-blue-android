@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -46,6 +48,7 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
         modifier = Modifier
             .padding(top = 36.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
     ) {
         Row(
             modifier = Modifier
@@ -138,7 +141,7 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
         SettingsLineSeparator()
         SettingsOption(
             title = "Privacy Policy",
-            onClick = { uriCurrent.openUri("https://www.cornellappdev.com/privacy") },
+            onClick = { uriCurrent.openUri("https://github.com/cuappdev/eatery-blue-android/blob/main/privacy.md") },
             pointerIcon = painterResource(R.drawable.ic_upright_transfer_arrow)
         )
     }

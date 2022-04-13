@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
@@ -76,7 +77,7 @@ fun LegalScreen(profileViewModel: ProfileViewModel) {
         SettingsLineSeparator()
         SettingsOption(
             title = "Privacy Policy",
-            onClick = { uriCurrent.openUri("https://www.cornellappdev.com/privacy") },
+            onClick = { uriCurrent.openUri("https://github.com/cuappdev/eatery-blue-android/blob/main/privacy.md") },
             pointerIcon = painterResource(id = R.drawable.ic_upright_transfer_arrow)
         )
     }
