@@ -1,5 +1,7 @@
 package com.appdev.eateryblueandroid.ui.screens.settings
 
+import android.content.ComponentName
+import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -20,11 +22,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
@@ -34,16 +38,19 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
+import com.appdev.eateryblueandroid.util.appContext
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun AboutScreen(profileViewModel: ProfileViewModel) {
     fun onBack() {
         profileViewModel.transitionSettings()
     }
+
     val uriCurrent = LocalUriHandler.current
     val interactionSource = MutableInteractionSource()
-    Column (modifier = Modifier.verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         Column(
             modifier = Modifier
                 .padding(top = 36.dp, start = 16.dp, end = 16.dp)
@@ -170,6 +177,10 @@ enum class TeamPosition {
     POD_LEAD, IOS, DESIGN, BACKEND, ANDROID, MARKETER
 }
 
+enum class AppIcon {
+    SNOW, BLUE, ORIGINAL
+}
+
 private val teamNameMap = hashMapOf(
     TeamPosition.POD_LEAD to "Pod Leads",
     TeamPosition.IOS to "iOS Developers",
@@ -258,11 +269,19 @@ fun CreditsRow(position: TeamPosition) {
     val lazyRowList = mutableListOf(RowItem(position))
     val names: List<String> = teamRosterMap[position]!!
     names.forEach { lazyRowList.add(RowItem(it)) }
+    if (position == TeamPosition.IOS) {
+        lazyRowList.add(3, RowItem(AppIcon.SNOW))
+    } else if (position == TeamPosition.BACKEND) {
+        lazyRowList.add(3, RowItem(AppIcon.BLUE))
+    }
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    var scrolled by remember {mutableStateOf(false)}
-    val alpha = animateFloatAsState(targetValue = if (scrolled) 1.0f else 0.0f, animationSpec = tween(250, 0, LinearEasing))
+    var scrolled by remember { mutableStateOf(false) }
+    val alpha = animateFloatAsState(
+        targetValue = if (scrolled) 1.0f else 0.0f,
+        animationSpec = tween(250, 0, LinearEasing)
+    )
 
     val configuration = LocalConfiguration.current
     val screenDensity = configuration.densityDpi / 160f
@@ -277,7 +296,8 @@ fun CreditsRow(position: TeamPosition) {
     ) {
         if (!scrolled) {
             val screenWidth = configuration.screenWidthDp.toFloat() * screenDensity
-            val scrollDist = screenWidth/2 + (Math.random()*screenWidth).toFloat()
+            val scrollDist: Float =
+                ((screenWidth / 2 + (Math.random() * screenWidth)) * .65).toFloat()
             val multFactor = 50000
             coroutineScope.launch {
                 //listState.scrollToItem(index = lazyRowList.size * 500,0)
@@ -300,8 +320,9 @@ fun CreditsRow(position: TeamPosition) {
                         textStyle = TextStyle.BODY_SEMIBOLD,
                         color = colorResource(id = R.color.black)
                     )
-                }
-                else {
+                } else if (lazyRowList[index].value is AppIcon) {
+                    IconSwitcher(lazyRowList[index].value as AppIcon)
+                } else {
                     Box(
                         modifier = Modifier
                             .height(34.dp)
@@ -398,3 +419,63 @@ fun CreditsRow(position: TeamPosition) {
     }*/
 }
 
+@Composable
+fun IconSwitcher(icon: AppIcon) {
+    var cls = ""
+    val interactionSource = MutableInteractionSource()
+    var painterIcon = painterResource(id = R.drawable.ic_launcher_foreground)
+    when (icon) {
+        AppIcon.SNOW -> {
+            cls = "com.appdev.eateryblueandroid.ui.MainActivitySnow"
+            painterIcon = painterResource(id = R.drawable.ic_eaterysnow)
+        }
+        AppIcon.BLUE -> {
+            cls = "com.appdev.eateryblueandroid.ui.MainActivity"
+            painterIcon = painterResource(id = R.drawable.ic_launcher_foreground)
+        }
+        // Placeholder for original icon / other icons
+        AppIcon.ORIGINAL -> {
+            cls = "com.appdev.eateryblueandroid.ui.MainActivity"
+            painterIcon = painterResource(id = R.drawable.ic_launcher_foreground)
+        }
+    }
+    val isEnabled = appContext!!.packageManager.getComponentEnabledSetting(
+        ComponentName(
+            appContext!!,
+            cls
+        )
+    ) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+    Icon(
+        modifier = Modifier
+            .size(34.dp)
+            .alpha(if (!isEnabled) 1.0f else .5f)
+            .then(if (!isEnabled) Modifier.clickable(
+                interactionSource = interactionSource,
+                indication = rememberRipple()
+            ) {
+                appContext!!.packageManager.setComponentEnabledSetting(
+                    ComponentName(appContext!!, "com.appdev.eateryblueandroid.ui.MainActivity"),
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP
+                )
+
+                appContext!!.packageManager.setComponentEnabledSetting(
+                    ComponentName(
+                        appContext!!,
+                        "com.appdev.eateryblueandroid.ui.MainActivitySnow"
+                    ),
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                    PackageManager.DONT_KILL_APP
+                )
+
+                appContext!!.packageManager.setComponentEnabledSetting(
+                    ComponentName(appContext!!, cls),
+                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                    PackageManager.DONT_KILL_APP
+                )
+            } else Modifier),
+        painter = painterIcon,
+        contentDescription = "",
+        tint = Color.Unspecified
+    )
+}

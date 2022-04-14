@@ -16,12 +16,28 @@
         <activity
             android:name="com.appdev.eateryblueandroid.ui.MainActivity"
             android:windowSoftInputMode="adjustPan"
-            android:exported="true">
+            android:exported="true"
+            android:enabled="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity-alias
+            android:label="@string/app_name"
+            android:name="com.appdev.eateryblueandroid.ui.MainActivitySnow"
+            android:icon="@drawable/ic_eaterysnow"
+            android:roundIcon="@drawable/ic_eaterysnow"
+            android:enabled="false"
+            android:targetActivity=".ui.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+
     </application>
 </manifest>
