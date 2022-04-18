@@ -44,64 +44,91 @@ fun FavoritesScreen(
 
     val scrollState = rememberLazyListState()
     val interactionSource = MutableInteractionSource()
-    LazyColumn(
-        state = scrollState,
-        contentPadding = PaddingValues(bottom = 50.dp, start = 16.dp, end = 16.dp)
-    ) {
-        items(eateryDataList) { item ->
-            if (item is Eatery)
-                Column(
-                    modifier = Modifier.padding(
-                        bottom = 12.dp
-                    )
-                ) {
-                    EateryCard(eatery = item,
-                        selectEatery =
-                        fun(eatery: Eatery) {
-                            profileEateryDetailViewModel.selectEatery(eatery)
-                            profileViewModel.transitionEateryDetail()
-                        }
-                    )
+    if (eateryDataList.size > 1)
+        LazyColumn(
+            state = scrollState,
+            contentPadding = PaddingValues(bottom = 50.dp, start = 16.dp, end = 16.dp)
+        ) {
+            items(eateryDataList) { item ->
+                if (item is Eatery)
+                    Column(
+                        modifier = Modifier.padding(
+                            bottom = 12.dp
+                        )
+                    ) {
+                        EateryCard(eatery = item,
+                            selectEatery =
+                            fun(eatery: Eatery) {
+                                profileEateryDetailViewModel.selectEatery(eatery)
+                                profileViewModel.transitionEateryDetail()
+                            }
+                        )
+                    }
+                // Header
+                else {
+                    FavoritesHeader({ onBack() }, interactionSource)
                 }
-            // Header
-            else {
-                Row(
+            }
+        }
+    else
+        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+            FavoritesHeader({ onBack() }, interactionSource)
+            Spacer(Modifier.padding(top = 120.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                // Text for when you have NO favorite eateries.
+                // Must wait for design team to finalize empty screen designs... Keep blank for now!
+                Text(
+                    text = "",
+                    textStyle = TextStyle.HEADER_H4,
+                    color = colorResource(id = R.color.gray05),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 41.dp, bottom = 5.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_leftarrow),
-                        contentDescription = null,
-                        tint = colorResource(id = R.color.black),
-                        modifier = Modifier
-                            .clickable(
-                                onClick = { onBack() },
-                                interactionSource = interactionSource,
-                                indication = null
-                            )
-                            .clip(CircleShape)
-
-                    )
-                }
-
-                Text(
-                    text = "Favorites",
-                    color = colorResource(id = R.color.eateryBlue),
-                    textStyle = TextStyle.HEADER_H1,
-                    modifier = Modifier.padding(top = 7.dp)
-                )
-                Text(
-                    text = "Manage your favorite eateries",
-                    textStyle = TextStyle.APPDEV_BODY_MEDIUM,
-                    color = colorResource(id = R.color.gray06),
-                    modifier = Modifier.padding(top = 7.dp, bottom = 12.dp)
                 )
             }
         }
-    }
 
     BackHandler {
         onBack()
     }
+}
+
+@Composable
+private fun FavoritesHeader(
+    onBack: () -> Unit,
+    interactionSource: MutableInteractionSource
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 41.dp, bottom = 5.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_leftarrow),
+            contentDescription = null,
+            tint = colorResource(id = R.color.black),
+            modifier = Modifier
+                .clickable(
+                    onClick = { onBack() },
+                    interactionSource = interactionSource,
+                    indication = null
+                )
+                .clip(CircleShape)
+
+        )
+    }
+
+    Text(
+        text = "Favorites",
+        color = colorResource(id = R.color.eateryBlue),
+        textStyle = TextStyle.HEADER_H1,
+        modifier = Modifier.padding(top = 7.dp)
+    )
+    Text(
+        text = "Manage your favorite eateries",
+        textStyle = TextStyle.APPDEV_BODY_MEDIUM,
+        color = colorResource(id = R.color.gray06),
+        modifier = Modifier.padding(top = 7.dp, bottom = 12.dp)
+    )
 }

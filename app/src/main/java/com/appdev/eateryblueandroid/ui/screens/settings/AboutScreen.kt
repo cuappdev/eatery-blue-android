@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
@@ -38,7 +39,9 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
+import com.appdev.eateryblueandroid.util.AppIcon
 import com.appdev.eateryblueandroid.util.appContext
+import com.appdev.eateryblueandroid.util.changeIcon
 import kotlinx.coroutines.launch
 
 
@@ -177,10 +180,6 @@ enum class TeamPosition {
     POD_LEAD, IOS, DESIGN, BACKEND, ANDROID, MARKETER
 }
 
-enum class AppIcon {
-    SNOW, BLUE, ORIGINAL
-}
-
 private val teamNameMap = hashMapOf(
     TeamPosition.POD_LEAD to "Pod Leads",
     TeamPosition.IOS to "iOS Developers",
@@ -192,73 +191,61 @@ private val teamNameMap = hashMapOf(
 
 private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
     TeamPosition.POD_LEAD to listOf(
-        "Sergio Diaz",
-        "Lia Chandra",
-        "Hanzheng Li",
-        "Haichen Wang",
-        "Noah Solomon"
+        "Gracie Jing",
+        "William Ma",
+        "Conner Swenberg",
+        "TK Kong",
+        "Connor Reinhold",
+        "Sergio Diaz"
     ),
     TeamPosition.IOS to listOf(
-        "Amy Huang",
-        "Noah Pikielny",
-        "Justin Ngai",
-        "Mathew Scullin",
         "Reade Plunkett",
-        "Vivian Nguyen",
-        "Elvis Marcelo",
-        "Sylvan Martin"
+        "William Ma",
+        "Justin Ngai",
+        "Gonzalo Gonzalez",
+        "Ethan Fine",
+        "Daniel Vebman",
+        "Sergio Diaz"
     ),
     TeamPosition.DESIGN to listOf(
-        "Amanda He",
-        "Tise Alatise",
-        "Emily Romero",
-        "Gracie Jing",
+        "Brendan Elliot",
+        "Michael Huang",
         "Ravina Patel",
-        "Christina Zeng",
-        "Zixian Jia",
-        "Michelle Dong",
-        "Jin Shang",
-        "Kayla Sprayberry",
-        "Liam Du",
-        "Cindy Huang"
+        "TK Kong",
+        "Zain Khoja",
+        "Gracie Jing",
+        "Zixian Jia"
     ),
     TeamPosition.BACKEND to listOf(
-        "Gonzalo Gonzalez",
+        "Orka Sinha",
         "Shungo Najima",
-        "Kate Liang",
-        "Joyce Wu",
-        "Jessica Sylvester",
-        "Kidus Zegeye",
+        "Yuna Shin",
+        "Raahi Menon",
         "Alanna Zhou",
-        "Mateo Weiner",
+        "Conner Swenberg",
         "Archit Mehta",
         "Marya Kim"
     ),
     TeamPosition.ANDROID to listOf(
+        "Jonvi Rollins",
         "Aastha Shah",
-        "Chris Desir",
-        "Junyu Wang",
-        "Kevin Sun",
-        "Shiyuan Huang",
-        "Justin Jiang",
-        "Aarushi Singh",
-        "Corwin Zhang",
-        "Benjamin Harris",
         "Jonah Gershon",
-        "Emily Hu",
-        "Maxwell Pang",
+        "Adam Kadhim",
+        "Lesley Huang",
+        "Connor Reinhold",
+        "Jae Young Choi",
+        "Yanlam Ko",
+        "Chris Desir",
+        "Kevin Sun",
+        "Corwin Zhang",
         "Justin Guo"
     ),
     TeamPosition.MARKETER to listOf(
-        "Gordon Tran",
-        "Chloe Kanders",
         "Neha Malepati",
-        "Jonna Chen",
-        "Vivian Park",
-        "Carnell Zhou",
+        "Faith Earley",
+        "Cat Zhang",
         "Lucy Zhang",
-        "Jane Lee",
-        "Matthew Wong"
+        "Jane Lee"
     ),
 )
 
@@ -269,11 +256,6 @@ fun CreditsRow(position: TeamPosition) {
     val lazyRowList = mutableListOf(RowItem(position))
     val names: List<String> = teamRosterMap[position]!!
     names.forEach { lazyRowList.add(RowItem(it)) }
-    if (position == TeamPosition.IOS) {
-        lazyRowList.add(3, RowItem(AppIcon.SNOW))
-    } else if (position == TeamPosition.BACKEND) {
-        lazyRowList.add(3, RowItem(AppIcon.BLUE))
-    }
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -359,82 +341,34 @@ fun CreditsRow(position: TeamPosition) {
             }
         )
     }
-    /*
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .padding(top = 12.dp, bottom = 12.dp)
-            .horizontalScroll(rememberScrollState())
-            .fillMaxWidth()
-    ) {
-        Text(
-            text = teamNameMap[position]!!,
-            textStyle = TextStyle.BODY_SEMIBOLD,
-            color = colorResource(id = R.color.black),
-            modifier = Modifier.padding(start = 12.33.dp)
-        )
-        Icon(
-            painter = painterResource(id = R.drawable.ic_star),
-            contentDescription = null,
-            tint = colorResource(id = R.color.gray01),
-            modifier = Modifier
-                .height(7.dp)
-                .padding(start = 12.33.dp, end = 12.33.dp)
-                .width(7.33.dp)
-        )
-
-        val names: List<String> = teamRosterMap[position]!!
-        names.forEach { name ->
-            Box(
-                modifier = Modifier
-                    .height(34.dp)
-                    .clip(RoundedCornerShape(17.dp))
-                    .background(
-                        colorResource(id = R.color.gray01)
-                    )
-            ) {
-                Text(
-                    text = name,
-                    textStyle = TextStyle.BODY_SEMIBOLD,
-                    color = colorResource(id = R.color.black),
-                    modifier = Modifier.padding(
-                        start = 10.dp,
-                        top = 8.dp,
-                        bottom = 8.dp,
-                        end = 10.dp
-                    ),
-                    maxLines = 1
-                )
-            }
-            Icon(
-                painter = painterResource(id = R.drawable.ic_star),
-                contentDescription = null,
-                tint = colorResource(id = R.color.gray01),
-                modifier = Modifier
-                    .height(7.dp)
-                    .padding(start = 12.33.dp, end = 12.33.dp)
-                    .width(7.33.dp)
-            )
-        }
-    }*/
 }
 
+
+/**
+ * When tapped, sets the app icon to something else.
+ *
+ * (Currently not used due to lack of proper design components.)
+ */
 @Composable
 fun IconSwitcher(icon: AppIcon) {
-    var cls = ""
+    val cls: String
     val interactionSource = MutableInteractionSource()
-    var painterIcon = painterResource(id = R.drawable.ic_launcher_foreground)
+    val painterIcon: Painter
     when (icon) {
-        AppIcon.SNOW -> {
+        AppIcon.ABOUT_SNOW -> {
             cls = "com.appdev.eateryblueandroid.ui.MainActivitySnow"
             painterIcon = painterResource(id = R.drawable.ic_eaterysnow)
         }
-        AppIcon.BLUE -> {
+        AppIcon.ABOUT_BLUE -> {
             cls = "com.appdev.eateryblueandroid.ui.MainActivity"
             painterIcon = painterResource(id = R.drawable.ic_launcher_foreground)
         }
         // Placeholder for original icon / other icons
-        AppIcon.ORIGINAL -> {
+        AppIcon.ABOUT_ORIGINAL -> {
+            cls = "com.appdev.eateryblueandroid.ui.MainActivity"
+            painterIcon = painterResource(id = R.drawable.ic_launcher_foreground)
+        }
+        else -> {
             cls = "com.appdev.eateryblueandroid.ui.MainActivity"
             painterIcon = painterResource(id = R.drawable.ic_launcher_foreground)
         }
@@ -453,26 +387,7 @@ fun IconSwitcher(icon: AppIcon) {
                 interactionSource = interactionSource,
                 indication = rememberRipple()
             ) {
-                appContext!!.packageManager.setComponentEnabledSetting(
-                    ComponentName(appContext!!, "com.appdev.eateryblueandroid.ui.MainActivity"),
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    PackageManager.DONT_KILL_APP
-                )
-
-                appContext!!.packageManager.setComponentEnabledSetting(
-                    ComponentName(
-                        appContext!!,
-                        "com.appdev.eateryblueandroid.ui.MainActivitySnow"
-                    ),
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                    PackageManager.DONT_KILL_APP
-                )
-
-                appContext!!.packageManager.setComponentEnabledSetting(
-                    ComponentName(appContext!!, cls),
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-                    PackageManager.DONT_KILL_APP
-                )
+                changeIcon(icon)
             } else Modifier),
         painter = painterIcon,
         contentDescription = "",

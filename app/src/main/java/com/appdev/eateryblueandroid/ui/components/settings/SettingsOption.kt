@@ -7,7 +7,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -26,7 +25,8 @@ fun SettingsOption(
     onClick: () -> Unit,
     pointerIcon: Painter? = painterResource(
         id = R.drawable.ic_chevron_right
-    )
+    ),
+    pointerText: String? = null
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
@@ -42,7 +42,7 @@ fun SettingsOption(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(start = (if (icon != null) 5 else 0).dp).fillMaxWidth(.9f)
+            modifier = Modifier.padding(start = (if (icon != null) 5 else 0).dp)
         ) {
             if (icon != null)
                 Icon(
@@ -54,10 +54,12 @@ fun SettingsOption(
                 Text(
                     title,
                     textStyle = TextStyle.HEADER_H4,
-                    modifier = if (description.isNotEmpty()) Modifier.padding(top = 12.dp) else Modifier.padding(
-                        top = 16.dp,
-                        bottom = 16.dp
-                    )
+                    modifier = if (description.isNotEmpty()) Modifier.padding(top = 12.dp) else Modifier
+                        .padding(
+                            top = 16.dp,
+                            bottom = 16.dp
+                        )
+                        .fillMaxWidth(.9f)
                 )
                 if (description.isNotEmpty())
                     Text(
@@ -74,6 +76,13 @@ fun SettingsOption(
                 contentDescription = null,
                 tint = colorResource(id = R.color.eateryBlue),
                 modifier = Modifier.padding(start = 16.dp, end = 5.dp),
+            )
+        else if (pointerText != null)
+            Text(
+                text = pointerText,
+                textStyle = TextStyle.BODY_SEMIBOLD,
+                color = colorResource(id = R.color.eateryBlue),
+                modifier = Modifier.padding(start = 16.dp, end = 5.dp)
             )
     }
 }

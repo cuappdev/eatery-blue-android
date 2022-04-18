@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.ui.screens.settings
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +16,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
+import com.appdev.eateryblueandroid.models.ReportSendBody
+import com.appdev.eateryblueandroid.networking.internal.ApiService
 import com.appdev.eateryblueandroid.ui.components.core.CircularBackgroundIcon
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextField
@@ -25,7 +28,6 @@ import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.util.Constants.issueMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 enum class Issue { ITEM, PRICE, HOURS, WAIT_TIMES, DESCRIPTION, OTHER, NONE }
@@ -41,7 +43,7 @@ fun ReportSheet(
     val focusManager = LocalFocusManager.current
     var textEntry by remember { mutableStateOf("") }
     var selectedIssue by remember { mutableStateOf(issue) }
-    var isSending by remember { mutableStateOf(false)}
+    var isSending by remember { mutableStateOf(false) }
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -139,11 +141,25 @@ fun ReportSheet(
             onClick = {
                 if (!isSending) {
                     isSending = true
+                    //Send in report
                     CoroutineScope(Dispatchers.Default).launch {
-                        // Send in report... and then
-                        delay(1000L)
-                        isSending = false
-                        bottomSheetViewModel.hide()
+                        // Eatery 41 is "NULL EATERY"... but throws an error... use 1 for now
+                        try {
+                            val report = ReportSendBody(1, issueMap[selectedIssue]!!, textEntry)
+                            val res1 = ApiService.getInstance().sendReport(report)
+                            if (res1.success) {
+                                Log.i("JsonTest", "Report received: " + res1.data.toString())
+                                isSending = false
+                                bottomSheetViewModel.hide()
+                            } else {
+                                Log.i("JsonTest", "Report error: " + res1.error.toString())
+                                isSending = false
+                                bottomSheetViewModel.hide()
+                            }
+                        } catch (h: retrofit2.HttpException) {
+                            isSending = false
+                            bottomSheetViewModel.hide()
+                        }
                     }
                 }
             },

@@ -5,28 +5,33 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.ui.components.general.BottomSheet
 import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
+import com.appdev.eateryblueandroid.ui.screens.settings.AppIconSheet
+import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 
 @Composable
 fun SettingsScreen(profileViewModel: ProfileViewModel) {
     val state = profileViewModel.state.collectAsState()
     val interactionSource = MutableInteractionSource()
+    val appIconViewModel = BottomSheetViewModel()
+    val scrollState = rememberScrollState()
     val onBack = {
         if (state.value is ProfileViewModel.State.ProfileData) {
             profileViewModel.transitionProfile()
@@ -38,6 +43,7 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
         modifier = Modifier
             .padding(top = 36.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
+            .verticalScroll(scrollState)
     ) {
         Row(
             modifier = Modifier
@@ -76,6 +82,19 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
         )
         SettingsLineSeparator()
         SettingsOption(
+            icon = painterResource(id = R.drawable.ic_appicon_settings),
+            title = "App Icon",
+            description = "Select the Eatery app icon for your phone",
+            onClick = {
+                appIconViewModel.show {
+                    AppIconSheet(appIconViewModel)
+                }
+            },
+            pointerText = "Change",
+            pointerIcon = null
+        )
+        SettingsLineSeparator()
+        SettingsOption(
             icon = painterResource(id = R.drawable.ic_bell),
             title = "Notifications",
             description = "Manage item and promotional notifications",
@@ -111,6 +130,8 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
             }
         }
     }
+
+    BottomSheet(bottomSheetViewModel = appIconViewModel)
 
     BackHandler {
         onBack()
@@ -168,6 +189,5 @@ fun LogoutSection(logout: () -> Unit, netId: String) {
             }
 
         }
-
     }
 }
