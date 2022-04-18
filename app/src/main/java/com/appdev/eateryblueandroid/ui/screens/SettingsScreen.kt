@@ -41,9 +41,9 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
     }
     Column(
         modifier = Modifier
-            .padding(top = 36.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
             .verticalScroll(scrollState)
+            .padding(top = 36.dp, start = 16.dp, end = 16.dp)
     ) {
         Row(
             modifier = Modifier
@@ -129,6 +129,7 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
                 )
             }
         }
+        Spacer(modifier = Modifier.padding(top = 70.dp))
     }
 
     BottomSheet(bottomSheetViewModel = appIconViewModel)
