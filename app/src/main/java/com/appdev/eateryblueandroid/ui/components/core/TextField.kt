@@ -38,7 +38,8 @@ fun TextField(
     backgroundColor: Color = colorResource(id = R.color.white),
     focusRequester: FocusRequester? = null,
     isPassword: Boolean = false,
-    leftIcon: Painter? = null
+    leftIcon: Painter? = null,
+    modifier: Modifier? = null,
 ) {
     Surface(
         shape = RoundedCornerShape(8.dp),
@@ -83,29 +84,34 @@ fun TextField(
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,
                     autoCorrect = false,
-                    keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text,
+                    keyboardType = KeyboardType.Text,
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         onSubmit()
                     }
                 ),
-                modifier = Modifier
-                    .onKeyEvent {
-                        if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
-                            onSubmit()
-                            true
-                        } else {
-                            false
+                modifier = if (modifier != null) {
+                    modifier
+                } else {
+                    Modifier
+                        .onKeyEvent {
+                            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                                onSubmit()
+                                true
+                            } else {
+                                false
+                            }
                         }
-                    }
-                    .then(
-                        if (focusRequester != null)
-                            Modifier.focusRequester(focusRequester)
-                        else Modifier
-                    )
-                    .fillMaxWidth()
-                    .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)
+                        .then(
+                            if (focusRequester != null)
+                                Modifier.focusRequester(focusRequester)
+                            else Modifier
+                        )
+                        .fillMaxWidth()
+                        .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)
+                }
+
             )
         }
     }

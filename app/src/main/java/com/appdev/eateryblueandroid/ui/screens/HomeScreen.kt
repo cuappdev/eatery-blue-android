@@ -33,6 +33,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel,
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
+    selectSearch: () -> Unit,
     scrollState: LazyListState,
     bottomSheetViewModel: BottomSheetViewModel
 ) {
@@ -92,6 +93,7 @@ fun HomeScreen(
                         setFilters = {s -> homeViewModel.updateFilters(s)},
                         selectEatery = selectEatery,
                         selectSection = selectSection,
+                        selectSearch = selectSearch,
                         bottomSheetViewModel = bottomSheetViewModel
                     )
                 }

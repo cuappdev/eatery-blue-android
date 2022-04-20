@@ -30,6 +30,7 @@ fun Main(
     setFilters: (selection: List<String>) -> Unit,
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
+    selectSearch: () -> Unit,
     bottomSheetViewModel: BottomSheetViewModel
 ) {
     var mainItems by remember { mutableStateOf(listOf<MainItem>()) }
@@ -104,7 +105,7 @@ fun Main(
             when (item) {
                 is MainItem.SearchBox ->
                     Column(modifier = Modifier.padding(16.dp, 12.dp)) {
-                        SearchBar()
+                        SearchBar(selectSearch = selectSearch)
                     }
                 is MainItem.FilterOptions -> EateryFilters(alreadySelected = filters) {
                     setFilters(it)
