@@ -3,27 +3,35 @@ package com.appdev.eateryblueandroid.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.ui.components.general.BottomSheet
+import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
+import com.appdev.eateryblueandroid.ui.screens.settings.AppIconSheet
+import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 
 @Composable
 fun SettingsScreen(profileViewModel: ProfileViewModel) {
     val state = profileViewModel.state.collectAsState()
+    val interactionSource = MutableInteractionSource()
+    val appIconViewModel = BottomSheetViewModel()
+    val scrollState = rememberScrollState()
     val onBack = {
         if (state.value is ProfileViewModel.State.ProfileData) {
             profileViewModel.transitionProfile()
@@ -33,8 +41,9 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
     }
     Column(
         modifier = Modifier
-            .padding(top = 36.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
+            .verticalScroll(scrollState)
+            .padding(top = 36.dp, start = 16.dp, end = 16.dp)
     ) {
         Row(
             modifier = Modifier
@@ -45,103 +54,88 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
                 painter = painterResource(id = R.drawable.ic_leftarrow),
                 contentDescription = null,
                 tint = colorResource(id = R.color.black),
-                modifier = Modifier.clickable {
-                    onBack()
-                }
+                modifier = Modifier.clickable(
+                    onClick = { onBack() },
+                    interactionSource = interactionSource,
+                    indication = null
+                )
             )
         }
         Text(
             text = "Settings",
             color = colorResource(id = R.color.eateryBlue),
             textStyle = TextStyle.HEADER_H1,
-            modifier = Modifier.padding(top = 7.dp)
+            modifier = Modifier.padding(top = 7.dp, bottom = 7.dp)
         )
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_appdev),
             title = "About Eatery",
             description = "Learn more about Cornell AppDev",
-            onClick = {}
+            onClick = { profileViewModel.transitionAbout() }
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_star_outline),
             title = "Favorites",
             description = "Manage your favorite eateries and items",
-            onClick = {}
+            onClick = { profileViewModel.transitionFavorites() }
+        )
+        SettingsLineSeparator()
+        SettingsOption(
+            icon = painterResource(id = R.drawable.ic_appicon_settings),
+            title = "App Icon",
+            description = "Select the Eatery app icon for your phone",
+            onClick = {
+                appIconViewModel.show {
+                    AppIconSheet(appIconViewModel)
+                }
+            },
+            pointerText = "Change",
+            pointerIcon = null
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_bell),
             title = "Notifications",
             description = "Manage item and promotional notifications",
-            onClick = {}
+            onClick = { profileViewModel.transitionNotifications() }
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_lock),
             title = "Privacy",
             description = "Manage permissions and analytics",
-            onClick = {}
+            onClick = { profileViewModel.transitionPrivacy() }
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_gavel),
             title = "Legal",
             description = "Find terms, conditions, and privacy policy",
-            onClick = {}
+            onClick = { profileViewModel.transitionLegal() }
         )
         SettingsLineSeparator()
         SettingsOption(
             icon = painterResource(id = R.drawable.ic_question_circ),
             title = "Support",
             description = "Report issues and contact Cornell Appdev",
-            onClick = {}
+            onClick = { profileViewModel.transitionSupport() }
         )
         state.value.let {
             if (it is ProfileViewModel.State.ProfileData) {
-                LogoutSection(profileViewModel::logout, (state.value as ProfileViewModel.State.ProfileData).user.userName!!)
-            }
-        }
-    }
-
-    BackHandler {
-        onBack()
-    }
-}
-
-@Composable
-fun SettingsOption(icon: Painter, title: String, description: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 11.dp, bottom = 11.dp)
-            .clickable {},
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = icon,
-                contentDescription = null,
-                tint = colorResource(id = R.color.gray05),
-            )
-            Column(modifier = Modifier.padding(start = 10.dp)) {
-                Text(title, textStyle = TextStyle.HEADER_H4)
-                Text(
-                    text = description,
-                    textStyle = TextStyle.LABEL_SEMIBOLD,
-                    color = colorResource(id = R.color.gray05),
-                    modifier = Modifier.padding(top = 4.dp)
+                LogoutSection(
+                    profileViewModel::logout,
+                    (state.value as ProfileViewModel.State.ProfileData).user.userName!!
                 )
             }
         }
-        Icon(
-            painter = painterResource(id = R.drawable.ic_chevron_right),
-            contentDescription = null,
-            tint = colorResource(id = R.color.eateryBlue),
-        )
+        Spacer(modifier = Modifier.padding(top = 70.dp))
+    }
+
+    BottomSheet(bottomSheetViewModel = appIconViewModel)
+
+    BackHandler {
+        onBack()
     }
 }
 
@@ -157,9 +151,9 @@ fun SettingsLineSeparator() {
 }
 
 @Composable
-fun LogoutSection(logout: () -> Unit, netId : String) {
+fun LogoutSection(logout: () -> Unit, netId: String) {
     var id = netId
-    if (id.contains("@")) id = netId.substring(0,netId.indexOf("@"))
+    if (id.contains("@")) id = netId.substring(0, netId.indexOf("@"))
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,6 +190,5 @@ fun LogoutSection(logout: () -> Unit, netId : String) {
             }
 
         }
-
     }
 }

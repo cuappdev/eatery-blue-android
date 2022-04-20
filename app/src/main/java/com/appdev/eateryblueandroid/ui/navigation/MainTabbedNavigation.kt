@@ -3,7 +3,9 @@ package com.appdev.eateryblueandroid.ui.navigation
 import android.content.Context
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
@@ -26,6 +28,7 @@ fun MainScreen(
     eateryDetailViewModel: EateryDetailViewModel,
     profileViewModel: ProfileViewModel,
     bottomSheetViewModel: BottomSheetViewModel,
+    profileEateryDetailViewModel: EateryDetailViewModel,
     searchViewModel : SearchViewModel,
 ) {
 
@@ -50,6 +53,7 @@ fun MainScreen(
 
             profileViewModel,
             bottomSheetViewModel,
+            profileEateryDetailViewModel,
             searchViewModel,
 
         )
@@ -95,6 +99,7 @@ private fun MainScreenNavigationConfigurations(
     eateryDetailViewModel: EateryDetailViewModel,
     profileViewModel: ProfileViewModel,
     bottomSheetViewModel: BottomSheetViewModel,
+    profileEateryDetailViewModel: EateryDetailViewModel,
     searchViewModel: SearchViewModel,
 ) {
     val eateryListScrollState = rememberLazyListState()
@@ -113,7 +118,9 @@ private fun MainScreenNavigationConfigurations(
         composable(profileTab.route) {
             ProfileTabController(
                 profileViewModel = profileViewModel,
-                bottomSheetViewModel = bottomSheetViewModel
+                bottomSheetViewModel = bottomSheetViewModel,
+                homeViewModel.state.collectAsState(),
+                profileEateryDetailViewModel = profileEateryDetailViewModel
             )
         }
     }

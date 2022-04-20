@@ -17,6 +17,10 @@ message UserPreferences {
   bool wasLoggedIn = 5;
   repeated AccountProto accounts = 6;
   repeated TransactionProto transactionHistory = 7;
+
+  //** END OF CACHED LOGIN DATA *********
+
+  NotificationSettings notificationSettings = 8;
 }
 
 message AccountProto {
@@ -41,4 +45,13 @@ message Date {
   int32 day = 3;
   int32 hour = 4;
   int32 minute = 5;
+}
+
+message NotificationSettings {
+  bool paused = 1;
+  bool favoriteItems = 2;
+  bool cornellAppDev = 3;
+  bool cornellDining = 4;
+  bool account = 5;
+  bool analytics = 6;
 }

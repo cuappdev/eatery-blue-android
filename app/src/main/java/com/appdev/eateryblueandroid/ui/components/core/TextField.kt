@@ -39,6 +39,8 @@ fun TextField(
     focusRequester: FocusRequester? = null,
     isPassword: Boolean = false,
     leftIcon: Painter? = null,
+    singleLine : Boolean = true,
+    isSentence : Boolean = false,
     modifier: Modifier? = null,
 ) {
     Surface(
@@ -47,7 +49,13 @@ fun TextField(
         Row(
             modifier = Modifier
                 .background(backgroundColor)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .then(
+                    if (singleLine)
+                        Modifier
+                    else
+                        Modifier.fillMaxHeight(.7f)
+                ),
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (leftIcon != null) {
@@ -62,7 +70,7 @@ fun TextField(
                 value = value,
                 onValueChange = onValueChange,
                 maxLines = 1,
-                singleLine = true,
+                singleLine = singleLine,
                 visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
                 textStyle = AndroidTextStyle(
                     color = Color.Black,
@@ -82,7 +90,7 @@ fun TextField(
                     innerTextField()
                 },
                 keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.None,
+                    capitalization = if (isSentence) KeyboardCapitalization.Sentences else KeyboardCapitalization.None,
                     autoCorrect = false,
                     keyboardType = KeyboardType.Text,
                 ),
@@ -103,15 +111,20 @@ fun TextField(
                                 false
                             }
                         }
-                        .then(
-                            if (focusRequester != null)
-                                Modifier.focusRequester(focusRequester)
-                            else Modifier
-                        )
-                        .fillMaxWidth()
-                        .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)
-                }
-
+                    }
+                    .then(
+                        if (focusRequester != null)
+                            Modifier.focusRequester(focusRequester)
+                        else Modifier
+                    )
+                    .fillMaxWidth()
+                    .then(
+                        if (singleLine)
+                            Modifier
+                        else
+                            Modifier.fillMaxHeight()
+                    )
+                    .padding(top = 12.dp, bottom = 12.dp, start = 12.dp, end = 12.dp)
             )
         }
     }

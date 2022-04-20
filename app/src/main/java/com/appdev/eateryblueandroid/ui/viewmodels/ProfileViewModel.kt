@@ -24,14 +24,21 @@ class ProfileViewModel : ViewModel() {
             var query: String,
             var accountFilter: AccountType
         ) : State()
-
         data class LoginFailure(val error: LoginFailureType) : State()
     }
 
     sealed class Display {
         data class Login(val authenticating: Boolean, val progress: Float = 0f) : Display()
         object Settings : Display()
+
         object Profile : Display()
+        object About : Display()
+        object Favorites : Display()
+        object Notifications : Display()
+        object Privacy : Display()
+        object Legal : Display()
+        object Support : Display()
+        object EateryDetailVisible : Display()
     }
 
     private var _state = MutableStateFlow<State>(State.Empty)
@@ -58,12 +65,40 @@ class ProfileViewModel : ViewModel() {
         _display.value = Display.Settings
     }
 
+    fun transitionLegal() {
+        _display.value = Display.Legal
+    }
+
+    fun transitionAbout() {
+        _display.value = Display.About
+    }
+
+    fun transitionPrivacy() {
+        _display.value = Display.Privacy
+    }
+
+    fun transitionSupport() {
+        _display.value = Display.Support
+    }
+
+    fun transitionNotifications() {
+        _display.value = Display.Notifications
+    }
+
     fun transitionProfile() {
         _display.value = Display.Profile
     }
 
     fun transitionLogin() {
         _display.value = Display.Login(authenticating = false, progress = 0.0f)
+    }
+
+    fun transitionFavorites() {
+        _display.value = Display.Favorites
+    }
+
+    fun transitionEateryDetail() {
+        _display.value = Display.EateryDetailVisible
     }
 
     fun logout() {

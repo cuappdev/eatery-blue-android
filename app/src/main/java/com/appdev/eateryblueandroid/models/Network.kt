@@ -1,6 +1,5 @@
 package com.appdev.eateryblueandroid.models
 
-import android.os.Parcelable
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -43,4 +42,10 @@ data class GetApiTransactionHistoryQueryCriteria(
     val maxReturn: Int,
     val startDate: String,
     val userId: String
+)
+
+data class ReportSendBody(
+    @Json(name = "eatery_id") val eatery_id: Int,
+    @Json(name = "type") val type: String,
+    @Json(name = "content") val content: String
 )

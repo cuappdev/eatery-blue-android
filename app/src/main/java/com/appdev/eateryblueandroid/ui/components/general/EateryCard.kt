@@ -80,7 +80,7 @@ fun EateryCard(
                             .padding(top = 3.dp)
                             .clickable(
                                 interactionSource = interactionSource,
-                                indication = rememberRipple(),
+                                indication = rememberRipple(radius = 9.dp),
                                 onClick = {
                                     eatery.toggleFavorite()
                                 }

@@ -2,6 +2,7 @@ package com.appdev.eateryblueandroid.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import com.appdev.eateryblueandroid.ui.components.general.BottomSheet
 import com.appdev.eateryblueandroid.ui.components.login.LoginWebView
@@ -16,6 +17,8 @@ class MainActivity : AppCompatActivity() {
     private val eateryListViewModel = HomeViewModel(fetchFromApi = true)
     private val expandedSectionViewModel = ExpandedSectionViewModel()
     private val eateryDetailViewModel = EateryDetailViewModel()
+    private val profileEateryDetailViewModel = EateryDetailViewModel()
+
     private val searchViewModel = SearchViewModel()
     private val profileViewModel = ProfileViewModel()
     private val bottomSheetViewModel = BottomSheetViewModel()
@@ -25,6 +28,8 @@ class MainActivity : AppCompatActivity() {
         checkProfileCache()
         initializeLoginData()
         initializeRecentSearches()
+        initializeNotificationsSettings()
+
         setContent {
             MainScreen(
                 context = this,
@@ -34,6 +39,7 @@ class MainActivity : AppCompatActivity() {
                 eateryDetailViewModel = eateryDetailViewModel,
                 profileViewModel = profileViewModel,
                 bottomSheetViewModel = bottomSheetViewModel,
+                profileEateryDetailViewModel = profileEateryDetailViewModel,
                 searchViewModel = searchViewModel,
             )
             LoginWebView(
@@ -44,4 +50,5 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
+
 }

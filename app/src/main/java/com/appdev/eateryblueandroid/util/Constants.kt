@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.appdev.eateryblueandroid.models.AccountType.*
 import com.appdev.eateryblueandroid.models.AccountType
+import com.appdev.eateryblueandroid.ui.screens.settings.Issue
 import com.codelab.android.datastore.UserPreferences
 
 object Constants {
@@ -66,4 +67,14 @@ object Constants {
     val semesterlyMealPlans = listOf(OFF_CAMPUS, FLEX)
 
     val weeklyMealPlans = listOf(BEAR_TRADITIONAL, BEAR_BASIC, BEAR_CHOICE, HOUSE_AFFILIATE)
+
+    val issueMap = hashMapOf(
+        Issue.ITEM to "Inaccurate or missing item",
+        Issue.PRICE to "Different price than listed",
+        Issue.HOURS to "Incorrect hours",
+        Issue.WAIT_TIMES to "Inaccurate wait times",
+        Issue.DESCRIPTION to "Inaccurate description",
+        Issue.OTHER to "Other",
+        Issue.NONE to "Choose an option..."
+    )
 }
