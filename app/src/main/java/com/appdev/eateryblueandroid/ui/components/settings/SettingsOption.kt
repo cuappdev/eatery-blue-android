@@ -49,6 +49,7 @@ fun SettingsOption(
                     painter = icon,
                     contentDescription = null,
                     tint = colorResource(id = R.color.gray05),
+                    modifier = Modifier.width(24.dp)
                 )
             Column(modifier = Modifier.padding(start = (if (icon != null) 10 else 0).dp)) {
                 Text(
