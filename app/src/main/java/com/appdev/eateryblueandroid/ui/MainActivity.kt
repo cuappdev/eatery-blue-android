@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     private val eateryDetailViewModel = EateryDetailViewModel()
     private val profileEateryDetailViewModel = EateryDetailViewModel()
 
+    private val searchViewModel = SearchViewModel()
     private val profileViewModel = ProfileViewModel()
     private val bottomSheetViewModel = BottomSheetViewModel()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,7 +39,8 @@ class MainActivity : AppCompatActivity() {
                 eateryDetailViewModel = eateryDetailViewModel,
                 profileViewModel = profileViewModel,
                 bottomSheetViewModel = bottomSheetViewModel,
-                profileEateryDetailViewModel = profileEateryDetailViewModel
+                profileEateryDetailViewModel = profileEateryDetailViewModel,
+                searchViewModel = searchViewModel,
             )
             LoginWebView(
                 profileViewModel = profileViewModel,

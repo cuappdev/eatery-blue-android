@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -36,7 +37,8 @@ fun Text(
     modifier: Modifier = Modifier,
     textStyle: TextStyle = TextStyle.BODY_NORMAL,
     color: Color = colorResource(id = R.color.black),
-    maxLines: Int = Integer.MAX_VALUE
+    maxLines: Int = Integer.MAX_VALUE,
+    textAlign: TextAlign = TextAlign.Left
 ) {
     AndroidText(
         text = text,
@@ -46,9 +48,11 @@ fun Text(
         fontWeight = fontWeight(textStyle),
         fontSize = fontSize(textStyle),
         letterSpacing = 0.sp,
-        modifier = modifier
+        modifier = modifier,
+        textAlign = textAlign
     )
 }
+
 
 private fun fontSize(textStyle: TextStyle): TextUnit {
     return if (textStyle == TextStyle.HEADER_H1) {

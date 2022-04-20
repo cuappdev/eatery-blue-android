@@ -40,7 +40,8 @@ fun TextField(
     isPassword: Boolean = false,
     leftIcon: Painter? = null,
     singleLine : Boolean = true,
-    isSentence : Boolean = false
+    isSentence : Boolean = false,
+    modifier: Modifier? = null,
 ) {
     Surface(
         shape = RoundedCornerShape(8.dp),
@@ -91,20 +92,24 @@ fun TextField(
                 keyboardOptions = KeyboardOptions(
                     capitalization = if (isSentence) KeyboardCapitalization.Sentences else KeyboardCapitalization.None,
                     autoCorrect = false,
-                    keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text,
+                    keyboardType = KeyboardType.Text,
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         onSubmit()
                     }
                 ),
-                modifier = Modifier
-                    .onKeyEvent {
-                        if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
-                            onSubmit()
-                            true
-                        } else {
-                            false
+                modifier = if (modifier != null) {
+                    modifier
+                } else {
+                    Modifier
+                        .onKeyEvent {
+                            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                                onSubmit()
+                                true
+                            } else {
+                                false
+                            }
                         }
                     }
                     .then(

@@ -13,6 +13,7 @@ fun HomeTabController(
     homeViewModel: HomeViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
+    searchViewModel: SearchViewModel,
     eateryListScrollState: LazyListState,
     bottomSheetViewModel: BottomSheetViewModel
 ) {
@@ -31,6 +32,10 @@ fun HomeTabController(
                         expandedSectionViewModel.expandSection(section)
                         homeTabViewModel.transitionExpandedSection()
                     },
+                    selectSearch = fun() {
+                        searchViewModel.transitionSearchNothingTyped()
+                        homeTabViewModel.transitionSearchScreen()
+                    },
                     scrollState = eateryListScrollState,
                     bottomSheetViewModel = bottomSheetViewModel
                 )
@@ -44,6 +49,24 @@ fun HomeTabController(
                     expandedSectionViewModel = expandedSectionViewModel,
                     hideSection = homeTabViewModel::transitionEateryList
                 )
+
+            is HomeTabViewModel.State.SearchScreenVisible ->
+                SearchingScreen(
+                    searchViewModel = searchViewModel,
+
+                    selectEatery = fun(eatery: Eatery) {
+                        eateryDetailViewModel.selectEatery(eatery)
+                        homeTabViewModel.transitionEateryDetail()
+                    },
+                    hideSection = homeTabViewModel::transitionEateryList,
+                    homeViewModel = homeViewModel,
+                    selectSection = fun(section: EaterySection) {
+                        expandedSectionViewModel.expandSection(section)
+                        homeTabViewModel.transitionExpandedSection()
+                    },
+
+                )
+
         }
     }
 }

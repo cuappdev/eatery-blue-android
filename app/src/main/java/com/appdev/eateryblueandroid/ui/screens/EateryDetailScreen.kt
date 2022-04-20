@@ -58,7 +58,7 @@ fun EateryDetailScreen(
                         .wrapContentHeight()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Box() {
+                    Box(contentAlignment = Alignment.BottomEnd) {
                         Image(
                             url = it.data.imageUrl ?: "",
                             modifier = Modifier

@@ -7,15 +7,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.appdev.eateryblueandroid.R
 import com.skydoves.landscapist.ShimmerParams
 import com.skydoves.landscapist.glide.GlideImage
 
 @Composable
-fun Image(url: String, modifier: Modifier = Modifier) {
+fun Image(
+    url: String,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.FillWidth
+) {
     GlideImage(
         imageModel = url,
-        contentScale = ContentScale.FillWidth,
+        contentScale = contentScale,
         modifier = modifier,
         shimmerParams = ShimmerParams(
             baseColor = colorResource(id = R.color.white),
@@ -34,3 +39,4 @@ fun Image(url: String, modifier: Modifier = Modifier) {
         }
     )
 }
+
