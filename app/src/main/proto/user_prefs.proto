@@ -54,4 +54,6 @@ message NotificationSettings {
   bool cornellDining = 4;
   bool account = 5;
   bool analytics = 6;
+  // False only on the first time opening the app--indicates default values should be set.
+  bool hasSet = 7;
 }

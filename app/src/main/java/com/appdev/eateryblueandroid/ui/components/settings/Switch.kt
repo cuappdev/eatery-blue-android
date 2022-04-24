@@ -55,7 +55,7 @@ fun Switch(
     )
     val animateColor = animateColorAsState(
         targetValue =
-        if (checked) {
+        if (checked && enabled) {
             checkedTrackColor
         } else {
             uncheckedTrackColor

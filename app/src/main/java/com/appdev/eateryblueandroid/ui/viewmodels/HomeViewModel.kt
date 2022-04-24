@@ -2,6 +2,7 @@ package com.appdev.eateryblueandroid.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.appdev.eateryblueandroid.models.ApiResponse
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.networking.internal.ApiService
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
 
 class HomeViewModel(
     fetchFromApi: Boolean
@@ -32,20 +34,38 @@ class HomeViewModel(
         if (fetchFromApi) {
             viewModelScope.launch {
                 while (isActive) {
-                    val res = ApiService.getInstance().fetchEateries()
-                    if (res.success) {
-                        res.data?.let { eateries ->
-                            initializeFavoriteMap(eateries)
-                            _state.value = State.Data(
-                                eateries = eateries,
-                                sections = eaterySections(),
-                                filters = listOf("Meal swipes", "BRBs", "Cash or credit")
-                            )
-                            this.cancel()
+                    var res: ApiResponse<List<Eatery>>? = null
+                    try {
+                        res = ApiService.getInstance().fetchEateries()
+                        if (res.success) {
+                            res.data?.let { eateries ->
+                                initializeFavoriteMap(eateries)
+                                _state.value = State.Data(
+                                    eateries = eateries,
+                                    sections = eaterySections(),
+                                    filters = listOf("Meal swipes", "BRBs", "Cash or credit")
+                                )
+                                this.cancel()
+                            }
+                        } else {
+                            res.error?.let { _state.value = State.Failure(it) }
                         }
-                    } else {
-                        res.error?.let { _state.value = State.Failure(it) }
                     }
+                    catch (h : retrofit2.HttpException) {
+                        h.printStackTrace()
+                        if (res != null) {
+                            res.error?.let { _state.value = State.Failure(it) }
+                        }
+                        this.cancel()
+                    }
+                    catch (s : SocketTimeoutException) {
+                        s.printStackTrace()
+                        if (res != null) {
+                            res.error?.let { _state.value = State.Failure(it) }
+                        }
+                        this.cancel()
+                    }
+
                 }
             }
         }

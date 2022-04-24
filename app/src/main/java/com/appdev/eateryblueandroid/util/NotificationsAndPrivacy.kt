@@ -40,6 +40,16 @@ fun initializeNotificationsSettings() {
             notificationSettingsMap[NotificationsSettingsType.DINING] = notifications.cornellDining
             notificationSettingsMap[NotificationsSettingsType.ACCOUNT] = notifications.account
             notificationSettingsMap[NotificationsSettingsType.ANALYTICS] = notifications.analytics
+
+            //Set default values
+            if (!notifications.hasSet) {
+                saveNotificationSetting(NotificationsSettingsType.PAUSED, false)
+                saveNotificationSetting(NotificationsSettingsType.FAVORITE_ITEMS, true)
+                saveNotificationSetting(NotificationsSettingsType.APPDEV, true)
+                saveNotificationSetting(NotificationsSettingsType.DINING, true)
+                saveNotificationSetting(NotificationsSettingsType.ACCOUNT, true)
+                saveNotificationSetting(NotificationsSettingsType.ANALYTICS, true)
+            }
             this.cancel()
         }
     }
@@ -59,6 +69,7 @@ fun saveNotificationSetting(type: NotificationsSettingsType, bool: Boolean) {
         .setCornellDining(notificationSettingsMap[NotificationsSettingsType.DINING]!!)
         .setAccount(notificationSettingsMap[NotificationsSettingsType.ACCOUNT]!!)
         .setAnalytics(notificationSettingsMap[NotificationsSettingsType.ANALYTICS]!!)
+        .setHasSet(true)
         .build()
 
     // Save to proto Datastore
