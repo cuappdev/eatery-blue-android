@@ -5,8 +5,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.core.app.ActivityCompat
+import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
+import com.codelab.android.datastore.PermissionSettings
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 object LocationHandler {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -37,5 +42,20 @@ object LocationHandler {
 
     fun getLocation(): Location? {
         return if (::currentLocation.isInitialized) currentLocation else null
+    }
+
+    fun locationPermissionRequested(value: Boolean){
+        val permissionSettings = PermissionSettings.newBuilder()
+            .setLocationAccess(value)
+            .build()
+
+        // Save to proto Datastore
+        CoroutineScope(Dispatchers.IO).launch {
+            appContext!!.userPreferencesStore.updateData { currentPreferences ->
+                currentPreferences.toBuilder()
+                    .setPermissionSettings(permissionSettings)
+                    .build()
+            }
+        }
     }
 }

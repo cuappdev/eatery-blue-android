@@ -21,6 +21,7 @@ message UserPreferences {
   //** END OF CACHED LOGIN DATA *********
 
   NotificationSettings notificationSettings = 8;
+  PermissionSettings permissionSettings = 9;
 }
 
 message AccountProto {
@@ -56,4 +57,8 @@ message NotificationSettings {
   bool analytics = 6;
   // False only on the first time opening the app--indicates default values should be set.
   bool hasSet = 7;
+}
+
+message PermissionSettings {
+  bool locationAccess = 1;
 }
