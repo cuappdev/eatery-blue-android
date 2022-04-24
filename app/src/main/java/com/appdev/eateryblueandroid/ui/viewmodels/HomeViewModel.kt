@@ -50,15 +50,13 @@ class HomeViewModel(
                         } else {
                             res.error?.let { _state.value = State.Failure(it) }
                         }
-                    }
-                    catch (h : retrofit2.HttpException) {
+                    } catch (h: retrofit2.HttpException) {
                         h.printStackTrace()
                         if (res != null) {
                             res.error?.let { _state.value = State.Failure(it) }
                         }
                         this.cancel()
-                    }
-                    catch (s : SocketTimeoutException) {
+                    } catch (s: SocketTimeoutException) {
                         s.printStackTrace()
                         if (res != null) {
                             res.error?.let { _state.value = State.Failure(it) }
@@ -71,7 +69,7 @@ class HomeViewModel(
         }
     }
 
-    fun updateFilters(selection: List<String>){
+    fun updateFilters(selection: List<String>) {
         if (state.value is State.Data) {
             _state.value = State.Data(
                 eateries = (state.value as State.Data).eateries,

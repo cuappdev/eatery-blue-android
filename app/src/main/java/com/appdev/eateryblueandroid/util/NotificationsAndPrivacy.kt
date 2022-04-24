@@ -60,9 +60,10 @@ enum class NotificationsSettingsType {
 }
 
 fun saveNotificationSetting(type: NotificationsSettingsType, bool: Boolean) {
-    val notificationSettingsMap = (notificationSettingsMap as MutableMap<NotificationsSettingsType, Boolean>)
+    val notificationSettingsMap =
+        (notificationSettingsMap as MutableMap<NotificationsSettingsType, Boolean>)
     notificationSettingsMap[type] = bool
-    val notificationsSettings : NotificationSettings = NotificationSettings.newBuilder()
+    val notificationsSettings: NotificationSettings = NotificationSettings.newBuilder()
         .setPaused(notificationSettingsMap[NotificationsSettingsType.PAUSED]!!)
         .setFavoriteItems(notificationSettingsMap[NotificationsSettingsType.FAVORITE_ITEMS]!!)
         .setCornellAppDev(notificationSettingsMap[NotificationsSettingsType.APPDEV]!!)
