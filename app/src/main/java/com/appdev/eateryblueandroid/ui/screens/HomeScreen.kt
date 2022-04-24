@@ -26,7 +26,15 @@ import com.appdev.eateryblueandroid.ui.components.profile.PaymentMethodSelector
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
+import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
 import com.appdev.eateryblueandroid.util.LocationHandler
+import com.appdev.eateryblueandroid.util.appContext
+import com.codelab.android.datastore.PermissionSettings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -46,10 +54,10 @@ fun HomeScreen(
                 LocationHandler.instantiate(context)
             }
             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                /* TODO: Handle insufficient permission */
+                LocationHandler.locationPermissionRequested(true)
             }
             else -> {
-                /* TODO: Handle insufficient permission */
+                LocationHandler.locationPermissionRequested(true)
             }
         }
     }
@@ -63,12 +71,22 @@ fun HomeScreen(
                 LocationHandler.instantiate(context)
             }
             else -> {
-                locationPermissionRequest.launch(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    )
-                )
+                CoroutineScope(Dispatchers.IO).launch {
+                    val permissionsFlow: Flow<PermissionSettings> = appContext!!.userPreferencesStore.data.map {
+                        it.permissionSettings
+                    }
+                    permissionsFlow.collect {
+                        if (!it.locationAccess) {
+                            locationPermissionRequest.launch(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
+                            )
+                        }
+                    }
+                }
+
             }
         }
     }

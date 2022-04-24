@@ -1,8 +1,6 @@
 package com.appdev.eateryblueandroid.ui.components.profile
 
-import android.util.Log
 import android.view.HapticFeedbackConstants
-import androidx.annotation.Px
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -15,7 +13,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -35,8 +32,8 @@ fun Switch(
     checkedThumbColor: Color = colorResource(id = R.color.white),
     uncheckedTrackColor: Color = colorResource(id = R.color.gray01),
     uncheckedThumbColor: Color = colorResource(id = R.color.white),
-    onCheckedChange : (Boolean) -> Unit,
-    enabled : Boolean = true
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true
 ) {
     var checked by remember { mutableStateOf(initialValue) }
     val thumbRadius = height / 2 - spaceBetweenThumbAndTrack
@@ -55,7 +52,7 @@ fun Switch(
     )
     val animateColor = animateColorAsState(
         targetValue =
-        if (checked) {
+        if (checked && enabled) {
             checkedTrackColor
         } else {
             uncheckedTrackColor

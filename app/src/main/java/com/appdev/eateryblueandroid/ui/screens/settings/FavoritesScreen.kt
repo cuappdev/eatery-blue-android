@@ -36,9 +36,10 @@ fun FavoritesScreen(
     }
 
     val eateryDataList: MutableList<Any> = mutableListOf()
-    (eateryState.value as HomeViewModel.State.Data).eateries.forEach {
-        if (it.isFavorite()) eateryDataList.add(it)
-    }
+    if (eateryState.value is HomeViewModel.State.Data)
+        (eateryState.value as HomeViewModel.State.Data).eateries.forEach {
+            if (it.isFavorite()) eateryDataList.add(it)
+        }
     eateryDataList.add(0, "header")
 
 

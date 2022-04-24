@@ -40,6 +40,16 @@ fun initializeNotificationsSettings() {
             notificationSettingsMap[NotificationsSettingsType.DINING] = notifications.cornellDining
             notificationSettingsMap[NotificationsSettingsType.ACCOUNT] = notifications.account
             notificationSettingsMap[NotificationsSettingsType.ANALYTICS] = notifications.analytics
+
+            //Set default values
+            if (!notifications.hasSet) {
+                saveNotificationSetting(NotificationsSettingsType.PAUSED, false)
+                saveNotificationSetting(NotificationsSettingsType.FAVORITE_ITEMS, true)
+                saveNotificationSetting(NotificationsSettingsType.APPDEV, true)
+                saveNotificationSetting(NotificationsSettingsType.DINING, true)
+                saveNotificationSetting(NotificationsSettingsType.ACCOUNT, true)
+                saveNotificationSetting(NotificationsSettingsType.ANALYTICS, true)
+            }
             this.cancel()
         }
     }
@@ -50,15 +60,17 @@ enum class NotificationsSettingsType {
 }
 
 fun saveNotificationSetting(type: NotificationsSettingsType, bool: Boolean) {
-    val notificationSettingsMap = (notificationSettingsMap as MutableMap<NotificationsSettingsType, Boolean>)
+    val notificationSettingsMap =
+        (notificationSettingsMap as MutableMap<NotificationsSettingsType, Boolean>)
     notificationSettingsMap[type] = bool
-    val notificationsSettings : NotificationSettings = NotificationSettings.newBuilder()
+    val notificationsSettings: NotificationSettings = NotificationSettings.newBuilder()
         .setPaused(notificationSettingsMap[NotificationsSettingsType.PAUSED]!!)
         .setFavoriteItems(notificationSettingsMap[NotificationsSettingsType.FAVORITE_ITEMS]!!)
         .setCornellAppDev(notificationSettingsMap[NotificationsSettingsType.APPDEV]!!)
         .setCornellDining(notificationSettingsMap[NotificationsSettingsType.DINING]!!)
         .setAccount(notificationSettingsMap[NotificationsSettingsType.ACCOUNT]!!)
         .setAnalytics(notificationSettingsMap[NotificationsSettingsType.ANALYTICS]!!)
+        .setHasSet(true)
         .build()
 
     // Save to proto Datastore
