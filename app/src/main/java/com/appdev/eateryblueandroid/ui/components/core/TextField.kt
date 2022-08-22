@@ -72,7 +72,7 @@ fun TextField(
             BasicTextField(
                 value = value,
                 onValueChange = {
-                    onValueChange(if (singleLine) it.replace("\n", "") else it)
+                    onValueChange(if (singleLine) it.filter { c -> c != '\n' } else it)
                 },
                 maxLines = 1,
                 singleLine = singleLine,
