@@ -55,8 +55,10 @@ fun LoginScreen(profileViewModel: ProfileViewModel) {
             LoginButton(
                 profileViewModel = profileViewModel,
                 login = {
-                    if (netid.isNotEmpty() && password.isNotEmpty())
+                    if (netid.isNotEmpty() && password.isNotEmpty()) {
+                        focusManager.clearFocus()
                         profileViewModel.initiateLogin(netid, password)
+                    }
                 }
             )
         }
