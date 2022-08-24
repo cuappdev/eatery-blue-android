@@ -1,6 +1,7 @@
 package com.appdev.eateryblueandroid.ui.viewmodels
 
 import android.util.Log
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.AccountType
@@ -9,6 +10,9 @@ import com.appdev.eateryblueandroid.networking.get.GetApiService
 import com.appdev.eateryblueandroid.util.cacheAccountInfo
 import com.appdev.eateryblueandroid.util.makeCachedUser
 import com.appdev.eateryblueandroid.util.saveLoginInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -18,17 +22,28 @@ class ProfileViewModel : ViewModel() {
     sealed class State {
         object Empty : State()
         data class LoggingIn(val netid: String, val password: String) : State()
-        data class AutoLoggingIn (val netid: String, val password: String, val cachedProfileData: ProfileData) : State()
+        data class AutoLoggingIn(
+            val netid: String,
+            val password: String,
+            val cachedProfileData: ProfileData
+        ) : State()
+
         data class ProfileData(
             val user: User,
             var query: String,
             var accountFilter: AccountType
         ) : State()
+
         data class LoginFailure(val error: LoginFailureType) : State()
     }
 
     sealed class Display {
-        data class Login(val authenticating: Boolean, val progress: Float = 0f) : Display()
+        data class Login(
+            val authenticating: Boolean,
+            val progress: Float = 0f,
+            val intOffset: IntOffset = IntOffset(0, 0)
+        ) : Display()
+
         object Settings : Display()
 
         object Profile : Display()
@@ -53,7 +68,11 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun autoLogin(netid: String, password: String) {
-        _state.value = State.AutoLoggingIn(netid, password, State.ProfileData(makeCachedUser(), "", AccountType.MEALSWIPES))
+        _state.value = State.AutoLoggingIn(
+            netid,
+            password,
+            State.ProfileData(makeCachedUser(), "", AccountType.MEALSWIPES)
+        )
         _display.value = Display.Login(authenticating = true, progress = 0.3f)
     }
 
@@ -110,9 +129,15 @@ class ProfileViewModel : ViewModel() {
     fun loginSuccess(sessionId: String) {
         _display.value = Display.Login(authenticating = true, progress = 0.9f)
         if (state.value is State.LoggingIn)
-            saveLoginInfo((state.value as State.LoggingIn).netid, (state.value as State.LoggingIn).password)
+            saveLoginInfo(
+                (state.value as State.LoggingIn).netid,
+                (state.value as State.LoggingIn).password
+            )
         else
-            saveLoginInfo((state.value as State.AutoLoggingIn).netid, (state.value as State.AutoLoggingIn).password)
+            saveLoginInfo(
+                (state.value as State.AutoLoggingIn).netid,
+                (state.value as State.AutoLoggingIn).password
+            )
         viewModelScope.launch {
             val res1 = GetApiService.getInstance().fetchUser(
                 GetApiService.generateUserBody(sessionId = sessionId)
@@ -147,7 +172,8 @@ class ProfileViewModel : ViewModel() {
             Log.i("Login", user.transactions.toString())
 
 
-            val cachedProfile : State.ProfileData? = if (_state.value is State.AutoLoggingIn) (_state.value as State.AutoLoggingIn).cachedProfileData else null
+            val cachedProfile: State.ProfileData? =
+                if (_state.value is State.AutoLoggingIn) (_state.value as State.AutoLoggingIn).cachedProfileData else null
             _state.value = State.ProfileData(
                 user = user,
                 query = cachedProfile?.query ?: "",
@@ -162,6 +188,22 @@ class ProfileViewModel : ViewModel() {
     fun loginFailure(error: LoginFailureType) {
         _state.value = State.LoginFailure(error)
         _display.value = Display.Login(authenticating = false)
+
+        shakeLogin()
+    }
+
+    fun shakeLogin() {
+        CoroutineScope(Dispatchers.Default).launch {
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(-100,0))
+            delay(60)
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(100,0))
+            delay(60)
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(-100,0))
+            delay(60)
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(100,0))
+            delay(60)
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(0,0))
+        }
     }
 
     fun updateAccountFilter(updatedFilter: AccountType) {
@@ -172,9 +214,9 @@ class ProfileViewModel : ViewModel() {
                 query = currentProfileData.query,
                 accountFilter = updatedFilter
             )
-        }
-        else {
-            val currentProfileData = (_state.value as? State.AutoLoggingIn)?.cachedProfileData ?: return
+        } else {
+            val currentProfileData =
+                (_state.value as? State.AutoLoggingIn)?.cachedProfileData ?: return
             currentProfileData.accountFilter = updatedFilter
         }
     }
@@ -187,9 +229,9 @@ class ProfileViewModel : ViewModel() {
                 query = updatedQuery,
                 accountFilter = currentProfileData.accountFilter
             )
-        }
-        else {
-            val currentProfileData = (_state.value as? State.AutoLoggingIn)?.cachedProfileData ?: return
+        } else {
+            val currentProfileData =
+                (_state.value as? State.AutoLoggingIn)?.cachedProfileData ?: return
             currentProfileData.query = updatedQuery
         }
     }
