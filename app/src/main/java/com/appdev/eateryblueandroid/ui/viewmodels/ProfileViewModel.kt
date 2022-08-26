@@ -127,17 +127,19 @@ class ProfileViewModel : ViewModel() {
     }
 
     fun loginSuccess(sessionId: String) {
-        _display.value = Display.Login(authenticating = true, progress = 0.9f)
-        if (state.value is State.LoggingIn)
+        //Catch the edge case in which a user logs out before it loads, then the load occurs.
+        if (state.value == State.Empty) return
+
+        val isAutoLogin = _state.value is State.AutoLoggingIn
+
+        if (!isAutoLogin) {
+            _display.value = Display.Login(authenticating = true, progress = 0.9f)
             saveLoginInfo(
                 (state.value as State.LoggingIn).netid,
                 (state.value as State.LoggingIn).password
             )
-        else
-            saveLoginInfo(
-                (state.value as State.AutoLoggingIn).netid,
-                (state.value as State.AutoLoggingIn).password
-            )
+        }
+
         viewModelScope.launch {
             val res1 = GetApiService.getInstance().fetchUser(
                 GetApiService.generateUserBody(sessionId = sessionId)
@@ -146,7 +148,10 @@ class ProfileViewModel : ViewModel() {
                 loginFailure(LoginFailureType.FETCH_USER_FAILURE)
                 return@launch
             }
-            _display.value = Display.Login(authenticating = true, progress = 1f)
+
+            if (!isAutoLogin)
+                _display.value = Display.Login(authenticating = true, progress = 1f)
+
             val user = res1.response
             val res2 = GetApiService.getInstance().fetchAccounts(
                 GetApiService.generateAccountsBody(sessionId = sessionId, userId = user.id ?: "")
@@ -179,7 +184,8 @@ class ProfileViewModel : ViewModel() {
                 query = cachedProfile?.query ?: "",
                 accountFilter = cachedProfile?.accountFilter ?: AccountType.MEALSWIPES,
             )
-            _display.value = Display.Profile
+            if (!isAutoLogin)
+                _display.value = Display.Profile
 
             cacheAccountInfo(user.accounts!!, user.transactions!!)
         }
@@ -194,15 +200,15 @@ class ProfileViewModel : ViewModel() {
 
     fun shakeLogin() {
         CoroutineScope(Dispatchers.Default).launch {
-            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(-100,0))
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(-100, 0))
             delay(40)
-            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(100,0))
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(100, 0))
             delay(40)
-            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(-100,0))
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(-100, 0))
             delay(40)
-            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(100,0))
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(100, 0))
             delay(40)
-            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(0,0))
+            _display.value = Display.Login(authenticating = false, intOffset = IntOffset(0, 0))
         }
     }
 

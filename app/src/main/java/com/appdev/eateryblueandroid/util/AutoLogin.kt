@@ -18,15 +18,16 @@ import java.time.LocalDateTime
 
 private var loadedUsername: String? = null
 private var loadedPassword: String? = null
-private var hasAutoLoggedIn = false
 
 /**
  * Attempts to auto login. Only succeeds if loadedUsername AND loadedPassword are non-null
  * and non-empty, AND an auto login has not already taken place.
  */
 fun attemptAutoLogin(profileViewModel: ProfileViewModel) {
-    if (!hasAutoLoggedIn && !loadedUsername.isNullOrEmpty() && !loadedPassword.isNullOrEmpty()) {
-        hasAutoLoggedIn = true
+    if (profileViewModel.state.value !is ProfileViewModel.State.LoggingIn
+        && profileViewModel.state.value !is ProfileViewModel.State.ProfileData
+        && profileViewModel.state.value !is ProfileViewModel.State.AutoLoggingIn
+        && !loadedUsername.isNullOrEmpty() && !loadedPassword.isNullOrEmpty()) {
         CoroutineScope(Dispatchers.Default).launch {
             profileViewModel.autoLogin(
                 loadedUsername!!,
@@ -79,12 +80,11 @@ fun initializeLoginData(profileViewModel: ProfileViewModel) {
     }
 }
 
-/** Saves a username and password to local storage. */
+/** Saves a username and password to local storage. Only call upon a successful login.*/
 fun saveLoginInfo(username: String, password: String) {
     loadedUsername = username
     loadedPassword = password
-    var loggedIn = false
-    if (username.isNotEmpty() && password.isNotEmpty()) loggedIn = true
+    val loggedIn = username.isNotEmpty() && password.isNotEmpty()
     if (!loggedIn)
         CachedAccountInfo.cached = false
 
