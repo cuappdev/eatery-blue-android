@@ -195,13 +195,13 @@ class ProfileViewModel : ViewModel() {
     fun shakeLogin() {
         CoroutineScope(Dispatchers.Default).launch {
             _display.value = Display.Login(authenticating = false, intOffset = IntOffset(-100,0))
-            delay(60)
+            delay(40)
             _display.value = Display.Login(authenticating = false, intOffset = IntOffset(100,0))
-            delay(60)
+            delay(40)
             _display.value = Display.Login(authenticating = false, intOffset = IntOffset(-100,0))
-            delay(60)
+            delay(40)
             _display.value = Display.Login(authenticating = false, intOffset = IntOffset(100,0))
-            delay(60)
+            delay(40)
             _display.value = Display.Login(authenticating = false, intOffset = IntOffset(0,0))
         }
     }

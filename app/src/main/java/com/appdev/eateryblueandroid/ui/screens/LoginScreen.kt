@@ -59,13 +59,5 @@ fun LoginScreen(profileViewModel: ProfileViewModel) {
             )
         }
     }
-    /*
-    Since login systems are down (as of 8/24/22 7:53PM), use this awkwardly placed button to
-    test shaking. TODO: Delete as soon as login is back up. */
-    Button(onClick = {
-        profileViewModel.shakeLogin()
-    }) {
-        Text(text = "Delete me later... but press me to shake!")
-    }
 
 }
