@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         appContext = this
         checkProfileCache()
-        initializeLoginData()
+        initializeLoginData(profileViewModel)
         initializeRecentSearches()
         initializeNotificationsSettings()
 

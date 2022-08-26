@@ -2,22 +2,51 @@ package com.appdev.eateryblueandroid.util
 
 import android.util.Log
 import com.appdev.eateryblueandroid.models.*
+import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 import com.appdev.eateryblueandroid.util.Constants.passwordAlias
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
 import com.codelab.android.datastore.AccountProto
 import com.codelab.android.datastore.Date
 import com.codelab.android.datastore.TransactionProto
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
-var loadedUsername: String? = null
-var loadedPassword: String? = null
-var hasLoaded = false
+private var loadedUsername: String? = null
+private var loadedPassword: String? = null
+private var hasAutoLoggedIn = false
 
-fun initializeLoginData() {
+/**
+ * Attempts to auto login. Only succeeds if loadedUsername AND loadedPassword are non-null
+ * and non-empty, AND an auto login has not already taken place.
+ */
+fun attemptAutoLogin(profileViewModel: ProfileViewModel) {
+    if (!hasAutoLoggedIn && !loadedUsername.isNullOrEmpty() && !loadedPassword.isNullOrEmpty()) {
+        hasAutoLoggedIn = true
+        CoroutineScope(Dispatchers.Default).launch {
+            profileViewModel.autoLogin(
+                loadedUsername!!,
+                decryptData(passwordAlias, loadedPassword!!)
+            )
+            Log.i(
+                "Login",
+                "Attempting Login with username " + loadedUsername + " and password " + loadedPassword
+            )
+        }
+    }
+}
+
+/**
+ * Asynchronously pulls login net ID and password from proto datastore (local storage),
+ * then attempts to log in.
+ *
+ * @see attemptAutoLogin
+ */
+fun initializeLoginData(profileViewModel: ProfileViewModel) {
     val usernameFlow: Flow<String> = appContext!!.userPreferencesStore.data
         .map { userPrefs ->
             userPrefs.username
@@ -30,6 +59,8 @@ fun initializeLoginData() {
         usernameFlow.collect { name ->
             //Use name...
             loadedUsername = name
+            attemptAutoLogin(profileViewModel = profileViewModel)
+
             if (name.isNotEmpty()) {
                 this.cancel()
             }
@@ -39,6 +70,8 @@ fun initializeLoginData() {
         passwordFlow.collect { encryptedPass ->
             //Use password...
             loadedPassword = encryptedPass
+            attemptAutoLogin(profileViewModel = profileViewModel)
+
             if (encryptedPass.isNotEmpty()) {
                 this.cancel()
             }
@@ -81,7 +114,7 @@ fun ordinalToTransactionType(ordinal: Int): TransactionType {
 object CachedAccountInfo {
     var accounts: MutableList<Account> = mutableListOf()
     var transactions: MutableList<Transaction> = mutableListOf()
-    var cached : Boolean = false
+    var cached: Boolean = false
 }
 
 /**
@@ -143,7 +176,10 @@ private fun initializeCachedAccountInfo() {
                     )
                 )
             }
-            Log.i("Caching", "Transactions History Caching done with " + cache.transactions.size + " items pulled.")
+            Log.i(
+                "Caching",
+                "Transactions History Caching done with " + cache.transactions.size + " items pulled."
+            )
             if (cache.transactions.size > 0) this.cancel()
         }
     }
@@ -152,7 +188,10 @@ private fun initializeCachedAccountInfo() {
 fun cacheAccountInfo(accounts: List<Account>, transactions: List<Transaction>) {
     val accMutable: MutableList<AccountProto> = mutableListOf()
     accounts.forEach { acc ->
-        accMutable.add(AccountProto.newBuilder().setType(acc.type!!.ordinal).setBalance(acc.balance ?: 0.0).build())
+        accMutable.add(
+            AccountProto.newBuilder().setType(acc.type!!.ordinal).setBalance(acc.balance ?: 0.0)
+                .build()
+        )
     }
     val transactionsMutable: MutableList<TransactionProto> = mutableListOf()
     transactions.forEach { trans ->
@@ -194,7 +233,7 @@ fun cacheAccountInfo(accounts: List<Account>, transactions: List<Transaction>) {
     }
 }
 
-fun makeCachedUser() : User {
+fun makeCachedUser(): User {
     if (!CachedAccountInfo.cached) return User()
 
     return User(

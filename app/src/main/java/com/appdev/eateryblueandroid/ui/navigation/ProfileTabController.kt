@@ -1,18 +1,11 @@
 package com.appdev.eateryblueandroid.ui.screens
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.ui.screens.settings.*
 import com.appdev.eateryblueandroid.ui.viewmodels.*
 import com.appdev.eateryblueandroid.util.*
-import com.appdev.eateryblueandroid.util.Constants.passwordAlias
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileTabController(
@@ -31,21 +24,7 @@ fun ProfileTabController(
                         profileViewModel = profileViewModel,
                         bottomSheetViewModel = bottomSheetViewModel
                     )
-                    if (loadedUsername != null && loadedUsername!!.isNotEmpty()
-                        && loadedPassword != null && loadedPassword!!.isNotEmpty() && !hasLoaded
-                    ) {
-                        hasLoaded = true
-                        CoroutineScope(Dispatchers.Default).launch {
-                            profileViewModel.autoLogin(
-                                loadedUsername!!,
-                                decryptData(passwordAlias, loadedPassword!!)
-                            )
-                            Log.i(
-                                "Login",
-                                "Attempting Login with username " + loadedUsername + " and password " + loadedPassword
-                            )
-                        }
-                    }
+                    attemptAutoLogin(profileViewModel = profileViewModel)
                 } else {
                     LoginScreen(
                         profileViewModel = profileViewModel
