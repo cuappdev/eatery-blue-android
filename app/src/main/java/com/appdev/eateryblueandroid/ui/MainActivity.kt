@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appContext = this
-        checkProfileCache()
+        checkProfileCache(profileViewModel)
         initializeLoginData(profileViewModel)
         initializeRecentSearches()
         initializeNotificationsSettings()

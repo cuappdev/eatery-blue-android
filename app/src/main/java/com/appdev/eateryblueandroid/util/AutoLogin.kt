@@ -21,13 +21,13 @@ private var loadedPassword: String? = null
 
 /**
  * Attempts to auto login. Only succeeds if loadedUsername AND loadedPassword are non-null
- * and non-empty, AND an auto login has not already taken place.
+ * and non-empty, AND any kind of login has not already taken place.
  */
 fun attemptAutoLogin(profileViewModel: ProfileViewModel) {
     if (profileViewModel.state.value !is ProfileViewModel.State.LoggingIn
         && profileViewModel.state.value !is ProfileViewModel.State.ProfileData
         && profileViewModel.state.value !is ProfileViewModel.State.AutoLoggingIn
-        && !loadedUsername.isNullOrEmpty() && !loadedPassword.isNullOrEmpty()) {
+        && CachedAccountInfo.cached && !loadedUsername.isNullOrEmpty() && !loadedPassword.isNullOrEmpty()) {
         CoroutineScope(Dispatchers.Default).launch {
             profileViewModel.autoLogin(
                 loadedUsername!!,
@@ -114,6 +114,7 @@ fun ordinalToTransactionType(ordinal: Int): TransactionType {
 object CachedAccountInfo {
     var accounts: MutableList<Account> = mutableListOf()
     var transactions: MutableList<Transaction> = mutableListOf()
+    /** True if the caching process has completed fully. False otherwise. */
     var cached: Boolean = false
 }
 
@@ -121,24 +122,23 @@ object CachedAccountInfo {
  * Checks if the profile should show cached data, then initializes the cached data if so.
  * Loads from local storage, so both of these steps are done asynchronously.
  */
-fun checkProfileCache() {
+fun checkProfileCache(profileViewModel: ProfileViewModel) {
     val loggedInFlow: Flow<Boolean> = appContext!!.userPreferencesStore.data
         .map { userPrefs ->
             userPrefs.wasLoggedIn
         }
 
     CoroutineScope(Dispatchers.IO).launch {
-        loggedInFlow.collect { loggedIn ->
-            if (loggedIn) {
-                CachedAccountInfo.cached = true
-                initializeCachedAccountInfo()
+        loggedInFlow.collect { wasLoggedIn ->
+            if (wasLoggedIn) {
+                initializeCachedAccountInfo(profileViewModel)
             }
             this.cancel()
         }
     }
 }
 
-private fun initializeCachedAccountInfo() {
+private fun initializeCachedAccountInfo(profileViewModel: ProfileViewModel) {
     Log.i("Caching", "Caching request received. Caching... ")
     val cache = CachedAccountInfo
     val accountFlow: Flow<List<AccountProto>> = appContext!!.userPreferencesStore.data
@@ -150,13 +150,23 @@ private fun initializeCachedAccountInfo() {
             userPrefs.transactionHistoryList
         }
 
+    var hasLoadedAccounts = false
+    var hasLoadedTransactions = false
+
     CoroutineScope(Dispatchers.IO).launch {
         accountFlow.collect { accounts ->
             accounts.forEach { accProto ->
                 cache.accounts.add(Account(ordinalToAccountType(accProto.type), accProto.balance))
             }
             Log.i("Caching", "Accounts Caching done with " + cache.accounts.size + " items pulled.")
-            if (cache.accounts.size > 0) this.cancel()
+
+            hasLoadedAccounts = true
+            cache.cached = hasLoadedTransactions
+            attemptAutoLogin(profileViewModel)
+
+            if (cache.accounts.size > 0) {
+                this.cancel()
+            }
         }
     }
 
@@ -180,11 +190,20 @@ private fun initializeCachedAccountInfo() {
                 "Caching",
                 "Transactions History Caching done with " + cache.transactions.size + " items pulled."
             )
-            if (cache.transactions.size > 0) this.cancel()
+            hasLoadedTransactions = true
+            cache.cached = hasLoadedAccounts
+            attemptAutoLogin(profileViewModel)
+
+            if (cache.transactions.size > 0) {
+                this.cancel()
+            }
         }
     }
 }
 
+/**
+ * Saves user profile data to proto datastore.
+ */
 fun cacheAccountInfo(accounts: List<Account>, transactions: List<Transaction>) {
     val accMutable: MutableList<AccountProto> = mutableListOf()
     accounts.forEach { acc ->
@@ -233,6 +252,13 @@ fun cacheAccountInfo(accounts: List<Account>, transactions: List<Transaction>) {
     }
 }
 
+/**
+ * Makes a "dummy" cached user based off cached/saved profile data.
+ * If called before profile data has been properly initialized from local storage, returns an empty user.
+ * Thus, make sure you have loaded the profile cache before calling.
+ *
+ * @see checkProfileCache
+ */
 fun makeCachedUser(): User {
     if (!CachedAccountInfo.cached) return User()
 

@@ -24,7 +24,6 @@ fun ProfileTabController(
                         profileViewModel = profileViewModel,
                         bottomSheetViewModel = bottomSheetViewModel
                     )
-                    attemptAutoLogin(profileViewModel = profileViewModel)
                 } else {
                     LoginScreen(
                         profileViewModel = profileViewModel
