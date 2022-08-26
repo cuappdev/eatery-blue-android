@@ -17,12 +17,12 @@ import com.appdev.eateryblueandroid.util.Constants.semesterlyMealPlans
 
 @Composable
 fun AccountSummaries(accounts: List<Account>?) {
-    val swipes = accounts?.find { it.type == AccountType.MEALSWIPES }?.balance
+    val swipes = accounts?.find { mealPlanTypes.contains(it.type) }?.balance
     // Always want to display BRB balance, even if the account does not exist
     val brbs = accounts?.find { it.type == AccountType.BRBS }?.balance ?: 0.0
     val citybucks = accounts?.find { it.type == AccountType.CITYBUCKS }?.balance
     val laundry = accounts?.find { it.type == AccountType.LAUNDRY }?.balance
-    val mealPlanAccount : Account? = accounts?.find { mealPlanTypes.contains(it.type) }
+    val mealPlanAccount: Account? = accounts?.find { mealPlanTypes.contains(it.type) }
     Column(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp)
     ) {
@@ -48,14 +48,20 @@ fun AccountSummaries(accounts: List<Account>?) {
                     if (mealPlanAccount.type != AccountType.UNLIMITED) {
                         Text(text = "%.0f".format(swipes), textStyle = TextStyle.BODY_SEMIBOLD)
                         Text(
-                            text = " remaining this " + if (semesterlyMealPlans.contains(mealPlanAccount.type)) "semester" else "week",
+                            text = " remaining this " + if (semesterlyMealPlans.contains(
+                                    mealPlanAccount.type
+                                )
+                            ) "semester" else "week",
                             textStyle = TextStyle.BODY_SEMIBOLD,
                             color = colorResource(id = R.color.gray05)
                         )
-                    }
-                    else {
+                    } else {
                         Text(text = "Unlimited", textStyle = TextStyle.BODY_SEMIBOLD)
-                        Text(text = " swipes", textStyle = TextStyle.BODY_SEMIBOLD, color = colorResource(id = R.color.gray05))
+                        Text(
+                            text = " swipes",
+                            textStyle = TextStyle.BODY_SEMIBOLD,
+                            color = colorResource(id = R.color.gray05)
+                        )
                     }
                 }
             }
