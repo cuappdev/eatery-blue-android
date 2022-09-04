@@ -1,15 +1,12 @@
 package com.appdev.eateryblueandroid.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.AccountType
 import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
-import com.appdev.eateryblueandroid.util.cacheAccountInfo
-import com.appdev.eateryblueandroid.util.makeCachedUser
-import com.appdev.eateryblueandroid.util.saveLoginInfo
+import com.appdev.eateryblueandroid.util.LoginRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -71,7 +68,7 @@ class ProfileViewModel : ViewModel() {
         _state.value = State.AutoLoggingIn(
             netid,
             password,
-            State.ProfileData(makeCachedUser(), "", AccountType.MEALSWIPES)
+            State.ProfileData(LoginRepository.makeCachedUser(), "", AccountType.MEALSWIPES)
         )
         _display.value = Display.Login(authenticating = true, progress = 0.3f)
     }
@@ -122,22 +119,17 @@ class ProfileViewModel : ViewModel() {
 
     fun logout() {
         _state.value = State.Empty
-        saveLoginInfo("", "")
+        LoginRepository.saveLoginInfo("", "")
         transitionLogin()
     }
 
     fun loginSuccess(sessionId: String) {
-        //Catch the edge case in which a user logs out before it loads, then the load occurs.
+        // Catch the edge case in which a user logs out before it loads, then the load occurs.
         if (state.value == State.Empty) return
 
         val isAutoLogin = _state.value is State.AutoLoggingIn
-
         if (!isAutoLogin) {
             _display.value = Display.Login(authenticating = true, progress = 0.9f)
-            saveLoginInfo(
-                (state.value as State.LoggingIn).netid,
-                (state.value as State.LoggingIn).password
-            )
         }
 
         viewModelScope.launch {
@@ -174,9 +166,6 @@ class ProfileViewModel : ViewModel() {
             user.accounts = res2.response?.accounts
             user.transactions = res3.response?.transactions
 
-            Log.i("Login", user.transactions.toString())
-
-
             val cachedProfile: State.ProfileData? =
                 if (_state.value is State.AutoLoggingIn) (_state.value as State.AutoLoggingIn).cachedProfileData else null
             _state.value = State.ProfileData(
@@ -187,7 +176,10 @@ class ProfileViewModel : ViewModel() {
             if (!isAutoLogin)
                 _display.value = Display.Profile
 
-            cacheAccountInfo(user.accounts!!, user.transactions!!)
+            /* While caching is technically not part of the viewModel, moving it outside would entail
+             * having to either make another GET API request or moving code pertaining to the viewModel
+             * to outside the viewModel. Thus, we will keep this here. */
+            LoginRepository.cacheAccountInfo(user.accounts!!, user.transactions!!)
         }
     }
 

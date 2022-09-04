@@ -16,10 +16,12 @@ fun ProfileTabController(
 ) {
     val display = profileViewModel.display.collectAsState()
     val state = profileViewModel.state.collectAsState()
+    val cached = LoginRepository.cached.collectAsState()
+
     display.value.let {
         when (it) {
             is ProfileViewModel.Display.Login -> {
-                if (CachedAccountInfo.cached) {
+                if (cached.value) {
                     ProfileScreen(
                         profileViewModel = profileViewModel,
                         bottomSheetViewModel = bottomSheetViewModel

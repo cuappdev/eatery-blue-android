@@ -2,6 +2,7 @@ package com.appdev.eateryblueandroid.util
 
 import android.content.ComponentName
 import android.content.pm.PackageManager
+import com.appdev.eateryblueandroid.ui.appContext
 
 
 enum class AppIcon {

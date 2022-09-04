@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.util
 
+import com.appdev.eateryblueandroid.ui.appContext
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
 import com.codelab.android.datastore.AccountProto
 import kotlinx.coroutines.CoroutineScope

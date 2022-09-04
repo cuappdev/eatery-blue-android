@@ -17,17 +17,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlin.coroutines.coroutineContext
 
 @Composable
 fun LoginButton(
@@ -41,7 +35,8 @@ fun LoginButton(
     val progress = (display.value as ProfileViewModel.Display.Login).progress
     val interactionSource = remember { MutableInteractionSource() }
 
-    val offset = animateIntOffsetAsState(targetValue = (display.value as ProfileViewModel.Display.Login).intOffset)
+    val offset =
+        animateIntOffsetAsState(targetValue = (display.value as ProfileViewModel.Display.Login).intOffset)
 
     val animatedProgress = animateFloatAsState(
         targetValue = progress,

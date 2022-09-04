@@ -12,6 +12,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.appdev.eateryblueandroid.ui.viewmodels.LoginFailureType
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 import com.appdev.eateryblueandroid.util.Constants
+import com.appdev.eateryblueandroid.util.LoginRepository
 
 const val TAG = "GetLoginWebView"
 
@@ -33,7 +34,14 @@ fun LoginWebView(profileViewModel: ProfileViewModel) {
                             ?: (loginState as ProfileViewModel.State.AutoLoggingIn).netid,
                         password = (loginState as? ProfileViewModel.State.LoggingIn)?.password
                             ?: (loginState as ProfileViewModel.State.AutoLoggingIn).password,
-                        loginSuccess = profileViewModel::loginSuccess,
+                        loginSuccess = { sessionId ->
+                            profileViewModel.loginSuccess(sessionId)
+                            if (state.value !is ProfileViewModel.State.AutoLoggingIn)
+                                LoginRepository.saveLoginInfo(
+                                    (state.value as ProfileViewModel.State.LoggingIn).netid,
+                                    (state.value as ProfileViewModel.State.LoggingIn).password
+                                )
+                        },
                         loginFailure = profileViewModel::loginFailure,
                         webpageLoaded = profileViewModel::webpageLoaded
                     )
