@@ -39,12 +39,6 @@ object RecentSearchesRepository {
         }
     }
 
-
-        /**
-     * Adds a recent search with the given index and saves to local storage.
-     */
-
-
     /**
      * Adds a recent search with the given index and saves to local storage.
      */
@@ -67,10 +61,6 @@ object RecentSearchesRepository {
             }
         }
     }
-
-        /**
-     * Removes a recent search with the given index and saves to local storage.
-     */
 
     /**
      * Removes a recent search with the given index and saves to local storage.

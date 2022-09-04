@@ -23,7 +23,6 @@ object LoginRepository {
     private var accountsFlow: MutableStateFlow<MutableList<Account>> = MutableStateFlow(mutableListOf())
     var accounts = accountsFlow.asStateFlow()
 
-
     private var transactionsFlow : MutableStateFlow<MutableList<Transaction>> = MutableStateFlow(mutableListOf())
     var transactions = transactionsFlow.asStateFlow()
 
@@ -35,7 +34,7 @@ object LoginRepository {
      * Attempts to auto login. Only succeeds if loadedUsername AND loadedPassword are non-null
      * and non-empty, AND any kind of login has not already taken place.
      */
-    fun attemptAutoLogin(profileViewModel: ProfileViewModel) {
+    private fun attemptAutoLogin(profileViewModel: ProfileViewModel) {
         if (profileViewModel.state.value !is ProfileViewModel.State.LoggingIn
             && profileViewModel.state.value !is ProfileViewModel.State.ProfileData
             && profileViewModel.state.value !is ProfileViewModel.State.AutoLoggingIn

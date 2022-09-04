@@ -176,9 +176,6 @@ class ProfileViewModel : ViewModel() {
             if (!isAutoLogin)
                 _display.value = Display.Profile
 
-            /* While caching is technically not part of the viewModel, moving it outside would entail
-             * having to either make another GET API request or moving code pertaining to the viewModel
-             * to outside the viewModel. Thus, we will keep this here. */
             LoginRepository.cacheAccountInfo(user.accounts!!, user.transactions!!)
         }
     }
