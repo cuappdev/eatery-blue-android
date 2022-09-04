@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         appContext = this
         LoginRepository.checkProfileCache(profileViewModel)
         LoginRepository.initializeLoginData(profileViewModel)
-        initializeRecentSearches()
+        RecentSearchesRepository.initializeRecentSearches()
         initializeNotificationsSettings()
 
         setContent {
