@@ -15,8 +15,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.screens.HomeTabController
+import com.appdev.eateryblueandroid.ui.screens.OnboardingScreen
 import com.appdev.eateryblueandroid.ui.screens.ProfileTabController
 import com.appdev.eateryblueandroid.ui.viewmodels.*
+import com.appdev.eateryblueandroid.util.OnboardingRepository
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
 @Composable
@@ -37,26 +39,34 @@ fun MainScreen(
     val profileTab = BottomNavTab("profile", "Profile", R.drawable.ic_user)
     val bottomNavItems = listOf(homeTab, profileTab)
 
-    Scaffold(
-        bottomBar = {
-            BottomNav(navController, bottomNavItems)
+    val onboardingState = OnboardingRepository.onboarded.collectAsState()
+
+    // If has onboarded...
+    if (onboardingState.value)
+        Scaffold(
+            bottomBar = {
+                BottomNav(navController, bottomNavItems)
+            }
+        ) {
+            MainScreenNavigationConfigurations(
+                navController,
+                homeTab,
+                profileTab,
+                homeTabViewModel,
+                homeViewModel,
+                expandedSectionViewModel,
+                eateryDetailViewModel,
+
+                profileViewModel,
+                bottomSheetViewModel,
+                profileEateryDetailViewModel,
+                searchViewModel,
+
+            )
         }
-    ) {
-        MainScreenNavigationConfigurations(
-            navController,
-            homeTab,
-            profileTab,
-            homeTabViewModel,
-            homeViewModel,
-            expandedSectionViewModel,
-            eateryDetailViewModel,
-
-            profileViewModel,
-            bottomSheetViewModel,
-            profileEateryDetailViewModel,
-            searchViewModel,
-
-        )
+    else
+    {
+        OnboardingScreen()
     }
 }
 

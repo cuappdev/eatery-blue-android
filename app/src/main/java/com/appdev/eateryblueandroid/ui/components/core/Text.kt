@@ -28,7 +28,8 @@ enum class TextStyle {
     MISC_BACK,
     SUBTITLE,
     APPDEV_BODY_MEDIUM,
-    HEADER_H1_NORMAL
+    HEADER_H1_NORMAL,
+    SUPER_TITLE
 }
 
 @Composable
@@ -87,6 +88,8 @@ private fun fontSize(textStyle: TextStyle): TextUnit {
         18.sp
     } else if (textStyle == TextStyle.HEADER_H1_NORMAL) {
         36.sp
+    } else if (textStyle == TextStyle.SUPER_TITLE) {
+        48.sp
     }
     else {
         100.sp
@@ -126,6 +129,8 @@ private fun fontWeight(textStyle: TextStyle): FontWeight {
         FontWeight.Medium
     } else if (textStyle == TextStyle.HEADER_H1_NORMAL) {
         FontWeight.Normal
+    } else if (textStyle == TextStyle.SUPER_TITLE) {
+        FontWeight.Bold
     } else {
         FontWeight.Black
     }
