@@ -66,7 +66,7 @@ fun MainScreen(
         }
     else
     {
-        OnboardingScreen()
+        OnboardingScreen(profileViewModel = profileViewModel)
     }
 }
 
