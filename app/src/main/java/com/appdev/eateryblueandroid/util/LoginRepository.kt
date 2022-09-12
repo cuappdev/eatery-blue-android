@@ -3,7 +3,6 @@ package com.appdev.eateryblueandroid.util
 import android.util.Log
 import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.appContext
-import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 import com.appdev.eateryblueandroid.util.Constants.passwordAlias
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
 import com.codelab.android.datastore.AccountProto
@@ -12,54 +11,53 @@ import com.codelab.android.datastore.TransactionProto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 object LoginRepository {
-    private var loadedUsername: String? = null
-    private var loadedPassword: String? = null
+    data class LoginState(
+        var username: String = "",
+        var encryptedPassword: String = "",
+        var accounts: List<Account>? = null,
+        var transactions: List<Transaction>? = null
+    ) {
+        fun ready() =
+            username.isNotEmpty() && encryptedPassword.isNotEmpty() && !accounts.isNullOrEmpty() && !transactions.isNullOrEmpty()
+    }
 
-    private var accountsFlow: MutableStateFlow<MutableList<Account>> = MutableStateFlow(mutableListOf())
-    var accounts = accountsFlow.asStateFlow()
-
-    private var transactionsFlow : MutableStateFlow<MutableList<Transaction>> = MutableStateFlow(mutableListOf())
-    var transactions = transactionsFlow.asStateFlow()
-
-    /** True if the caching process has completed fully. False otherwise. */
-    private var cachedFlow : MutableStateFlow<Boolean> = MutableStateFlow(false)
-    var cached = cachedFlow.asStateFlow()
+    private var loginStateFlow: MutableStateFlow<LoginState> = MutableStateFlow(LoginState())
+    var loginFlow = loginStateFlow.asStateFlow()
 
     /**
-     * Attempts to auto login. Only succeeds if loadedUsername AND loadedPassword are non-null
-     * and non-empty, AND any kind of login has not already taken place.
+     * Makes a new LoginState object by supplying new fields for a LoginState.
+     * If any of the parameters [newUsername], [newPassword], [newAccounts], or [newTransactions]
+     * are not passed, the previous values will be used instead.
      */
-    private fun attemptAutoLogin(profileViewModel: ProfileViewModel) {
-        if (profileViewModel.state.value !is ProfileViewModel.State.LoggingIn
-            && profileViewModel.state.value !is ProfileViewModel.State.ProfileData
-            && profileViewModel.state.value !is ProfileViewModel.State.AutoLoggingIn
-            && cached.value && !loadedUsername.isNullOrEmpty() && !loadedPassword.isNullOrEmpty()
-        ) {
-            CoroutineScope(Dispatchers.Default).launch {
-                profileViewModel.autoLogin(
-                    loadedUsername!!,
-                    decryptData(passwordAlias, loadedPassword!!)
-                )
-                Log.i(
-                    "Login",
-                    "Attempting Login with username " + loadedUsername + " and password " + loadedPassword
-                )
-            }
-        }
+    private fun makeNewLoginState(
+        newUsername: String? = null,
+        newPassword: String? = null,
+        newAccounts: List<Account>? = null,
+        newTransactions: List<Transaction>? = null
+    ): LoginState {
+        val state = loginStateFlow.value
+        return LoginState(
+            username = newUsername ?: state.username,
+            encryptedPassword = newPassword ?: state.encryptedPassword,
+            accounts = newAccounts ?: state.accounts,
+            transactions = newTransactions ?: state.transactions
+        )
     }
 
     /**
-     * Asynchronously pulls login net ID and password from proto datastore (local storage),
-     * then attempts to log in.
-     *
-     * @see attemptAutoLogin
+     * Asynchronously pulls login net ID and password from proto datastore (local storage).
+     * Also pulls cached login data (transactions and accounts) if such information has
+     * not yet been pulled.
      */
-    fun initializeLoginData(profileViewModel: ProfileViewModel) {
+    fun initializeLoginData() {
         val usernameFlow: Flow<String> = appContext!!.userPreferencesStore.data
             .map { userPrefs ->
                 userPrefs.username
@@ -71,8 +69,7 @@ object LoginRepository {
         CoroutineScope(Dispatchers.IO).launch {
             usernameFlow.collect { name ->
                 //Use name...
-                loadedUsername = name
-                attemptAutoLogin(profileViewModel = profileViewModel)
+                loginStateFlow.value = makeNewLoginState(newUsername = name)
 
                 if (name.isNotEmpty()) {
                     this.cancel()
@@ -82,23 +79,21 @@ object LoginRepository {
         CoroutineScope(Dispatchers.IO).launch {
             passwordFlow.collect { encryptedPass ->
                 //Use password...
-                loadedPassword = encryptedPass
-                attemptAutoLogin(profileViewModel = profileViewModel)
+                loginStateFlow.value = makeNewLoginState(newPassword = encryptedPass)
 
                 if (encryptedPass.isNotEmpty()) {
                     this.cancel()
                 }
             }
         }
+
+        checkProfileCache()
     }
 
-    /** Saves a username and password to local storage. Only call upon a successful login.*/
+    /** Saves a username and password to local storage. Only call upon a successful login, or with
+     * empty strings for username and password upon a logout.*/
     fun saveLoginInfo(username: String, password: String) {
-        loadedUsername = username
-        loadedPassword = password
-        val loggedIn = username.isNotEmpty() && password.isNotEmpty()
-        if (!loggedIn)
-            cachedFlow.value = false
+        loginStateFlow.value = makeNewLoginState(newUsername = username, newPassword = password)
 
         Log.i("IO", "Attempting save with username $username and its password.")
 
@@ -108,17 +103,17 @@ object LoginRepository {
                 currentPreferences.toBuilder()
                     .setUsername(username)
                     .setPassword(encryptData(passwordAlias, password))
-                    .setWasLoggedIn(loggedIn)
+                    .setWasLoggedIn(username.isNotEmpty() && password.isNotEmpty())
                     .build()
             }
         }
     }
 
-    fun ordinalToAccountType(ordinal: Int): AccountType {
+    private fun ordinalToAccountType(ordinal: Int): AccountType {
         return AccountType.values()[ordinal]
     }
 
-    fun ordinalToTransactionType(ordinal: Int): TransactionType {
+    private fun ordinalToTransactionType(ordinal: Int): TransactionType {
         return TransactionType.values()[ordinal]
     }
 
@@ -126,7 +121,7 @@ object LoginRepository {
      * Checks if the profile should show cached data, then initializes the cached data if so.
      * Loads from local storage, so both of these steps are done asynchronously.
      */
-    fun checkProfileCache(profileViewModel: ProfileViewModel) {
+    private fun checkProfileCache() {
         val loggedInFlow: Flow<Boolean> = appContext!!.userPreferencesStore.data
             .map { userPrefs ->
                 userPrefs.wasLoggedIn
@@ -135,14 +130,14 @@ object LoginRepository {
         CoroutineScope(Dispatchers.IO).launch {
             loggedInFlow.collect { wasLoggedIn ->
                 if (wasLoggedIn) {
-                    initializeCachedAccountInfo(profileViewModel)
+                    initializeCachedAccountInfo()
                 }
                 this.cancel()
             }
         }
     }
 
-    private fun initializeCachedAccountInfo(profileViewModel: ProfileViewModel) {
+    private fun initializeCachedAccountInfo() {
         Log.i("Caching", "Caching request received. Caching... ")
         val accountFlow: Flow<List<AccountProto>> = appContext!!.userPreferencesStore.data
             .map { userPrefs ->
@@ -153,12 +148,9 @@ object LoginRepository {
                 userPrefs.transactionHistoryList
             }
 
-        var hasLoadedAccounts = false
-        var hasLoadedTransactions = false
-
         CoroutineScope(Dispatchers.IO).launch {
             accountFlow.collect { accounts ->
-                val mutableAccounts : MutableList<Account> = mutableListOf()
+                val mutableAccounts: MutableList<Account> = mutableListOf()
                 accounts.forEach { accProto ->
                     mutableAccounts.add(
                         Account(
@@ -167,18 +159,15 @@ object LoginRepository {
                         )
                     )
                 }
-                accountsFlow.value = mutableAccounts
 
                 Log.i(
                     "Caching",
-                    "Accounts Caching done with " + accountsFlow.value.size + " items pulled."
+                    "Accounts Caching done with " + mutableAccounts.size + " items pulled."
                 )
 
-                hasLoadedAccounts = true
-                cachedFlow.value = hasLoadedTransactions
-                attemptAutoLogin(profileViewModel)
+                loginStateFlow.value = makeNewLoginState(newAccounts = mutableAccounts)
 
-                if (accountsFlow.value.size > 0) {
+                if (mutableAccounts.isNotEmpty()) {
                     this.cancel()
                 }
             }
@@ -186,7 +175,7 @@ object LoginRepository {
 
         CoroutineScope(Dispatchers.IO).launch {
             transactionFlow.collect { transactions ->
-                val mutableTransactions : MutableList<Transaction> = mutableListOf()
+                val mutableTransactions: MutableList<Transaction> = mutableListOf()
                 transactions.forEach { transProto ->
                     val date = transProto.date
                     mutableTransactions.add(
@@ -207,18 +196,15 @@ object LoginRepository {
                         )
                     )
                 }
-                transactionsFlow.value = mutableTransactions
 
                 Log.i(
                     "Caching",
-                    "Transactions History Caching done with " + transactionsFlow.value.size + " items pulled."
+                    "Transactions History Caching done with " + mutableTransactions.size + " items pulled."
                 )
 
-                hasLoadedTransactions = true
-                cachedFlow.value = hasLoadedAccounts
-                attemptAutoLogin(profileViewModel)
+                loginStateFlow.value = makeNewLoginState(newTransactions = mutableTransactions)
 
-                if (transactionsFlow.value.isNotEmpty()) {
+                if (mutableTransactions.isNotEmpty()) {
                     this.cancel()
                 }
             }
@@ -284,12 +270,13 @@ object LoginRepository {
      * @see checkProfileCache
      */
     fun makeCachedUser(): User {
-        if (!cachedFlow.value) return User()
+        val state = loginStateFlow.value
+        if (!state.ready()) return User()
 
         return User(
-            id = loadedUsername,
-            accounts = accounts.value,
-            transactions = transactions.value
+            id = state.username,
+            accounts = state.accounts,
+            transactions = state.transactions
         )
     }
 }

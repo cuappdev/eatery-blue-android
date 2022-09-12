@@ -15,13 +15,12 @@ fun ProfileTabController(
     profileEateryDetailViewModel : EateryDetailViewModel
 ) {
     val display = profileViewModel.display.collectAsState()
-    val state = profileViewModel.state.collectAsState()
-    val cached = LoginRepository.cached.collectAsState()
+    val cached = LoginRepository.loginFlow.collectAsState()
 
     display.value.let {
         when (it) {
             is ProfileViewModel.Display.Login -> {
-                if (cached.value) {
+                if (cached.value.ready()) {
                     ProfileScreen(
                         profileViewModel = profileViewModel,
                         bottomSheetViewModel = bottomSheetViewModel

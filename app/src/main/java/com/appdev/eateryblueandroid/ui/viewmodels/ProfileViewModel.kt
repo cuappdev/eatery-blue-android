@@ -6,13 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.appdev.eateryblueandroid.models.AccountType
 import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
+import com.appdev.eateryblueandroid.util.Constants.passwordAlias
 import com.appdev.eateryblueandroid.util.LoginRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import com.appdev.eateryblueandroid.util.decryptData
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.util.*
 
 class ProfileViewModel : ViewModel() {
@@ -62,6 +61,16 @@ class ProfileViewModel : ViewModel() {
     fun initiateLogin(netid: String, password: String) {
         _state.value = State.LoggingIn(netid, password)
         _display.value = Display.Login(authenticating = true, progress = 0.3f)
+    }
+
+    fun watchForAutoLogin() {
+        CoroutineScope(Dispatchers.IO).launch {
+            LoginRepository.loginFlow.collect { state ->
+                if (state.ready()) {
+                    autoLogin(state.username, decryptData(passwordAlias, state.encryptedPassword))
+                }
+            }
+        }
     }
 
     fun autoLogin(netid: String, password: String) {

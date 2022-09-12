@@ -28,10 +28,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appContext = this
-        LoginRepository.checkProfileCache(profileViewModel)
-        LoginRepository.initializeLoginData(profileViewModel)
+
+        LoginRepository.initializeLoginData()
         RecentSearchesRepository.initializeRecentSearches()
         initializeNotificationsSettings()
+        profileViewModel.watchForAutoLogin()
 
         setContent {
             MainScreen(
