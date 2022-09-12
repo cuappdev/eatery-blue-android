@@ -1,7 +1,9 @@
 package com.appdev.eateryblueandroid.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -16,8 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -180,12 +184,10 @@ private fun OnboardingViewPager(
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-
         HorizontalPager(
             count = 4,
             modifier = Modifier
                 .then(modifier)
-                .fillMaxWidth()
                 .fillMaxHeight(),
             state = pagerState
         ) { page ->
@@ -235,19 +237,19 @@ private fun OnboardingPage(
     coroutineScope: CoroutineScope
 ) {
     val interactionSource = MutableInteractionSource()
+    //TODO: Implement effects from [calculateCurrentOffsetForPage]
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
-            .padding(start = 0.dp),
-        verticalArrangement = Arrangement.SpaceBetween
+            .fillMaxHeight(),
+        verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 0.dp, end = 16.dp, bottom = 12.dp, start = 21.dp)
+                    .padding(end = 16.dp, start = 21.dp, bottom = 12.dp)
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_leftarrow),
@@ -299,11 +301,30 @@ private fun OnboardingPage(
                 modifier = Modifier.padding(top = 7.dp, start = 16.dp)
             )
         }
+
+        Box {
+            Row(
+                modifier = Modifier
+                    // This is bad but is the only way I could get this to be sized correctly.
+                    .height(LocalConfiguration.current.screenHeightDp.dp - 204.dp)
+                    .border(width = 1.dp, color = colorResource(R.color.transparent)),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.active_mock_0),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+        }
+
         Surface(
             shape = RoundedCornerShape(24.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp, start = 32.dp, end = 48.dp, bottom = 46.dp)
+                .padding(start = 16.dp, end = 16.dp, bottom = 32.dp)
+                .height(48.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -335,8 +356,7 @@ private fun OnboardingPage(
             ) {
                 Text(
                     textStyle = TextStyle.HEADER_H4,
-                    text = "Next",
-                    modifier = Modifier.padding(top = 13.5.dp, bottom = 13.5.dp)
+                    text = "Next"
                 )
             }
         }
