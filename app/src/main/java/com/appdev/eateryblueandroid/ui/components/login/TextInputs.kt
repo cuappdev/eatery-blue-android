@@ -35,6 +35,7 @@ fun TextInputs(
         onValueChange = setNetId,
         placeholder = "Type your NetID (i.e. abc123)",
         backgroundColor = colorResource(R.color.gray00),
+        singleLine = true,
         onSubmit = {
             if (netid.isNotEmpty()) passwordFocus.requestFocus()
         }
@@ -52,6 +53,7 @@ fun TextInputs(
         placeholder = "Type your password...",
         backgroundColor = colorResource(R.color.gray00),
         focusRequester = passwordFocus,
+        singleLine = true,
         isPassword = true,
         onSubmit = {
             if (password.isNotEmpty()) {

@@ -2,7 +2,10 @@ package com.appdev.eateryblueandroid.ui.components.core
 
 import android.view.KeyEvent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -31,6 +34,7 @@ import androidx.compose.ui.text.TextStyle as AndroidTextStyle
 
 @Composable
 fun TextField(
+    modifier: Modifier = Modifier,
     value: String,
     onValueChange: (updated: String) -> Unit,
     placeholder: String,
@@ -39,9 +43,8 @@ fun TextField(
     focusRequester: FocusRequester? = null,
     isPassword: Boolean = false,
     leftIcon: Painter? = null,
-    singleLine : Boolean = true,
-    isSentence : Boolean = false,
-    modifier: Modifier? = null,
+    singleLine: Boolean = true,
+    isSentence: Boolean = false,
 ) {
     Surface(
         shape = RoundedCornerShape(8.dp),
@@ -68,7 +71,9 @@ fun TextField(
             }
             BasicTextField(
                 value = value,
-                onValueChange = onValueChange,
+                onValueChange = {
+                    onValueChange(if (singleLine) it.filter { c -> c != '\n' } else it)
+                },
                 maxLines = 1,
                 singleLine = singleLine,
                 visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
@@ -92,26 +97,22 @@ fun TextField(
                 keyboardOptions = KeyboardOptions(
                     capitalization = if (isSentence) KeyboardCapitalization.Sentences else KeyboardCapitalization.None,
                     autoCorrect = false,
-                    keyboardType = KeyboardType.Text,
+                    keyboardType = if (isPassword) KeyboardType.Password else KeyboardType.Text,
                 ),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         onSubmit()
                     }
                 ),
-                modifier = if (modifier != null) {
-                    modifier
-                } else {
-                    Modifier
-                        .onKeyEvent {
-                            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
-                                onSubmit()
-                                true
-                            } else {
-                                false
-                            }
+                modifier = modifier
+                    .then(Modifier.onKeyEvent {
+                        if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
+                            onSubmit()
+                            true
+                        } else {
+                            false
                         }
-                    }
+                    })
                     .then(
                         if (focusRequester != null)
                             Modifier.focusRequester(focusRequester)

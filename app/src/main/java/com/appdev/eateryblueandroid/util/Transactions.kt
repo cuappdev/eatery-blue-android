@@ -15,6 +15,11 @@ fun formatLocation(location: String?): String {
     else if (location?.contains("Jansens Market") == true) return "Jansen's Marketplace"
     else if (location?.contains("NorthStar") == true) return "North Star Dining Room"
     else if (location?.contains("Morrison") == true) return "Morrison Dining"
+    else if (location?.contains("Dairy Bar") == true) return "Cornell Dairy Bar"
+    else if (location?.contains("Bear Necessities") == true) return "Bear Necessities"
+    else if (location?.contains("Cafe Jennie") == true) return "Cafe Jennie"
+    else if (location?.contains("Crossings") == true) return "Crossings Cafe"
+    else if (location?.contains("Libe Cafe") == true) return "Libe Cafe"
     else return location ?: ""
 }
 

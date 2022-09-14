@@ -1,10 +1,15 @@
 package com.appdev.eateryblueandroid.ui.components.profile
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.AccountType
@@ -12,9 +17,9 @@ import com.appdev.eateryblueandroid.models.Transaction
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.util.Constants.mealPlanTypes
+import com.appdev.eateryblueandroid.util.formatLocation
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import com.appdev.eateryblueandroid.util.formatLocation
 
 @Composable
 fun TransactionHistory(transaction: Transaction) {
@@ -50,22 +55,28 @@ fun TransactionHistorySpendAmount(
 ) {
 
     val text =
-        if (accountType == AccountType.MEALSWIPES || mealPlanTypes.contains(accountType)) "%.0f".format(amount)
+        if (accountType == AccountType.MEALSWIPES || mealPlanTypes.contains(accountType)) "%.0f".format(
+            amount
+        )
         else "$%.2f".format(amount)
 
     Row {
         Text(
-            text = text,
-            textStyle = TextStyle.BODY_SEMIBOLD
+            buildAnnotatedString {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
+                    append(text)
+                }
+                withStyle(
+                    style = SpanStyle(
+                        fontWeight = FontWeight.SemiBold,
+                        color = colorResource(R.color.gray05)
+                    )
+                ) {
+                    if (accountType == AccountType.MEALSWIPES || mealPlanTypes.contains(accountType))
+                        append(if (amount > 1) " swipes" else " swipe")
+                }
+            }
         )
-        if (accountType == AccountType.MEALSWIPES || mealPlanTypes.contains(accountType)) {
-            Text(
-                text = if (amount > 1) "swipes" else "swipe",
-                color = colorResource(id = R.color.gray05),
-                textStyle = TextStyle.BODY_SEMIBOLD,
-                modifier = Modifier.padding(start = 5.dp)
-            )
-        }
     }
 }
 

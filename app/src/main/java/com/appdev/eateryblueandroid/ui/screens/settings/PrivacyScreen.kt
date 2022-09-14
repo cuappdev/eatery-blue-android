@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import com.appdev.eateryblueandroid.R
+import com.appdev.eateryblueandroid.ui.appContext
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
@@ -30,7 +31,6 @@ import com.appdev.eateryblueandroid.ui.components.settings.SwitchOption
 import com.appdev.eateryblueandroid.ui.screens.SettingsLineSeparator
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 import com.appdev.eateryblueandroid.util.NotificationsSettingsType
-import com.appdev.eateryblueandroid.util.appContext
 import com.appdev.eateryblueandroid.util.notificationSettingsMap
 import com.appdev.eateryblueandroid.util.saveNotificationSetting
 

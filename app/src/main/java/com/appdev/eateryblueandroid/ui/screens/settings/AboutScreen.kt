@@ -36,11 +36,11 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
+import com.appdev.eateryblueandroid.ui.appContext
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 import com.appdev.eateryblueandroid.util.AppIcon
-import com.appdev.eateryblueandroid.util.appContext
 import com.appdev.eateryblueandroid.util.changeIcon
 import kotlinx.coroutines.launch
 

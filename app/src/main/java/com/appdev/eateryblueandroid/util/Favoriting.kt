@@ -1,19 +1,14 @@
 package com.appdev.eateryblueandroid.util
 
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
 import com.appdev.eateryblueandroid.models.Eatery
-import com.appdev.eateryblueandroid.util.Constants.DATA_STORE_FILE_NAME
+import com.appdev.eateryblueandroid.ui.appContext
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
-import com.codelab.android.datastore.UserPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
-var appContext: Context? = null
 private val favoriteMap: HashMap<Int, Boolean> = hashMapOf()
 private var fetchedStates: Boolean = false
 
