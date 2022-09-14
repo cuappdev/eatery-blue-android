@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.ui
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.WindowManager
@@ -10,6 +11,8 @@ import com.appdev.eateryblueandroid.ui.components.login.LoginWebView
 import com.appdev.eateryblueandroid.ui.navigation.MainScreen
 import com.appdev.eateryblueandroid.ui.viewmodels.*
 import com.appdev.eateryblueandroid.util.*
+
+var appContext : Context? = null
 
 // TODO: State management with ViewModels is bad. We should switch to RXJava.
 class MainActivity : AppCompatActivity() {
@@ -25,10 +28,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appContext = this
-        checkProfileCache()
-        initializeLoginData()
-        initializeRecentSearches()
+
+        LoginRepository.initializeLoginData()
+        RecentSearchesRepository.initializeRecentSearches()
         initializeNotificationsSettings()
+        profileViewModel.watchForAutoLogin()
 
         setContent {
             MainScreen(

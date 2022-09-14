@@ -4,8 +4,8 @@ import android.content.Context
 import android.location.Location
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
-import com.appdev.eateryblueandroid.models.AccountType.*
 import com.appdev.eateryblueandroid.models.AccountType
+import com.appdev.eateryblueandroid.models.AccountType.*
 import com.appdev.eateryblueandroid.ui.screens.settings.Issue
 import com.codelab.android.datastore.UserPreferences
 
@@ -30,26 +30,27 @@ object Constants {
 
     const val passwordAlias = "passwordy password"
 
-    val mealPlans = listOf(
-        "off-campus value", "bear traditional", "unlimited",
-        "bear choice", "bear basic", "house", "flex"
-    )
-
+    /*
+    I have no idea if these strings actually correspond to the meal plans as they show up in the GET API. For example,
+    You'd expect Bear Traditional to appear as "Bear Traditional" but it shows up as "Traditional Bear" ...?
+    TODO: Find out what all the meal plans show up as, and substitute in the correct strings.
+    */
     val mealPlanAccountMap: HashMap<String, AccountType> = hashMapOf(
         "off-campus value" to OFF_CAMPUS,
-        "bear traditional" to BEAR_TRADITIONAL,
+        "traditional" to BEAR_TRADITIONAL,
         "unlimited" to UNLIMITED,
-        "bear basic" to BEAR_BASIC,
-        "bear choice" to BEAR_CHOICE,
+        "basic" to BEAR_BASIC,
+        "choice" to BEAR_CHOICE,
         "house meal plan" to HOUSE_MEALPLAN,
         "house affiliate" to HOUSE_AFFILIATE,
         "flex" to FLEX,
-        "bucks" to JUST_BUCKS
+        "just bucks" to JUST_BUCKS
     )
 
     val mealPlanTypes = listOf(
         OFF_CAMPUS, BEAR_TRADITIONAL, UNLIMITED, BEAR_BASIC, BEAR_CHOICE, HOUSE_MEALPLAN,
-        HOUSE_AFFILIATE, FLEX, JUST_BUCKS)
+        HOUSE_AFFILIATE, FLEX, JUST_BUCKS
+    )
 
     // Each of these will have "Meal Plan" appended to it when displayed to the user.
     val mealPlanNameMap = hashMapOf(

@@ -19,6 +19,7 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.AccountType
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.models.EaterySection
+import com.appdev.eateryblueandroid.ui.appContext
 import com.appdev.eateryblueandroid.ui.components.general.TopBar
 import com.appdev.eateryblueandroid.ui.components.home.Main
 import com.appdev.eateryblueandroid.ui.components.home.PaymentMethodFilter
@@ -28,7 +29,6 @@ import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
 import com.appdev.eateryblueandroid.util.LocationHandler
-import com.appdev.eateryblueandroid.util.appContext
 import com.codelab.android.datastore.PermissionSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

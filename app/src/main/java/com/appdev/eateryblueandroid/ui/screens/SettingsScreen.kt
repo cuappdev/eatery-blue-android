@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -127,6 +128,11 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
                     profileViewModel::logout,
                     (state.value as ProfileViewModel.State.ProfileData).user.userName!!
                 )
+            } else if (it is ProfileViewModel.State.AutoLoggingIn) {
+                LogoutSection(
+                    profileViewModel::logout,
+                    (state.value as ProfileViewModel.State.AutoLoggingIn).netid
+                )
             }
         }
         Spacer(modifier = Modifier.padding(top = 70.dp))
@@ -152,6 +158,7 @@ fun SettingsLineSeparator() {
 
 @Composable
 fun LogoutSection(logout: () -> Unit, netId: String) {
+    val interactionSource = MutableInteractionSource()
     var id = netId
     if (id.contains("@")) id = netId.substring(0, netId.indexOf("@"))
     Row(
@@ -172,8 +179,11 @@ fun LogoutSection(logout: () -> Unit, netId: String) {
             Row(
                 modifier = Modifier
                     .background(color = colorResource(id = R.color.gray00))
-                    .padding(top = 8.dp, bottom = 8.dp, start = 14.dp, end = 14.dp)
-                    .clickable { logout() },
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = rememberRipple()
+                    ) { logout() }
+                    .padding(top = 8.dp, bottom = 8.dp, start = 14.dp, end = 14.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(

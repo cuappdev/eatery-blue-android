@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
@@ -15,7 +16,7 @@ import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
-import com.appdev.eateryblueandroid.util.recentSearches
+import com.appdev.eateryblueandroid.util.RecentSearchesRepository
 
 /**
  * recently searched list where they can click on their recently searched
@@ -27,10 +28,11 @@ fun RecentSearchList(
     eateries: List<Eatery>,
     selectEatery: (eatery: Eatery) -> Unit,
 ){
-    var recentlySearchEateries = mutableListOf<Eatery>();
+    var recentlySearchEateries = mutableListOf<Eatery>()
+    val recentSearches = RecentSearchesRepository.recentSearches.collectAsState()
 
     // Get the recently searched eateries
-    recentSearches.forEach{ id ->
+    recentSearches.value.forEach{ id ->
         eateries.forEach{ eatery ->
             if(eatery.id == id){
                 recentlySearchEateries.add(eatery)

@@ -2,9 +2,14 @@ package com.appdev.eateryblueandroid.ui.components.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.Account
@@ -17,12 +22,12 @@ import com.appdev.eateryblueandroid.util.Constants.semesterlyMealPlans
 
 @Composable
 fun AccountSummaries(accounts: List<Account>?) {
-    val swipes = accounts?.find { it.type == AccountType.MEALSWIPES }?.balance
+    val swipes = accounts?.find { mealPlanTypes.contains(it.type) }?.balance
     // Always want to display BRB balance, even if the account does not exist
     val brbs = accounts?.find { it.type == AccountType.BRBS }?.balance ?: 0.0
     val citybucks = accounts?.find { it.type == AccountType.CITYBUCKS }?.balance
     val laundry = accounts?.find { it.type == AccountType.LAUNDRY }?.balance
-    val mealPlanAccount : Account? = accounts?.find { mealPlanTypes.contains(it.type) }
+    val mealPlanAccount: Account? = accounts?.find { mealPlanTypes.contains(it.type) }
     Column(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp)
     ) {
@@ -46,16 +51,44 @@ fun AccountSummaries(accounts: List<Account>?) {
                 )
                 Row {
                     if (mealPlanAccount.type != AccountType.UNLIMITED) {
-                        Text(text = "%.0f".format(swipes), textStyle = TextStyle.BODY_SEMIBOLD)
                         Text(
-                            text = " remaining this " + if (semesterlyMealPlans.contains(mealPlanAccount.type)) "semester" else "week",
-                            textStyle = TextStyle.BODY_SEMIBOLD,
-                            color = colorResource(id = R.color.gray05)
+                            buildAnnotatedString {
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append("%.0f".format(swipes))
+                                }
+
+                                withStyle(
+                                    style = SpanStyle(
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = colorResource(R.color.gray05)
+                                    )
+                                ) {
+                                    append(
+                                        " remaining this " + if (semesterlyMealPlans.contains(
+                                                mealPlanAccount.type
+                                            )
+                                        ) "semester" else "week"
+                                    )
+                                }
+                            }
                         )
-                    }
-                    else {
-                        Text(text = "Unlimited", textStyle = TextStyle.BODY_SEMIBOLD)
-                        Text(text = " swipes", textStyle = TextStyle.BODY_SEMIBOLD, color = colorResource(id = R.color.gray05))
+                    } else {
+                        Text(
+                            buildAnnotatedString {
+                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                    append("Unlimited ")
+                                }
+
+                                withStyle(
+                                    style = SpanStyle(
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = colorResource(R.color.gray05)
+                                    )
+                                ) {
+                                    append("swipes")
+                                }
+                            }
+                        )
                     }
                 }
             }

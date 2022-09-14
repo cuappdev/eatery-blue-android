@@ -16,7 +16,8 @@ import com.appdev.eateryblueandroid.ui.components.home.EateryFilters
 import com.appdev.eateryblueandroid.ui.components.home.MainItem
 import com.appdev.eateryblueandroid.ui.components.home.SearchBar
 import com.appdev.eateryblueandroid.ui.viewmodels.SearchViewModel
-import com.appdev.eateryblueandroid.util.saveRecentSearch
+import com.appdev.eateryblueandroid.util.LoginRepository
+import com.appdev.eateryblueandroid.util.RecentSearchesRepository
 
 /**
 * The screen where the search bar has text inside and it will auto search as words are being typed
@@ -47,7 +48,7 @@ fun WordsTypedSearchScreen(
 
     // New select eatery function that also adds eatery into the recently saved list
     val selectEaterySave = fun(eatery: Eatery) {
-        eatery.id?.let { saveRecentSearch(it) }
+        eatery.id?.let { RecentSearchesRepository.saveRecentSearch(it) }
         selectEatery(eatery)
     }
     LazyColumn(
