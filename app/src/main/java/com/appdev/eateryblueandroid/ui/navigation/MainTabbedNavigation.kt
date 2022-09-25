@@ -22,11 +22,14 @@ import com.appdev.eateryblueandroid.ui.screens.HomeTabController
 import com.appdev.eateryblueandroid.ui.screens.OnboardingScreen
 import com.appdev.eateryblueandroid.ui.screens.ProfileTabController
 import com.appdev.eateryblueandroid.ui.viewmodels.*
-import com.appdev.eateryblueandroid.util.ColorType
-import com.appdev.eateryblueandroid.util.OnboardingRepository
-import com.appdev.eateryblueandroid.util.statusBarOverrideColor
-import com.appdev.eateryblueandroid.util.statusBarType
+import com.appdev.eateryblueandroid.util.*
+import com.appdev.eateryblueandroid.util.Constants.eateryBlueColor
+import com.appdev.eateryblueandroid.util.Constants.eateryBlueColorTransparent
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
 @Composable
@@ -52,9 +55,16 @@ fun MainScreen(
     val systemUiController = rememberSystemUiController()
 
     val colorState = animateColorAsState(
-        targetValue = statusBarOverrideColor.value,
-        animationSpec = tween(if (statusBarType.value == ColorType.INTERP) 300 else 0)
+        targetValue = statusBarColorState().value,
+        animationSpec = tween(if (statusBarTypeState().value == ColorType.INTERP) 300 else 0)
     )
+
+    CoroutineScope(Dispatchers.Main).launch {
+        OnboardingRepository.onboardedFlow.collect { onboarded ->
+            if (!onboarded)
+                overrideStatusBarColor(eateryBlueColorTransparent, ColorType.INSTANT)
+        }
+    }
 
     systemUiController.setStatusBarColor(
         color = colorState.value,

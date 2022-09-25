@@ -1,6 +1,5 @@
 package com.appdev.eateryblueandroid.ui.components
 
-import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,14 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColor
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
-
-import kotlin.coroutines.coroutineContext
 
 @Composable
 fun EateryCard(

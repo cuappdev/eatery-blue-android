@@ -3,8 +3,6 @@ package com.appdev.eateryblueandroid.ui.screens
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -12,7 +10,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.ui.components.login.ErrorSection
 import com.appdev.eateryblueandroid.ui.components.login.LoginButton
-import com.appdev.eateryblueandroid.ui.components.login.TextInputs
+import com.appdev.eateryblueandroid.ui.components.login.LoginTextInputs
 import com.appdev.eateryblueandroid.ui.components.login.TitleSection
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 
@@ -33,7 +31,7 @@ fun LoginScreen(profileViewModel: ProfileViewModel) {
                 profileViewModel::transitionSettings,
                 state.value is ProfileViewModel.State.LoggingIn
             )
-            TextInputs(
+            LoginTextInputs(
                 netid = netid,
                 password = password,
                 setNetId = { netid = it },
