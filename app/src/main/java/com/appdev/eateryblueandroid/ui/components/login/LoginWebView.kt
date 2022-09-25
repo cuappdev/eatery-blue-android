@@ -8,11 +8,14 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.viewinterop.AndroidView
+import com.appdev.eateryblueandroid.R
+import com.appdev.eateryblueandroid.ui.screens.OnboardingScreen
 import com.appdev.eateryblueandroid.ui.viewmodels.LoginFailureType
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
-import com.appdev.eateryblueandroid.util.Constants
-import com.appdev.eateryblueandroid.util.LoginRepository
+import com.appdev.eateryblueandroid.util.*
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 const val TAG = "GetLoginWebView"
 
@@ -22,6 +25,8 @@ fun LoginWebView(profileViewModel: ProfileViewModel) {
     val state = profileViewModel.state.collectAsState()
     CookieManager.getInstance().removeAllCookies(null)
     CookieManager.getInstance().flush()
+    val systemUiController = rememberSystemUiController()
+    val eateryBlue = colorResource(R.color.eateryBlue)
 
     state.value.let { loginState ->
         if (loginState is ProfileViewModel.State.LoggingIn || loginState is ProfileViewModel.State.AutoLoggingIn) {
@@ -41,6 +46,10 @@ fun LoginWebView(profileViewModel: ProfileViewModel) {
                                     (state.value as ProfileViewModel.State.LoggingIn).netid,
                                     (state.value as ProfileViewModel.State.LoggingIn).password
                                 )
+                            if (!OnboardingRepository.onboardedFlow.value) {
+                                OnboardingRepository.saveOnboardingInfo(true)
+                                overrideStatusBarColor(eateryBlue, ColorType.INTERP)
+                            }
                         },
                         loginFailure = profileViewModel::loginFailure,
                         webpageLoaded = profileViewModel::webpageLoaded

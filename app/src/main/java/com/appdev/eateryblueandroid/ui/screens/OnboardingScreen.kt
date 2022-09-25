@@ -3,7 +3,6 @@ package com.appdev.eateryblueandroid.ui.screens
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -18,9 +17,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
@@ -29,6 +30,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
@@ -37,13 +40,13 @@ import com.appdev.eateryblueandroid.ui.components.login.ErrorSection
 import com.appdev.eateryblueandroid.ui.components.login.LoginButton
 import com.appdev.eateryblueandroid.ui.components.login.TextInputs
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.appdev.eateryblueandroid.util.ColorType
+import com.appdev.eateryblueandroid.util.OnboardingRepository
+import com.appdev.eateryblueandroid.util.overrideStatusBarColor
+import com.google.accompanist.pager.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 
 @Composable
 fun OnboardingScreen(
@@ -53,11 +56,6 @@ fun OnboardingScreen(
     var stage: Int by remember {
         mutableStateOf(0)
     }
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setStatusBarColor(
-        color = Color.Transparent,
-        darkIcons = true
-    )
 
     val goBackToMain = {
         stage = 0
@@ -189,7 +187,8 @@ private fun OnboardingViewPager(
             modifier = Modifier
                 .then(modifier)
                 .fillMaxHeight(),
-            state = pagerState
+            state = pagerState,
+            contentPadding = PaddingValues(horizontal = (1).dp)
         ) { page ->
             when (page) {
                 0 -> {
@@ -197,7 +196,28 @@ private fun OnboardingViewPager(
                         num = 0,
                         goBackToMain = goBackToMain,
                         pagerState = pagerState,
-                        coroutineScope = coroutineScope
+                        coroutineScope = coroutineScope,
+                        pagerOffset = calculateCurrentOffsetForPage(0),
+                        icons = listOf(
+                            IconData(
+                                painter = painterResource(id = R.drawable.ic_place),
+                                offsetX = (-150).dp,
+                                offsetY = (-190).dp,
+                                rotate = -12f
+                            ),
+                            IconData(
+                                painter = painterResource(id = R.drawable.ic_brbs),
+                                offsetX = (-165).dp,
+                                offsetY = (120).dp,
+                                rotate = -24f
+                            ),
+                            IconData(
+                                painter = painterResource(id = R.drawable.ic_item),
+                                offsetX = 160.dp,
+                                offsetY = 0.dp,
+                                rotate = 0f
+                            )
+                        )
                     )
                 }
                 1 -> {
@@ -205,7 +225,22 @@ private fun OnboardingViewPager(
                         num = 1,
                         goBackToMain = goBackToMain,
                         pagerState = pagerState,
-                        coroutineScope = coroutineScope
+                        coroutineScope = coroutineScope,
+                        pagerOffset = calculateCurrentOffsetForPage(1),
+                        icons = listOf(
+                            IconData(
+                                painter = painterResource(id = R.drawable.ic_selected_off),
+                                offsetX = (-150).dp,
+                                offsetY = (-190).dp,
+                                rotate = -12f
+                            ),
+                            IconData(
+                                painter = painterResource(id = R.drawable.ic_bell),
+                                offsetX = 160.dp,
+                                offsetY = 120.dp,
+                                rotate = 0f
+                            )
+                        )
                     )
                 }
                 2 -> {
@@ -213,7 +248,23 @@ private fun OnboardingViewPager(
                         num = 2,
                         goBackToMain = goBackToMain,
                         pagerState = pagerState,
-                        coroutineScope = coroutineScope
+                        coroutineScope = coroutineScope,
+                        pagerOffset = calculateCurrentOffsetForPage(2),
+                        icons = listOf(
+                            IconData(
+                                painter = painterResource(id = R.drawable.ic_clock),
+                                offsetX = (-140).dp,
+                                offsetY = (40).dp,
+                                rotate = -12f
+                            ),
+                            IconData(
+                                painter = painterResource(id = R.drawable.ic_watch),
+                                offsetX = 130.dp,
+                                offsetY = (-20).dp,
+                                rotate = 24f,
+                                scale = 8f
+                            )
+                        )
                     )
                 }
                 3 -> {
@@ -228,16 +279,28 @@ private fun OnboardingViewPager(
     }
 }
 
+private data class IconData(
+    val painter: Painter,
+    val offsetX : Dp,
+    val offsetY : Dp,
+    val rotate : Float,
+    val scale : Float = 4f
+)
+
+
+
+
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun OnboardingPage(
     num: Int,
     pagerState: PagerState,
     goBackToMain: () -> Unit,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    pagerOffset: Float,
+    icons : List<IconData> = listOf()
 ) {
     val interactionSource = MutableInteractionSource()
-    //TODO: Implement effects from [calculateCurrentOffsetForPage]
 
     Column(
         modifier = Modifier
@@ -245,6 +308,7 @@ private fun OnboardingPage(
             .fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
+        // Top Bar & Text
         Column {
             Row(
                 modifier = Modifier
@@ -302,12 +366,44 @@ private fun OnboardingPage(
             )
         }
 
-        Box {
+        // Phone
+        //TODO: Implement effects from [calculateCurrentOffsetForPage]
+        Box(modifier = Modifier.fillMaxWidth()) {
+            icons.forEach {
+                Icon(
+                    painter = it.painter, contentDescription = null,
+                    tint = colorResource(id = R.color.blue_light),
+                    modifier = Modifier
+                        .offset(it.offsetX, it.offsetY)
+                        .scale(it.scale)
+                        .align(Alignment.Center)
+                        .rotate(it.rotate)
+                )
+            }
+
             Row(
                 modifier = Modifier
                     // This is bad but is the only way I could get this to be sized correctly.
                     .height(LocalConfiguration.current.screenHeightDp.dp - 204.dp)
-                    .border(width = 1.dp, color = colorResource(R.color.transparent)),
+                    .graphicsLayer {
+                        val pageOffset =
+                            if (num == 2) pagerOffset.coerceIn(-1.0f, 0f) else pagerOffset
+
+                        val lerp = { startValue: Float, endValue: Float, fraction: Float ->
+                            startValue + (fraction * (endValue - startValue))
+                        }
+
+                        //scaleX = 1f - pagerOffset.coerceIn(-1.0f, 1f).absoluteValue / 10f;
+                        //scaleY = 1f - pagerOffset.coerceIn(-1.0f, 1f).absoluteValue / 10f;
+
+                        val offsetLerp = lerp(
+                            0f,
+                            240f,
+                            pageOffset
+                        )
+
+                        translationX = offsetLerp
+                    },
                 horizontalArrangement = Arrangement.Center
             ) {
                 Image(
@@ -316,9 +412,9 @@ private fun OnboardingPage(
                     modifier = Modifier.fillMaxSize()
                 )
             }
-
         }
 
+        // Next Button
         Surface(
             shape = RoundedCornerShape(24.dp),
             modifier = Modifier
@@ -377,6 +473,7 @@ private fun LoginPage(
     val focusManager = LocalFocusManager.current
 
     val state = profileViewModel.state.collectAsState()
+    val eateryBlue = colorResource(R.color.eateryBlue)
 
     Column(
         modifier = Modifier
@@ -417,7 +514,8 @@ private fun LoginPage(
                         interactionSource = MutableInteractionSource(),
                         indication = null
                     ) {
-
+                        OnboardingRepository.saveOnboardingInfo(true)
+                        overrideStatusBarColor(eateryBlue, ColorType.INTERP)
                     }
                 )
             }
@@ -457,10 +555,11 @@ private fun LoginPage(
                     profileViewModel = profileViewModel,
                     login = {
                         if (netid.isNotEmpty() && password.isNotEmpty()) {
-                            profileViewModel.initiateLogin(netid, password)
                             focusManager.clearFocus()
+                            profileViewModel.initiateLogin(netid, password)
                         }
-                    }
+                    },
+                    clickable = netid.isNotEmpty() && password.isNotEmpty()
                 )
             }
         }

@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
@@ -31,12 +32,15 @@ fun LoginButton(
 ) {
 
     val display = profileViewModel.display.collectAsState()
-    val authenticating = (display.value as ProfileViewModel.Display.Login).authenticating
-    val progress = (display.value as ProfileViewModel.Display.Login).progress
+    val authenticating = (display.value as? ProfileViewModel.Display.Login)?.authenticating ?: false
+    val progress = (display.value as? ProfileViewModel.Display.Login)?.progress ?: 0f
     val interactionSource = remember { MutableInteractionSource() }
 
     val offset =
-        animateIntOffsetAsState(targetValue = (display.value as ProfileViewModel.Display.Login).intOffset)
+        animateIntOffsetAsState(
+            targetValue = (display.value as? ProfileViewModel.Display.Login)?.intOffset
+                ?: IntOffset.Zero
+        )
 
     val animatedProgress = animateFloatAsState(
         targetValue = progress,

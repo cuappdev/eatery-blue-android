@@ -1,11 +1,15 @@
 package com.appdev.eateryblueandroid.ui.navigation
 
 import android.content.Context
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
@@ -18,7 +22,11 @@ import com.appdev.eateryblueandroid.ui.screens.HomeTabController
 import com.appdev.eateryblueandroid.ui.screens.OnboardingScreen
 import com.appdev.eateryblueandroid.ui.screens.ProfileTabController
 import com.appdev.eateryblueandroid.ui.viewmodels.*
+import com.appdev.eateryblueandroid.util.ColorType
 import com.appdev.eateryblueandroid.util.OnboardingRepository
+import com.appdev.eateryblueandroid.util.statusBarOverrideColor
+import com.appdev.eateryblueandroid.util.statusBarType
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
 @Composable
@@ -31,7 +39,7 @@ fun MainScreen(
     profileViewModel: ProfileViewModel,
     bottomSheetViewModel: BottomSheetViewModel,
     profileEateryDetailViewModel: EateryDetailViewModel,
-    searchViewModel : SearchViewModel,
+    searchViewModel: SearchViewModel,
 ) {
 
     val navController = rememberNavController()
@@ -39,34 +47,47 @@ fun MainScreen(
     val profileTab = BottomNavTab("profile", "Profile", R.drawable.ic_user)
     val bottomNavItems = listOf(homeTab, profileTab)
 
-    val onboardingState = OnboardingRepository.onboarded.collectAsState()
+    val onboardingState = OnboardingRepository.onboardedFlow.collectAsState()
+
+    val systemUiController = rememberSystemUiController()
+
+    val colorState = animateColorAsState(
+        targetValue = statusBarOverrideColor.value,
+        animationSpec = tween(if (statusBarType.value == ColorType.INTERP) 300 else 0)
+    )
+
+    systemUiController.setStatusBarColor(
+        color = colorState.value,
+        darkIcons = !onboardingState.value
+    )
 
     // If has onboarded...
-    if (onboardingState.value)
-        Scaffold(
-            bottomBar = {
-                BottomNav(navController, bottomNavItems)
-            }
-        ) {
-            MainScreenNavigationConfigurations(
-                navController,
-                homeTab,
-                profileTab,
-                homeTabViewModel,
-                homeViewModel,
-                expandedSectionViewModel,
-                eateryDetailViewModel,
+    Crossfade(targetState = onboardingState.value, animationSpec = tween(300)) {
+        when (it) {
+            true ->
+                Scaffold(
+                    bottomBar = {
+                        BottomNav(navController, bottomNavItems)
+                    }
+                ) {
+                    MainScreenNavigationConfigurations(
+                        navController,
+                        homeTab,
+                        profileTab,
+                        homeTabViewModel,
+                        homeViewModel,
+                        expandedSectionViewModel,
+                        eateryDetailViewModel,
 
-                profileViewModel,
-                bottomSheetViewModel,
-                profileEateryDetailViewModel,
-                searchViewModel,
-
-            )
+                        profileViewModel,
+                        bottomSheetViewModel,
+                        profileEateryDetailViewModel,
+                        searchViewModel,
+                    )
+                }
+            false ->
+                OnboardingScreen(profileViewModel = profileViewModel)
         }
-    else
-    {
-        OnboardingScreen(profileViewModel = profileViewModel)
     }
 }
 

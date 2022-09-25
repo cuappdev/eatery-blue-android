@@ -2,6 +2,7 @@ package com.appdev.eateryblueandroid.util
 
 import android.content.Context
 import android.location.Location
+import androidx.compose.ui.graphics.Color
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import com.appdev.eateryblueandroid.models.AccountType
@@ -16,6 +17,10 @@ object Constants {
     const val SESSIONID_CU_LOGIN_SUBSTRING_IDENTIFIER = "shibidp"
     const val AVERAGE_WALK_SPEED = 1.42
     const val WORLD_DISTANCE_KM = 250000
+
+    // Need these colors for status bar because colors.xml is only accessible from Composables
+    val eateryBlueColor = Color((74/255).toFloat(), (144/255).toFloat(), (226/255).toFloat())
+    val eateryBlueColorTransparent = Color((74/255).toFloat(), (144/255).toFloat(), (226/255).toFloat(), 0f)
 
     const val CORNELL_INSTITUTION_ID = "73116ae4-22ad-4c71-8ffd-11ba015407b1"
 

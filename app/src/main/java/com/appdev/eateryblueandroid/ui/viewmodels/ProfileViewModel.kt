@@ -1,14 +1,18 @@
 package com.appdev.eateryblueandroid.ui.viewmodels
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.AccountType
 import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
 import com.appdev.eateryblueandroid.util.Constants.passwordAlias
 import com.appdev.eateryblueandroid.util.LoginRepository
 import com.appdev.eateryblueandroid.util.decryptData
+import com.appdev.eateryblueandroid.util.overrideStatusBarColor
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
