@@ -1,15 +1,13 @@
 package com.appdev.eateryblueandroid.ui.components.onboarding
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Surface
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
@@ -27,10 +25,9 @@ import kotlin.math.pow
 @Composable
 fun OnboardingNextButton(num: Int, pagerState: PagerState, pagerOffset: Float) {
     val coroutineScope = rememberCoroutineScope()
-    val interactionSource = MutableInteractionSource()
 
     // Next Button
-    Surface(
+    Button(
         shape = RoundedCornerShape(24.dp),
         modifier = Modifier
             .fillMaxWidth()
@@ -39,40 +36,35 @@ fun OnboardingNextButton(num: Int, pagerState: PagerState, pagerOffset: Float) {
             .graphicsLayer {
                 val pageOffset = 1f - pagerOffset.coerceIn(-1f, 1f).absoluteValue
                 alpha = pageOffset.pow(3)
+            },
+        onClick = {
+            when (num) {
+                0 -> coroutineScope.launch {
+                    pagerState.animateScrollToPage(1)
+                }
+
+                1 -> coroutineScope.launch {
+                    pagerState.animateScrollToPage(2)
+                }
+
+                2 -> coroutineScope.launch {
+                    pagerState.animateScrollToPage(3)
+                }
+
             }
+        },
+        colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(R.color.gray00)),
+        elevation = ButtonDefaults.elevation(
+            defaultElevation = 0.dp,
+            pressedElevation = 0.dp,
+            disabledElevation = 0.dp,
+            hoveredElevation = 0.dp,
+            focusedElevation = 0.dp
+        )
     ) {
-        Row(
-            modifier = Modifier
-                .background(colorResource(id = R.color.gray00))
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = rememberRipple()
-                ) {
-                    when (num) {
-                        0 -> {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(1)
-                            }
-                        }
-                        1 -> {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(2)
-                            }
-                        }
-                        2 -> {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(3)
-                            }
-                        }
-                    }
-                },
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                textStyle = TextStyle.HEADER_H4,
-                text = "Next"
-            )
-        }
+        Text(
+            textStyle = TextStyle.HEADER_H4,
+            text = "Next"
+        )
     }
 }

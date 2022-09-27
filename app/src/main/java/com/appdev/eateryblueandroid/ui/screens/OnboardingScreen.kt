@@ -1,15 +1,12 @@
 package com.appdev.eateryblueandroid.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +29,6 @@ import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 fun OnboardingScreen(
     profileViewModel: ProfileViewModel
 ) {
-    val interactionSource = MutableInteractionSource()
     var stage: Int by remember {
         mutableStateOf(0)
     }
@@ -76,34 +72,29 @@ fun OnboardingScreen(
                 )
 
                 // Get Started Button
-                Surface(
+                Button(
                     shape = RoundedCornerShape(24.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 24.dp, start = 48.dp, end = 48.dp),
-                    elevation = 4.dp
+                        .padding(start = 48.dp, end = 48.dp, bottom = 32.dp, top = 24.dp)
+                        .height(48.dp),
+                    onClick = { stage = 1 },
+                    colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(R.color.white)),
+                    elevation = ButtonDefaults.elevation(
+                        defaultElevation = 4.dp,
+                        pressedElevation = 4.dp,
+                        disabledElevation = 4.dp,
+                        hoveredElevation = 4.dp,
+                        focusedElevation = 4.dp
+                    )
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .background(colorResource(id = R.color.white))
-                            .clickable(
-                                interactionSource = interactionSource,
-                                indication = rememberRipple()
-                            ) {
-                                stage = 1
-
-                            },
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            textStyle = TextStyle.HEADER_H4,
-                            text = "Get Started",
-                            modifier = Modifier.padding(top = 13.5.dp, bottom = 13.5.dp)
-                        )
-                    }
+                    Text(
+                        textStyle = TextStyle.HEADER_H4,
+                        text = "Get Started"
+                    )
                 }
             }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
