@@ -41,6 +41,9 @@ fun OnboardingPage(
                         .height(96.dp)
                         .align(Alignment.Center)
                         .rotate(it.rotate)
+                        // This graphicsLayer modifier will shrink + grow the icons, fade the icons
+                        // in and out, and counteract the horizontalPager's offset to make the icons
+                        // look stationary.
                         .graphicsLayer {
                             val pageOffset = -pagerOffset.coerceIn(-1f, 1f)
 
@@ -69,6 +72,8 @@ fun OnboardingPage(
                 modifier = Modifier
                     // This is bad but is the only way I could get this to be sized correctly.
                     .height(phoneY)
+                    // This graphicsLayer modifier will shrink + grow the phone, and counteract
+                    // the horizontalPager's offset to make the last phone look stationary.
                     .graphicsLayer {
                         val pageOffset =
                             if (num < 2) 0f else -pagerOffset.coerceIn(0f, 1f)
@@ -93,9 +98,9 @@ fun OnboardingPage(
                 Image(
                     painter = painterResource(
                         id = when (num) {
-                            0 -> R.drawable.active_mock_0_4x
-                            1 -> R.drawable.active_mock_1_4x
-                            else -> R.drawable.active_mock_2_4x
+                            0 -> R.drawable.active_mock_upcoming_menus_4x
+                            1 -> R.drawable.active_mock_favorites_4x
+                            else -> R.drawable.active_mock_wait_times_4x
                         }
                     ),
                     contentDescription = null,

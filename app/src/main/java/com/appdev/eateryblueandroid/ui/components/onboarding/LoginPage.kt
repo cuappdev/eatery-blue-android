@@ -30,6 +30,8 @@ fun LoginPage(
             // This is bad but required since HorizontalPager is buggy and quite limited.
             .requiredWidth(LocalConfiguration.current.screenWidthDp.dp - 32.dp)
             .height(LocalConfiguration.current.screenHeightDp.dp - 204.dp)
+            // This graphicsLayer modifier allows us to counteract the horizontalPager's inherent
+            // offset and thus make the login page look stationary.
             .graphicsLayer {
                 val pageOffset =
                     -pagerOffset.coerceIn(-1f, 0f)
