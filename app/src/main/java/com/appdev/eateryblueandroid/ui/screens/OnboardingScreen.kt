@@ -132,7 +132,6 @@ fun OnboardingScreen(
         if (stage == 1 || stage == 3)
             OnboardingViewPager(
                 Modifier.alpha(1 - alpha.value),
-                goBackToMain = goBackToMain,
                 profileViewModel = profileViewModel
             )
     }

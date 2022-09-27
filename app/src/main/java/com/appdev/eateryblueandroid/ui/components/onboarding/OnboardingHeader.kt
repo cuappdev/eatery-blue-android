@@ -1,9 +1,9 @@
 package com.appdev.eateryblueandroid.ui.components.onboarding
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
@@ -34,25 +34,24 @@ fun OnboardingHeader(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = 16.dp, start = 21.dp, bottom = 12.dp)
-                .height(14.dp),
-            horizontalArrangement = Arrangement.End
+                .height(28.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             if (num == 3)
-                Text(
-                    text = "Skip",
-                    color = colorResource(R.color.black),
-                    textStyle = TextStyle.HEADER_H4,
-                    modifier = Modifier
-                        .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = null
-                        ) {
-                            OnboardingRepository.saveOnboardingInfo(true)
-                            overrideStatusBarColor(Constants.eateryBlueColor, ColorType.INTERP)
-                        }
-                        .height(14.dp)
-                )
+                TextButton(
+                    onClick = {
+                        OnboardingRepository.saveOnboardingInfo(true)
+                        overrideStatusBarColor(Constants.eateryBlueColor, ColorType.INTERP)
+                    },
+                    modifier = Modifier.padding(end = 6.dp)
+                ) {
+                    Text(
+                        text = "Skip",modifier = Modifier.offset(x=0.dp,y= (-7).dp),
+                        color = colorResource(R.color.black),
+                        textStyle = TextStyle.HEADER_H4,
+                    )
+                }
         }
         Text(
             text = when (num) {

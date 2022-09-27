@@ -21,7 +21,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnboardingViewPager(
     modifier: Modifier = Modifier,
-    goBackToMain: () -> Unit,
     profileViewModel: ProfileViewModel
 ) {
     val firstPagerState = rememberPagerState()
@@ -82,8 +81,6 @@ fun OnboardingViewPager(
         ) { page ->
             OnboardingHeader(
                 num = page,
-                pagerState = secondPagerState,
-                goBackToMain = goBackToMain,
                 pagerOffset = calculateCurrentOffsetForPage(page)
             )
         }
