@@ -38,7 +38,7 @@ fun OnboardingScreen(
     }
 
     val alpha = animateFloatAsState(
-        targetValue = if (stage == 0 || stage == 2) 1f else 0f
+        targetValue = if (stage == 0) 1f else 0f
     )
 
     Box {
@@ -91,7 +91,9 @@ fun OnboardingScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 46.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 46.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -124,10 +126,11 @@ fun OnboardingScreen(
             }
         }
 
-        if (stage == 1 || stage == 3)
+        if (stage == 1)
             OnboardingViewPager(
-                Modifier.alpha(1 - alpha.value),
-                profileViewModel = profileViewModel
+                modifier = Modifier.alpha(1 - alpha.value),
+                profileViewModel = profileViewModel,
+                goBackToMain = goBackToMain
             )
     }
 }

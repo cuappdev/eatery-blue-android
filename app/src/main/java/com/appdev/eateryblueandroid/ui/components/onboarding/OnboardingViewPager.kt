@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.ui.components.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -16,12 +17,12 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OnboardingViewPager(
-    modifier: Modifier = Modifier,
-    profileViewModel: ProfileViewModel
+    modifier: Modifier = Modifier, profileViewModel: ProfileViewModel, goBackToMain: () -> Unit
 ) {
     val headerPagerState = rememberPagerState()
     val phonePagerState = rememberPagerState()
@@ -32,19 +33,30 @@ fun OnboardingViewPager(
     val coroutineScopeHelper = rememberCoroutineScope()
     coroutineScopeHelper.launch {
         snapshotFlow {
-            arrayOf(phonePagerState.currentPage.toFloat(), phonePagerState.currentPageOffset)
+            Pair(phonePagerState.currentPage, phonePagerState.currentPageOffset)
         }.collect { pageAndOffset ->
             headerPagerState.scrollToPage(
-                pageAndOffset[0].toInt(),
-                pageAndOffset[1],
+                pageAndOffset.first,
+                pageAndOffset.second,
             )
             nextPagerState.scrollToPage(
-                pageAndOffset[0].toInt(),
-                pageAndOffset[1],
+                pageAndOffset.first,
+                pageAndOffset.second,
             )
         }
     }
 
+    BackHandler {
+        if (phonePagerState.currentPage == 0) {
+            goBackToMain()
+        } else {
+            coroutineScopeHelper.launch {
+                phonePagerState.animateScrollToPage(
+                    (phonePagerState.currentPage.toFloat() + phonePagerState.currentPageOffset).roundToInt() - 1
+                )
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -54,13 +66,10 @@ fun OnboardingViewPager(
         verticalArrangement = Arrangement.Top
     ) {
         HorizontalPager(
-            count = 4,
-            state = headerPagerState,
-            userScrollEnabled = false
+            count = 4, state = headerPagerState, userScrollEnabled = false
         ) { page ->
             OnboardingHeader(
-                num = page,
-                pagerOffset = calculateCurrentOffsetForPage(page)
+                num = page, pagerOffset = calculateCurrentOffsetForPage(page)
             )
         }
 
@@ -76,22 +85,18 @@ fun OnboardingViewPager(
             when (page) {
                 0 -> {
                     OnboardingPage(
-                        num = 0,
-                        pagerOffset = calculateCurrentOffsetForPage(0),
-                        icons = listOf(
+                        num = 0, pagerOffset = calculateCurrentOffsetForPage(0), icons = listOf(
                             IconData(
                                 painter = painterResource(id = R.drawable.ic_place),
                                 offsetX = -.6f,
                                 offsetY = -.33f,
                                 rotate = -12f
-                            ),
-                            IconData(
+                            ), IconData(
                                 painter = painterResource(id = R.drawable.ic_brbs),
                                 offsetX = -.62f,
                                 offsetY = .35f,
                                 rotate = -24f
-                            ),
-                            IconData(
+                            ), IconData(
                                 painter = painterResource(id = R.drawable.ic_item),
                                 offsetX = .6f,
                                 offsetY = .1f,
@@ -102,16 +107,13 @@ fun OnboardingViewPager(
                 }
                 1 -> {
                     OnboardingPage(
-                        num = 1,
-                        pagerOffset = calculateCurrentOffsetForPage(1),
-                        icons = listOf(
+                        num = 1, pagerOffset = calculateCurrentOffsetForPage(1), icons = listOf(
                             IconData(
                                 painter = painterResource(id = R.drawable.ic_selected_off),
                                 offsetX = -.55f,
                                 offsetY = -.35f,
                                 rotate = -12f
-                            ),
-                            IconData(
+                            ), IconData(
                                 painter = painterResource(id = R.drawable.ic_bell),
                                 offsetX = .6f,
                                 offsetY = .28f,
@@ -122,16 +124,13 @@ fun OnboardingViewPager(
                 }
                 2 -> {
                     OnboardingPage(
-                        num = 2,
-                        pagerOffset = calculateCurrentOffsetForPage(2),
-                        icons = listOf(
+                        num = 2, pagerOffset = calculateCurrentOffsetForPage(2), icons = listOf(
                             IconData(
                                 painter = painterResource(id = R.drawable.ic_clock),
                                 offsetX = -.52f,
                                 offsetY = .2f,
                                 rotate = -12f
-                            ),
-                            IconData(
+                            ), IconData(
                                 painter = painterResource(id = R.drawable.ic_watch_big),
                                 offsetX = .55f,
                                 offsetY = -.15f,
@@ -155,12 +154,11 @@ fun OnboardingViewPager(
             userScrollEnabled = false,
             modifier = Modifier.then(modifier)
         ) { page ->
-            if (page < 3)
-                OnboardingNextButton(
-                    num = page,
-                    pagerState = phonePagerState,
-                    pagerOffset = calculateCurrentOffsetForPage(page)
-                )
+            if (page < 3) OnboardingNextButton(
+                num = page,
+                pagerState = phonePagerState,
+                pagerOffset = calculateCurrentOffsetForPage(page)
+            )
         }
     }
 }

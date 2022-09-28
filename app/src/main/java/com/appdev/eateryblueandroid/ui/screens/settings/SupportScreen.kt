@@ -240,7 +240,6 @@ private fun ReportButton(
         shape = RoundedCornerShape(corner = CornerSize(17.dp)),
         modifier = Modifier
             .height(50.dp)
-            .width(150.dp)
             .padding(bottom = 16.dp),
         onClick = { beginReport(issue, bottomSheetViewModel, issueSheetViewModel) },
         colors = ButtonDefaults.buttonColors(
