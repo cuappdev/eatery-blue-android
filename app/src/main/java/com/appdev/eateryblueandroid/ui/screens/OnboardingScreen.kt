@@ -47,56 +47,51 @@ fun OnboardingScreen(
                 .fillMaxHeight()
                 .fillMaxWidth()
                 .alpha(alpha.value),
-            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight(.9f)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_eaterylogo_blue),
-                    tint = colorResource(R.color.eateryBlue),
-                    modifier = Modifier
-                        .width(96.dp)
-                        .height(96.dp),
-                    contentDescription = null
-                )
-                Text(
-                    text = "Eatery",
-                    color = colorResource(id = R.color.eateryBlue),
-                    textStyle = TextStyle.SUPER_TITLE
-                )
+            Spacer(modifier = Modifier.weight(1f))
 
-                // Get Started Button
-                Button(
-                    shape = RoundedCornerShape(24.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 48.dp, end = 48.dp, bottom = 32.dp, top = 24.dp)
-                        .height(48.dp),
-                    onClick = { stage = 1 },
-                    colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(R.color.white)),
-                    elevation = ButtonDefaults.elevation(
-                        defaultElevation = 4.dp,
-                        pressedElevation = 4.dp,
-                        disabledElevation = 4.dp,
-                        hoveredElevation = 4.dp,
-                        focusedElevation = 4.dp
-                    )
-                ) {
-                    Text(
-                        textStyle = TextStyle.HEADER_H4,
-                        text = "Get Started"
-                    )
-                }
+            Icon(
+                painter = painterResource(id = R.drawable.ic_eaterylogo_blue),
+                tint = colorResource(R.color.eateryBlue),
+                modifier = Modifier
+                    .width(96.dp)
+                    .height(96.dp),
+                contentDescription = null
+            )
+            Text(
+                text = "Eatery",
+                color = colorResource(id = R.color.eateryBlue),
+                textStyle = TextStyle.SUPER_TITLE
+            )
+
+            // Get Started Button
+            Button(
+                shape = RoundedCornerShape(24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 48.dp, end = 48.dp, bottom = 32.dp, top = 24.dp)
+                    .height(48.dp),
+                onClick = { stage = 1 },
+                colors = ButtonDefaults.buttonColors(backgroundColor = colorResource(R.color.white)),
+                elevation = ButtonDefaults.elevation(
+                    defaultElevation = 4.dp,
+                    pressedElevation = 4.dp,
+                    disabledElevation = 4.dp,
+                    hoveredElevation = 4.dp,
+                    focusedElevation = 4.dp
+                )
+            ) {
+                Text(
+                    textStyle = TextStyle.HEADER_H4,
+                    text = "Get Started"
+                )
             }
 
+            Spacer(modifier = Modifier.weight(1f))
+
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 46.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
