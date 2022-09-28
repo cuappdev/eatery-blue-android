@@ -19,8 +19,8 @@ object Constants {
     const val WORLD_DISTANCE_KM = 250000
 
     // Need these colors for status bar because colors.xml is only accessible from Composables
-    val eateryBlueColor = Color((74.0/255).toFloat(), (144.0/255).toFloat(), (226.0/255).toFloat())
-    val eateryBlueColorTransparent = Color((74.0/255).toFloat(), (144.0/255).toFloat(), (226.0/255).toFloat(), 0f)
+    val eateryBlueColor = Color(0xFF4A90E2)
+    val eateryBlueColorTransparent = Color(0x004A90E2)
 
     const val CORNELL_INSTITUTION_ID = "73116ae4-22ad-4c71-8ffd-11ba015407b1"
 
