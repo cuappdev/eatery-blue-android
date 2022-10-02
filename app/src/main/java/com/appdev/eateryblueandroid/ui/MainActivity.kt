@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         LoginRepository.initializeLoginData()
         RecentSearchesRepository.initializeRecentSearches()
         initializeNotificationsSettings()
+        OnboardingRepository.intializeOnboardingInfo()
         profileViewModel.watchForAutoLogin()
 
         setContent {

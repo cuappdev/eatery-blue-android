@@ -22,6 +22,8 @@ message UserPreferences {
 
   NotificationSettings notificationSettings = 8;
   PermissionSettings permissionSettings = 9;
+
+  bool hasOnboarded = 10;
 }
 
 message AccountProto {

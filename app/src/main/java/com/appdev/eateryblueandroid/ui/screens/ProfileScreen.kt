@@ -111,6 +111,7 @@ fun ProfileScreen(
                 is ProfileViewModel.State.Empty -> {
                     Text("Internal Error")
                 }
+                else -> {}
             }
         }
     }

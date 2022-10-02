@@ -1,11 +1,15 @@
 package com.appdev.eateryblueandroid.ui.navigation
 
 import android.content.Context
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
@@ -15,8 +19,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.screens.HomeTabController
+import com.appdev.eateryblueandroid.ui.screens.OnboardingScreen
 import com.appdev.eateryblueandroid.ui.screens.ProfileTabController
 import com.appdev.eateryblueandroid.ui.viewmodels.*
+import com.appdev.eateryblueandroid.util.*
+import com.appdev.eateryblueandroid.util.Constants.eateryBlueColor
+import com.appdev.eateryblueandroid.util.Constants.eateryBlueColorTransparent
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
 @Composable
@@ -29,7 +42,7 @@ fun MainScreen(
     profileViewModel: ProfileViewModel,
     bottomSheetViewModel: BottomSheetViewModel,
     profileEateryDetailViewModel: EateryDetailViewModel,
-    searchViewModel : SearchViewModel,
+    searchViewModel: SearchViewModel,
 ) {
 
     val navController = rememberNavController()
@@ -37,26 +50,54 @@ fun MainScreen(
     val profileTab = BottomNavTab("profile", "Profile", R.drawable.ic_user)
     val bottomNavItems = listOf(homeTab, profileTab)
 
-    Scaffold(
-        bottomBar = {
-            BottomNav(navController, bottomNavItems)
+    val onboardingState = OnboardingRepository.onboardedFlow.collectAsState()
+
+    val systemUiController = rememberSystemUiController()
+
+    val colorState = animateColorAsState(
+        targetValue = statusBarColorState().value,
+        animationSpec = tween(if (statusBarTypeState().value == ColorType.INTERP) 300 else 0)
+    )
+
+    CoroutineScope(Dispatchers.Main).launch {
+        OnboardingRepository.onboardedFlow.collect { onboarded ->
+            if (!onboarded)
+                overrideStatusBarColor(eateryBlueColorTransparent, ColorType.INSTANT)
         }
-    ) {
-        MainScreenNavigationConfigurations(
-            navController,
-            homeTab,
-            profileTab,
-            homeTabViewModel,
-            homeViewModel,
-            expandedSectionViewModel,
-            eateryDetailViewModel,
+    }
 
-            profileViewModel,
-            bottomSheetViewModel,
-            profileEateryDetailViewModel,
-            searchViewModel,
+    systemUiController.setStatusBarColor(
+        color = colorState.value,
+        darkIcons = !onboardingState.value
+    )
 
-        )
+    // If has onboarded...
+    Crossfade(targetState = onboardingState.value, animationSpec = tween(300)) {
+        when (it) {
+            true ->
+                Scaffold(
+                    bottomBar = {
+                        BottomNav(navController, bottomNavItems)
+                    }
+                ) {
+                    MainScreenNavigationConfigurations(
+                        navController,
+                        homeTab,
+                        profileTab,
+                        homeTabViewModel,
+                        homeViewModel,
+                        expandedSectionViewModel,
+                        eateryDetailViewModel,
+
+                        profileViewModel,
+                        bottomSheetViewModel,
+                        profileEateryDetailViewModel,
+                        searchViewModel,
+                    )
+                }
+            false ->
+                OnboardingScreen(profileViewModel = profileViewModel)
+        }
     }
 }
 

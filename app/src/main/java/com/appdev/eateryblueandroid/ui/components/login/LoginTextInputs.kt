@@ -1,11 +1,9 @@
 package com.appdev.eateryblueandroid.ui.components.login
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
@@ -14,7 +12,7 @@ import com.appdev.eateryblueandroid.ui.components.core.TextField
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 
 @Composable
-fun TextInputs(
+fun LoginTextInputs(
     netid: String,
     password: String,
     setNetId: (String) -> Unit,
@@ -28,7 +26,7 @@ fun TextInputs(
         text = "NetID",
         textStyle = TextStyle.HEADER_H4,
         color = colorResource(id = R.color.black),
-        modifier = Modifier.padding(top = 37.dp, bottom = 12.dp)
+        modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
     )
     TextField(
         value = netid,
@@ -45,7 +43,7 @@ fun TextInputs(
         text = "Password",
         textStyle = TextStyle.HEADER_H4,
         color = colorResource(id = R.color.black),
-        modifier = Modifier.padding(top = 24.dp)
+        modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
     )
     TextField(
         value = password,
