@@ -3,6 +3,7 @@ package com.appdev.eateryblueandroid.ui.screens
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.ripple.rememberRipple
@@ -85,7 +86,7 @@ fun ProfileScreen(
             }
         }
 
-
+        val lazyListState = rememberLazyListState()
         state.value.let {
             when (it) {
                 is ProfileViewModel.State.ProfileData -> {
@@ -94,7 +95,8 @@ fun ProfileScreen(
                         accountFilter = it.accountFilter,
                         transactionQuery = it.query,
                         updateQuery = profileViewModel::updateQuery,
-                        showBottomSheet = showBottomSheet
+                        showBottomSheet = showBottomSheet,
+                        lazyListState = lazyListState
                     )
                 }
                 is ProfileViewModel.State.AutoLoggingIn -> {
@@ -103,7 +105,8 @@ fun ProfileScreen(
                         accountFilter = it.cachedProfileData.accountFilter,
                         transactionQuery = it.cachedProfileData.query,
                         updateQuery = profileViewModel::updateQuery,
-                        showBottomSheet = showBottomSheet
+                        showBottomSheet = showBottomSheet,
+                        lazyListState = lazyListState
                     )
                 }
                 is ProfileViewModel.State.LoginFailure ->

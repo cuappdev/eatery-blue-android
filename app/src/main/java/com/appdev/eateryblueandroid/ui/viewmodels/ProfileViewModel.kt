@@ -1,22 +1,21 @@
 package com.appdev.eateryblueandroid.ui.viewmodels
 
 import android.util.Log
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.AccountType
 import com.appdev.eateryblueandroid.models.User
 import com.appdev.eateryblueandroid.networking.get.GetApiService
 import com.appdev.eateryblueandroid.util.Constants.passwordAlias
 import com.appdev.eateryblueandroid.util.LoginRepository
 import com.appdev.eateryblueandroid.util.decryptData
-import com.appdev.eateryblueandroid.util.overrideStatusBarColor
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import java.util.*
 
 class ProfileViewModel : ViewModel() {
@@ -78,9 +77,8 @@ class ProfileViewModel : ViewModel() {
                             decryptData(passwordAlias, state.encryptedPassword)
                         )
                     }
-                }
-                catch (e: Exception) {
-                    Log.e("AutoLoginFailure", e.message ?: "Login Failed.")
+                } catch (e: Exception) {
+                    Log.e("AutoLoginFailure", e.stackTraceToString())
                 }
             }
         }
@@ -92,11 +90,12 @@ class ProfileViewModel : ViewModel() {
             password,
             State.ProfileData(LoginRepository.makeCachedUser(), "", AccountType.MEALSWIPES)
         )
-        _display.value = Display.Login(authenticating = true, progress = 0.3f)
+        _display.value = Display.Profile
     }
 
     fun webpageLoaded() {
-        _display.value = Display.Login(authenticating = true, progress = 0.6f)
+        if (state.value !is State.AutoLoggingIn)
+            _display.value = Display.Login(authenticating = true, progress = 0.6f)
     }
 
     fun transitionSettings() {
