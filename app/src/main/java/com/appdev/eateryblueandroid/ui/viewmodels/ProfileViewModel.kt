@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.IntOffset
@@ -70,8 +71,16 @@ class ProfileViewModel : ViewModel() {
     fun watchForAutoLogin() {
         CoroutineScope(Dispatchers.IO).launch {
             LoginRepository.loginFlow.collect { state ->
-                if (state.ready()) {
-                    autoLogin(state.username, decryptData(passwordAlias, state.encryptedPassword))
+                try {
+                    if (state.ready()) {
+                        autoLogin(
+                            state.username,
+                            decryptData(passwordAlias, state.encryptedPassword)
+                        )
+                    }
+                }
+                catch (e: Exception) {
+                    Log.e("AutoLoginFailure", e.message ?: "Login Failed.")
                 }
             }
         }
