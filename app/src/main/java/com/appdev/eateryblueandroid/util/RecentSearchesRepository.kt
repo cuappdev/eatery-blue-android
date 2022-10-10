@@ -2,11 +2,13 @@ package com.appdev.eateryblueandroid.util
 
 import com.appdev.eateryblueandroid.ui.appContext
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
-import com.codelab.android.datastore.AccountProto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 object RecentSearchesRepository {
@@ -18,18 +20,19 @@ object RecentSearchesRepository {
      *
      * Index 0 corresponds to the newest search, index size-1 is the oldest search.
      */
-    private val recentSearchesFlow: MutableStateFlow<MutableList<Int>> = MutableStateFlow(mutableListOf())
+    private val recentSearchesFlow: MutableStateFlow<MutableList<Int>> =
+        MutableStateFlow(mutableListOf())
     val recentSearches = recentSearchesFlow.asStateFlow()
 
     fun initializeRecentSearches() {
-        val recentSearchesStorageFlow: Flow<List<Int>> = appContext!!.userPreferencesStore.data
+        val recentSearchesStorageFlow: Flow<List<Int>> = appContext.userPreferencesStore.data
             .map { userPrefs ->
                 userPrefs.recentSearchesList
             }
 
         CoroutineScope(Dispatchers.IO).launch {
             recentSearchesStorageFlow.collect { pulledSearches ->
-                val searches : MutableList<Int> = mutableListOf()
+                val searches: MutableList<Int> = mutableListOf()
                 pulledSearches.forEach {
                     searches.add(it)
                 }
@@ -53,7 +56,7 @@ object RecentSearchesRepository {
         recentSearchesFlow.value = searches
 
         CoroutineScope(Dispatchers.IO).launch {
-            appContext!!.userPreferencesStore.updateData { currentPreferences ->
+            appContext.userPreferencesStore.updateData { currentPreferences ->
                 currentPreferences.toBuilder()
                     .clearRecentSearches()
                     .addAllRecentSearches(searches)
@@ -73,7 +76,7 @@ object RecentSearchesRepository {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            appContext!!.userPreferencesStore.updateData { currentPreferences ->
+            appContext.userPreferencesStore.updateData { currentPreferences ->
                 currentPreferences.toBuilder()
                     .clearRecentSearches()
                     .addAllRecentSearches(recentSearches.value)

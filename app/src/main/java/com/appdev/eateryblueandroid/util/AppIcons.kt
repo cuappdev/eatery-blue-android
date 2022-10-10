@@ -29,16 +29,16 @@ private val iconMap = hashMapOf(
 fun changeIcon(icon: AppIcon) {
     //Disable all app icons
     for (key in iconMap.keys) {
-        appContext!!.packageManager.setComponentEnabledSetting(
-            ComponentName(appContext!!, iconMap[key]!!),
+        appContext.packageManager.setComponentEnabledSetting(
+            ComponentName(appContext, iconMap[key]!!),
             PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
             PackageManager.DONT_KILL_APP
         )
     }
 
     //Enable this one
-    appContext!!.packageManager.setComponentEnabledSetting(
-        ComponentName(appContext!!, iconMap[icon]!!),
+    appContext.packageManager.setComponentEnabledSetting(
+        ComponentName(appContext, iconMap[icon]!!),
         PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
         PackageManager.DONT_KILL_APP
     )
@@ -49,9 +49,9 @@ fun changeIcon(icon: AppIcon) {
  */
 fun currentIcon(): AppIcon {
     for (key in iconMap.keys) {
-        if (appContext!!.packageManager.getComponentEnabledSetting(
+        if (appContext.packageManager.getComponentEnabledSetting(
                 ComponentName(
-                    appContext!!,
+                    appContext,
                     iconMap[key]!!
                 )
             ) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED

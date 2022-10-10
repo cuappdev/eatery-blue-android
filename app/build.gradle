@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id "com.google.protobuf" version "0.8.17"
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -69,6 +70,8 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation "com.google.accompanist:accompanist-pager:0.25.1"
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
+    implementation platform('com.google.firebase:firebase-bom:30.5.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
 
     androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")

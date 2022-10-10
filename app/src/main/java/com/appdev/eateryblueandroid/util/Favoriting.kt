@@ -26,7 +26,7 @@ fun initializeFavoriteMap(eateries: List<Eatery> = listOf()) {
     * After all, we only want to load the favorites ONCE: when we first open the app.
     */
     CoroutineScope(Dispatchers.IO).launch {
-        val favoritesFlow: Flow<Map<Int, Boolean>> = appContext!!.userPreferencesStore.data
+        val favoritesFlow: Flow<Map<Int, Boolean>> = appContext.userPreferencesStore.data
             .map { userPrefs ->
                 // The favoritesMap property is generated from the proto schema.
                 userPrefs.favoritesMap
@@ -53,7 +53,7 @@ fun saveFavorite(eateryId: Int, favorited: Boolean) {
 
     // Save to proto Datastore
     CoroutineScope(Dispatchers.IO).launch {
-        appContext!!.userPreferencesStore.updateData { currentPreferences ->
+        appContext.userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
                 .putAllFavorites(favoriteMap)
                 .build()

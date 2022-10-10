@@ -52,7 +52,7 @@ object LocationHandler {
 
         // Save to proto Datastore
         CoroutineScope(Dispatchers.IO).launch {
-            appContext!!.userPreferencesStore.updateData { currentPreferences ->
+            appContext.userPreferencesStore.updateData { currentPreferences ->
                 currentPreferences.toBuilder()
                     .setPermissionSettings(permissionSettings)
                     .build()

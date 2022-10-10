@@ -1,6 +1,7 @@
 package com.appdev.eateryblueandroid.ui.components.login
 
 import android.annotation.SuppressLint
+import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -11,11 +12,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.ui.screens.OnboardingScreen
+import com.appdev.eateryblueandroid.ui.analytics
 import com.appdev.eateryblueandroid.ui.viewmodels.LoginFailureType
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 import com.appdev.eateryblueandroid.util.*
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.google.firebase.analytics.FirebaseAnalytics
 
 const val TAG = "GetLoginWebView"
 
@@ -41,14 +43,22 @@ fun LoginWebView(profileViewModel: ProfileViewModel) {
                             ?: (loginState as ProfileViewModel.State.AutoLoggingIn).password,
                         loginSuccess = { sessionId ->
                             profileViewModel.loginSuccess(sessionId)
-                            if (state.value !is ProfileViewModel.State.AutoLoggingIn)
+                            if (state.value !is ProfileViewModel.State.AutoLoggingIn) {
                                 LoginRepository.saveLoginInfo(
                                     (state.value as ProfileViewModel.State.LoggingIn).netid,
                                     (state.value as ProfileViewModel.State.LoggingIn).password
                                 )
+                                val bundle = Bundle()
+                                bundle.putString(FirebaseAnalytics.Param.METHOD, "main")
+                                analytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
+                            }
                             if (!OnboardingRepository.onboardedFlow.value) {
                                 OnboardingRepository.saveOnboardingInfo(true)
                                 overrideStatusBarColor(eateryBlue, ColorType.INTERP)
+
+                                val bundle = Bundle()
+                                bundle.putString(FirebaseAnalytics.Param.METHOD, "onboarding")
+                                analytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
                             }
                         },
                         loginFailure = profileViewModel::loginFailure,

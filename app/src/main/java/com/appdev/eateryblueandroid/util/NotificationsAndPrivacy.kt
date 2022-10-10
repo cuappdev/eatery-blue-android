@@ -26,7 +26,7 @@ val notificationSettingsMap: Map<NotificationsSettingsType, Boolean> = hashMapOf
 
 fun initializeNotificationsSettings() {
     CoroutineScope(Dispatchers.IO).launch {
-        val notificationsFlow: Flow<NotificationSettings> = appContext!!.userPreferencesStore.data
+        val notificationsFlow: Flow<NotificationSettings> = appContext.userPreferencesStore.data
             .map { userPrefs ->
                 // The favoritesMap property is generated from the proto schema.
                 userPrefs.notificationSettings
@@ -76,7 +76,7 @@ fun saveNotificationSetting(type: NotificationsSettingsType, bool: Boolean) {
 
     // Save to proto Datastore
     CoroutineScope(Dispatchers.IO).launch {
-        appContext!!.userPreferencesStore.updateData { currentPreferences ->
+        appContext.userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
                 .setNotificationSettings(notificationsSettings)
                 .build()
