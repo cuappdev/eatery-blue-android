@@ -48,17 +48,13 @@ fun LoginWebView(profileViewModel: ProfileViewModel) {
                                     (state.value as ProfileViewModel.State.LoggingIn).netid,
                                     (state.value as ProfileViewModel.State.LoggingIn).password
                                 )
-                                val bundle = Bundle()
-                                bundle.putString(FirebaseAnalytics.Param.METHOD, "main")
-                                analytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
+                                logLogin("main")
                             }
                             if (!OnboardingRepository.onboardedFlow.value) {
                                 OnboardingRepository.saveOnboardingInfo(true)
                                 overrideStatusBarColor(eateryBlue, ColorType.INTERP)
 
-                                val bundle = Bundle()
-                                bundle.putString(FirebaseAnalytics.Param.METHOD, "onboarding")
-                                analytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
+                                logLogin("onboarding")
                             }
                         },
                         loginFailure = profileViewModel::loginFailure,
