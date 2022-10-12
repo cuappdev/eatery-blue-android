@@ -2,6 +2,7 @@ package com.appdev.eateryblueandroid.ui.components.profile
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -19,7 +20,8 @@ fun Main(
     accountFilter: AccountType,
     transactionQuery: String,
     updateQuery: (updatedQuery: String) -> Unit,
-    showBottomSheet: () -> Unit
+    showBottomSheet: () -> Unit,
+    lazyListState : LazyListState
 ) {
     var displayQuery by remember { mutableStateOf(transactionQuery) }
     val transactionHistoryList = user.transactions?.filter {
@@ -40,7 +42,8 @@ fun Main(
     ).flatten()
 
     LazyColumn(
-        contentPadding = PaddingValues(bottom = 100.dp)
+        contentPadding = PaddingValues(bottom = 100.dp),
+        state = lazyListState
     ) {
         items(profileItems) { item ->
             when (item) {

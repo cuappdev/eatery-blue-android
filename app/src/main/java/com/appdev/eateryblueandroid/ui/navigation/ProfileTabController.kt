@@ -4,34 +4,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import com.appdev.eateryblueandroid.ui.screens.settings.*
-import com.appdev.eateryblueandroid.ui.viewmodels.*
-import com.appdev.eateryblueandroid.util.*
+import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
+import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 
 @Composable
 fun ProfileTabController(
     profileViewModel: ProfileViewModel,
     bottomSheetViewModel: BottomSheetViewModel,
     eateryState: State<HomeViewModel.State>,
-    profileEateryDetailViewModel : EateryDetailViewModel
+    profileEateryDetailViewModel: EateryDetailViewModel
 ) {
     val display = profileViewModel.display.collectAsState()
-    val cached = LoginRepository.loginFlow.collectAsState()
 
     display.value.let {
         when (it) {
-            is ProfileViewModel.Display.Login -> {
-                if (cached.value.ready()) {
-                    ProfileScreen(
-                        profileViewModel = profileViewModel,
-                        bottomSheetViewModel = bottomSheetViewModel
-                    )
-                } else {
-                    LoginScreen(
-                        profileViewModel = profileViewModel
-                    )
-                }
-
-            }
+            is ProfileViewModel.Display.Login ->
+                LoginScreen(
+                    profileViewModel = profileViewModel
+                )
             is ProfileViewModel.Display.Profile ->
                 ProfileScreen(
                     profileViewModel = profileViewModel,
