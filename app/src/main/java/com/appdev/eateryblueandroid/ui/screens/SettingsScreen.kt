@@ -26,6 +26,7 @@ import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
 import com.appdev.eateryblueandroid.ui.screens.settings.AppIconSheet
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
+import com.appdev.eateryblueandroid.util.logOpenSettingScreen
 
 @Composable
 fun SettingsScreen(profileViewModel: ProfileViewModel) {
@@ -87,6 +88,7 @@ fun SettingsScreen(profileViewModel: ProfileViewModel) {
             title = "App Icon",
             description = "Select the Eatery app icon for your phone",
             onClick = {
+                logOpenSettingScreen(3)
                 appIconViewModel.show {
                     AppIconSheet(appIconViewModel)
                 }

@@ -40,6 +40,10 @@ object OnboardingRepository {
      */
     fun saveOnboardingInfo(hasOnboarded: Boolean) {
         onboardingFlow.value = hasOnboarded
+
+        if (hasOnboarded)
+            logCompletedOnboarding()
+
         // Save to proto Datastore
         CoroutineScope(Dispatchers.IO).launch {
             appContext.userPreferencesStore.updateData { currentPreferences ->

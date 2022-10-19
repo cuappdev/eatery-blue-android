@@ -51,6 +51,9 @@ fun initializeFavoriteMap(eateries: List<Eatery> = listOf()) {
 fun saveFavorite(eateryId: Int, favorited: Boolean) {
     favoriteMap[eateryId] = favorited
 
+    if (favorited)
+        logFavorite(eateryId)
+
     // Save to proto Datastore
     CoroutineScope(Dispatchers.IO).launch {
         appContext.userPreferencesStore.updateData { currentPreferences ->

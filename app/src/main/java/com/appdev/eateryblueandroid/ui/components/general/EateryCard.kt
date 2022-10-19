@@ -19,6 +19,7 @@ import com.appdev.eateryblueandroid.models.*
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.appdev.eateryblueandroid.util.logOpenEatery
 
 @Composable
 fun EateryCard(
@@ -32,7 +33,7 @@ fun EateryCard(
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier
             .clickable {
-
+                logOpenEatery(eatery.id ?: -1)
                 selectEatery(eatery) }
             .fillMaxWidth()
     ) {
