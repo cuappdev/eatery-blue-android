@@ -1,6 +1,7 @@
 package com.appdev.eateryblueandroid.util
 
 import android.os.Bundle
+import androidx.compose.ui.text.toLowerCase
 import com.appdev.eateryblueandroid.ui.analytics
 import com.google.firebase.analytics.FirebaseAnalytics
 
@@ -10,10 +11,13 @@ import com.google.firebase.analytics.FirebaseAnalytics
 fun logLogin(method: String) {
     if (notificationSettingsMap[NotificationsSettingsType.ANALYTICS] == false) return
 
-    assert(method.lowercase() == "main" || method.lowercase() == "onboarding")
+    val mLower = method.lowercase()
+
+    // Ensures the method has been set correctly.
+    if (mLower != "main" && mLower != "onboarding") return
 
     val bundle = Bundle()
-    bundle.putString(FirebaseAnalytics.Param.METHOD, method)
+    bundle.putString(FirebaseAnalytics.Param.METHOD, mLower)
     analytics.logEvent(FirebaseAnalytics.Event.LOGIN, bundle)
 }
 
