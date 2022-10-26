@@ -11,6 +11,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.MainActivity
+import com.appdev.eateryblueandroid.util.NotificationsSettingsType
+import com.appdev.eateryblueandroid.util.notificationSettingsMap
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
@@ -43,6 +45,8 @@ class FirebaseMessaging : FirebaseMessagingService() {
     }
 
     private fun sendNotification(messageTitle: String, messageBody: String) {
+        if (notificationSettingsMap[NotificationsSettingsType.PAUSED] == true) return
+
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent = PendingIntent.getActivity(
