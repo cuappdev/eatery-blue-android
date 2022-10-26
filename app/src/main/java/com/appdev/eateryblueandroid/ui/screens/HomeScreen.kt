@@ -24,6 +24,7 @@ import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.ui.appContext
 import com.appdev.eateryblueandroid.ui.components.general.TopBar
 import com.appdev.eateryblueandroid.ui.components.home.Main
+import com.appdev.eateryblueandroid.ui.components.home.MainLoading
 import com.appdev.eateryblueandroid.ui.components.home.PaymentMethodFilter
 import com.appdev.eateryblueandroid.ui.components.profile.PaymentMethodSelector
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
@@ -105,19 +106,20 @@ fun HomeScreen(
         state.value.let {
             when (it) {
                 is HomeViewModel.State.Loading ->
-                    Box{}
+                    MainLoading(scrollState)
                 is HomeViewModel.State.Data -> {
-                    Main(
-                        scrollState = scrollState,
-                        eateries = it.eateries,
-                        sections = it.sections,
-                        filters = it.filters,
-                        setFilters = {s -> homeViewModel.updateFilters(s)},
-                        selectEatery = selectEatery,
-                        selectSection = selectSection,
-                        selectSearch = selectSearch,
-                        bottomSheetViewModel = bottomSheetViewModel
-                    )
+                    MainLoading(scrollState)
+//                    Main(
+//                        scrollState = scrollState,
+//                        eateries = it.eateries,
+//                        sections = it.sections,
+//                        filters = it.filters,
+//                        setFilters = {s -> homeViewModel.updateFilters(s)},
+//                        selectEatery = selectEatery,
+//                        selectSection = selectSection,
+//                        selectSearch = selectSearch,
+//                        bottomSheetViewModel = bottomSheetViewModel
+//                    )
                 }
                 is HomeViewModel.State.Failure ->
                     Text("FAILURE")
