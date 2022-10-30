@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -37,6 +40,8 @@ fun MainLoading(scrollState: LazyListState) {
         List(15) { MainLoadingItem.EateryItem }
     ).flatten()
 
+    val shimmerEffect = rememberShimmer(ShimmerBounds.View)
+
     @Composable
     fun FilterItem(width: Dp, modifier: Modifier = Modifier) {
         Surface(
@@ -50,7 +55,7 @@ fun MainLoading(scrollState: LazyListState) {
                 )
                 .width(width)
                 .fillMaxHeight(),
-            color = colorResource(R.color.gray00)
+            color = colorResource(R.color.gray02)
         ) {}
     }
 
@@ -70,14 +75,15 @@ fun MainLoading(scrollState: LazyListState) {
                     )
                 ).then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(295.dp))
                 .height(height),
-            color = colorResource(R.color.gray00)
+            color = colorResource(R.color.gray02)
         ) {}
     }
 
 
     LazyColumn(
         state = scrollState,
-        contentPadding = PaddingValues(bottom = 30.dp)
+        contentPadding = PaddingValues(bottom = 30.dp),
+        modifier = Modifier.shimmer(shimmerEffect)
     ) {
         items(mainItems) { item ->
             when (item) {
@@ -87,7 +93,7 @@ fun MainLoading(scrollState: LazyListState) {
                             .padding(top = 12.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
                             .height(38.dp)
                             .fillMaxWidth(),
-                        color = colorResource(R.color.gray00),
+                        color = colorResource(R.color.gray02),
                         shape = RoundedCornerShape(
                             CornerSize(8.dp)
                         )
@@ -113,7 +119,7 @@ fun MainLoading(scrollState: LazyListState) {
                         text = item.label,
                         textStyle = TextStyle.HEADER_H3,
                         modifier = Modifier.padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
-                        color = colorResource(R.color.gray02)
+                        color = colorResource(R.color.gray03)
                     )
                 }
                 is MainLoadingItem.EaterySectionList -> {
@@ -138,7 +144,7 @@ fun MainLoading(scrollState: LazyListState) {
                         text = "Loading Eateries...",
                         textStyle = TextStyle.HEADER_H3,
                         modifier = Modifier.padding(start = 16.dp),
-                        color = colorResource(R.color.gray02)
+                        color = colorResource(R.color.gray03)
                     )
                 }
                 is MainLoadingItem.EateryItem -> {
