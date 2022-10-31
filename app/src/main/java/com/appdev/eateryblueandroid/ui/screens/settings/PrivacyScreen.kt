@@ -95,7 +95,7 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
                     context,
                     Intent(
                         android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.fromParts("package", appContext!!.packageName, null)
+                        Uri.fromParts("package", appContext.packageName, null)
                     ),
                     null
                 )
@@ -110,9 +110,9 @@ fun PrivacyScreen(profileViewModel: ProfileViewModel) {
                 val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-                intent.putExtra("app_package", appContext!!.packageName)
-                intent.putExtra("app_uid", appContext!!.applicationInfo.uid)
-                intent.putExtra("android.provider.extra.APP_PACKAGE", appContext!!.packageName)
+                intent.putExtra("app_package", appContext.packageName)
+                intent.putExtra("app_uid", appContext.applicationInfo.uid)
+                intent.putExtra("android.provider.extra.APP_PACKAGE", appContext.packageName)
 
                 startActivity(context, intent, null)
             },

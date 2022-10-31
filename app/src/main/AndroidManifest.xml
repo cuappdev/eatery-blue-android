@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <meta-data
+        android:name="firebase_analytics_collection_deactivated"
+        android:value="@bool/FIREBASE_ANALYTICS_DEACTIVATED"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_default"
@@ -14,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Eateryblueandroid">
         <activity
-            android:name="com.appdev.eateryblueandroid.ui.MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
@@ -23,7 +27,7 @@
         </activity>
 
         <activity-alias
-            android:name="com.appdev.eateryblueandroid.ui.MainActivityDefault"
+            android:name=".ui.MainActivityDefault"
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_default"
@@ -39,7 +43,7 @@
         </activity-alias>
 
         <activity-alias
-            android:name="com.appdev.eateryblueandroid.ui.MainActivitySnow"
+            android:name=".ui.MainActivitySnow"
             android:enabled="false"
             android:exported="true"
             android:icon="@drawable/ic_eaterysnow"
@@ -53,7 +57,7 @@
         </activity-alias>
 
         <activity-alias
-            android:name="com.appdev.eateryblueandroid.ui.MainActivityBlue"
+            android:name=".ui.MainActivityBlue"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_blue"
@@ -67,7 +71,7 @@
         </activity-alias>
 
         <activity-alias
-            android:name="com.appdev.eateryblueandroid.ui.MainActivityRed"
+            android:name=".ui.MainActivityRed"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_red"
@@ -81,7 +85,7 @@
         </activity-alias>
 
         <activity-alias
-            android:name="com.appdev.eateryblueandroid.ui.MainActivityGreen"
+            android:name=".ui.MainActivityGreen"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_green"
@@ -95,7 +99,7 @@
         </activity-alias>
 
         <activity-alias
-            android:name="com.appdev.eateryblueandroid.ui.MainActivityYellow"
+            android:name=".ui.MainActivityYellow"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_yellow"
@@ -109,7 +113,7 @@
         </activity-alias>
 
         <activity-alias
-            android:name="com.appdev.eateryblueandroid.ui.MainActivityOrange"
+            android:name=".ui.MainActivityOrange"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_orange"
@@ -121,6 +125,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity-alias>
+
+        <service
+            android:name=".networking.firebase.FirebaseMessaging"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
 
     </application>

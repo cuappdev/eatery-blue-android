@@ -26,6 +26,7 @@ import com.appdev.eateryblueandroid.ui.components.settings.SettingsOption
 import com.appdev.eateryblueandroid.ui.screens.SettingsLineSeparator
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.util.Constants.issueMap
+import com.appdev.eateryblueandroid.util.logReportSend
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -148,6 +149,7 @@ fun ReportSheet(
                             val report = ReportSendBody(1, issueMap[selectedIssue]!!, textEntry)
                             val res1 = ApiService.getInstance().sendReport(report)
                             if (res1.success) {
+                                logReportSend(issue.ordinal)
                                 Log.i("JsonTest", "Report received: " + res1.data.toString())
                                 isSending = false
                                 bottomSheetViewModel.hide()

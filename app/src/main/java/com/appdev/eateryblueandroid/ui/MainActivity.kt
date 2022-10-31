@@ -1,18 +1,22 @@
 package com.appdev.eateryblueandroid.ui
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import com.appdev.eateryblueandroid.ui.components.general.BottomSheet
 import com.appdev.eateryblueandroid.ui.components.login.LoginWebView
-
 import com.appdev.eateryblueandroid.ui.navigation.MainScreen
 import com.appdev.eateryblueandroid.ui.viewmodels.*
-import com.appdev.eateryblueandroid.util.*
+import com.appdev.eateryblueandroid.util.LoginRepository
+import com.appdev.eateryblueandroid.util.OnboardingRepository
+import com.appdev.eateryblueandroid.util.RecentSearchesRepository
+import com.appdev.eateryblueandroid.util.initializeNotificationsSettings
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 
-var appContext : Context? = null
+lateinit var appContext: Context
+val analytics = Firebase.analytics
 
 // TODO: State management with ViewModels is bad. We should switch to RXJava.
 class MainActivity : AppCompatActivity() {
@@ -25,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private val searchViewModel = SearchViewModel()
     private val profileViewModel = ProfileViewModel()
     private val bottomSheetViewModel = BottomSheetViewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appContext = this

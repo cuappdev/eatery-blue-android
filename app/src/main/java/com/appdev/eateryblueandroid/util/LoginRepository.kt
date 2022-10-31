@@ -58,11 +58,11 @@ object LoginRepository {
      * not yet been pulled.
      */
     fun initializeLoginData() {
-        val usernameFlow: Flow<String> = appContext!!.userPreferencesStore.data
+        val usernameFlow: Flow<String> = appContext.userPreferencesStore.data
             .map { userPrefs ->
                 userPrefs.username
             }
-        val passwordFlow: Flow<String> = appContext!!.userPreferencesStore.data
+        val passwordFlow: Flow<String> = appContext.userPreferencesStore.data
             .map { userPrefs ->
                 userPrefs.password
             }
@@ -99,7 +99,7 @@ object LoginRepository {
 
         // Save to proto Datastore
         CoroutineScope(Dispatchers.IO).launch {
-            appContext!!.userPreferencesStore.updateData { currentPreferences ->
+            appContext.userPreferencesStore.updateData { currentPreferences ->
                 currentPreferences.toBuilder()
                     .setUsername(username)
                     .setPassword(encryptData(passwordAlias, password))
@@ -122,7 +122,7 @@ object LoginRepository {
      * Loads from local storage, so both of these steps are done asynchronously.
      */
     private fun checkProfileCache() {
-        val loggedInFlow: Flow<Boolean> = appContext!!.userPreferencesStore.data
+        val loggedInFlow: Flow<Boolean> = appContext.userPreferencesStore.data
             .map { userPrefs ->
                 userPrefs.wasLoggedIn
             }
@@ -139,11 +139,11 @@ object LoginRepository {
 
     private fun initializeCachedAccountInfo() {
         Log.i("Caching", "Caching request received. Caching... ")
-        val accountFlow: Flow<List<AccountProto>> = appContext!!.userPreferencesStore.data
+        val accountFlow: Flow<List<AccountProto>> = appContext.userPreferencesStore.data
             .map { userPrefs ->
                 userPrefs.accountsList
             }
-        val transactionFlow: Flow<List<TransactionProto>> = appContext!!.userPreferencesStore.data
+        val transactionFlow: Flow<List<TransactionProto>> = appContext.userPreferencesStore.data
             .map { userPrefs ->
                 userPrefs.transactionHistoryList
             }
@@ -251,7 +251,7 @@ object LoginRepository {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            appContext!!.userPreferencesStore.updateData { currentPreferences ->
+            appContext.userPreferencesStore.updateData { currentPreferences ->
                 currentPreferences.toBuilder()
                     .clearAccounts()
                     .addAllAccounts(accMutable)

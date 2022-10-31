@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id "com.google.protobuf" version "0.8.17"
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -22,8 +23,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "true")
+        }
         release {
             minifyEnabled false
+            resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "false")
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -41,6 +46,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.8'
     def nav_version = "2.4.2"
     implementation 'com.google.android.gms:play-services-location:19.0.1'
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -69,6 +75,8 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0"
     implementation "com.google.accompanist:accompanist-pager:0.25.1"
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
+    implementation platform('com.google.firebase:firebase-bom:30.5.0')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
 
     androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")

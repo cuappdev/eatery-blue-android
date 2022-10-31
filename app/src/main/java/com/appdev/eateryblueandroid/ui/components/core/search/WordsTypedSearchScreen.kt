@@ -4,23 +4,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.models.Eatery
 import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.components.home.EateryFilters
-import com.appdev.eateryblueandroid.ui.components.home.MainItem
-import com.appdev.eateryblueandroid.ui.components.home.SearchBar
 import com.appdev.eateryblueandroid.ui.viewmodels.SearchViewModel
-import com.appdev.eateryblueandroid.util.LoginRepository
 import com.appdev.eateryblueandroid.util.RecentSearchesRepository
+import com.appdev.eateryblueandroid.util.logSearch
 
 /**
-* The screen where the search bar has text inside and it will auto search as words are being typed
+ * The screen where the search bar has text inside and it will auto search as words are being typed
  * into the search bar
  */
 @Composable
@@ -34,9 +30,9 @@ fun WordsTypedSearchScreen(
     val typedText = searchViewModel.typedText.value
 
     // create a list of the filtered eateries when the words are typed
-    var filterEatery = mutableListOf<Eatery>()
+    val filterEatery = mutableListOf<Eatery>()
     eateries.forEach { eatery ->
-        var eateryName = eatery.name?.lowercase()
+        val eateryName = eatery.name?.lowercase()
         if (eateryName?.startsWith(typedText.lowercase(), true) == true) {
             filterEatery.add(eatery)
         }
@@ -50,6 +46,7 @@ fun WordsTypedSearchScreen(
     val selectEaterySave = fun(eatery: Eatery) {
         eatery.id?.let { RecentSearchesRepository.saveRecentSearch(it) }
         selectEatery(eatery)
+        logSearch(eatery.id ?: -1)
     }
     LazyColumn(
         contentPadding = PaddingValues(bottom = 30.dp)
