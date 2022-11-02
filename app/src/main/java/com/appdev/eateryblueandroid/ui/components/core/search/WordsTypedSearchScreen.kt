@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,8 @@ fun WordsTypedSearchScreen(
     setFilters: (selection: List<String>) -> Unit,
 ) {
     val typedText = searchViewModel.typedText.value
+
+    val filterState = rememberLazyListState()
 
     // create a list of the filtered eateries when the words are typed
     val filterEatery = mutableListOf<Eatery>()
@@ -54,7 +57,7 @@ fun WordsTypedSearchScreen(
         items(searchTextedItem) { item ->
             when (item) {
                 is SearchTextedItem.FilterOptions -> Column(modifier = Modifier.padding(bottom = 12.dp)) {
-                    EateryFilters(alreadySelected = filters) {
+                    EateryFilters(alreadySelected = filters, scrollState = filterState) {
                         setFilters(it)
                     }
                 }

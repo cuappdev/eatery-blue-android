@@ -1,10 +1,12 @@
 package com.appdev.eateryblueandroid.ui.components.home
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +38,7 @@ fun Main(
     bottomSheetViewModel: BottomSheetViewModel
 ) {
     var mainItems by remember { mutableStateOf(listOf<MainItem>()) }
+    val filterScrollState = rememberLazyListState()
     val showBottomSheet = {
         val updatedFilter = mutableStateOf(filters)
         val toggleFilter = { selected: String ->
@@ -57,24 +60,31 @@ fun Main(
     if (filters.contains("Payment Options")) {
         showBottomSheet()
     }
-
-    mainItems = listOf(listOf(MainItem.SearchBox),
+    Log.d("mainItemsDebug", filters.toString())
+    mainItems = listOf(
+        listOf(MainItem.SearchBox),
         listOf(MainItem.FilterOptions),
-        sections.filter { section -> eateries.any { section.filter(it) } }
-            .flatMap { section ->
-                listOf(
-                    MainItem.EaterySectionLabel(
-                        section.name,
-                        expandable = eateries.filter { section.filter(it) }.size > 3,
-                        expandSection = { selectSection(section) }
-                    ),
-                    MainItem.EaterySectionList(section)
-                )
-            },
-        listOf(MainItem.EaterySectionLabel(
-            "All Eateries",
-            expandable = false, expandSection = {}
-        )),
+        // If no filters are applied...
+        if (filters.toSet() == setOf("BRBs", "Meal swipes", "Cash or credit"))
+            sections.filter { section -> eateries.any { section.filter(it) } }
+                .flatMap { section ->
+                    listOf(
+                        MainItem.EaterySectionLabel(
+                            section.name,
+                            expandable = eateries.filter { section.filter(it) }.size > 3,
+                            expandSection = { selectSection(section) }
+                        ),
+                        MainItem.EaterySectionList(section)
+                    )
+                }
+        else listOf(),
+        if (filters.toSet() == setOf("BRBs", "Meal swipes", "Cash or credit"))
+            listOf(
+                MainItem.EaterySectionLabel(
+                    "All Eateries",
+                    expandable = false, expandSection = {}
+                ))
+        else listOf(MainItem.EaterySpacer),
         eateries.filter {
             var isContained = true
             if (filters.contains("North")) isContained =
@@ -88,9 +98,9 @@ fun Main(
             if (filters.contains("Favorites")) isContained =
                 isContained && it.isFavorite()
             isContained = isContained &&
-                    ((filters.contains("Meal swipes") && it.paymentAcceptsMealSwipes == true) ||
-                            (filters.contains("BRBs") && it.paymentAcceptsBrbs == true) ||
-                            (filters.contains("Cash or credit") && it.paymentAcceptsCash == true))
+                ((filters.contains("Meal swipes") && it.paymentAcceptsMealSwipes == true) ||
+                    (filters.contains("BRBs") && it.paymentAcceptsBrbs == true) ||
+                    (filters.contains("Cash or credit") && it.paymentAcceptsCash == true))
             isContained
         }.sortedByDescending {
             if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(
@@ -103,20 +113,22 @@ fun Main(
         state = scrollState,
         contentPadding = PaddingValues(bottom = 30.dp)
     ) {
-        items(mainItems, key = {it.hashCode()}) { item ->
+        items(mainItems, key = { it.hashCode() }) { item ->
             when (item) {
                 is MainItem.SearchBox ->
                     Column(modifier = Modifier.padding(16.dp, 12.dp)) {
                         SearchBar(selectSearch = selectSearch)
                     }
-                is MainItem.FilterOptions -> EateryFilters(alreadySelected = filters) {
-                    setFilters(it)
-                }
+                is MainItem.FilterOptions ->
+                    EateryFilters(alreadySelected = filters, scrollState = filterScrollState) {
+                        setFilters(it)
+                    }
                 is MainItem.EaterySectionLabel ->
                     Row(
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp)
-                            .fillMaxWidth().animateItemPlacement(),
+                            .fillMaxWidth()
+                            .animateItemPlacement(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -145,14 +157,18 @@ fun Main(
                     }
                 is MainItem.EateryItem ->
                     Column(
-                        modifier = Modifier.padding(
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = 12.dp
-                        ).animateItemPlacement()
+                        modifier = Modifier
+                            .padding(
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = 12.dp
+                            )
+                            .animateItemPlacement()
                     ) {
                         EateryCard(eatery = item.eatery, selectEatery = selectEatery)
                     }
+                is MainItem.EaterySpacer ->
+                    Spacer(modifier = Modifier.height(12.dp))
             }
         }
     }
@@ -168,5 +184,6 @@ sealed class MainItem {
     ) : MainItem()
 
     data class EaterySectionList(val section: EaterySection) : MainItem()
+    object EaterySpacer : MainItem()
     data class EateryItem(val eatery: Eatery) : MainItem()
 }
