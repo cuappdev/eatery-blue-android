@@ -10,6 +10,8 @@ import com.appdev.eateryblueandroid.networking.get.GetApiService
 import com.appdev.eateryblueandroid.util.Constants.passwordAlias
 import com.appdev.eateryblueandroid.util.LoginRepository
 import com.appdev.eateryblueandroid.util.decryptData
+import com.appdev.eateryblueandroid.util.logLogout
+import com.appdev.eateryblueandroid.util.logOpenSettingScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -100,26 +102,32 @@ class ProfileViewModel : ViewModel() {
 
     fun transitionSettings() {
         _display.value = Display.Settings
+        logOpenSettingScreen(0)
     }
 
     fun transitionLegal() {
         _display.value = Display.Legal
+        logOpenSettingScreen(6)
     }
 
     fun transitionAbout() {
         _display.value = Display.About
+        logOpenSettingScreen(1)
     }
 
     fun transitionPrivacy() {
         _display.value = Display.Privacy
+        logOpenSettingScreen(5)
     }
 
     fun transitionSupport() {
         _display.value = Display.Support
+        logOpenSettingScreen(7)
     }
 
     fun transitionNotifications() {
         _display.value = Display.Notifications
+        logOpenSettingScreen(4)
     }
 
     fun transitionProfile() {
@@ -132,6 +140,7 @@ class ProfileViewModel : ViewModel() {
 
     fun transitionFavorites() {
         _display.value = Display.Favorites
+        logOpenSettingScreen(2)
     }
 
     fun transitionEateryDetail() {
@@ -141,6 +150,7 @@ class ProfileViewModel : ViewModel() {
     fun logout() {
         _state.value = State.Empty
         LoginRepository.saveLoginInfo("", "")
+        logLogout()
         transitionLogin()
     }
 

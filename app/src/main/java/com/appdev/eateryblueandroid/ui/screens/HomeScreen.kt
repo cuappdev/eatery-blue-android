@@ -70,7 +70,7 @@ fun HomeScreen(
             else -> {
                 CoroutineScope(Dispatchers.IO).launch {
                     val permissionsFlow: Flow<PermissionSettings> =
-                        appContext!!.userPreferencesStore.data.map {
+                        appContext.userPreferencesStore.data.map {
                             it.permissionSettings
                         }
                     permissionsFlow.collect {

@@ -373,9 +373,9 @@ fun IconSwitcher(icon: AppIcon) {
             painterIcon = painterResource(id = R.drawable.ic_launcher_foreground)
         }
     }
-    val isEnabled = appContext!!.packageManager.getComponentEnabledSetting(
+    val isEnabled = appContext.packageManager.getComponentEnabledSetting(
         ComponentName(
-            appContext!!,
+            appContext,
             cls
         )
     ) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED

@@ -1,10 +1,7 @@
 package com.appdev.eateryblueandroid.util
 
-import androidx.compose.ui.res.colorResource
-import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.ui.appContext
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -13,6 +10,7 @@ import kotlinx.coroutines.launch
 
 object OnboardingRepository {
     private val onboardingFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     /** A state flow detailing a boolean corresponding to if the user has completed onboarding. */
     val onboardedFlow: StateFlow<Boolean> = onboardingFlow.asStateFlow()
 
@@ -22,7 +20,7 @@ object OnboardingRepository {
      */
     fun intializeOnboardingInfo() {
         CoroutineScope(Dispatchers.IO).launch {
-            val localOnboardingFlow: Flow<Boolean> = appContext!!.userPreferencesStore.data
+            val localOnboardingFlow: Flow<Boolean> = appContext.userPreferencesStore.data
                 .map { userPrefs ->
                     userPrefs.hasOnboarded
                 }
@@ -42,9 +40,13 @@ object OnboardingRepository {
      */
     fun saveOnboardingInfo(hasOnboarded: Boolean) {
         onboardingFlow.value = hasOnboarded
+
+        if (hasOnboarded)
+            logCompletedOnboarding()
+
         // Save to proto Datastore
         CoroutineScope(Dispatchers.IO).launch {
-            appContext!!.userPreferencesStore.updateData { currentPreferences ->
+            appContext.userPreferencesStore.updateData { currentPreferences ->
                 currentPreferences.toBuilder()
                     .setHasOnboarded(hasOnboarded)
                     .build()

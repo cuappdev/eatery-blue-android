@@ -32,6 +32,8 @@ import com.appdev.eateryblueandroid.ui.components.core.*
 import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
 import com.appdev.eateryblueandroid.util.Keyboard
 import com.appdev.eateryblueandroid.util.keyboardAsState
+import com.appdev.eateryblueandroid.util.logDirections
+import com.appdev.eateryblueandroid.util.logOrderOnline
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -160,6 +162,7 @@ fun EateryDetailScreen(
                                         )
                                         setPackage("com.android.vending")
                                     }
+                                    logOrderOnline(it.data.id ?: -1)
                                     context.startActivity(openPlayIntent)
                                 }
                             },
@@ -188,6 +191,7 @@ fun EateryDetailScreen(
                                         Uri.parse("google.navigation:q=${it.data.latitude},${it.data.longitude}&mode=w")
                                     setPackage("com.google.android.apps.maps")
                                 }
+                                logDirections(it.data.id ?: -1)
                                 context.startActivity(mapIntent)
                             },
                             shape = RoundedCornerShape(100),
