@@ -1,5 +1,6 @@
 package com.appdev.eateryblueandroid.ui.components.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -21,6 +22,7 @@ import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.util.Constants.WORLD_DISTANCE_KM
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Main(
     scrollState: LazyListState,
@@ -101,7 +103,7 @@ fun Main(
         state = scrollState,
         contentPadding = PaddingValues(bottom = 30.dp)
     ) {
-        items(mainItems) { item ->
+        items(mainItems, key = {it.hashCode()}) { item ->
             when (item) {
                 is MainItem.SearchBox ->
                     Column(modifier = Modifier.padding(16.dp, 12.dp)) {
@@ -114,7 +116,7 @@ fun Main(
                     Row(
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp)
-                            .fillMaxWidth(),
+                            .fillMaxWidth().animateItemPlacement(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -133,19 +135,21 @@ fun Main(
                         }
                     }
                 is MainItem.EaterySectionList ->
-                    EaterySectionPreview(
-                        eateries = eateries,
-                        section = item.section,
-                        selectSection = selectSection,
-                        selectEatery = selectEatery
-                    )
+                    Box(modifier = Modifier.animateItemPlacement()) {
+                        EaterySectionPreview(
+                            eateries = eateries,
+                            section = item.section,
+                            selectSection = selectSection,
+                            selectEatery = selectEatery
+                        )
+                    }
                 is MainItem.EateryItem ->
                     Column(
                         modifier = Modifier.padding(
                             start = 16.dp,
                             end = 16.dp,
                             bottom = 12.dp
-                        )
+                        ).animateItemPlacement()
                     ) {
                         EateryCard(eatery = item.eatery, selectEatery = selectEatery)
                     }
