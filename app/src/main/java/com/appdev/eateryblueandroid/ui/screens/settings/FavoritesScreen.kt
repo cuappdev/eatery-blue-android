@@ -1,6 +1,8 @@
 package com.appdev.eateryblueandroid.ui.screens.settings
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -11,6 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.colorResource
@@ -25,6 +28,7 @@ import com.appdev.eateryblueandroid.ui.viewmodels.EateryDetailViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.ProfileViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FavoritesScreen(
     profileViewModel: ProfileViewModel,
@@ -50,12 +54,14 @@ fun FavoritesScreen(
             state = scrollState,
             contentPadding = PaddingValues(bottom = 50.dp, start = 16.dp, end = 16.dp)
         ) {
-            items(eateryDataList) { item ->
+            items(eateryDataList, key = { it.hashCode() }) { item ->
                 if (item is Eatery)
                     Column(
-                        modifier = Modifier.padding(
-                            bottom = 12.dp
-                        )
+                        modifier = Modifier
+                            .padding(
+                                bottom = 12.dp
+                            )
+                            .animateItemPlacement()
                     ) {
                         EateryCard(eatery = item,
                             selectEatery =
@@ -72,22 +78,34 @@ fun FavoritesScreen(
             }
         }
     else
-        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp, bottom = 90.dp)
+                .fillMaxHeight()
+        ) {
             FavoritesHeader({ onBack() }, interactionSource)
-            Spacer(Modifier.padding(top = 120.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                // Text for when you have NO favorite eateries.
-                // Must wait for design team to finalize empty screen designs... Keep blank for now!
-                Text(
-                    text = "",
-                    textStyle = TextStyle.HEADER_H4,
-                    color = colorResource(id = R.color.gray05),
-                    modifier = Modifier
-                )
-            }
+            Spacer(modifier = Modifier.weight(1f))
+
+            Icon(
+                painter = painterResource(R.drawable.ic_eaterylogo),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(72.dp)
+                    .width(72.dp)
+                    .align(CenterHorizontally),
+                tint = colorResource(R.color.gray02)
+            )
+            // Text for when you have NO favorite eateries.
+            Text(
+                text = "You currently have no favorite eateries!",
+                textStyle = TextStyle.APPDEV_BODY_MEDIUM,
+                color = colorResource(id = R.color.black),
+                modifier = Modifier
+                    .align(CenterHorizontally)
+                    .padding(top = 12.dp)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
         }
 
     BackHandler {

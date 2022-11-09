@@ -139,7 +139,7 @@ fun Main(
                 is MainItem.EaterySectionLabel ->
                     Row(
                         modifier = Modifier
-                            .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp)
+                            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
                             .fillMaxWidth()
                             .animateItemPlacement(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -160,7 +160,7 @@ fun Main(
                         }
                     }
                 is MainItem.EaterySectionList ->
-                    Box(modifier = Modifier.animateItemPlacement()) {
+                    Box(modifier = Modifier.animateItemPlacement().padding(bottom = 12.dp)) {
                         EaterySectionPreview(
                             eateries = eateries,
                             section = item.section,
