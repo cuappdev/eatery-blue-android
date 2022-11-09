@@ -100,6 +100,14 @@ fun HomeScreen(
             when (it) {
                 is HomeViewModel.State.Loading ->
                     MainLoading(scrollState)
+                /* TODO 1: Selecting new filters is causing complete recomposition of the screen,
+                *   meaning the crossfade carries over. This doesn't look great and is kinda slow.
+                *   The reason a recomposition is happening is that HomeViewModel.filters is updated,
+                *   which causes a whole recomposition of Main() (I think...)
+                *
+                *  TODO 2: Upon recomposition, the filter scroll state is not saved. Find out why, and
+                *   make the scroll save.
+                * */
                 is HomeViewModel.State.Data -> {
                     Main(
                         scrollState = scrollState,

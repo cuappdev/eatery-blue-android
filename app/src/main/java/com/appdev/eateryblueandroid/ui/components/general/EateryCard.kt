@@ -15,7 +15,10 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.models.*
+import com.appdev.eateryblueandroid.models.Eatery
+import com.appdev.eateryblueandroid.models.getWaitTimes
+import com.appdev.eateryblueandroid.models.getWalkTimes
+import com.appdev.eateryblueandroid.models.isClosed
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
@@ -34,14 +37,15 @@ fun EateryCard(
         modifier = Modifier
             .clickable {
                 logOpenEatery(eatery.id ?: -1)
-                selectEatery(eatery) }
+                selectEatery(eatery)
+            }
             .fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .background(color = colorResource(id = R.color.white))
         ) {
-            Box() {
+            Box {
                 Image(
                     url = eatery.imageUrl ?: "",
                     modifier = Modifier
