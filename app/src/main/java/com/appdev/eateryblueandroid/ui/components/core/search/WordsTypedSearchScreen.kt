@@ -57,7 +57,10 @@ fun WordsTypedSearchScreen(
         items(searchTextedItem) { item ->
             when (item) {
                 is SearchTextedItem.FilterOptions -> Column(modifier = Modifier.padding(bottom = 12.dp)) {
-                    EateryFilters(alreadySelected = filters, scrollState = filterState) {
+                    EateryFilters(
+                        alreadySelected = filters,
+                        filterState = filterState,
+                        showBottomSheet = {}) {
                         setFilters(it)
                     }
                 }
