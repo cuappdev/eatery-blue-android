@@ -9,7 +9,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
@@ -23,12 +22,10 @@ import com.appdev.eateryblueandroid.ui.screens.OnboardingScreen
 import com.appdev.eateryblueandroid.ui.screens.ProfileTabController
 import com.appdev.eateryblueandroid.ui.viewmodels.*
 import com.appdev.eateryblueandroid.util.*
-import com.appdev.eateryblueandroid.util.Constants.eateryBlueColor
 import com.appdev.eateryblueandroid.util.Constants.eateryBlueColorTransparent
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 //this composable makes the bottom nav bar and base layer on which different screens are shown
@@ -88,7 +85,6 @@ fun MainScreen(
                         homeViewModel,
                         expandedSectionViewModel,
                         eateryDetailViewModel,
-
                         profileViewModel,
                         bottomSheetViewModel,
                         profileEateryDetailViewModel,

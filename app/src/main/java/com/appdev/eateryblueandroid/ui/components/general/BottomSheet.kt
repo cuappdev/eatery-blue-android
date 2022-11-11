@@ -52,7 +52,8 @@ fun BottomSheet(
                 BottomSheetOverlay(
                     hide = { bottomSheetViewModel.hide() },
                     contents = (stateValue.contents),
-                    hiddenFraction = hiddenFraction
+                    hiddenFraction = hiddenFraction,
+                    onSpaceTap = stateValue.onHide
                 )
         }
     }
@@ -62,7 +63,8 @@ fun BottomSheet(
 fun BottomSheetOverlay(
     hide: (@Composable () -> Unit) -> Unit,
     contents: @Composable () -> Unit,
-    hiddenFraction: Float
+    hiddenFraction: Float,
+    onSpaceTap : () -> Unit = { }
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Column(
@@ -71,7 +73,9 @@ fun BottomSheetOverlay(
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { hide(contents) }
+            ) {
+                onSpaceTap()
+                hide(contents) }
             .background(
                 Color.Black.copy(
                     alpha = min(

@@ -42,7 +42,8 @@ fun Main(
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
     selectSearch: () -> Unit,
-    bottomSheetViewModel: BottomSheetViewModel
+    bottomSheetViewModel: BottomSheetViewModel,
+    filterState: LazyListState
 ) {
     var mainItems by remember { mutableStateOf(listOf<MainItem>()) }
     val screenHeight = LocalConfiguration.current.screenHeightDp
@@ -57,6 +58,11 @@ fun Main(
             }
         }
         bottomSheetViewModel.show {
+            bottomSheetViewModel.setOnHide {
+                Log.d("hidingtag", filters.toString())
+                //updatedFilter.value = updatedFilter.value.filter {it != "Payment Options"}
+                setFilters(filters.filter { it != "Payment Options" })
+            }
             PaymentMethodFilter(
                 selectedFilter = updatedFilter,
                 toggleFilter = toggleFilter,
@@ -64,9 +70,6 @@ fun Main(
                 hide = bottomSheetViewModel::hide
             )
         }
-    }
-    if (filters.contains("Payment Options")) {
-        showBottomSheet()
     }
     Log.d("mainItemsDebug", filters.toString())
 
@@ -133,7 +136,11 @@ fun Main(
                         SearchBar(selectSearch = selectSearch)
                     }
                 is MainItem.FilterOptions ->
-                    EateryFilters(alreadySelected = filters) {
+                    EateryFilters(
+                        alreadySelected = filters,
+                        filterState = filterState,
+                        showBottomSheet = showBottomSheet
+                    ) {
                         setFilters(it)
                     }
                 is MainItem.EaterySectionLabel ->
@@ -160,7 +167,11 @@ fun Main(
                         }
                     }
                 is MainItem.EaterySectionList ->
-                    Box(modifier = Modifier.animateItemPlacement().padding(bottom = 12.dp)) {
+                    Box(
+                        modifier = Modifier
+                            .animateItemPlacement()
+                            .padding(bottom = 12.dp)
+                    ) {
                         EaterySectionPreview(
                             eateries = eateries,
                             section = item.section,

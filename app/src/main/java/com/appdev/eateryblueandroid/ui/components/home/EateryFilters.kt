@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,7 +24,14 @@ import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 
 @Composable
-fun EateryFilters(alreadySelected: List<String>, onFiltersChange: (updated: List<String>) -> Unit) {
+fun EateryFilters(
+    alreadySelected: List<String>,
+    filterState: LazyListState,
+    showBottomSheet : () -> Unit,
+    onFiltersChange: (
+        updated: List<String>
+    ) -> Unit,
+) {
     var selected by remember { mutableStateOf(listOf<String>()) }
     val campusLocations = listOf("North", "West", "Central")
     val paymentOptions = listOf("Meal swipes", "BRBs", "Cash or credit")
@@ -42,7 +50,7 @@ fun EateryFilters(alreadySelected: List<String>, onFiltersChange: (updated: List
         selectedPayments.joinToString(", ")
     }
 
-    LazyRow(contentPadding = PaddingValues(8.dp, 0.dp)) {
+    LazyRow(contentPadding = PaddingValues(8.dp, 0.dp), state = filterState) {
         items(options) { item ->
             val filterText = if (item == "Payment Options") paymentOptionsText else item
             val isSelected =
@@ -50,7 +58,13 @@ fun EateryFilters(alreadySelected: List<String>, onFiltersChange: (updated: List
                     true
                 else
                     selected.contains(item)
-            EateryFilter(filterText, isSelected, (item == "Payment Options")) {
+            EateryFilter(
+                text = filterText,
+                isSelected = isSelected,
+                chevronOn = (item == "Payment Options")
+            ) {
+                if (item == "Payment Options")
+                    showBottomSheet()
                 when {
                     selected.contains(item) -> selected = selected.filter { it != item }
                     campusLocations.contains(item) -> {
