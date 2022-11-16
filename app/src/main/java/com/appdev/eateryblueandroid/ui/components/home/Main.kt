@@ -91,16 +91,24 @@ fun Main(
                 (filters.contains("Cash or credit") && it.paymentAcceptsCash == true))
         isContained
     }.sortedByDescending {
-        if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(
-            it
-        )
+        if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(it)
     }.map { MainItem.EateryItem(it) }
 
     mainItems = listOf(
         listOf(MainItem.SearchBox),
         listOf(MainItem.FilterOptions),
         // If no filters are applied...
-        if (filters.toSet() == setOf("BRBs", "Meal swipes", "Cash or credit"))
+        if (filters.toSet() == setOf(
+                "BRBs",
+                "Meal swipes",
+                "Cash or credit"
+            ) || filters.toSet() == setOf(
+                "BRBs",
+                "Meal swipes",
+                "Cash or credit",
+                "Payment Options"
+            )
+        )
             sections.filter { section -> eateries.any { section.filter(it) } }
                 .flatMap { section ->
                     listOf(
@@ -113,7 +121,17 @@ fun Main(
                     )
                 }
         else listOf(),
-        if (filters.toSet() == setOf("BRBs", "Meal swipes", "Cash or credit"))
+        if (filters.toSet() == setOf(
+                "BRBs",
+                "Meal swipes",
+                "Cash or credit"
+            ) || filters.toSet() == setOf(
+                "BRBs",
+                "Meal swipes",
+                "Cash or credit",
+                "Payment Options"
+            )
+        )
             listOf(
                 MainItem.EaterySectionLabel(
                     "All Eateries",
