@@ -4,9 +4,11 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -20,6 +22,7 @@ import com.appdev.eateryblueandroid.models.EaterySection
 import com.appdev.eateryblueandroid.ui.appContext
 import com.appdev.eateryblueandroid.ui.components.general.TopBar
 import com.appdev.eateryblueandroid.ui.components.home.Main
+import com.appdev.eateryblueandroid.ui.components.home.MainLoading
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.ui.viewmodels.HomeViewModel
 import com.appdev.eateryblueandroid.util.Constants.userPreferencesStore
@@ -94,10 +97,11 @@ fun HomeScreen(
             rightIcon = painterResource(id = R.drawable.ic_search)
         )
         val state = homeViewModel.state.collectAsState()
-        state.value.let {
+        val filterScrollState = rememberLazyListState()
+        Crossfade(targetState = state.value, animationSpec = tween(700)) {
             when (it) {
                 is HomeViewModel.State.Loading ->
-                    Box {}
+                    MainLoading(scrollState)
                 is HomeViewModel.State.Data -> {
                     Main(
                         scrollState = scrollState,
@@ -108,7 +112,8 @@ fun HomeScreen(
                         selectEatery = selectEatery,
                         selectSection = selectSection,
                         selectSearch = selectSearch,
-                        bottomSheetViewModel = bottomSheetViewModel
+                        bottomSheetViewModel = bottomSheetViewModel,
+                        filterState = filterScrollState
                     )
                 }
                 is HomeViewModel.State.Failure ->

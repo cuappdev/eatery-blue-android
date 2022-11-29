@@ -1,13 +1,23 @@
 package com.appdev.eateryblueandroid.ui.components.home
 
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ButtonDefaults.buttonColors
+import androidx.compose.material.Icon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.Eatery
@@ -21,6 +31,7 @@ import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.ui.viewmodels.BottomSheetViewModel
 import com.appdev.eateryblueandroid.util.Constants.WORLD_DISTANCE_KM
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Main(
     scrollState: LazyListState,
@@ -31,9 +42,12 @@ fun Main(
     selectEatery: (eatery: Eatery) -> Unit,
     selectSection: (eaterySection: EaterySection) -> Unit,
     selectSearch: () -> Unit,
-    bottomSheetViewModel: BottomSheetViewModel
+    bottomSheetViewModel: BottomSheetViewModel,
+    filterState: LazyListState
 ) {
     var mainItems by remember { mutableStateOf(listOf<MainItem>()) }
+    val screenHeight = LocalConfiguration.current.screenHeightDp
+
     val showBottomSheet = {
         val updatedFilter = mutableStateOf(filters)
         val toggleFilter = { selected: String ->
@@ -44,6 +58,11 @@ fun Main(
             }
         }
         bottomSheetViewModel.show {
+            bottomSheetViewModel.setOnHide {
+                Log.d("hidingtag", filters.toString())
+                //updatedFilter.value = updatedFilter.value.filter {it != "Payment Options"}
+                setFilters(filters.filter { it != "Payment Options" })
+            }
             PaymentMethodFilter(
                 selectedFilter = updatedFilter,
                 toggleFilter = toggleFilter,
@@ -52,69 +71,102 @@ fun Main(
             )
         }
     }
-    if (filters.contains("Payment Options")) {
-        showBottomSheet()
-    }
+    Log.d("mainItemsDebug", filters.toString())
 
-    mainItems = listOf(listOf(MainItem.SearchBox),
+    val eateriesFiltered = eateries.filter {
+        var isContained = true
+        if (filters.contains("North")) isContained =
+            isContained && it.campusArea == "North"
+        if (filters.contains("West")) isContained =
+            isContained && it.campusArea == "West"
+        if (filters.contains("Central")) isContained =
+            isContained && it.campusArea == "Central"
+        if (filters.contains("Under 10 minutes")) isContained =
+            isContained && getWalkTimes(it) < 10
+        if (filters.contains("Favorites")) isContained =
+            isContained && it.isFavorite()
+        isContained = isContained &&
+            ((filters.contains("Meal swipes") && it.paymentAcceptsMealSwipes == true) ||
+                (filters.contains("BRBs") && it.paymentAcceptsBrbs == true) ||
+                (filters.contains("Cash or credit") && it.paymentAcceptsCash == true))
+        isContained
+    }.sortedByDescending {
+        if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(it)
+    }.map { MainItem.EateryItem(it) }
+
+    mainItems = listOf(
+        listOf(MainItem.SearchBox),
         listOf(MainItem.FilterOptions),
-        sections.filter { section -> eateries.any { section.filter(it) } }
-            .flatMap { section ->
-                listOf(
-                    MainItem.EaterySectionLabel(
-                        section.name,
-                        expandable = eateries.filter { section.filter(it) }.size > 3,
-                        expandSection = { selectSection(section) }
-                    ),
-                    MainItem.EaterySectionList(section)
-                )
-            },
-        listOf(MainItem.EaterySectionLabel(
-            "All Eateries",
-            expandable = false, expandSection = {}
-        )),
-        eateries.filter {
-            var isContained = true
-            if (filters.contains("North")) isContained =
-                isContained && it.campusArea == "North"
-            if (filters.contains("West")) isContained =
-                isContained && it.campusArea == "West"
-            if (filters.contains("Central")) isContained =
-                isContained && it.campusArea == "Central"
-            if (filters.contains("Under 10 minutes")) isContained =
-                isContained && getWalkTimes(it) < 10
-            if (filters.contains("Favorites")) isContained =
-                isContained && it.isFavorite()
-            isContained = isContained &&
-                    ((filters.contains("Meal swipes") && it.paymentAcceptsMealSwipes == true) ||
-                            (filters.contains("BRBs") && it.paymentAcceptsBrbs == true) ||
-                            (filters.contains("Cash or credit") && it.paymentAcceptsCash == true))
-            isContained
-        }.sortedByDescending {
-            if (isClosed(it)) 0 else WORLD_DISTANCE_KM - getWalkTimes(
-                it
+        // If no filters are applied...
+        if (filters.toSet() == setOf(
+                "BRBs",
+                "Meal swipes",
+                "Cash or credit"
+            ) || filters.toSet() == setOf(
+                "BRBs",
+                "Meal swipes",
+                "Cash or credit",
+                "Payment Options"
             )
-        }.map { MainItem.EateryItem(it) }
+        )
+            sections.filter { section -> eateries.any { section.filter(it) } }
+                .flatMap { section ->
+                    listOf(
+                        MainItem.EaterySectionLabel(
+                            section.name,
+                            expandable = eateries.filter { section.filter(it) }.size > 3,
+                            expandSection = { selectSection(section) }
+                        ),
+                        MainItem.EaterySectionList(section)
+                    )
+                }
+        else listOf(),
+        if (filters.toSet() == setOf(
+                "BRBs",
+                "Meal swipes",
+                "Cash or credit"
+            ) || filters.toSet() == setOf(
+                "BRBs",
+                "Meal swipes",
+                "Cash or credit",
+                "Payment Options"
+            )
+        )
+            listOf(
+                MainItem.EaterySectionLabel(
+                    "All Eateries",
+                    expandable = false, expandSection = {}
+                ))
+        else listOf(MainItem.EaterySpacer),
+        eateriesFiltered,
+        if (eateriesFiltered.isEmpty()) listOf(MainItem.EmptyMessage)
+        else listOf()
     ).flatten()
 
     LazyColumn(
         state = scrollState,
         contentPadding = PaddingValues(bottom = 30.dp)
     ) {
-        items(mainItems) { item ->
+        items(mainItems, key = { it.hashCode() }) { item ->
             when (item) {
                 is MainItem.SearchBox ->
                     Column(modifier = Modifier.padding(16.dp, 12.dp)) {
                         SearchBar(selectSearch = selectSearch)
                     }
-                is MainItem.FilterOptions -> EateryFilters(alreadySelected = filters) {
-                    setFilters(it)
-                }
+                is MainItem.FilterOptions ->
+                    EateryFilters(
+                        alreadySelected = filters,
+                        filterState = filterState,
+                        showBottomSheet = showBottomSheet
+                    ) {
+                        setFilters(it)
+                    }
                 is MainItem.EaterySectionLabel ->
                     Row(
                         modifier = Modifier
-                            .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 12.dp)
-                            .fillMaxWidth(),
+                            .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
+                            .fillMaxWidth()
+                            .animateItemPlacement(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -133,21 +185,76 @@ fun Main(
                         }
                     }
                 is MainItem.EaterySectionList ->
-                    EaterySectionPreview(
-                        eateries = eateries,
-                        section = item.section,
-                        selectSection = selectSection,
-                        selectEatery = selectEatery
-                    )
+                    Box(
+                        modifier = Modifier
+                            .animateItemPlacement()
+                            .padding(bottom = 12.dp)
+                    ) {
+                        EaterySectionPreview(
+                            eateries = eateries,
+                            section = item.section,
+                            selectSection = selectSection,
+                            selectEatery = selectEatery
+                        )
+                    }
                 is MainItem.EateryItem ->
                     Column(
-                        modifier = Modifier.padding(
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = 12.dp
-                        )
+                        modifier = Modifier
+                            .padding(
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = 12.dp
+                            )
+                            .animateItemPlacement()
                     ) {
                         EateryCard(eatery = item.eatery, selectEatery = selectEatery)
+                    }
+                is MainItem.EaterySpacer ->
+                    Spacer(modifier = Modifier.height(12.dp))
+                is MainItem.EmptyMessage ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = ((screenHeight - 311 - 157) / 2).dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    )
+                    {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_eaterylogo),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(72.dp)
+                                .width(72.dp),
+                            tint = colorResource(R.color.gray02)
+                        )
+                        Text(
+                            text = "No eatery found...",
+                            textStyle = TextStyle.APPDEV_BODY_MEDIUM,
+                            modifier = Modifier.padding(top = 12.dp)
+                        )
+                        Button(
+                            modifier = Modifier.padding(top = 12.dp),
+                            elevation = ButtonDefaults.elevation(
+                                defaultElevation = 0.dp,
+                                pressedElevation = 0.dp,
+                                disabledElevation = 0.dp,
+                            ),
+                            shape = RoundedCornerShape(100.dp),
+                            colors = buttonColors(
+                                backgroundColor = colorResource(R.color.eateryBlue)
+                            ),
+                            onClick = {
+                                setFilters(listOf("BRBs", "Meal swipes", "Cash or credit"))
+                            }
+                        ) {
+                            Text(
+                                text = "Reset filters",
+                                textStyle = TextStyle.BODY_SEMIBOLD,
+                                color = colorResource(R.color.white),
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
             }
         }
@@ -164,5 +271,7 @@ sealed class MainItem {
     ) : MainItem()
 
     data class EaterySectionList(val section: EaterySection) : MainItem()
+    object EaterySpacer : MainItem()
+    object EmptyMessage : MainItem()
     data class EateryItem(val eatery: Eatery) : MainItem()
 }

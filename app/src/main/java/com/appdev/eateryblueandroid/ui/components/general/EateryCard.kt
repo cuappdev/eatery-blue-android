@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.ripple.rememberRipple
@@ -15,12 +16,16 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
-import com.appdev.eateryblueandroid.models.*
+import com.appdev.eateryblueandroid.models.Eatery
+import com.appdev.eateryblueandroid.models.getWaitTimes
+import com.appdev.eateryblueandroid.models.getWalkTimes
+import com.appdev.eateryblueandroid.models.isClosed
 import com.appdev.eateryblueandroid.ui.components.core.Image
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 import com.appdev.eateryblueandroid.util.logOpenEatery
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EateryCard(
     eatery: Eatery,
@@ -31,17 +36,19 @@ fun EateryCard(
     Surface(
         elevation = 20.dp,
         shape = RoundedCornerShape(10.dp),
+        interactionSource = interactionSource,
+        onClick = {
+            logOpenEatery(eatery.id ?: -1)
+            selectEatery(eatery)
+        },
         modifier = Modifier
-            .clickable {
-                logOpenEatery(eatery.id ?: -1)
-                selectEatery(eatery) }
             .fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .background(color = colorResource(id = R.color.white))
         ) {
-            Box() {
+            Box {
                 Image(
                     url = eatery.imageUrl ?: "",
                     modifier = Modifier

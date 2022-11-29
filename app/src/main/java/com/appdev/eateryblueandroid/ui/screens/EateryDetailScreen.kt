@@ -3,6 +3,7 @@ package com.appdev.eateryblueandroid.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -58,6 +59,7 @@ fun EateryDetailScreen(
                         .padding(0.dp)
                         .wrapContentHeight()
                         .verticalScroll(rememberScrollState())
+                        .animateContentSize()
                 ) {
                     Box(contentAlignment = Alignment.BottomEnd) {
                         Image(
@@ -306,7 +308,7 @@ fun EateryDetailScreen(
                     Spacer(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height( if (isKeyboardOpen == Keyboard.Closed) 54.dp else 800.dp)
+                            .height(if (isKeyboardOpen == Keyboard.Closed) 54.dp else 800.dp)
                     )
                 }
         }
@@ -393,7 +395,8 @@ fun EateryMenuWidget(event: Event) {
                 .background(colorResource(id = R.color.gray00), CircleShape)
         )
         event.menu?.forEach { category ->
-            val filteredItems = category.items?.filter { it.name?.contains(filterText, true) ?: false }
+            val filteredItems =
+                category.items?.filter { it.name?.contains(filterText, true) ?: false }
             if (filteredItems.isNullOrEmpty())
                 return@forEach
             Text(

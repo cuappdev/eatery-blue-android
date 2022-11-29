@@ -52,8 +52,10 @@ fun LoginButton(
             },
         onClick = login,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = colorResource(id = if (clickable) R.color.eateryBlue else R.color.gray00)
+            backgroundColor = colorResource(R.color.eateryBlue),
+            disabledBackgroundColor = colorResource(R.color.gray00)
         ),
+        enabled = clickable,
         elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
     ) {
         if (authenticating) {

@@ -7,15 +7,22 @@ import kotlinx.coroutines.flow.asStateFlow
 class BottomSheetViewModel {
     sealed class State {
         object Hidden : State()
-        data class Hiding(val contents: @Composable() () -> Unit) : State()
-        data class Visible(val contents: @Composable() () -> Unit) : State()
+        data class Hiding(val contents: @Composable () -> Unit) : State()
+        data class Visible(
+            val contents: @Composable () -> Unit,
+            var onHide: () -> Unit = { }
+        ) : State()
     }
 
     private var _state = MutableStateFlow<State>(State.Hidden)
     val state = _state.asStateFlow()
 
-    fun show(contents: @Composable() () -> Unit) {
+    fun show(contents: @Composable () -> Unit) {
         _state.value = State.Visible(contents)
+    }
+
+    fun setOnHide(function: () -> Unit) {
+        (_state.value as? State.Visible)?.onHide = function
     }
 
     fun hide() {

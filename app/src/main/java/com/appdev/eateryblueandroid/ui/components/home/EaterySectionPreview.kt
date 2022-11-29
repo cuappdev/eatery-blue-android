@@ -1,6 +1,6 @@
 package com.appdev.eateryblueandroid.ui.components.home
 
-import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,12 +12,10 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.appdev.eateryblueandroid.R
 import com.appdev.eateryblueandroid.models.Eatery
@@ -26,6 +24,7 @@ import com.appdev.eateryblueandroid.ui.components.EateryCard
 import com.appdev.eateryblueandroid.ui.components.core.Text
 import com.appdev.eateryblueandroid.ui.components.core.TextStyle
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun EaterySectionPreview(
     eateries: List<Eatery>,
@@ -37,11 +36,11 @@ fun EaterySectionPreview(
     var height by remember { mutableStateOf(0) }
     val sectionItems: List<SectionPreviewItem> =
         listOf(
-            filteredEateries.subList(0, Math.min(filteredEateries.size,3)).map { SectionPreviewItem.EateryItem(it) },
+            filteredEateries.subList(0, Math.min(filteredEateries.size, 3)).map { SectionPreviewItem.EateryItem(it) },
             if (filteredEateries.size > 3) listOf(SectionPreviewItem.MoreEateriesBox) else listOf()
         ).flatten()
     LazyRow(contentPadding = PaddingValues(9.dp, 0.dp)) {
-        items(sectionItems) { item ->
+        items(sectionItems, key = { it.hashCode() }) { item ->
             when (item) {
                 is SectionPreviewItem.EateryItem ->
                     Column(
@@ -51,6 +50,7 @@ fun EaterySectionPreview(
                             .onSizeChanged {
                                 height = it.height
                             }
+                            .animateItemPlacement()
                     ) {
                         EateryCard(eatery = item.eatery, selectEatery = selectEatery)
                     }
@@ -63,6 +63,7 @@ fun EaterySectionPreview(
                             .height(with(LocalDensity.current) { height.toDp() })
                             .aspectRatio(1f)
                             .clickable { selectSection(section) }
+                            .animateItemPlacement()
                     ) {
                         Column(
                             modifier = Modifier.background(colorResource(id = R.color.white)),
