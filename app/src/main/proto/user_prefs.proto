@@ -1,29 +1,43 @@
 syntax = "proto3";
-
-option java_package = "com.codelab.android.datastore";
+option java_package = "com.cornellappdev.android.eateryblue";
 option java_multiple_files = true;
 
 message UserPreferences {
-  map<int32, bool> favorites = 1;
-  repeated int32 recentSearches = 2;
-  string username = 3;
+  bool hasOnboarded = 1;
+
+  // Keeps track of when the user is first presented with the PermissionRequestDialog
+  bool notificationFlowCompleted = 2;
+
+  map<int32, bool> favorites = 3;
+
+  bool isLoggedIn = 4;
+
+  string username = 5;
+
   // Must be encrypted / decrypted.
-  string password = 4;
+  string password = 6;
 
-  //** START OF CACHED LOGIN DATA ******
+  repeated int32 recentSearches = 7;
 
-  // If the user was previously logged in, this field is true and
-  // indicates cached data should be loaded.
-  bool wasLoggedIn = 5;
-  repeated AccountProto accounts = 6;
-  repeated TransactionProto transactionHistory = 7;
+  bool analyticsDisabled = 8;
 
-  //** END OF CACHED LOGIN DATA *********
-
-  NotificationSettings notificationSettings = 8;
-  PermissionSettings permissionSettings = 9;
-
-  bool hasOnboarded = 10;
+  //  repeated int32 recentSearches = 2;
+  //  string username = 3;
+  //  // Must be encrypted / decrypted.
+  //  string password = 4;
+  //
+  //  //** START OF CACHED LOGIN DATA ******
+  //
+  //  // If the user was previously logged in, this field is true and
+  //  // indicates cached data should be loaded.
+  //  bool wasLoggedIn = 5;
+  //  repeated AccountProto accounts = 6;
+  //  repeated TransactionProto transactionHistory = 7;
+  //
+  //  //** END OF CACHED LOGIN DATA *********
+  //
+  //  NotificationSettings notificationSettings = 8;
+  //  PermissionSettings permissionSettings = 9;
 }
 
 message AccountProto {
