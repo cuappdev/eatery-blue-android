@@ -92,7 +92,9 @@ class HomeViewModel @Inject constructor(
         }.toCollection(mutableStateListOf())
     }
 
-    // Determines if the eatery passes the filter inspection based on what's currently selected.
+    /**
+     * Determines if the eatery passes the filter inspection based on what's currently selected.
+     */
     private fun passesFilter(eatery: Eatery): Boolean {
         var passesFilter = true
         if (_currentFiltersSelected.contains(Filter.UNDER_10)) {

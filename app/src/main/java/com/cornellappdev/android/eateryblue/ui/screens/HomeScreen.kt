@@ -98,6 +98,7 @@ fun HomeScreen(
                 val isFirstVisible =
                     remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
 
+                // Whole page is meant to be scrollable, hence the use of a LazyColumn here
                 LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                     stickyHeader {
                         Column(
@@ -135,7 +136,7 @@ fun HomeScreen(
                                         ) {
                                             Icon(
                                                 Icons.Default.Search,
-                                                contentDescription = "Search",
+                                                contentDescription = Icons.Default.Search.name,
                                                 tint = Color.White
                                             )
                                         }
@@ -241,8 +242,8 @@ fun HomeScreen(
                                     }
                                 } else {
                                     item {
-                                        // TODO center
-                                        Box(modifier = Modifier.fillMaxSize()) {
+                                        // TODO test if this is relatively centered, occurs when filtering results in no eateries
+                                        Box(modifier = Modifier.fillParentMaxHeight(0.7f)) {
                                             NoEateryFound(modifier = Modifier.align(Alignment.Center)) {
                                                 homeViewModel.resetFilters()
                                             }
@@ -250,8 +251,7 @@ fun HomeScreen(
                                     }
                                 }
                             } else {
-                                // Regular home screen here
-
+                                // TODO Regular home screen here
                             }
                         }
                     }

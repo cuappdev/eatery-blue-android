@@ -106,6 +106,7 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
                 selectedContentColor = Color.Unspecified,
                 unselectedContentColor = Color.Unspecified,
                 onClick = {
+                    FirstTimeShown.firstTimeShown = false
                     navController.navigate(item.route)
                 }
             )
@@ -158,8 +159,10 @@ fun SetupNavHost(
                 )
             }) {
             HomeScreen(showBottomBar = showBottomBar, onSearchClick = {
+                FirstTimeShown.firstTimeShown = false
                 navController.navigate(Routes.SEARCH.route)
             }) {
+                FirstTimeShown.firstTimeShown = false
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
             }
         }
@@ -248,8 +251,8 @@ fun SetupNavHost(
                     Routes.SUPPORT to { navController.navigate(Routes.SUPPORT.route) },
                     Routes.PROFILE to {
                         navController.navigate("${Routes.PROFILE.route}/false") {
-                            if (navController.isOnBackStack("${Routes.ACCOUNT.route}/{user}")) {
-                                popUpTo("${Routes.ACCOUNT.route}/{user}") { inclusive = true }
+                            if (navController.isOnBackStack(Routes.ACCOUNT.route)) {
+                                popUpTo(Routes.ACCOUNT.route) { inclusive = true }
                             } else {
                                 popUpTo(Routes.SETTINGS.route) { inclusive = true }
                             }

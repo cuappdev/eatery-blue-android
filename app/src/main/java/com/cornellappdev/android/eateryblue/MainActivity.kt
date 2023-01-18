@@ -23,9 +23,8 @@ class MainActivity : ComponentActivity() {
         }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        // TODO test keyboard
-        //window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
+        // Want to eventually switch over to this typography
         val typography = androidx.compose.material3.Typography()
         setContent {
             androidx.compose.material3.MaterialTheme() {

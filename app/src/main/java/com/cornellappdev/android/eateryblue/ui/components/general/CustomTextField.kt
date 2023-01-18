@@ -6,7 +6,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -21,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,7 +45,6 @@ fun CustomTextField(
     enabled: Boolean = true,
     focusRequester: FocusRequester? = null,
     isPassword: Boolean = false,
-    leftIcon: Painter? = null,
     singleLine: Boolean = true,
     isSentence: Boolean = false,
 ) {
@@ -71,15 +68,6 @@ fun CustomTextField(
                 ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (leftIcon != null) {
-                Icon(
-                    painter = leftIcon,
-                    contentDescription = null,
-                    tint = GrayFive,
-                    modifier = Modifier.padding(start = 12.dp)
-                )
-            }
-
             BasicTextField(
                 value = value,
                 onValueChange = {

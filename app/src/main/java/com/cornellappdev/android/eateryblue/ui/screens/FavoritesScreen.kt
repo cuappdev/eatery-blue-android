@@ -40,7 +40,7 @@ fun FavoritesScreen(
     favoriteViewModel: FavoritesViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    // TODO test (unfollowing + eatery detail)
+    // TODO test (unfollowing + unfollowing from eatery detail screen)
     val shimmer = rememberShimmer(ShimmerBounds.View)
     LaunchedEffect(Unit) {
         favoriteViewModel.updateFavorites()
@@ -68,7 +68,7 @@ fun FavoritesScreen(
             is EateryRetrievalState.Pending -> {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp)
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
                 ) {
                     items(15) {
                         EateryBlob(
@@ -108,7 +108,9 @@ fun FavoritesScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(start = 16.dp, end = 16.dp)
                     ) {
-                        items(favoriteViewModel.favoriteEateries) { eatery ->
+                        items(items = favoriteViewModel.favoriteEateries, key = { eatery ->
+                            eatery.id!!
+                        }) { eatery ->
                             EateryCard(
                                 eatery = eatery,
                                 isFavorite = true,

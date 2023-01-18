@@ -86,7 +86,6 @@ fun LoginPage(
                 enabled = !attemptSignIn,
                 placeholder = "Type your NetID (e.g. abc123)",
                 backgroundColor = GrayZero,
-                singleLine = true,
                 onSubmit = {
                     if (netId.isNotEmpty()) passwordFocus.requestFocus()
                 }
@@ -108,7 +107,6 @@ fun LoginPage(
                 placeholder = "Type your password...",
                 backgroundColor = GrayZero,
                 focusRequester = passwordFocus,
-                singleLine = true,
                 isPassword = true,
                 onSubmit = {
                     if (password.isNotEmpty()) {

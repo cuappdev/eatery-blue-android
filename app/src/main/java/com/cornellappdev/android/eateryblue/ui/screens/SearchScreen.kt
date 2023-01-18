@@ -153,7 +153,9 @@ fun SearchScreen(
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                             modifier = Modifier.padding(start = 16.dp)
                         ) {
-                            items(searchViewModel.favoriteEateries) { eatery ->
+                            items(items = searchViewModel.favoriteEateries, key = { eatery ->
+                                eatery.id!!
+                            }) { eatery ->
                                 FavoriteItem(eatery, onEateryClick)
                             }
                         }
