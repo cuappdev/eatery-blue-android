@@ -35,6 +35,7 @@ This project is maintained by the [Android Team @ Cornell Appdev](https://www.co
 - Justin Guo (@thisjustin123)
 - Aarushi Singh (@AarushiSingh214)
 - Benjamin Harris (@BenHarris4848)
+- Emily
 
 </details>
 

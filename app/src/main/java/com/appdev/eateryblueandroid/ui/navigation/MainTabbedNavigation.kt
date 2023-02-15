@@ -37,6 +37,7 @@ fun MainScreen(
     expandedSectionViewModel: ExpandedSectionViewModel,
     eateryDetailViewModel: EateryDetailViewModel,
     profileViewModel: ProfileViewModel,
+    upcomingViewModel: UpcomingViewModel,
     bottomSheetViewModel: BottomSheetViewModel,
     profileEateryDetailViewModel: EateryDetailViewModel,
     searchViewModel: SearchViewModel,
@@ -45,7 +46,8 @@ fun MainScreen(
     val navController = rememberNavController()
     val homeTab = BottomNavTab("home", "Home", R.drawable.ic_home)
     val profileTab = BottomNavTab("profile", "Profile", R.drawable.ic_user)
-    val bottomNavItems = listOf(homeTab, profileTab)
+    val upcomingTab = BottomNavTab("upcoming", "Upcoming", R.drawable.ic_user)
+    val bottomNavItems = listOf(homeTab, upcomingTab, profileTab)
 
     val onboardingState = OnboardingRepository.onboardedFlow.collectAsState()
 
@@ -81,6 +83,7 @@ fun MainScreen(
                         navController,
                         homeTab,
                         profileTab,
+                        upcomingTab,
                         homeTabViewModel,
                         homeViewModel,
                         expandedSectionViewModel,
@@ -89,6 +92,7 @@ fun MainScreen(
                         bottomSheetViewModel,
                         profileEateryDetailViewModel,
                         searchViewModel,
+                        upcomingViewModel,
                     )
                 }
             false ->
@@ -129,7 +133,7 @@ private fun currentRoute(navController: NavHostController): String? {
 @Composable
 private fun MainScreenNavigationConfigurations(
     navController: NavHostController,
-    homeTab: BottomNavTab, profileTab: BottomNavTab,
+    homeTab: BottomNavTab, profileTab: BottomNavTab, upcomingTab: BottomNavTab,
     homeTabViewModel: HomeTabViewModel,
     homeViewModel: HomeViewModel,
     expandedSectionViewModel: ExpandedSectionViewModel,
@@ -138,6 +142,7 @@ private fun MainScreenNavigationConfigurations(
     bottomSheetViewModel: BottomSheetViewModel,
     profileEateryDetailViewModel: EateryDetailViewModel,
     searchViewModel: SearchViewModel,
+    upcomingViewModel: UpcomingViewModel
 ) {
     val eateryListScrollState = rememberLazyListState()
     NavHost(navController = navController, startDestination = homeTab.route) {
@@ -158,6 +163,11 @@ private fun MainScreenNavigationConfigurations(
                 bottomSheetViewModel = bottomSheetViewModel,
                 homeViewModel.state.collectAsState(),
                 profileEateryDetailViewModel = profileEateryDetailViewModel
+            )
+        }
+        composable(upcomingTab.route) {
+            UpcomingTabController(
+                upcomingViewModel = upcomingViewModel
             )
         }
     }
