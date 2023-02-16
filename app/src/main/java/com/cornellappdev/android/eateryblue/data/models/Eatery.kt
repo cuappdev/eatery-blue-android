@@ -82,12 +82,16 @@ data class Eatery(
     }
 
     fun getCurrentEvents(): List<Event> {
+        Log.d("OpenUntilEvents", events.toString())
         val currentTime = LocalDateTime.now()
+        Log.d("OpenUntilTime", currentTime.toString())
         if (events.isNullOrEmpty())
             return listOf()
 
         return events.filter { event ->
-            currentTime.isAfter(event.startTime) && currentTime.isBefore(event.endTime)
+            (currentTime.isAfter(event.startTime) || currentTime.isEqual(event.startTime)) && (currentTime.isBefore(
+                event.endTime
+            ) || currentTime.isEqual(event.endTime))
         }
     }
 

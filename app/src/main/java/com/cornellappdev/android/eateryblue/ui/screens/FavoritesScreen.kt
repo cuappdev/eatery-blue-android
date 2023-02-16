@@ -1,11 +1,11 @@
 package com.cornellappdev.android.eateryblue.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -40,7 +39,6 @@ fun FavoritesScreen(
     favoriteViewModel: FavoritesViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    // TODO test (unfollowing + unfollowing from eatery detail screen)
     val shimmer = rememberShimmer(ShimmerBounds.View)
     LaunchedEffect(Unit) {
         favoriteViewModel.updateFavorites()
@@ -67,8 +65,7 @@ fun FavoritesScreen(
         when (favoriteViewModel.eateryRetrievalState) {
             is EateryRetrievalState.Pending -> {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(15) {
                         EateryBlob(
@@ -84,29 +81,40 @@ fun FavoritesScreen(
             }
             is EateryRetrievalState.Success -> {
                 if (favoriteViewModel.favoriteEateries.isEmpty()) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight(0.7f)
+                            .fillMaxWidth()
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_eaterylogo),
-                            contentDescription = null,
-                            colorFilter = ColorFilter.tint(
-                                GrayTwo
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_eaterylogo),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .height(72.dp)
+                                    .width(72.dp),
+                                tint = GrayTwo,
                             )
-                        )
 
-                        Text(
-                            text = "You currently have no favorite eateries!",
-                            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-                            color = Color.Black,
-                            modifier = Modifier.padding(top = 12.dp)
-                        )
+                            Text(
+                                text = "You currently have no favorite eateries!",
+                                style = TextStyle(
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 18.sp
+                                ),
+                                color = Color.Black,
+                                modifier = Modifier.padding(top = 12.dp)
+                            )
+                        }
                     }
                 } else {
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp)
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(items = favoriteViewModel.favoriteEateries, key = { eatery ->
                             eatery.id!!

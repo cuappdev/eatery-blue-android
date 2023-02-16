@@ -8,11 +8,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,6 +35,7 @@ import com.cornellappdev.android.eateryblue.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eateryblue.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
 import com.valentinilk.shimmer.ShimmerBounds
@@ -242,8 +246,11 @@ fun HomeScreen(
                                     }
                                 } else {
                                     item {
-                                        // TODO test if this is relatively centered, occurs when filtering results in no eateries
-                                        Box(modifier = Modifier.fillParentMaxHeight(0.7f)) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillParentMaxHeight(0.7f)
+                                                .fillMaxWidth()
+                                        ) {
                                             NoEateryFound(modifier = Modifier.align(Alignment.Center)) {
                                                 homeViewModel.resetFilters()
                                             }
@@ -251,7 +258,214 @@ fun HomeScreen(
                                     }
                                 }
                             } else {
-                                // TODO Regular home screen here
+                                item {
+                                    Column(
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            bottom = 24.dp,
+                                            top = 12.dp
+                                        )
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(bottom = 17.dp, end = 16.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                        ) {
+                                            Text(
+                                                text = "Favorite Eateries",
+                                                style = EateryBlueTypography.h4,
+                                            )
+
+                                            IconButton(
+                                                onClick = {
+                                                    // TODO favorites screen
+                                                },
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .background(
+                                                        color = GrayZero,
+                                                        shape = CircleShape
+                                                    )
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.ArrowForward,
+                                                    contentDescription = "Favorites",
+                                                    tint = Color.Black
+                                                )
+                                            }
+                                        }
+
+                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            items(homeViewModel.favoriteEateries) { eatery ->
+                                                EateryCard(
+                                                    eatery = eatery,
+                                                    isFavorite = true,
+                                                    modifier = Modifier.fillParentMaxWidth(0.85f),
+                                                    onFavoriteClick = {
+                                                        if (!it) {
+                                                            homeViewModel.removeFavorite(eatery.id)
+                                                        }
+                                                    }) {
+                                                    onEateryClick(it)
+                                                }
+                                            }
+
+                                            item {
+                                                Spacer(Modifier.width(16.dp))
+                                            }
+                                        }
+                                    }
+                                }
+
+                                item {
+                                    Column(
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            bottom = 24.dp
+                                        )
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(bottom = 17.dp, end = 16.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                        ) {
+                                            Text(
+                                                text = "Nearest to You",
+                                                style = EateryBlueTypography.h4,
+                                            )
+
+                                            IconButton(
+                                                onClick = {
+                                                    // TODO nearest to you
+                                                },
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .background(
+                                                        color = GrayZero,
+                                                        shape = CircleShape
+                                                    )
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.ArrowForward,
+                                                    contentDescription = "Nearest to You",
+                                                    tint = Color.Black
+                                                )
+                                            }
+                                        }
+                                        // TODO nearest to you eateries
+                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+
+                                        }
+                                    }
+                                }
+
+                                item {
+                                    val swipeEateries = homeViewModel.allEateries.filter { eatery ->
+                                        eatery.paymentAcceptsMealSwipes == true
+                                    }
+
+                                    Column(
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            bottom = 24.dp
+                                        )
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(bottom = 17.dp, end = 16.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                        ) {
+                                            Text(
+                                                text = "Swipe for a Bite",
+                                                style = EateryBlueTypography.h4,
+                                            )
+
+                                            IconButton(
+                                                onClick = {
+                                                    // TODO swipe for a bite screen, not sure what this is but there's a button that leads to something on the designs
+                                                },
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .background(
+                                                        color = GrayZero,
+                                                        shape = CircleShape
+                                                    )
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.ArrowForward,
+                                                    contentDescription = "Swipe for a bite",
+                                                    tint = Color.Black
+                                                )
+                                            }
+                                        }
+                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            items(swipeEateries) { eatery ->
+                                                EateryCard(
+                                                    eatery = eatery,
+                                                    isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                        favoriteEatery.id == eatery.id
+                                                    },
+                                                    modifier = Modifier.fillParentMaxWidth(0.85f),
+                                                    onFavoriteClick = {
+                                                        if (it) {
+                                                            homeViewModel.addFavorite(eatery.id)
+                                                        } else {
+                                                            homeViewModel.removeFavorite(eatery.id)
+                                                        }
+                                                    }) {
+                                                    onEateryClick(it)
+                                                }
+                                            }
+
+                                            item {
+                                                Spacer(Modifier.width(16.dp))
+                                            }
+                                        }
+                                    }
+                                }
+
+                                item {
+                                    Text(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 16.dp, bottom = 12.dp),
+                                        text = "All Eateries",
+                                        style = EateryBlueTypography.h4,
+                                    )
+                                }
+
+                                // TODO may be causing some slowness, not sure if universal
+                                item {
+                                    Column(
+                                        modifier = Modifier
+                                            .wrapContentHeight()
+                                            .padding(
+                                                start = 16.dp,
+                                                end = 16.dp,
+                                            ),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    ) {
+                                        homeViewModel.allEateries.forEach { eatery ->
+                                            EateryCard(
+                                                eatery = eatery,
+                                                isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                    favoriteEatery.id == eatery.id
+                                                },
+                                                onFavoriteClick = {
+                                                    if (it) {
+                                                        homeViewModel.addFavorite(eatery.id)
+                                                    } else {
+                                                        homeViewModel.removeFavorite(eatery.id)
+                                                    }
+                                                }) {
+                                                onEateryClick(it)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

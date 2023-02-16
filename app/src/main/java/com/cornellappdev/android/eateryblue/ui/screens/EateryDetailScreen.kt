@@ -170,21 +170,6 @@ fun EateryDetailScreen(
                                 modalBottomSheetState.show()
                             }
                         }
-
-                        Surface(
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(start = 20.dp, top = 10.dp)
-                                .size(40.dp),
-                            shape = CircleShape,
-                        ) {
-                            Box(modifier = Modifier.padding(PaddingValues(6.dp))) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_place),
-                                    contentDescription = "Place",
-                                )
-                            }
-                        }
                     }
 
                     Column(modifier = Modifier.background(Color.White)) {

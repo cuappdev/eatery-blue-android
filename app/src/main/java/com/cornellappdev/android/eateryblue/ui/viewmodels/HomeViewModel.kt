@@ -27,7 +27,8 @@ class HomeViewModel @Inject constructor(
     private val _currentFiltersSelected = mutableStateListOf<Filter>()
     val currentFiltersSelected: List<Filter> = _currentFiltersSelected
 
-    private val allEateries = mutableSetOf<Eatery>()
+    private val _allEateries = mutableSetOf<Eatery>()
+    val allEateries: Set<Eatery> = _allEateries
 
     var favoriteEateries = mutableStateListOf<Eatery>()
         private set
@@ -43,11 +44,11 @@ class HomeViewModel @Inject constructor(
         try {
             val eateryResponse = eateryRepository.getAllEateries()
             if (eateryResponse.success) {
-                eateryResponse.data?.let { allEateries.addAll(it) }
+                eateryResponse.data?.let { _allEateries.addAll(it) }
 
                 val favoriteEateriesIds =
                     userPreferencesRepository.getFavoritesMap().keys
-                favoriteEateries.addAll(allEateries.filter {
+                favoriteEateries.addAll(_allEateries.filter {
                     favoriteEateriesIds.contains(it.id)
                 })
 
@@ -61,7 +62,7 @@ class HomeViewModel @Inject constructor(
     fun updateFavorites() = viewModelScope.launch {
         val favoriteEateriesKeys =
             userPreferencesRepository.getFavoritesMap().keys
-        favoriteEateries = allEateries.filter {
+        favoriteEateries = _allEateries.filter {
             favoriteEateriesKeys.contains(it.id)
         }.toCollection(mutableStateListOf())
     }
@@ -87,7 +88,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun filterEateries() = viewModelScope.launch {
-        filteredResults = allEateries.filter { eatery ->
+        filteredResults = _allEateries.filter { eatery ->
             passesFilter(eatery)
         }.toCollection(mutableStateListOf())
     }
@@ -138,7 +139,7 @@ class HomeViewModel @Inject constructor(
 
         userPreferencesRepository.setFavorite(eateryId, true)
 
-        allEateries.firstOrNull { eatery ->
+        _allEateries.firstOrNull { eatery ->
             eatery.id == eateryId
         }?.let { matchingEatery -> favoriteEateries.add(matchingEatery) }
     }

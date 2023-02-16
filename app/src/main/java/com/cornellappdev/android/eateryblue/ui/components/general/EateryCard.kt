@@ -31,12 +31,142 @@ import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.glide.GlideImage
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 
+//@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
+//@Composable
+//fun EateryRow(
+//    modifier = Modifier
+//            eatery : Eatery,
+//    isFavorite: Boolean,
+//    onFavoriteClick: (Boolean) -> Unit,
+//    isCompact: Boolean = false,
+//    selectEatery: (eatery: Eatery) -> Unit = {}
+//) {
+//    val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsStateWithLifecycle("")
+//
+//    val interactionSource = MutableInteractionSource()
+//    Card(
+//        elevation = 10.dp,
+//        shape = RoundedCornerShape(10.dp),
+//        onClick = {
+//            selectEatery(eatery)
+//        },
+//        backgroundColor = Color.White,
+//        modifier = Modifier.width(400.dp)
+//    ) {
+//        Column {
+//            Box {
+//                GlideImage(
+//                    imageModel = { eatery.imageUrl ?: "" },
+//                    modifier = Modifier
+//                        .height(120.dp)
+//                        .fillMaxWidth(),
+//                    imageOptions = ImageOptions(
+//                        contentScale = ContentScale.Crop,
+//                    ),
+//                    component = rememberImageComponent {
+//                        +ShimmerPlugin(
+//                            baseColor = Color.White,
+//                            highlightColor = GrayZero,
+//                            durationMillis = 350,
+//                            dropOff = 0.65f,
+//                            tilt = 20f
+//                        )
+//                    },
+//                    failure = {
+//                        androidx.compose.foundation.Image(
+//                            modifier = Modifier
+//                                .height(120.dp)
+//                                .fillMaxWidth(),
+//                            painter = painterResource(R.drawable.blank_eatery),
+//                            contentDescription = "Eatery Image",
+//                            contentScale = ContentScale.Crop,
+//                        )
+//                    }
+//                )
+//                if (eatery.isClosed()) {
+//                    Spacer(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .height(120.dp)
+//                            .background(color = Color.White.copy(alpha = 0.53f))
+//                    )
+//                }
+//                if (!xMinutesUntilClosing?.value.isNullOrEmpty()) {
+//                    Card(
+//                        modifier = Modifier
+//                            .padding(top = 12.dp, end = 12.dp)
+//                            .align(Alignment.TopEnd),
+//                        shape = RoundedCornerShape(100.dp),
+//                        contentColor = Orange,
+//                        backgroundColor = Color.White
+//                    ) {
+//                        Row(
+//                            modifier = Modifier.padding(
+//                                horizontal = 10.dp,
+//                                vertical = 8.dp
+//                            )
+//                        ) {
+//                            Icon(
+//                                Icons.Outlined.Warning,
+//                                contentDescription = "Closing in 10 min",
+//                                modifier = Modifier.size(ButtonDefaults.IconSize)
+//                            )
+//                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+//                            Text(
+//                                text = "Closing in ${xMinutesUntilClosing!!.value} min",
+//                                style = EateryBlueTypography.button
+//                            )
+//                        }
+//                    }
+//                }
+//            }
+//            Column(
+//                modifier = Modifier.padding(10.dp)
+//            ) {
+//                Row(
+//                    horizontalArrangement = Arrangement.SpaceBetween,
+//                    modifier = Modifier.fillMaxWidth()
+//                ) {
+//                    Text(
+//                        text = eatery.name ?: "",
+//                        maxLines = 1,
+//                        overflow = TextOverflow.Ellipsis,
+//                        style = EateryBlueTypography.h5,
+//                        modifier = Modifier
+//                            .weight(1f)
+//                            .padding(end = 30.dp)
+//                    )
+//                    Icon(
+//                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+//                        tint = if (isFavorite) Yellow else GrayFive,
+//                        modifier = Modifier
+//                            .padding(top = 3.dp)
+//                            .clickable(
+//                                interactionSource = interactionSource,
+//                                indication = rememberRipple(radius = 9.dp),
+//                                onClick = {
+//                                    onFavoriteClick(!isFavorite)
+//                                }
+//                            ),
+//                        contentDescription = null
+//                    )
+//                }
+//
+//                EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact)
+//                EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
+//            }
+//        }
+//    }
+//}
+
 @OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun EateryCard(
     eatery: Eatery,
     isFavorite: Boolean,
     onFavoriteClick: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+        .fillMaxWidth(),
     isCompact: Boolean = false,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
@@ -50,8 +180,7 @@ fun EateryCard(
             selectEatery(eatery)
         },
         backgroundColor = Color.White,
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
     ) {
         Column {
             Box {
