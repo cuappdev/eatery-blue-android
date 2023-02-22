@@ -1,39 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.appdev.eateryblueandroid">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <meta-data
-        android:name="firebase_analytics_collection_deactivated"
-        android:value="@bool/FIREBASE_ANALYTICS_DEACTIVATED"/>
-
     <application
+        android:name="com.cornellappdev.android.eateryblue.EateryBlueApplication"
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher_default"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_default"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Eateryblueandroid">
+        android:theme="@style/Theme.EateryBlue"
+        tools:targetApi="31">
+
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="@bool/FIREBASE_ANALYTICS_DEACTIVATED" />
+
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustPan">
+            android:theme="@style/Theme.EateryBlue">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
         </activity>
 
         <activity-alias
-            android:name=".ui.MainActivityDefault"
+            android:name=".MainActivityDefault"
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_default"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_default"
-            android:targetActivity=".ui.MainActivity">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -43,13 +51,13 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".ui.MainActivitySnow"
+            android:name=".MainActivitySnow"
             android:enabled="false"
             android:exported="true"
             android:icon="@drawable/ic_eaterysnow"
             android:label="@string/app_name"
             android:roundIcon="@drawable/ic_eaterysnow"
-            android:targetActivity=".ui.MainActivity">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -57,13 +65,13 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".ui.MainActivityBlue"
+            android:name=".MainActivityBlue"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_blue"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_blue"
-            android:targetActivity=".ui.MainActivity">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -71,13 +79,13 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".ui.MainActivityRed"
+            android:name=".MainActivityRed"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_red"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_red"
-            android:targetActivity=".ui.MainActivity">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -85,13 +93,13 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".ui.MainActivityGreen"
+            android:name=".MainActivityGreen"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_green"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_green"
-            android:targetActivity=".ui.MainActivity">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -99,13 +107,13 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".ui.MainActivityYellow"
+            android:name=".MainActivityYellow"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_yellow"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_yellow"
-            android:targetActivity=".ui.MainActivity">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -113,13 +121,13 @@
         </activity-alias>
 
         <activity-alias
-            android:name=".ui.MainActivityOrange"
+            android:name=".MainActivityOrange"
             android:enabled="false"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_orange"
             android:label="@string/app_name"
             android:roundIcon="@mipmap/ic_launcher_orange"
-            android:targetActivity=".ui.MainActivity">
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -127,7 +135,7 @@
         </activity-alias>
 
         <service
-            android:name=".networking.firebase.FirebaseMessaging"
+            android:name=".util.FirebaseMessaging"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -136,4 +144,5 @@
 
 
     </application>
+
 </manifest>

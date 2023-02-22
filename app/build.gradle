@@ -1,25 +1,37 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id "com.google.protobuf" version "0.8.17"
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+    id 'com.google.protobuf'
     id 'com.google.gms.google-services'
+    id 'com.google.dagger.hilt.android'
 }
 
+def secretsPropertiesFile = rootProject.file('secrets.properties')
+def secretsProperties = new Properties()
+secretsProperties.load(new FileInputStream(secretsPropertiesFile))
+
 android {
-    compileSdk 32
+    namespace 'com.cornellappdev.android.eateryblue'
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.cornellappdev.android.eateryblue"
         minSdk 26
-        targetSdk 31
-        versionCode 3
-        versionName "1.1"
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
+        vectorDrawables {
+            useSupportLibrary true
+        }
 
-    buildFeatures {
-        compose true
+        buildConfigField("String", "BACKEND_URL", secretsProperties['BACKEND_URL'])
+        buildConfigField("String", "GET_BACKEND_URL", secretsProperties['GET_BACKEND_URL'])
+        buildConfigField("String", "SESSIONID_WEBVIEW_URL", secretsProperties['SESSIONID_WEBVIEW_URL'])
+        buildConfigField("String", "CORNELL_INSTITUTION_ID", secretsProperties['CORNELL_INSTITUTION_ID'])
     }
 
     buildTypes {
@@ -28,66 +40,102 @@ android {
         }
         release {
             minifyEnabled false
-            resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "false")
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+
     }
     kotlinOptions {
         jvmTarget = '1.8'
     }
 
+    buildFeatures {
+        compose true
+    }
+
     composeOptions {
-        kotlinCompilerExtensionVersion '1.3.0'
+        kotlinCompilerExtensionVersion '1.4.0-alpha02'
+    }
+
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
     }
 }
 
+kapt {
+    correctErrorTypes = true
+}
+
 dependencies {
-    implementation 'com.google.firebase:firebase-messaging-ktx:23.0.8'
-    def nav_version = "2.4.2"
-    implementation 'com.google.android.gms:play-services-location:19.0.1'
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation 'com.google.android.material:material:1.5.0'
-    implementation 'androidx.activity:activity-compose:1.4.0'
-    implementation 'androidx.compose.material:material:1.1.1'
-    implementation 'androidx.compose.animation:animation:1.1.1'
-    implementation 'androidx.compose.ui:ui-tooling:1.1.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0-beta01'
-    implementation 'com.google.accompanist:accompanist-permissions:0.23.0'
-    implementation "androidx.compose.ui:ui:1.1.1"
+    def nav_version = "2.5.3"
+    def compose_version = "1.3.1"
+
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'androidx.compose.material3:material3:1.1.0-alpha03'
+    implementation 'androidx.activity:activity-compose:1.6.1'
+    implementation 'androidx.compose.material:material:1.3.1'
+    implementation 'androidx.compose.animation:animation:1.3.2'
+    implementation 'androidx.compose.ui:ui-tooling:1.3.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0-alpha03'
+    implementation "androidx.compose.ui:ui:1.3.2"
+    implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha03"
     implementation("androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation("androidx.navigation:navigation-ui-ktx:$nav_version")
-    implementation("androidx.navigation:navigation-compose:2.5.0-alpha03")
+    implementation("androidx.navigation:navigation-compose:2.6.0-alpha04")
     implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
-    implementation("com.squareup.moshi:moshi:1.13.0")
-    implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
+    implementation 'androidx.compose.material:material-icons-core:1.3.1'
+    implementation 'androidx.compose.material:material-icons-extended:1.3.1'
+
+    // Networking
+    implementation("com.squareup.moshi:moshi:1.14.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+    implementation 'com.squareup.okhttp3:okhttp'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.10'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation "com.squareup.retrofit2:converter-moshi:2.4.0"
-    implementation "com.github.skydoves:landscapist-glide:1.4.5"
-    implementation "io.coil-kt:coil-compose:1.3.2" // 1.3.2
-    implementation "com.google.code.gson:gson:2.8.7"
+    implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
+    implementation 'com.github.skydoves:landscapist-glide:2.1.0'
+    implementation "com.github.skydoves:landscapist-placeholder:2.1.0"
+    implementation 'com.google.code.gson:gson:2.10'
+
+    implementation "androidx.datastore:datastore:1.0.0"
     implementation "androidx.datastore:datastore-core:1.0.0"
-    implementation "com.google.protobuf:protobuf-javalite:3.18.0"
-    implementation "androidx.datastore:datastore-preferences:1.0.0"
-    implementation "com.google.accompanist:accompanist-pager:0.25.1"
-    implementation "com.google.accompanist:accompanist-systemuicontroller:0.25.1"
-    implementation 'com.valentinilk.shimmer:compose-shimmer:1.0.3'
-    implementation platform('com.google.firebase:firebase-bom:30.5.0')
+    implementation "com.google.protobuf:protobuf-javalite:3.21.1"
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:31.1.1')
+    implementation 'com.google.firebase:firebase-inappmessaging-display-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
+    // Accompanist
+    implementation 'com.google.accompanist:accompanist-permissions:0.28.0'
+    implementation 'com.google.accompanist:accompanist-pager:0.28.0'
+    implementation 'com.google.accompanist:accompanist-webview:0.28.0'
+    implementation 'com.google.accompanist:accompanist-navigation-animation:0.28.0'
+    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.28.0'
+    implementation 'com.google.accompanist:accompanist-insets:0.28.0'
 
-    androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    // Hilt
+    // Implementation and kapt must be in-sync version number
+    implementation "com.google.dagger:hilt-android:2.44.2"
+    kapt 'com.google.dagger:hilt-compiler:2.44.2'
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
+    implementation "androidx.fragment:fragment-ktx:1.5.5"
 
-    testImplementation 'junit:junit:4.+'
-    //show preview
-    implementation "androidx.compose.ui:ui-tooling-preview:1.0.5"
+    implementation 'com.github.GrenderG:Toasty:1.5.2'
+    implementation 'com.valentinilk.shimmer:compose-shimmer:1.0.3'
+
 }
 
 protobuf {

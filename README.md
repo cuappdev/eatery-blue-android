@@ -10,7 +10,6 @@ Clone this repository and import into **Android Studio**
 git clone git@github.com:cuappdev/eatery-blue-android.git
 ```
 
-
 ## Generating signed APK
 From Android Studio:
 1. ***Build*** menu
