@@ -5,12 +5,18 @@ enum class Filter(val text: String) {
     NORTH("North"),
     WEST("West"),
     CENTRAL("Central"),
+    ALL_CAMPUS("All Campus"),
     FAVORITES("Favorites"),
     BRB("BRBs"),
     CASH("Cash or credit"),
-    SWIPES("Meal swipes");
+    SWIPES("Meal swipes"),
+    BREAKFAST("Breakfast"),
+    LUNCH("Lunch"),
+    DINNER("Dinner");
 
     companion object {
         val PAYMENT_METHODS = setOf(BRB, CASH, SWIPES)
+        val MEALS = setOf(BREAKFAST, LUNCH, DINNER)
+        val LOCATIONS = setOf(ALL_CAMPUS, NORTH, WEST, CENTRAL)
     }
 }

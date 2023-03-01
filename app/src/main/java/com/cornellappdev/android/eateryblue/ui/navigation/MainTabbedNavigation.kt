@@ -3,7 +3,9 @@ package com.cornellappdev.android.eateryblue.ui.navigation
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
 import androidx.compose.material3.NavigationBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -19,7 +21,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.cornellappdev.android.eateryblue.ui.components.settings.*
 import com.cornellappdev.android.eateryblue.ui.screens.*
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.google.accompanist.navigation.animation.AnimatedNavHost
@@ -163,6 +164,23 @@ fun SetupNavHost(
                 navController.navigate(Routes.SEARCH.route)
             }) {
                 FirstTimeShown.firstTimeShown = false
+                navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+            }
+        }
+        composable(
+            Routes.UPCOMING.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 2500)
+                )
+            }) {
+            UpcomingMenuScreen {
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
             }
         }
