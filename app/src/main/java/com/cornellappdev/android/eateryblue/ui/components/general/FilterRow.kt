@@ -212,7 +212,7 @@ fun FilterRowUpcoming(
         filter in setOf(Filter.BREAKFAST, Filter.LUNCH, Filter.DINNER)
     }
     val mealsFilterText: String =
-        if (mealFilters.isEmpty()) "Breakfast" else mealFilters.joinToString {
+        if (mealFilters.isEmpty()) "Meal" else mealFilters.joinToString {
             it.text
         }
     LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
