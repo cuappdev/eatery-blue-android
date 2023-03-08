@@ -157,7 +157,7 @@ fun UpcomingMenuScreen(
         when (upcomingViewModel.eateryRetrievalState) {
             is EateryRetrievalState.Pending -> {
                 items(UpcomingLoadingItem.upcomingItems) { item ->
-                    CreateUpcomingLoadingItem(item, shimmer)
+                    CreateUpcomingLoadingItem(item, shimmer) // change
                 }
             }
             is EateryRetrievalState.Error -> {
