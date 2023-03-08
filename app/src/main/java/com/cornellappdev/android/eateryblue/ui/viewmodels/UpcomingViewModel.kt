@@ -44,13 +44,6 @@ class UpcomingViewModel @Inject constructor(
             val eateryResponse = eateryRepository.getAllEateries()
             if (eateryResponse.success) {
                 eateryResponse.data?.let { _allEateries.addAll(it) }
-
-                val favoriteEateriesIds =
-                    userPreferencesRepository.getFavoritesMap().keys
-                favoriteEateries.addAll(_allEateries.filter {
-                    favoriteEateriesIds.contains(it.id)
-                })
-
                 eateryRetrievalState = EateryRetrievalState.Success
             }
         } catch (_: Exception) {
@@ -93,7 +86,7 @@ class UpcomingViewModel @Inject constructor(
         filterEateries()
     }
 
-    fun filterEateries() = viewModelScope.launch {
+    private fun filterEateries() = viewModelScope.launch {
         filteredResults = _allEateries.filter { eatery ->
             passesFilter(eatery)
         }.toCollection(mutableStateListOf())

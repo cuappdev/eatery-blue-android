@@ -12,13 +12,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
+import com.cornellappdev.android.eateryblue.ui.theme.Green
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
@@ -37,15 +41,23 @@ fun MenuCard(
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = eatery.name ?: "",
-                    style = EateryBlueTypography.h5,
-                )
+
                 if (eatery.isClosed()) {
+                    var text = eatery.name ?: ""
+                    if (text.length > 20) {
+                        text = text.substring(0, 20)
+                        text = text.trim()
+                        text = "$text..."
+                    }
+
+                    Text(
+                        text = text,
+                        style = EateryBlueTypography.h5,
+                    )
                     Text(
                         modifier = Modifier.padding(top = 20.dp),
-                        text = "closed",
-                        color = Color.Red
+                        text = "Closed",
+                        color = Red
                     )
                     Box(
                         modifier = Modifier
@@ -59,6 +71,12 @@ fun MenuCard(
                     }
 
                 } else {
+                    Text(
+                        text = eatery.name ?: "",
+                        style = EateryBlueTypography.h5,
+                    )
+
+
                     IconButton(
                         onClick = {
                             openDropdown = !openDropdown
@@ -75,13 +93,27 @@ fun MenuCard(
                             tint = Color.Black
                         )
                     }
-                    Text(
-                        modifier = Modifier.padding(top = 20.dp),
-                        text = "open",
-                        color = Color.Green
-                    )
+                    Row {
+                        Text(
+                            modifier = Modifier.padding(top = 20.dp),
+                            text = "Open",
+                            color = Green
+                        )
+                        val event = eatery.getTodaysEvents()[0]
+                        Text(
+                            text = "${event.startTime!!.format(DateTimeFormatter.ofPattern("K:mm a"))} - ${
+                                event.endTime!!.format(
+                                    DateTimeFormatter.ofPattern("K:mm a")
+                                )
+                            }",
+                            style = EateryBlueTypography.subtitle2,
+                            color = GrayFive,
+                            modifier = Modifier.padding(start = 10.dp, top = 20.dp)
+                        )
+                    }
                 }
             }
+
             if (openDropdown) {
                 Spacer(
                     modifier = Modifier
@@ -96,11 +128,11 @@ fun MenuCard(
                         selectEatery = { selectEatery(eatery) },
                     )
                 }
-
             }
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
