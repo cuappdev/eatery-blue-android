@@ -30,6 +30,7 @@ import com.cornellappdev.android.eateryblue.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eateryblue.ui.components.upcoming.MealBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.upcoming.MenuCard
 import com.cornellappdev.android.eateryblue.ui.components.upcoming.UpcomingLoadingItem
+import com.cornellappdev.android.eateryblue.ui.components.upcoming.UpcomingLoadingItem.Companion.CreateUpcomingLoadingItem
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
@@ -44,6 +45,7 @@ import java.time.LocalDate
     ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class
 )
+
 @Composable
 fun UpcomingMenuScreen(
     upcomingViewModel: UpcomingViewModel = hiltViewModel(),
@@ -161,7 +163,62 @@ fun UpcomingMenuScreen(
                             }
                         }
                     }
-
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(top = 10.dp, bottom = 10.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(text = "Sun", style = EateryBlueTypography.caption)
+                Text(text = "Mon", style = EateryBlueTypography.caption)
+                Text(text = "Tues", style = EateryBlueTypography.caption)
+                Text(text = "Wed", style = EateryBlueTypography.caption)
+                Text(text = "Thur", style = EateryBlueTypography.caption)
+                Text(text = "Fri", style = EateryBlueTypography.caption)
+                Text(text = "Sat", style = EateryBlueTypography.caption)
+            }
+        }
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(top = 10.dp, bottom = 10.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                //Calender number
+            }
+        }
+        item {
+            FilterRowUpcoming(
+                modifier = Modifier.padding(start = 16.dp),
+                currentFiltersSelected = upcomingViewModel.currentFiltersSelected,
+                onMealsClicked = {
+                    coroutineScope.launch {
+                        modalBottomSheetState.show()
+                    }
+                },
+                onFilterClicked = { filter ->
+                    if (upcomingViewModel.currentFiltersSelected.contains(filter)) {
+                        upcomingViewModel.removeFilter(filter)
+                    } else {
+                        upcomingViewModel.addFilter(filter)
+                    }
+                })
+        }
+        when (upcomingViewModel.eateryRetrievalState) {
+            is EateryRetrievalState.Pending -> {
+                items(UpcomingLoadingItem.upcomingItems) { item ->
+                    CreateUpcomingLoadingItem(item, shimmer) // change
+                }
+            }
+            is EateryRetrievalState.Error -> {
+                item { Text(text = "error") }
+            }
+            is EateryRetrievalState.Success -> {
+                if (upcomingViewModel.filteredResults.isNotEmpty()) {
                     item {
                         Row(
                             modifier = Modifier
@@ -276,3 +333,4 @@ fun UpcomingMenuScreen(
             })
     }
 }
+
