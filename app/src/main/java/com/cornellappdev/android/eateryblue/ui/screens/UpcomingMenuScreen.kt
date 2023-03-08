@@ -30,6 +30,7 @@ import com.cornellappdev.android.eateryblue.ui.components.general.FilterRowUpcom
 import com.cornellappdev.android.eateryblue.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eateryblue.ui.components.upcoming.MenuCard
 import com.cornellappdev.android.eateryblue.ui.components.upcoming.UpcomingLoadingItem
+import com.cornellappdev.android.eateryblue.ui.components.upcoming.UpcomingLoadingItem.Companion.CreateUpcomingLoadingItem
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.viewmodels.UpcomingViewModel
@@ -42,6 +43,7 @@ import kotlinx.coroutines.launch
     ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class
 )
+
 @Composable
 fun UpcomingMenuScreen(
     upcomingViewModel: UpcomingViewModel = hiltViewModel(),
@@ -155,7 +157,7 @@ fun UpcomingMenuScreen(
         when (upcomingViewModel.eateryRetrievalState) {
             is EateryRetrievalState.Pending -> {
                 items(UpcomingLoadingItem.upcomingItems) { item ->
-                    UpcomingLoadingItem.CreateUpcomingLoadingItem(item, shimmer)
+                    CreateUpcomingLoadingItem(item, shimmer)
                 }
             }
             is EateryRetrievalState.Error -> {
@@ -201,3 +203,4 @@ fun UpcomingMenuScreen(
         }
     }
 }
+
