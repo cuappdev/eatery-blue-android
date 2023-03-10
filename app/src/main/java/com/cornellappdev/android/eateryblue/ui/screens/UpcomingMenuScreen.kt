@@ -163,62 +163,7 @@ fun UpcomingMenuScreen(
                             }
                         }
                     }
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 10.dp, bottom = 10.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Text(text = "Sun", style = EateryBlueTypography.caption)
-                Text(text = "Mon", style = EateryBlueTypography.caption)
-                Text(text = "Tues", style = EateryBlueTypography.caption)
-                Text(text = "Wed", style = EateryBlueTypography.caption)
-                Text(text = "Thur", style = EateryBlueTypography.caption)
-                Text(text = "Fri", style = EateryBlueTypography.caption)
-                Text(text = "Sat", style = EateryBlueTypography.caption)
-            }
-        }
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 10.dp, bottom = 10.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                //Calender number
-            }
-        }
-        item {
-            FilterRowUpcoming(
-                modifier = Modifier.padding(start = 16.dp),
-                currentFiltersSelected = upcomingViewModel.currentFiltersSelected,
-                onMealsClicked = {
-                    coroutineScope.launch {
-                        modalBottomSheetState.show()
-                    }
-                },
-                onFilterClicked = { filter ->
-                    if (upcomingViewModel.currentFiltersSelected.contains(filter)) {
-                        upcomingViewModel.removeFilter(filter)
-                    } else {
-                        upcomingViewModel.addFilter(filter)
-                    }
-                })
-        }
-        when (upcomingViewModel.eateryRetrievalState) {
-            is EateryRetrievalState.Pending -> {
-                items(UpcomingLoadingItem.upcomingItems) { item ->
-                    CreateUpcomingLoadingItem(item, shimmer) // change
-                }
-            }
-            is EateryRetrievalState.Error -> {
-                item { Text(text = "error") }
-            }
-            is EateryRetrievalState.Success -> {
-                if (upcomingViewModel.filteredResults.isNotEmpty()) {
+
                     item {
                         Row(
                             modifier = Modifier
@@ -275,7 +220,10 @@ fun UpcomingMenuScreen(
                                 }
                             },
                             onFilterClicked = { filter ->
-                                if (upcomingViewModel.currentFiltersSelected.contains(filter)) {
+                                if (upcomingViewModel.currentFiltersSelected.contains(
+                                        filter
+                                    )
+                                ) {
                                     upcomingViewModel.removeFilter(filter)
                                 } else {
                                     upcomingViewModel.addFilter(filter)
@@ -285,31 +233,36 @@ fun UpcomingMenuScreen(
                     when (upcomingViewModel.eateryRetrievalState) {
                         is EateryRetrievalState.Pending -> {
                             items(UpcomingLoadingItem.upcomingItems) { item ->
-                                UpcomingLoadingItem.CreateUpcomingLoadingItem(item, shimmer)
+                                CreateUpcomingLoadingItem(
+                                    item,
+                                    shimmer
+                                )
                             }
                         }
                         is EateryRetrievalState.Error -> {
                             item { Text(text = "error") }
                         }
                         is EateryRetrievalState.Success -> {
-                            if (upcomingViewModel.filteredResults.isNotEmpty()) {
-                                item {
-                                    Column(
-                                        modifier = Modifier
-                                            .wrapContentHeight()
-                                            .padding(
-                                                start = 16.dp,
-                                                end = 16.dp,
-                                                top = 12.dp,
-                                                bottom = 12.dp
-                                            ),
-                                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                                    ) {
-                                        upcomingViewModel.filteredResults.forEach { eatery ->
-                                            MenuCard(
-                                                eatery = eatery
-                                            ) {
-                                                onEateryClick(it)
+                            if (upcomingViewModel.currentFiltersSelected.isNotEmpty()) {
+                                if (upcomingViewModel.filteredResults.isNotEmpty()) {
+                                    item {
+                                        Column(
+                                            modifier = Modifier
+                                                .wrapContentHeight()
+                                                .padding(
+                                                    start = 16.dp,
+                                                    end = 16.dp,
+                                                    top = 12.dp,
+                                                    bottom = 12.dp
+                                                ),
+                                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                                        ) {
+                                            upcomingViewModel.filteredResults.forEach { eatery ->
+                                                MenuCard(
+                                                    eatery = eatery
+                                                ) {
+                                                    onEateryClick(it)
+                                                }
                                             }
                                         }
                                     }
@@ -321,15 +274,23 @@ fun UpcomingMenuScreen(
                                             .fillParentMaxHeight(0.7f)
                                             .fillMaxWidth()
                                     ) {
-                                        NoEateryFound(modifier = Modifier.align(Alignment.Center)) {
+                                        NoEateryFound(
+                                            modifier = Modifier.align(
+                                                Alignment.Center
+                                            )
+                                        ) {
                                             upcomingViewModel.resetFilters()
                                         }
                                     }
                                 }
                             }
                         }
+
                     }
+
                 }
+
+
             })
     }
 }

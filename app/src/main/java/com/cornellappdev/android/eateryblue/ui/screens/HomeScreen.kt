@@ -7,10 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -102,7 +99,7 @@ fun HomeScreen(
                 val isFirstVisible =
                     remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
 
-                // Whole page is meant to be scrollable, hence the use of a LazyColumn here
+                // Whole page is meant to be scrollable, hence the use of a LazyColumn here.
                 LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                     stickyHeader {
                         Column(
@@ -214,33 +211,26 @@ fun HomeScreen(
 
                             if (homeViewModel.currentFiltersSelected.isNotEmpty()) {
                                 if (homeViewModel.filteredResults.isNotEmpty()) {
-                                    item {
-                                        Column(
-                                            modifier = Modifier
-                                                .wrapContentHeight()
-                                                .padding(
-                                                    start = 16.dp,
-                                                    end = 16.dp,
-                                                    top = 12.dp,
-                                                    bottom = 12.dp
-                                                ),
-                                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    itemsIndexed(homeViewModel.filteredResults) { index, eatery ->
+                                        Box(
+                                            Modifier.padding(
+                                                horizontal = 16.dp,
+                                                vertical = 12.dp
+                                            )
                                         ) {
-                                            homeViewModel.filteredResults.forEach { eatery ->
-                                                EateryCard(
-                                                    eatery = eatery,
-                                                    isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
-                                                        favoriteEatery.id == eatery.id
-                                                    },
-                                                    onFavoriteClick = {
-                                                        if (it) {
-                                                            homeViewModel.addFavorite(eatery.id)
-                                                        } else {
-                                                            homeViewModel.removeFavorite(eatery.id)
-                                                        }
-                                                    }) {
-                                                    onEateryClick(it)
-                                                }
+                                            EateryCard(
+                                                eatery = eatery,
+                                                isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                    favoriteEatery.id == eatery.id
+                                                },
+                                                onFavoriteClick = {
+                                                    if (it) {
+                                                        homeViewModel.addFavorite(eatery.id)
+                                                    } else {
+                                                        homeViewModel.removeFavorite(eatery.id)
+                                                    }
+                                                }) {
+                                                onEateryClick(it)
                                             }
                                         }
                                     }
@@ -437,32 +427,30 @@ fun HomeScreen(
                                     )
                                 }
 
-                                // TODO may be causing some slowness, not sure if universal
-                                item {
-                                    Column(
-                                        modifier = Modifier
-                                            .wrapContentHeight()
-                                            .padding(
-                                                start = 16.dp,
-                                                end = 16.dp,
-                                            ),
-                                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                                itemsIndexed(
+                                    homeViewModel.allEateries.toList()
+                                ) { index, eatery ->
+                                    Box(
+                                        Modifier.padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            // Handles the padding between items
+                                            top = if (index != 0) 12.dp else 0.dp
+                                        )
                                     ) {
-                                        homeViewModel.allEateries.forEach { eatery ->
-                                            EateryCard(
-                                                eatery = eatery,
-                                                isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
-                                                    favoriteEatery.id == eatery.id
-                                                },
-                                                onFavoriteClick = {
-                                                    if (it) {
-                                                        homeViewModel.addFavorite(eatery.id)
-                                                    } else {
-                                                        homeViewModel.removeFavorite(eatery.id)
-                                                    }
-                                                }) {
-                                                onEateryClick(it)
-                                            }
+                                        EateryCard(
+                                            eatery = eatery,
+                                            isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                favoriteEatery.id == eatery.id
+                                            },
+                                            onFavoriteClick = {
+                                                if (it) {
+                                                    homeViewModel.addFavorite(eatery.id)
+                                                } else {
+                                                    homeViewModel.removeFavorite(eatery.id)
+                                                }
+                                            }) {
+                                            onEateryClick(it)
                                         }
                                     }
                                 }

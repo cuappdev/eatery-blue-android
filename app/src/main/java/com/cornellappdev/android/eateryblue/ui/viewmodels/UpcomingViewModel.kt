@@ -51,6 +51,10 @@ class UpcomingViewModel @Inject constructor(
         }
     }
 
+    fun initializeFilter() = viewModelScope.launch {
+        _currentFiltersSelected.add(Filter.ALL_CAMPUS)
+    }
+
     fun addFilter(filter: Filter) = viewModelScope.launch {
         addLocationFilters(filter)
         filterEateries()
