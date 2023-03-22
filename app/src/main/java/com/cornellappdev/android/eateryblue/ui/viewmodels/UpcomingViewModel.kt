@@ -29,9 +29,6 @@ class UpcomingViewModel @Inject constructor(
     private val _allEateries = mutableSetOf<Eatery>()
     val allEateries: Set<Eatery> = _allEateries
 
-    var favoriteEateries = mutableStateListOf<Eatery>()
-        private set
-
     var filteredResults = mutableStateListOf<Eatery>()
         private set
 
@@ -44,6 +41,17 @@ class UpcomingViewModel @Inject constructor(
             val eateryResponse = eateryRepository.getAllEateries()
             if (eateryResponse.success) {
                 eateryResponse.data?.let { _allEateries.addAll(it) }
+                eateryRetrievalState = EateryRetrievalState.Success
+            }
+        } catch (_: Exception) {
+            eateryRetrievalState = EateryRetrievalState.Error
+        }
+    }
+
+    private fun queryAllEvents() = viewModelScope.launch {
+        try {
+            val eateryResponse = eateryRepository.getAllEvents()
+            if (eateryResponse.success) {
                 eateryRetrievalState = EateryRetrievalState.Success
             }
         } catch (_: Exception) {
@@ -98,16 +106,8 @@ class UpcomingViewModel @Inject constructor(
 
     private fun passesFilter(eatery: Eatery): Boolean {
         var passesFilter = true
-        if (_currentFiltersSelected.contains(Filter.UNDER_10)) {
-            val walkTimes = eatery.getWalkTimes()
-            passesFilter = walkTimes != null && walkTimes <= 10
-        }
 
-        if (_currentFiltersSelected.contains(Filter.FAVORITES)) {
-            passesFilter = favoriteEateries.any {
-                it.id == eatery.id
-            }
-        }
+        val allDiningHalls = eatery.paymentAcceptsMealSwipes ?: false
 
         val allLocationsValid =
             !_currentFiltersSelected.contains(Filter.NORTH) &&
@@ -116,7 +116,7 @@ class UpcomingViewModel @Inject constructor(
 
         // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
         // or one/multiple are selected and the eatery is located there.
-        passesFilter = passesFilter &&
+        passesFilter = allDiningHalls &&
                 (allLocationsValid || ((_currentFiltersSelected.contains(Filter.NORTH) && eatery.campusArea == "North") ||
                         (_currentFiltersSelected.contains(Filter.WEST) && eatery.campusArea == "West") ||
                         (_currentFiltersSelected.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))

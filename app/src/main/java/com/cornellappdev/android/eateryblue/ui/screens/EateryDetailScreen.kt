@@ -8,7 +8,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.HourglassTop
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.runtime.*
@@ -36,9 +39,7 @@ import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.glide.GlideImage
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -254,7 +255,7 @@ fun EateryDetailScreen(
                             }
                         }
 
-                        AlertsSection(eatery = eatery)
+                        //AlertsSection(eatery = eatery)
 
                         Row(
                             modifier = Modifier
@@ -349,6 +350,7 @@ fun EateryDetailScreen(
                                         color = GrayFive
                                     )
                                 }
+                                /*
                                 val waitTimes = eatery.getWaitTimes()
                                 Text(
                                     modifier = Modifier.padding(top = 2.dp),
@@ -363,6 +365,8 @@ fun EateryDetailScreen(
                                     ),
                                     color = Color.Black,
                                 )
+
+                                 */
                             }
                         }
 
@@ -422,45 +426,48 @@ fun PaymentsWidget(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
     }
 }
 
+/**
 @Composable
 fun AlertsSection(eatery: Eatery) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(top = 12.dp)
-    ) {
-        eatery.alerts?.forEach {
-            if (!it.description.isNullOrBlank()
-                && it.startTime?.isBefore(LocalDateTime.now()) == true
-                && it.endTime?.isAfter(LocalDateTime.now()) == true
-            )
-                Surface(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .wrapContentSize(),
-                    shape = RoundedCornerShape(5.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(LightBlue)
-                    ) {
-                        Icon(
-                            Icons.Default.Info,
-                            contentDescription = "Warning",
-                            tint = EateryBlue
-                        )
-                        Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(
-                            text = it.description,
-                            style = EateryBlueTypography.body2,
-                            color = EateryBlue,
-                            modifier = Modifier.padding(start = 5.dp)
-                        )
-                    }
-                }
-        }
-    }
+Column(
+verticalArrangement = Arrangement.spacedBy(12.dp),
+modifier = Modifier.padding(top = 12.dp)
+) {
+
+eatery.alerts?.forEach {
+if (!it.description.isNullOrBlank()
+&& it.startTime?.isBefore(LocalDateTime.now()) == true
+&& it.endTime?.isAfter(LocalDateTime.now()) == true
+)
+Surface(
+modifier = Modifier
+.padding(horizontal = 16.dp)
+.wrapContentSize(),
+shape = RoundedCornerShape(5.dp)
+) {
+Row(
+modifier = Modifier
+.fillMaxWidth()
+.background(LightBlue)
+) {
+Icon(
+Icons.Default.Info,
+contentDescription = "Warning",
+tint = EateryBlue
+)
+Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+Text(
+text = it.description,
+style = EateryBlueTypography.body2,
+color = EateryBlue,
+modifier = Modifier.padding(start = 5.dp)
+)
 }
+}
+}
+}
+}
+ */
 
 @Composable
 fun EateryMenuWidget(event: Event) {

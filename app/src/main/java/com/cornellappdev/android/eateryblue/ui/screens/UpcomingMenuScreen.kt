@@ -244,6 +244,11 @@ fun UpcomingMenuScreen(
                         }
                         is EateryRetrievalState.Success -> {
                             if (upcomingViewModel.currentFiltersSelected.isNotEmpty()) {
+                                /**
+                                upcomingViewModel.currentFiltersSelected.forEach{
+                                filter ->
+                                Text()
+                                }*/
                                 if (upcomingViewModel.filteredResults.isNotEmpty()) {
                                     item {
                                         Column(

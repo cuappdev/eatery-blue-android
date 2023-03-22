@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.flow
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.*
 
 @JsonClass(generateAdapter = true)
@@ -30,15 +29,14 @@ data class Eatery(
     @Json(name = "payment_accepts_meal_swipes") val paymentAcceptsMealSwipes: Boolean? = null,
     @Json(name = "location") val location: String? = null,
     @Json(name = "online_order_url") val onlineOrderUrl: String? = null,
-    @Json(name = "wait_times") val waitTimes: List<WaitTimeDay>? = null,
-    @Json(name = "alerts") val alerts: List<Alert>? = null,
+    // @Json(name = "wait_times") val waitTimes: List<WaitTimeDay>? = null,
+    // @Json(name = "alerts") val alerts: List<Alert>? = null,
 ) {
     fun getWalkTimes(): Int? {
         val currentLocation = LocationHandler.currentLocation
         val results = floatArrayOf(0f)
         if (latitude == null || longitude == null || currentLocation == null)
             return null
-        // TODO not the most accurate, maybe could be changed
         Location.distanceBetween(
             currentLocation.latitude,
             currentLocation.longitude,
@@ -49,27 +47,29 @@ data class Eatery(
         return ((results[0] / AVERAGE_WALK_SPEED) / 60).toInt()
     }
 
+    /**
     fun getWaitTimes(): String? {
-        if (waitTimes.isNullOrEmpty())
-            return null
+    if (waitTimes.isNullOrEmpty())
+    return null
 
-        val waitTimeDay = waitTimes.find { waitTimeDay ->
-            waitTimeDay.canonicalDate
-                ?.toInstant()
-                ?.truncatedTo(ChronoUnit.DAYS)
-                ?.equals(Date().toInstant().truncatedTo(ChronoUnit.DAYS)) ?: true
-        }?.data
+    val waitTimeDay = waitTimes.find { waitTimeDay ->
+    waitTimeDay.canonicalDate
+    ?.toInstant()
+    ?.truncatedTo(ChronoUnit.DAYS)
+    ?.equals(Date().toInstant().truncatedTo(ChronoUnit.DAYS)) ?: true
+    }?.data
 
-        val waitTimes: WaitTimeData? = waitTimeDay?.find { waitTimeData ->
-            waitTimeData.timestamp?.isBefore(LocalDateTime.now()) == true
-        }
-
-        return if (waitTimes != null) {
-            "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)}"
-        } else {
-            null
-        }
+    val waitTimes: WaitTimeData? = waitTimeDay?.find { waitTimeData ->
+    waitTimeData.timestamp?.isBefore(LocalDateTime.now()) == true
     }
+
+    return if (waitTimes != null) {
+    "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)}"
+    } else {
+    null
+    }
+    }
+     */
 
     fun getTodaysEvents(): List<Event> {
         val currentTime = LocalDateTime.now()
@@ -81,10 +81,16 @@ data class Eatery(
         }.sortedBy { it.startTime }
     }
 
-    fun getCurrentEvents(): List<Event> {
-        Log.d("OpenUntilEvents", events.toString())
+    fun getFutureEvent(i: Int): List<Event> {
         val currentTime = LocalDateTime.now()
-        Log.d("OpenUntilTime", currentTime.toString())
+        currentTime.plusDays(i.toLong())
+        if (events.isNullOrEmpty())
+            return listOf()
+        return events.sortedBy { it.startTime }
+    }
+
+    fun getCurrentEvents(): List<Event> {
+        val currentTime = LocalDateTime.now()
         if (events.isNullOrEmpty())
             return listOf()
 
@@ -94,6 +100,7 @@ data class Eatery(
             ) || currentTime.isEqual(event.endTime))
         }
     }
+
 
     fun getOpenUntil(): String? {
         val currentEvents = getCurrentEvents()

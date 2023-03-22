@@ -25,8 +25,12 @@ interface NetworkApi {
         @Body body: GetApiRequestBody<GetApiTransactionHistoryParams>
     ): GetApiResponse<TransactionsResponse>
 
-    @GET("api")
+    @GET("/eatery")
     suspend fun fetchEateries(): ApiResponse<List<Eatery>>
+
+    @GET("/event")
+    suspend fun fetchEvents(): ApiResponse<List<Event>>
+
 
     @POST("api/report")
     suspend fun sendReport(
