@@ -30,7 +30,6 @@ import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
-import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
 import com.cornellappdev.android.eateryblue.ui.theme.*
 import com.cornellappdev.android.eateryblue.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
@@ -512,91 +511,93 @@ fun EateryMenuWidget(event: Event) {
             )
         }
     }
+    /**
     if (openDropdown) {
-        Column(modifier = Modifier.padding(vertical = 12.dp)) {
-            SearchBar(
-                searchText = filterText,
-                onSearchTextChange = { filterText = it },
-                placeholderText = "Search the menu...",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                onCancelClicked = {
-                    filterText = ""
-                }
-            )
-
-            Spacer(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(GrayZero, CircleShape)
-            )
-
-            event.menu?.forEach { category ->
-                val filteredItems =
-                    category.items?.filter {
-                        it.name?.contains(filterText, true) ?: it.description?.contains(
-                            filterText,
-                            true
-                        ) ?: false
-                    }
-                if (filteredItems.isNullOrEmpty())
-                    return@forEach
-
-                Text(
-                    text = category.category ?: "Category",
-                    style = EateryBlueTypography.h5,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                )
-                filteredItems.forEachIndexed { index, menuItem ->
-                    Column(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                    ) {
-                        Row {
-                            Text(
-                                text = menuItem.name ?: "Item Name",
-                                style = EateryBlueTypography.button,
-                                modifier = Modifier.weight(1f)
-                            )
-                            if (menuItem.basePrice != null) {
-                                Text(
-                                    text = String.format("$%.2f", menuItem.basePrice),
-                                    style = EateryBlueTypography.subtitle2,
-                                    color = GrayFive
-                                )
-                            }
-
-                        }
-                        if (!menuItem.description.isNullOrBlank()) {
-                            Text(
-                                text = menuItem.description,
-                                style = EateryBlueTypography.body2,
-                                modifier = Modifier.weight(1f),
-                                color = GrayFive
-                            )
-                        }
-                    }
-                    if (category.items.lastIndex != index) {
-                        Spacer(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(GrayZero, CircleShape)
-                        )
-                    }
-                }
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(8.dp)
-                        .background(GrayZero)
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
+    Column(modifier = Modifier.padding(vertical = 12.dp)) {
+    SearchBar(
+    searchText = filterText,
+    onSearchTextChange = { filterText = it },
+    placeholderText = "Search the menu...",
+    modifier = Modifier.padding(horizontal = 16.dp),
+    onCancelClicked = {
+    filterText = ""
     }
+    )
+
+    Spacer(
+    modifier = Modifier
+    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+    .fillMaxWidth()
+    .height(1.dp)
+    .background(GrayZero, CircleShape)
+    )
+
+    event.menu?.forEach { category ->
+    val filteredItems =
+    category.items?.filter {
+    it.name?.contains(filterText, true) ?: it.description?.contains(
+    filterText,
+    true
+    ) ?: false
+    }
+    if (filteredItems.isNullOrEmpty())
+    return@forEach
+
+    Text(
+    text = category.category ?: "Category",
+    style = EateryBlueTypography.h5,
+    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+    )
+    filteredItems.forEachIndexed { index, menuItem ->
+    Column(
+    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+    Row {
+    Text(
+    text = menuItem.name ?: "Item Name",
+    style = EateryBlueTypography.button,
+    modifier = Modifier.weight(1f)
+    )
+    if (menuItem.basePrice != null) {
+    Text(
+    text = String.format("$%.2f", menuItem.basePrice),
+    style = EateryBlueTypography.subtitle2,
+    color = GrayFive
+    )
+    }
+
+    }
+    if (!menuItem.description.isNullOrBlank()) {
+    Text(
+    text = menuItem.description,
+    style = EateryBlueTypography.body2,
+    modifier = Modifier.weight(1f),
+    color = GrayFive
+    )
+    }
+    }
+    if (category.items.lastIndex != index) {
+    Spacer(
+    modifier = Modifier
+    .padding(horizontal = 16.dp)
+    .fillMaxWidth()
+    .height(1.dp)
+    .background(GrayZero, CircleShape)
+    )
+    }
+    }
+    Spacer(
+    modifier = Modifier
+    .fillMaxWidth()
+    .height(8.dp)
+    .background(GrayZero)
+    )
+    }
+    }
+
+    Spacer(modifier = Modifier.height(20.dp))
+    }
+     */
 }
 
 /**
