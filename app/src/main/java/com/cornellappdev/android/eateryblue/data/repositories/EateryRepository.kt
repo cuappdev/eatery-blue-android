@@ -9,7 +9,7 @@ import javax.inject.Singleton
 
 @Singleton
 class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
-    suspend fun getAllEateries(): ApiResponse<List<Eatery>> =
+    suspend fun getAllEateries(): List<Eatery> =
         networkApi.fetchEateries()
 
     suspend fun getAllEvents(): ApiResponse<List<Event>> =

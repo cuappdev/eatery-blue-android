@@ -66,14 +66,14 @@ class ReportAdapter {
 class DateTimeAdapter {
     @ToJson
     fun toJson(dateTime: LocalDateTime): String {
-        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'hh:mm:ss.SSSZ"))
+        return dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"))
     }
 
     @FromJson
     fun fromJson(dateTime: String): LocalDateTime {
         try {
             val simpleDateTime: LocalDateTime = LocalDateTime.parse(
-                dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+                dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
             )
             return simpleDateTime
         } catch (e: ParseException) {

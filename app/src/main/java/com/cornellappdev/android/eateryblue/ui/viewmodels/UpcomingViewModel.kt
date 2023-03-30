@@ -39,10 +39,12 @@ class UpcomingViewModel @Inject constructor(
     private fun queryAllEateries() = viewModelScope.launch {
         try {
             val eateryResponse = eateryRepository.getAllEateries()
-            if (eateryResponse.success) {
-                eateryResponse.data?.let { _allEateries.addAll(it) }
-                eateryRetrievalState = EateryRetrievalState.Success
-            }
+            _allEateries.addAll(eateryResponse)
+            eateryRetrievalState = EateryRetrievalState.Success
+//            if (eateryResponse.success) {
+//                eateryResponse.data?.let { _allEateries.addAll(it) }
+//                eateryRetrievalState = EateryRetrievalState.Success
+//            }
         } catch (_: Exception) {
             eateryRetrievalState = EateryRetrievalState.Error
         }

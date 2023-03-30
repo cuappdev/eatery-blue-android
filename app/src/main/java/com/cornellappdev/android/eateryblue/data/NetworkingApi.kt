@@ -26,7 +26,7 @@ interface NetworkApi {
     ): GetApiResponse<TransactionsResponse>
 
     @GET("/eatery")
-    suspend fun fetchEateries(): ApiResponse<List<Eatery>>
+    suspend fun fetchEateries(): List<Eatery>
 
     @GET("/event")
     suspend fun fetchEvents(): ApiResponse<List<Event>>

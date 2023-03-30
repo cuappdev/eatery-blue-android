@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,18 +44,20 @@ class HomeViewModel @Inject constructor(
     fun queryAllEateries() = viewModelScope.launch {
         try {
             val eateryResponse = eateryRepository.getAllEateries()
-            if (eateryResponse.success) {
-                eateryResponse.data?.let { _allEateries.addAll(it) }
+            _allEateries.addAll(eateryResponse)
+//            if (eateryResponse.success) {
+//                eateryResponse.data?.let { _allEateries.addAll(it) }
 
-                val favoriteEateriesIds =
-                    userPreferencesRepository.getFavoritesMap().keys
-                favoriteEateries.addAll(_allEateries.filter {
-                    favoriteEateriesIds.contains(it.id)
-                })
+            val favoriteEateriesIds =
+                userPreferencesRepository.getFavoritesMap().keys
+            favoriteEateries.addAll(_allEateries.filter {
+                favoriteEateriesIds.contains(it.id)
+            })
 
-                eateryRetrievalState = EateryRetrievalState.Success
-            }
-        } catch (_: Exception) {
+            eateryRetrievalState = EateryRetrievalState.Success
+            //}
+        } catch (e: Exception) {
+            Log.d("HomeScreen", e.stackTraceToString())
             eateryRetrievalState = EateryRetrievalState.Error
         }
     }
