@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.flow
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.*
 
 @JsonClass(generateAdapter = true)
 data class Eatery(
@@ -28,9 +30,8 @@ data class Eatery(
     @Json(name = "payment_accepts_brbs") val paymentAcceptsBrbs: Boolean? = null,
     @Json(name = "payment_accepts_cash") val paymentAcceptsCash: Boolean? = null,
     @Json(name = "events") val events: List<Event>? = null,
-
-    // @Json(name = "wait_times") val waitTimes: List<WaitTimeDay>? = null,
-    // @Json(name = "alerts") val alerts: List<Alert>? = null,
+    @Json(name = "wait_times") val waitTimes: List<WaitTimeDay>? = null,
+    @Json(name = "alerts") val alerts: List<Alert>? = null,
 ) {
     fun getWalkTimes(): Int? {
         val currentLocation = LocationHandler.currentLocation
@@ -47,29 +48,28 @@ data class Eatery(
         return ((results[0] / AVERAGE_WALK_SPEED) / 60).toInt()
     }
 
-    /**
     fun getWaitTimes(): String? {
-    if (waitTimes.isNullOrEmpty())
-    return null
+        if (waitTimes.isNullOrEmpty())
+            return null
 
-    val waitTimeDay = waitTimes.find { waitTimeDay ->
-    waitTimeDay.canonicalDate
-    ?.toInstant()
-    ?.truncatedTo(ChronoUnit.DAYS)
-    ?.equals(Date().toInstant().truncatedTo(ChronoUnit.DAYS)) ?: true
-    }?.data
+        val waitTimeDay = waitTimes.find { waitTimeDay ->
+            waitTimeDay.canonicalDate
+                ?.toInstant()
+                ?.truncatedTo(ChronoUnit.DAYS)
+                ?.equals(Date().toInstant().truncatedTo(ChronoUnit.DAYS)) ?: true
+        }?.data
 
-    val waitTimes: WaitTimeData? = waitTimeDay?.find { waitTimeData ->
-    waitTimeData.timestamp?.isBefore(LocalDateTime.now()) == true
+        val waitTimes: WaitTimeData? = waitTimeDay?.find { waitTimeData ->
+            waitTimeData.timestamp?.isBefore(LocalDateTime.now()) == true
+        }
+
+        return if (waitTimes != null) {
+            "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)}"
+        } else {
+            null
+        }
     }
 
-    return if (waitTimes != null) {
-    "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)}"
-    } else {
-    null
-    }
-    }
-     */
 
     fun getTodaysEvents(): List<Event> {
         val currentTime = LocalDateTime.now()
@@ -148,29 +148,29 @@ data class Eatery(
     }
 }
 
-/**
+
 @JsonClass(generateAdapter = true)
 data class Alert(
-@Json(name = "id") val id: Int? = null,
-@Json(name = "description") val description: String? = null,
-@Json(name = "start_timestamp") val startTime: LocalDateTime? = null,
-@Json(name = "end_timestamp") val endTime: LocalDateTime? = null
+    @Json(name = "id") val id: Int? = null,
+    @Json(name = "description") val description: String? = null,
+    @Json(name = "start_timestamp") val startTime: LocalDateTime? = null,
+    @Json(name = "end_timestamp") val endTime: LocalDateTime? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class WaitTimeDay(
-@Json(name = "canonical_date") val canonicalDate: Date? = null,
-@Json(name = "data") val data: List<WaitTimeData>? = null
+    @Json(name = "canonical_date") val canonicalDate: Date? = null,
+    @Json(name = "data") val data: List<WaitTimeData>? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class WaitTimeData(
-@Json(name = "timestamp") val timestamp: LocalDateTime? = null,
-@Json(name = "wait_time_low") val waitTimeLow: Int? = null,
-@Json(name = "wait_time_expected") val waitTimeExpected: Int? = null,
-@Json(name = "wait_time_high") val waitTimeHigh: Int? = null
+    @Json(name = "timestamp") val timestamp: LocalDateTime? = null,
+    @Json(name = "wait_time_low") val waitTimeLow: Int? = null,
+    @Json(name = "wait_time_expected") val waitTimeExpected: Int? = null,
+    @Json(name = "wait_time_high") val waitTimeHigh: Int? = null
 )
- */
+
 
 @JsonClass(generateAdapter = true)
 data class Event(

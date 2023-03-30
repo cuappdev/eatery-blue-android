@@ -50,11 +50,6 @@ class SearchViewModel @Inject constructor(
         try {
             val eateryResponse = eateryRepository.getAllEateries()
             _allEateries.addAll(eateryResponse)
-//            if (eateryResponse.success) {
-//                eateryResponse.data?.let {
-//                    _allEateries.addAll(it)
-//                    searchResultState = SearchRetrievalState.Success(it)
-//                }
 
             val favoriteEateriesIds =
                 userPreferencesRepository.getFavoritesMap().keys
@@ -64,7 +59,6 @@ class SearchViewModel @Inject constructor(
 
             recentSearches = userPreferencesRepository.getRecentSearches().toMutableStateList()
             eateryRetrievalState = EateryRetrievalState.Success
-            //}
         } catch (_: Exception) {
             eateryRetrievalState = EateryRetrievalState.Error
         }

@@ -36,9 +36,6 @@ class FavoritesViewModel @Inject constructor(
             val eateryResponse = eateryRepository.getAllEateries()
             allEateries.addAll(eateryResponse)
 
-//            if (eateryResponse.success) {
-//                eateryResponse.data?.let { allEateries.addAll(it) }
-
             val favoriteEateriesIds =
                 userPreferencesRepository.getFavoritesMap().keys
             favoriteEateries.addAll(allEateries.filter {
@@ -46,7 +43,6 @@ class FavoritesViewModel @Inject constructor(
             })
 
             eateryRetrievalState = EateryRetrievalState.Success
-            //}
         } catch (_: Exception) {
             eateryRetrievalState = EateryRetrievalState.Error
         }

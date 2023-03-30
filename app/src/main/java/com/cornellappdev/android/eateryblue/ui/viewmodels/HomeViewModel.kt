@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -45,8 +44,6 @@ class HomeViewModel @Inject constructor(
         try {
             val eateryResponse = eateryRepository.getAllEateries()
             _allEateries.addAll(eateryResponse)
-//            if (eateryResponse.success) {
-//                eateryResponse.data?.let { _allEateries.addAll(it) }
 
             val favoriteEateriesIds =
                 userPreferencesRepository.getFavoritesMap().keys
@@ -55,9 +52,7 @@ class HomeViewModel @Inject constructor(
             })
 
             eateryRetrievalState = EateryRetrievalState.Success
-            //}
         } catch (e: Exception) {
-            Log.d("HomeScreen", e.stackTraceToString())
             eateryRetrievalState = EateryRetrievalState.Error
         }
     }
