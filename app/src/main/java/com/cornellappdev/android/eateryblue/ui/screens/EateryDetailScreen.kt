@@ -81,10 +81,12 @@ fun EateryDetailScreen(
     ) {
         when (eateryDetailViewModel.eateryRetrievalState) {
             is EateryRetrievalState.Pending -> {
+                Text(text = "loading")
 
             }
-            is EateryRetrievalState.Error -> {
 
+            is EateryRetrievalState.Error -> {
+                Text(text = "ERRor")
             }
             is EateryRetrievalState.Success -> {
                 val eatery = eateryDetailViewModel.eatery

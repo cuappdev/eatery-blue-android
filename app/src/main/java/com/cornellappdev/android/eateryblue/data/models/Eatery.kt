@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -79,6 +80,26 @@ data class Eatery(
         return events.filter { event ->
             currentTime.dayOfYear == event.startTime?.dayOfYear
         }.sortedBy { it.startTime }
+    }
+
+    fun getTodaysMeal(meal: Int, day: Int): List<Event>? {
+        var currentDay = LocalDate.now()
+        if (day >= 0) {
+            currentDay = currentDay.plusDays(day.toLong())
+        } else {
+            currentDay = currentDay.minusDays(day.toLong())
+        }
+        var mealName = ""
+        if (meal == 1) {
+            mealName = "Breakfast"
+        } else if (meal == 2) {
+            mealName = "Lunch"
+        } else {
+            mealName = "Dinner"
+        }
+        return events?.filter { event ->
+            currentDay.dayOfYear == event.startTime?.dayOfYear && event.description == mealName
+        }
     }
 
     fun getFutureEvent(i: Int): List<Event> {
@@ -179,7 +200,11 @@ data class Event(
     @Json(name = "start") val startTime: LocalDateTime? = null,
     @Json(name = "end") val endTime: LocalDateTime? = null,
     @Json(name = "menu") val menu: List<MenuCategory>? = null
-)
+) {
+    fun getBreakfast() {
+
+    }
+}
 
 @JsonClass(generateAdapter = true)
 data class MenuCategory(

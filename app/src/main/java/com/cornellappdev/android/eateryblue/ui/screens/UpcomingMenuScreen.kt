@@ -69,10 +69,13 @@ fun UpcomingMenuScreen(
     }
     /** Handles the number and calender at the top*/
     val currentDay = LocalDate.now()
-    val dayWeek: Int = currentDay.dayOfWeek.value
+    var dayWeek: Int = currentDay.dayOfWeek.value
     val dayNum: Int = currentDay.dayOfMonth
     var days = mutableListOf<Int>()
-    var dayNames = mutableListOf<String>("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat")
+    var dayNames = mutableListOf("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat")
+    if (dayWeek == 7) {
+        dayWeek = 0
+    }
     for (i in dayWeek downTo 1) {
         days.add(currentDay.minusDays(i.toLong()).dayOfMonth)
     }
@@ -244,11 +247,6 @@ fun UpcomingMenuScreen(
                         }
                         is EateryRetrievalState.Success -> {
                             if (upcomingViewModel.currentFiltersSelected.isNotEmpty()) {
-                                /**
-                                upcomingViewModel.currentFiltersSelected.forEach{
-                                filter ->
-                                Text()
-                                }*/
                                 if (upcomingViewModel.filteredResults.isNotEmpty()) {
                                     item {
                                         Column(
@@ -264,7 +262,9 @@ fun UpcomingMenuScreen(
                                         ) {
                                             upcomingViewModel.filteredResults.forEach { eatery ->
                                                 MenuCard(
-                                                    eatery = eatery
+                                                    eatery = eatery,
+                                                    day = selectedDay,
+                                                    meal = selectedMealFilters
                                                 ) {
                                                     onEateryClick(it)
                                                 }

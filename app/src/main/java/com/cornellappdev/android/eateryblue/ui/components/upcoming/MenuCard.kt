@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
+import com.cornellappdev.android.eateryblue.ui.components.general.Filter
+import com.cornellappdev.android.eateryblue.ui.screens.EateryMenuWidget
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
@@ -29,8 +32,11 @@ import java.time.format.DateTimeFormatter
 fun MenuCard(
     eatery: Eatery,
     modifier: Modifier = Modifier.fillMaxWidth(),
-    selectEatery: (eatery: Eatery) -> Unit = {}
-) {
+    day: Int,
+    meal: SnapshotStateList<Filter>,
+    selectEatery: (eatery: Eatery) -> Unit = {},
+
+    ) {
     var openDropdown by remember { mutableStateOf(false) }
 
     Card(
@@ -190,6 +196,9 @@ fun OpenEateryDetails(
                 contentDescription = null,
                 tint = Color.Black
             )
+            eatery.getTodaysEvents().forEach { event ->
+                EateryMenuWidget(event = event)
+            }
             Text(
                 text = "View Eatery Details",
                 color = Color.Black,
