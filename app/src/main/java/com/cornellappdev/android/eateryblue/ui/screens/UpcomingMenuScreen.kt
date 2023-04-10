@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.screens
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Canvas
@@ -73,9 +74,11 @@ fun UpcomingMenuScreen(
     val dayNum: Int = currentDay.dayOfMonth
     var days = mutableListOf<Int>()
     var dayNames = mutableListOf("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat")
+    Log.d("daywekk11", LocalDate.now().dayOfMonth.toString())
     if (dayWeek == 7) {
         dayWeek = 0
     }
+    Log.d("daywekk", dayWeek.toString())
     for (i in dayWeek downTo 1) {
         days.add(currentDay.minusDays(i.toLong()).dayOfMonth)
     }
