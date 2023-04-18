@@ -70,12 +70,11 @@ class DateTimeAdapter {
     }
 
     @FromJson
-    fun fromJson(dateTime: String): LocalDateTime {
+    fun fromJson(dateTime: Long): LocalDateTime {
         try {
-            val simpleDateTime: LocalDateTime = LocalDateTime.parse(
-                dateTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-            )
-            return simpleDateTime
+            val instant = Instant.ofEpochSecond(dateTime)
+            val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
+            return localDateTime
         } catch (e: ParseException) {
             e.printStackTrace()
         }

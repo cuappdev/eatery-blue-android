@@ -74,8 +74,9 @@ fun MealBottomSheet(
         }
         IconButton(
             onClick = {
-                selectedFilters.clear()
+
                 if (!selectedFilters.contains(Filter.BREAKFAST)) {
+                    selectedFilters.clear()
                     selectedFilters.add(Filter.BREAKFAST)
                 }
             },
@@ -119,8 +120,9 @@ fun MealBottomSheet(
         }
         IconButton(
             onClick = {
-                selectedFilters.clear()
+
                 if (!selectedFilters.contains(Filter.LUNCH)) {
+                    selectedFilters.clear()
                     selectedFilters.add(Filter.LUNCH)
                 }
             },
@@ -165,8 +167,9 @@ fun MealBottomSheet(
         }
         IconButton(
             onClick = {
-                selectedFilters.clear()
+
                 if (!selectedFilters.contains(Filter.DINNER)) {
+                    selectedFilters.clear()
                     selectedFilters.add(Filter.DINNER)
                 }
             },
@@ -209,6 +212,7 @@ fun MealBottomSheet(
     TextButton(
         onClick = {
             selectedFilters.clear()
+            selectedFilters.add(Filter.BREAKFAST)
             hide()
         },
         modifier = Modifier

@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.components.upcoming
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -15,17 +16,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
+import com.cornellappdev.android.eateryblue.data.models.Event
+import com.cornellappdev.android.eateryblue.data.models.MenuItem
 import com.cornellappdev.android.eateryblue.ui.components.general.Filter
-import com.cornellappdev.android.eateryblue.ui.screens.EateryMenuWidget
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
@@ -38,6 +39,24 @@ fun MenuCard(
 
     ) {
     var openDropdown by remember { mutableStateOf(false) }
+    openDropdown = false
+
+
+    var selectedMeal = Filter.BREAKFAST
+    if (meal.isNotEmpty()) {
+        selectedMeal = remember {
+            meal[0]
+        }
+
+    }
+    var selectedMealInt = 1
+    when (selectedMeal) {
+        Filter.BREAKFAST -> selectedMealInt = 1
+        Filter.LUNCH -> selectedMealInt = 2
+        Filter.DINNER -> selectedMealInt = 3
+        else -> selectedMealInt = 4
+    }
+    Log.d("mealllls", selectedMealInt.toString())
 
     Card(
         elevation = 10.dp,
@@ -48,7 +67,8 @@ fun MenuCard(
         Column(modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
 
-                if (eatery.isClosed()) {
+                //eatery.isClosed()
+                if (false) {
                     var text = eatery.name ?: ""
                     if (text.length > 20) {
                         text = text.substring(0, 20)
@@ -105,17 +125,19 @@ fun MenuCard(
                             text = "Open",
                             color = Green
                         )
-                        val event = eatery.getTodaysEvents()[0]
+                        /**
+                        if (event.startTime != null && event.endTime != null) {
                         Text(
-                            text = "${event.startTime!!.format(DateTimeFormatter.ofPattern("K:mm a"))} - ${
-                                event.endTime!!.format(
-                                    DateTimeFormatter.ofPattern("K:mm a")
-                                )
-                            }",
-                            style = EateryBlueTypography.subtitle2,
-                            color = GrayFive,
-                            modifier = Modifier.padding(start = 10.dp, top = 20.dp)
+                        text = "${event.startTime.format(DateTimeFormatter.ofPattern("K:mm a"))} - ${
+                        event.endTime.format(
+                        DateTimeFormatter.ofPattern("K:mm a")
                         )
+                        }",
+                        style = EateryBlueTypography.subtitle2,
+                        color = GrayFive
+                        )
+                        }
+                         */
                     }
                 }
             }
@@ -123,7 +145,7 @@ fun MenuCard(
             if (openDropdown) {
                 Spacer(
                     modifier = Modifier
-                        .padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+                        .padding(start = 12.dp, end = 16.dp, bottom = 8.dp)
                         .fillMaxWidth()
                         .height(1.dp)
                         .background(GrayZero, CircleShape)
@@ -132,6 +154,8 @@ fun MenuCard(
                     OpenEateryDetails(
                         eatery = eatery,
                         selectEatery = { selectEatery(eatery) },
+                        meal = selectedMealInt,
+                        day = 1, //FILL THIS OUT
                     )
                 }
             }
@@ -177,35 +201,83 @@ fun ClosedEateryDetails(
 @Composable
 fun OpenEateryDetails(
     eatery: Eatery,
+    meal: Int,
+    day: Int,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        onClick = {
-            selectEatery(eatery)
-        },
-        backgroundColor = GrayZero,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_eatery),
-                contentDescription = null,
-                tint = Color.Black
-            )
-            eatery.getTodaysEvents().forEach { event ->
-                EateryMenuWidget(event = event)
-            }
-            Text(
-                text = "View Eatery Details",
-                color = Color.Black,
-                modifier = Modifier.padding(start = 8.dp)
-            )
+    Column {
+        eatery.getSelectedDayMeal(meal, 1)!!.forEach { event ->
+            EateryEventMenu(event = event)
         }
 
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            onClick = {
+                selectEatery(eatery)
+            },
+            backgroundColor = GrayZero,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp, bottom = 8.dp)
+        ) {
+
+            Row(
+                modifier = Modifier.padding(
+                    end = 12.dp,
+                    top = 10.dp,
+                    bottom = 10.dp
+                ),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_eatery),
+                    contentDescription = null,
+                    tint = Color.Black
+                )
+                Text(
+                    text = "View Eatery Details",
+                    color = Color.Black,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+
+            }
+        }
     }
 
+}
+
+@Composable
+fun EateryEventMenu(event: Event) {
+
+    Row(
+        modifier = Modifier
+            .padding(end = 16.dp)
+            .wrapContentHeight(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
+            event.menu!!.forEach { category ->
+                Text(
+                    text = category.category ?: "",
+                    style = EateryBlueTypography.h5,
+                    modifier = Modifier.padding(top = 6.dp, bottom = 6.dp)
+                )
+                category.items!!.forEach { item ->
+                    MenuItemDisplay(item = item)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MenuItemDisplay(item: MenuItem) {
+    Text(
+        text = item.name!!,
+        modifier = Modifier.padding(top = 4.dp),
+        style = EateryBlueTypography.caption,
+        fontWeight = FontWeight.Normal
+    )
 }

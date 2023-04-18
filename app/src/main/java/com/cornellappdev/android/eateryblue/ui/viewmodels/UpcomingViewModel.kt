@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +26,8 @@ class UpcomingViewModel @Inject constructor(
 
     private val _currentFiltersSelected = mutableStateListOf<Filter>()
     val currentFiltersSelected: List<Filter> = _currentFiltersSelected
+
+    private var initial: Boolean = true
 
     private val _allEateries = mutableSetOf<Eatery>()
     val allEateries: Set<Eatery> = _allEateries
@@ -58,7 +61,14 @@ class UpcomingViewModel @Inject constructor(
     }
 
     fun initializeFilter() = viewModelScope.launch {
-        _currentFiltersSelected.add(Filter.ALL_CAMPUS)
+        if (initial) {
+            _currentFiltersSelected.add(Filter.ALL_CAMPUS)
+            _currentFiltersSelected.add(Filter.BREAKFAST)
+        }
+        initial = false
+        filterEateries()
+        Log.d("filter", filteredResults.toList().toString())
+
     }
 
     fun addFilter(filter: Filter) = viewModelScope.launch {
@@ -94,6 +104,8 @@ class UpcomingViewModel @Inject constructor(
             _currentFiltersSelected.add(Filter.ALL_CAMPUS)
         }
         filterEateries()
+        Log.d("LOCATION", filteredResults.toList().toString())
+
     }
 
     private fun filterEateries() = viewModelScope.launch {
@@ -103,7 +115,7 @@ class UpcomingViewModel @Inject constructor(
     }
 
     private fun passesFilter(eatery: Eatery): Boolean {
-        var passesFilter = true
+        var passesFilter: Boolean
 
         val allDiningHalls = eatery.paymentAcceptsMealSwipes ?: false
 
@@ -112,9 +124,18 @@ class UpcomingViewModel @Inject constructor(
                     !_currentFiltersSelected.contains(Filter.CENTRAL) &&
                     !_currentFiltersSelected.contains(Filter.WEST)
 
+//        val allMeals = !_currentFiltersSelected.contains(Filter.BREAKFAST) &&
+//                !_currentFiltersSelected.contains(Filter.LUNCH) &&
+//                !_currentFiltersSelected.contains(Filter.DINNER)
+
         // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
         // or one/multiple are selected and the eatery is located there.
-        passesFilter = allDiningHalls &&
+        passesFilter = allDiningHalls
+//                && (allMeals || ((_currentFiltersSelected.contains(Filter.BREAKFAST) && eatery.getTodaysMeal(1, currentDaySelected)!!
+//            .isNotEmpty()) || (_currentFiltersSelected.contains(Filter.LUNCH) && eatery.getTodaysMeal(2, currentDaySelected)!!
+//            .isNotEmpty()) || (_currentFiltersSelected.contains(Filter.DINNER) && eatery.getTodaysMeal(3, currentDaySelected)!!
+//            .isNotEmpty())))
+                &&
                 (allLocationsValid || ((_currentFiltersSelected.contains(Filter.NORTH) && eatery.campusArea == "North") ||
                         (_currentFiltersSelected.contains(Filter.WEST) && eatery.campusArea == "West") ||
                         (_currentFiltersSelected.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))

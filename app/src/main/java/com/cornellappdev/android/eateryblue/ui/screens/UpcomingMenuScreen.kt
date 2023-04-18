@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.screens
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Canvas
@@ -41,6 +40,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
 
 @OptIn(
     ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
@@ -68,17 +68,17 @@ fun UpcomingMenuScreen(
             }
         }
     }
+
     /** Handles the number and calender at the top*/
-    val currentDay = LocalDate.now()
+    var zoneId: ZoneId? = ZoneId.of("America/New_York")
+    val currentDay = LocalDate.now(zoneId)
     var dayWeek: Int = currentDay.dayOfWeek.value
     val dayNum: Int = currentDay.dayOfMonth
     var days = mutableListOf<Int>()
     var dayNames = mutableListOf("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat")
-    Log.d("daywekk11", LocalDate.now().dayOfMonth.toString())
     if (dayWeek == 7) {
         dayWeek = 0
     }
-    Log.d("daywekk", dayWeek.toString())
     for (i in dayWeek downTo 1) {
         days.add(currentDay.minusDays(i.toLong()).dayOfMonth)
     }
@@ -86,14 +86,15 @@ fun UpcomingMenuScreen(
     for (i in 1 until 7 - dayWeek) {
         days.add(currentDay.plusDays(i.toLong()).dayOfMonth)
     }
-
-    var selectedDay by remember { mutableStateOf(dayWeek) }
-
-
     val coroutineScope = rememberCoroutineScope()
+
+    var selectedDay by remember { mutableStateOf(dayWeek + 1) }
+
+    //upcomingViewModel.selectDay(selectedDay)
+
+
     val listState = rememberLazyListState()
-    val isFirstVisible =
-        remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+    remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val shimmer = rememberShimmer(ShimmerBounds.View)
     Box {
         ModalBottomSheetLayout(
@@ -238,6 +239,7 @@ fun UpcomingMenuScreen(
                     }
                     when (upcomingViewModel.eateryRetrievalState) {
                         is EateryRetrievalState.Pending -> {
+                            upcomingViewModel.initializeFilter()
                             items(UpcomingLoadingItem.upcomingItems) { item ->
                                 CreateUpcomingLoadingItem(
                                     item,

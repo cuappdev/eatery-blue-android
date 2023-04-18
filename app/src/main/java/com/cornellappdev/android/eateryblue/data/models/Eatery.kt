@@ -82,7 +82,7 @@ data class Eatery(
         }.sortedBy { it.startTime }
     }
 
-    fun getTodaysMeal(meal: Int, day: Int): List<Event>? {
+    fun getSelectedDayMeal(meal: Int, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         if (day >= 0) {
             currentDay = currentDay.plusDays(day.toLong())
