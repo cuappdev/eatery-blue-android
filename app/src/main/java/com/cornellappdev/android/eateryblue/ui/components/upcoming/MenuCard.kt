@@ -61,13 +61,12 @@ fun MenuCard(
         elevation = 10.dp,
         shape = RoundedCornerShape(10.dp),
         backgroundColor = Color.White,
-        modifier = modifier
+
     ) {
-        Column(modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp)) {
+        Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 var event = eatery.getSelectedDayMeal(selectedMealInt, day)
 
-                //eatery.isClosed()
                 if (event != null) {
                     if (event.isEmpty()) {
                         var text = eatery.name ?: ""
@@ -84,6 +83,7 @@ fun MenuCard(
                         Text(
                             modifier = Modifier.padding(top = 20.dp),
                             text = "Closed",
+                            style = EateryBlueTypography.subtitle2,
                             color = Red
                         )
                         Box(
@@ -109,7 +109,7 @@ fun MenuCard(
                                 openDropdown = !openDropdown
                             },
                             modifier = Modifier
-                                .padding(top = 10.dp, end = 12.dp)
+                                .padding(top = 10.dp, end = 20.dp)
                                 .size(28.dp)
                                 .background(color = GrayZero, shape = CircleShape)
                                 .align(Alignment.TopEnd)
@@ -124,12 +124,17 @@ fun MenuCard(
                             Text(
                                 modifier = Modifier.padding(top = 20.dp),
                                 text = "Open",
+                                style = EateryBlueTypography.subtitle2,
                                 color = Green
                             )
 
                             if (event[0].startTime != null && event[0].endTime != null) {
                                 Text(
-                                    modifier = Modifier.padding(top = 20.dp, start = 12.dp),
+                                    modifier = Modifier.padding(
+                                        top = 20.dp,
+                                        start = 12.dp,
+                                        bottom = 10.dp
+                                    ),
                                     text = "${
                                         event[0].startTime?.format(
                                             DateTimeFormatter.ofPattern(
@@ -164,7 +169,7 @@ fun MenuCard(
                         eatery = eatery,
                         selectEatery = { selectEatery(eatery) },
                         meal = selectedMealInt,
-                        day = day, //FILL THIS OUT
+                        day = day,
                     )
                 }
             }

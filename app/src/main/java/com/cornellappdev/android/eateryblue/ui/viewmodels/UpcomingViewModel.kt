@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,12 +39,12 @@ class UpcomingViewModel @Inject constructor(
     }
 
     private fun queryAllEateries() = viewModelScope.launch {
-        try {
+        eateryRetrievalState = try {
             val eateryResponse = eateryRepository.getAllEateries()
             _allEateries.addAll(eateryResponse)
-            eateryRetrievalState = EateryRetrievalState.Success
+            EateryRetrievalState.Success
         } catch (_: Exception) {
-            eateryRetrievalState = EateryRetrievalState.Error
+            EateryRetrievalState.Error
         }
     }
 
@@ -62,12 +61,11 @@ class UpcomingViewModel @Inject constructor(
 
     fun initializeFilter() = viewModelScope.launch {
         if (initial) {
-            //_currentFiltersSelected.add(Filter.ALL_CAMPUS)
             _currentFiltersSelected.add(Filter.BREAKFAST)
         }
         initial = false
         filterEateries()
-        Log.d("filter", filteredResults.toList().toString())
+
 
     }
 
@@ -95,21 +93,12 @@ class UpcomingViewModel @Inject constructor(
     }
 
     private fun addLocationFilters(filter: Filter) = viewModelScope.launch {
-        /**
-        if (_currentFiltersSelected.contains(Filter.ALL_CAMPUS) || filter == Filter.ALL_CAMPUS) {
-        _currentFiltersSelected.removeAll(Filter.LOCATIONS)
-        _currentFiltersSelected.add(filter)
-        } else {
-        _currentFiltersSelected.add(filter)
-        }
-         */
         _currentFiltersSelected.add(filter)
         val locations = _currentFiltersSelected.filter { Filter.LOCATIONS.contains(it) }
         if (locations.size == 3) {
             _currentFiltersSelected.removeAll(Filter.LOCATIONS)
         }
         filterEateries()
-        Log.d("LOCATION", filteredResults.toList().toString())
 
     }
 

@@ -41,6 +41,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
 
 @OptIn(
     ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
@@ -69,8 +70,9 @@ fun UpcomingMenuScreen(
     }
 
     /** Handles the number and calender at the top*/
-    //  var zoneId: ZoneId? = ZoneId.of("America/New_York")
-    val currentDay = LocalDate.now()
+    var zoneId: ZoneId? = ZoneId.of("America/New_York")
+    var today = LocalDate.now(zoneId)
+    var currentDay by remember { mutableStateOf(today) }
     Log.d("current day", currentDay.dayOfWeek.value.toString())
     Log.d("current day2", currentDay.dayOfMonth.toString())
     var dayWeek: Int = currentDay.dayOfWeek.value
@@ -253,7 +255,6 @@ fun UpcomingMenuScreen(
                     }
                     when (upcomingViewModel.eateryRetrievalState) {
                         is EateryRetrievalState.Pending -> {
-                            upcomingViewModel.initializeFilter()
                             items(UpcomingLoadingItem.upcomingItems) { item ->
                                 CreateUpcomingLoadingItem(
                                     item,
@@ -265,6 +266,7 @@ fun UpcomingMenuScreen(
                             item { Text(text = "error") }
                         }
                         is EateryRetrievalState.Success -> {
+                            upcomingViewModel.initializeFilter()
                             if (upcomingViewModel.currentFiltersSelected.isNotEmpty()) {
                                 if (upcomingViewModel.filteredResults.isNotEmpty()) {
                                     item {

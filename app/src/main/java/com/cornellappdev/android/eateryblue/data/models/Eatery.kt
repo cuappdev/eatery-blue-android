@@ -84,33 +84,25 @@ data class Eatery(
 
     fun getSelectedDayMeal(meal: Int, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
-        if (day >= 0) {
-            currentDay = currentDay.plusDays(day.toLong())
-        } else {
-            currentDay = currentDay.minusDays(day.toLong())
-        }
+        currentDay = currentDay.plusDays(day.toLong())
         var mealName = ""
-        if (meal == 1) {
-            mealName = "Breakfast"
-        } else if (meal == 2) {
-            mealName = "Lunch"
-        } else {
-            mealName = "Dinner"
+        mealName = when (meal) {
+            1 -> {
+                "Breakfast"
+            }
+            2 -> {
+                "Lunch"
+            }
+            else -> {
+                "Dinner"
+            }
         }
         return events?.filter { event ->
             currentDay.dayOfYear == event.startTime?.dayOfYear && event.description == mealName
         }
     }
 
-    fun getFutureEvent(i: Int): List<Event> {
-        val currentTime = LocalDateTime.now()
-        currentTime.plusDays(i.toLong())
-        if (events.isNullOrEmpty())
-            return listOf()
-        return events.sortedBy { it.startTime }
-    }
-
-    fun getCurrentEvents(): List<Event> {
+    private fun getCurrentEvents(): List<Event> {
         val currentTime = LocalDateTime.now()
         if (events.isNullOrEmpty())
             return listOf()
