@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.components.upcoming
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -18,17 +17,20 @@ import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.data.models.MenuItem
 import com.cornellappdev.android.eateryblue.ui.components.general.Filter
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
+import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
+/**
+ * The
+ */
 @Composable
 fun MenuCard(
     eatery: Eatery,
@@ -41,22 +43,19 @@ fun MenuCard(
     var openDropdown by remember { mutableStateOf(false) }
     openDropdown = false
 
-
-    var selectedMeal = Filter.BREAKFAST
+    var selectedMeal by remember {
+        mutableStateOf(Filter.BREAKFAST)
+    }
     if (meal.isNotEmpty()) {
-        selectedMeal = remember {
-            meal[0]
-        }
+        selectedMeal = meal[0]
 
     }
-    var selectedMealInt = 1
-    when (selectedMeal) {
-        Filter.BREAKFAST -> selectedMealInt = 1
-        Filter.LUNCH -> selectedMealInt = 2
-        Filter.DINNER -> selectedMealInt = 3
-        else -> selectedMealInt = 4
+    var selectedMealInt: Int = when (selectedMeal) {
+        Filter.BREAKFAST -> 1
+        Filter.LUNCH -> 2
+        Filter.DINNER -> 3
+        else -> 4
     }
-    Log.d("mealllls", selectedMealInt.toString())
 
     Card(
         elevation = 10.dp,
@@ -66,78 +65,88 @@ fun MenuCard(
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 12.dp, bottom = 12.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
+                var event = eatery.getSelectedDayMeal(selectedMealInt, day)
 
                 //eatery.isClosed()
-                if (false) {
-                    var text = eatery.name ?: ""
-                    if (text.length > 20) {
-                        text = text.substring(0, 20)
-                        text = text.trim()
-                        text = "$text..."
-                    }
+                if (event != null) {
+                    if (event.isEmpty()) {
+                        var text = eatery.name ?: ""
+                        if (text.length > 20) {
+                            text = text.substring(0, 20)
+                            text = text.trim()
+                            text = "$text..."
+                        }
 
-                    Text(
-                        text = text,
-                        style = EateryBlueTypography.h5,
-                    )
-                    Text(
-                        modifier = Modifier.padding(top = 20.dp),
-                        text = "Closed",
-                        color = Red
-                    )
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 12.dp)
-                    ) {
-                        ClosedEateryDetails(
-                            eatery = eatery,
-                            selectEatery = { selectEatery(eatery) },
+                        Text(
+                            text = text,
+                            style = EateryBlueTypography.h5,
                         )
-                    }
-
-                } else {
-                    Text(
-                        text = eatery.name ?: "",
-                        style = EateryBlueTypography.h5,
-                    )
-
-
-                    IconButton(
-                        onClick = {
-                            openDropdown = !openDropdown
-                        },
-                        modifier = Modifier
-                            .padding(top = 10.dp, end = 12.dp)
-                            .size(28.dp)
-                            .background(color = GrayZero, shape = CircleShape)
-                            .align(Alignment.TopEnd)
-                    ) {
-                        Icon(
-                            imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                            contentDescription = "Expand menu",
-                            tint = Color.Black
-                        )
-                    }
-                    Row {
                         Text(
                             modifier = Modifier.padding(top = 20.dp),
-                            text = "Open",
-                            color = Green
+                            text = "Closed",
+                            color = Red
                         )
-                        /**
-                        if (event.startTime != null && event.endTime != null) {
-                        Text(
-                        text = "${event.startTime.format(DateTimeFormatter.ofPattern("K:mm a"))} - ${
-                        event.endTime.format(
-                        DateTimeFormatter.ofPattern("K:mm a")
-                        )
-                        }",
-                        style = EateryBlueTypography.subtitle2,
-                        color = GrayFive
-                        )
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(end = 12.dp)
+                        ) {
+                            ClosedEateryDetails(
+                                eatery = eatery,
+                                selectEatery = { selectEatery(eatery) },
+                            )
                         }
-                         */
+
+                    } else {
+                        Text(
+                            text = eatery.name ?: "",
+                            style = EateryBlueTypography.h5,
+                        )
+
+
+                        IconButton(
+                            onClick = {
+                                openDropdown = !openDropdown
+                            },
+                            modifier = Modifier
+                                .padding(top = 10.dp, end = 12.dp)
+                                .size(28.dp)
+                                .background(color = GrayZero, shape = CircleShape)
+                                .align(Alignment.TopEnd)
+                        ) {
+                            Icon(
+                                imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                                contentDescription = "Expand menu",
+                                tint = Color.Black
+                            )
+                        }
+                        Row {
+                            Text(
+                                modifier = Modifier.padding(top = 20.dp),
+                                text = "Open",
+                                color = Green
+                            )
+
+                            if (event[0].startTime != null && event[0].endTime != null) {
+                                Text(
+                                    modifier = Modifier.padding(top = 20.dp, start = 12.dp),
+                                    text = "${
+                                        event[0].startTime?.format(
+                                            DateTimeFormatter.ofPattern(
+                                                "K:mm a"
+                                            )
+                                        )
+                                    } - ${
+                                        event[0].endTime?.format(
+                                            DateTimeFormatter.ofPattern("K:mm a")
+                                        )
+                                    }",
+                                    style = EateryBlueTypography.subtitle2,
+                                    color = GrayFive
+                                )
+                            }
+
+                        }
                     }
                 }
             }
@@ -155,7 +164,7 @@ fun MenuCard(
                         eatery = eatery,
                         selectEatery = { selectEatery(eatery) },
                         meal = selectedMealInt,
-                        day = 1, //FILL THIS OUT
+                        day = day, //FILL THIS OUT
                     )
                 }
             }
@@ -206,7 +215,7 @@ fun OpenEateryDetails(
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
     Column {
-        eatery.getSelectedDayMeal(meal, 1)!!.forEach { event ->
+        eatery.getSelectedDayMeal(meal, day)!!.forEach { event ->
             EateryEventMenu(event = event)
         }
 
