@@ -41,9 +41,12 @@ fun OnboardingHeader(
         ) {
             Text(
                 text = when (num) {
-                    0 -> "Upcoming Menus"
-                    1 -> "Favorites"
-                    2 -> "Wait Times"
+                    0 -> "Home"
+                    1 -> "Home"
+                    2 -> "Upcoming Menus"
+                    3 -> "Upcoming Menus"
+                    4 -> "Favorites"
+                    5 -> "Favorites"
                     else -> "Log in with Eatery"
                 },
                 style = EateryBlueTypography.h3,
@@ -51,7 +54,7 @@ fun OnboardingHeader(
                 modifier = Modifier.padding(start = 16.dp)
             )
 
-            if (num == 3)
+            if (num == 6)
                 TextButton(
                     onClick = {
                         onSkipClicked.invoke()
@@ -71,9 +74,12 @@ fun OnboardingHeader(
 
         Text(
             text = when (num) {
-                0 -> "See menus by date and plan ahead"
-                1 -> "Save and quickly find eateries and items"
-                2 -> "Check for crowds in real time to avoid lines"
+                0 -> "View the eateries Cornell offers"
+                1 -> "View the eateries Cornell offers"
+                2 -> "See menus by date and plan ahead"
+                3 -> "See menus by date and plan ahead"
+                4 -> "Save and quickly find eateries"
+                5 -> "Save and quickly find eateries"
                 else -> "See your meal swipes, BRBs, and more"
             },
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
