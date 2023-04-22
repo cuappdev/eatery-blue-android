@@ -27,12 +27,14 @@ sealed class NavigationItem(
         )
     )
 
-    // TODO not sure what screen this is
-//    object Calendar : NavigationItem(
-//        route = Routes.CALENDAR.route,
-//        unselectedIconId = R.drawable.ic_calendar_unselected,
-//        selectedRoutes = setOf(Routes.CALENDAR.route)
-//    )
+    object Upcoming : NavigationItem(
+        route = Routes.UPCOMING.route,
+        unselectedIconId = R.drawable.ic_calendar_unselected,
+        selectedIconId = R.drawable.ic_calendar_selected,
+        selectedRoutes = setOf(
+            Routes.UPCOMING.route
+        )
+    )
 
     object Profile : NavigationItem(
         route = "${Routes.PROFILE.route}/true",
@@ -53,7 +55,9 @@ sealed class NavigationItem(
     companion object {
         val bottomNavTabList = listOf(
             Home,
-            Profile,
+            Upcoming,
+            Profile
+
         )
     }
 }
@@ -72,11 +76,11 @@ interface NavUnit {
  */
 enum class Routes(override var route: String) : NavUnit {
     HOME("home"),
+    UPCOMING("upcoming"),
     PROFILE("profile"),
     ONBOARDING("onboarding"),
     EATERY_DETAIL("eatery_detail"),
     SEARCH("search"),
-    CALENDAR("calendar"),
     SETTINGS("settings"),
     ACCOUNT("account"),
     ABOUT("about"),
