@@ -180,7 +180,7 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 2500)
                 )
             }) {
-            UpcomingMenuScreen(showBottomBar = showBottomBar) {
+            UpcomingMenuScreen {
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
             }
         }
