@@ -20,6 +20,16 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
             )
         )
 
+    suspend fun sendLogin(username: String, firstName: String, lastName: String): Any =
+        networkApi.sendLogin(
+            login = LoginSendBody(
+                username = username,
+                first_name = firstName,
+                last_name = lastName
+
+            )
+        )
+
     suspend fun getUser(sessionId: String): GetApiResponse<User> =
         networkApi.fetchUser(
             body = GetApiRequestBody(

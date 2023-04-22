@@ -124,6 +124,7 @@ fun LoginPage(
                     .height(56.dp),
                 onClick = {
                     focusManager.clearFocus()
+                    //loginViewModel.logIn();
                     attemptSignIn = true
                 },
                 colors = ButtonDefaults.buttonColors(

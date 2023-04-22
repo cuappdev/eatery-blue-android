@@ -60,6 +60,10 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    fun logIn(username: String, firstName: String, lastName: String) = viewModelScope.launch {
+        userRepository.sendLogin(username, firstName, lastName)
+    }
+
     fun logOut() = viewModelScope.launch {
         CurrentUser.user = null
         userPreferencesRepository.setIsLoggedIn(false)

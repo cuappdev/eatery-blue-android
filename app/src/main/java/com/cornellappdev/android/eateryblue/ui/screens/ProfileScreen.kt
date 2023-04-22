@@ -1,11 +1,11 @@
 package com.cornellappdev.android.eateryblue.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
@@ -30,35 +30,35 @@ fun ProfileScreen(
     onLoginSuccess: (user: User) -> Unit
 ) {
     var attemptAutoLogin by remember { mutableStateOf(autoLogin) }
-//    Log.d("profileScreen", attemptAutoLogin.toString())
-//
-//    AnimatedVisibility(visible = attemptAutoLogin) {
-//        Box(
-//            modifier = Modifier
-//                .fillMaxSize()
-//        ) {
-//            Column(modifier = Modifier.align(Alignment.Center)) {
-//                Text(
-//                    text = "Attempting to login...",
-//                    modifier = Modifier
-//                        .align(Alignment.CenterHorizontally)
-//                        .padding(bottom = 10.dp),
-//                    style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-//                    color = EateryBlue
-//                )
-//
-//                LinearProgressIndicator(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .height(15.dp)
-//                        .padding(horizontal = 30.dp),
-//                    backgroundColor = Color.White,
-//                    color = EateryBlue
-//                )
-//            }
-//        }
-//    }
-//
+    Log.d("profileScreen", attemptAutoLogin.toString())
+
+    AnimatedVisibility(visible = attemptAutoLogin) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            Column(modifier = Modifier.align(Alignment.Center)) {
+                Text(
+                    text = "Attempting to login...",
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(bottom = 10.dp),
+                    style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
+                    color = EateryBlue
+                )
+
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(15.dp)
+                        .padding(horizontal = 30.dp),
+                    backgroundColor = Color.White,
+                    color = EateryBlue
+                )
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier

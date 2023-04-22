@@ -56,3 +56,10 @@ data class ReportSendBody(
     @Json(name = "type") val type: String,
     @Json(name = "content") val content: String
 )
+
+@JsonClass(generateAdapter = true)
+data class LoginSendBody(
+    @Json(name = "username") val username: String,
+    @Json(name = "first_name") val first_name: String,
+    @Json(name = "last_name") val last_name: String
+)

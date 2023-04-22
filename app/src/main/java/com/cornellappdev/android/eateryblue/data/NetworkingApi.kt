@@ -36,6 +36,11 @@ interface NetworkApi {
     suspend fun sendReport(
         @Body report: ReportSendBody
     ): ApiResponse<String>
+
+    @POST("/person/authenticate")
+    suspend fun sendLogin(
+        @Body login: LoginSendBody
+    ): ApiResponse<String>
 }
 
 fun generateUserBody(sessionId: String): GetApiRequestBody<GetApiUserParams> {
