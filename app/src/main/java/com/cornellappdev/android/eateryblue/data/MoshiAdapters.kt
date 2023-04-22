@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.data
 
-import android.util.Log
 import com.cornellappdev.android.eateryblue.data.models.AccountType
 import com.cornellappdev.android.eateryblue.data.models.ReportSendBody
 import com.cornellappdev.android.eateryblue.data.models.TransactionType
@@ -53,7 +52,6 @@ class ReportAdapter {
     fun toJson(report: ReportSendBody): String {
         val gson = Gson()
         val json = gson.toJson(report)
-        Log.i("JsonTest", json)
         return json
     }
 

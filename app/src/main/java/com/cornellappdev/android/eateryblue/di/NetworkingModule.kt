@@ -46,6 +46,7 @@ object NetworkModule {
         .add(TransactionTypeAdapter())
         .add(AccountTypeAdapter())
         .add(KotlinJsonAdapterFactory())
+        .add(ReportAdapter())
         .build()
 
     @Singleton

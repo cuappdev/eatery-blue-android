@@ -12,6 +12,6 @@ class SupportViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : ViewModel() {
     fun sendReport(issue: String, report: String) = viewModelScope.launch {
-        userRepository.sendReport(issue, report)
+        userRepository.sendReport(issue, report, null)
     }
 }

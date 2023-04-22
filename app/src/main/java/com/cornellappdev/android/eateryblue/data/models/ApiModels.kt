@@ -52,7 +52,6 @@ data class GetApiTransactionHistoryQueryCriteria(
 
 @JsonClass(generateAdapter = true)
 data class ReportSendBody(
-    @Json(name = "eatery_id") val eatery_id: Int,
-    @Json(name = "type") val type: String,
+    @Json(name = "eatery") val eatery: Int?,
     @Json(name = "content") val content: String
 )

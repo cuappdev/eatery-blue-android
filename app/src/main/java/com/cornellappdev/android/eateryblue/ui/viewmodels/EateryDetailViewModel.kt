@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.repositories.EateryRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eateryblue.data.repositories.UserRepository
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class EateryDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository
+    private val eateryRepository: EateryRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
     private val eateryId: Int = checkNotNull(savedStateHandle["eateryId"])
 
@@ -51,5 +53,9 @@ class EateryDetailViewModel @Inject constructor(
     fun toggleFavorite() = viewModelScope.launch {
         userPreferencesRepository.setFavorite(eateryId, !isFavorite)
         isFavorite = !isFavorite
+    }
+
+    fun sendReport(issue: String, report: String, eateryid: Int?) = viewModelScope.launch {
+        userRepository.sendReport(issue, report, eateryid)
     }
 }

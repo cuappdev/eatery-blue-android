@@ -32,10 +32,10 @@ interface NetworkApi {
     suspend fun fetchEvents(): ApiResponse<List<Event>>
 
 
-    @POST("api/report")
+    @POST("/report/")
     suspend fun sendReport(
         @Body report: ReportSendBody
-    ): ApiResponse<String>
+    ): GetApiResponse<ReportSendBody>
 }
 
 fun generateUserBody(sessionId: String): GetApiRequestBody<GetApiUserParams> {

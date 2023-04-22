@@ -41,7 +41,8 @@ enum class Issue(val option: String) {
 @Composable
 fun ReportBottomSheet(
     issue: Issue?,
-    sendReport: (issue: String, report: String) -> Unit,
+    eateryid: Int?,
+    sendReport: (issue: String, report: String, eateryid: Int?) -> Unit,
     hide: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -214,12 +215,12 @@ fun ReportBottomSheet(
                         onClick = {
                             if (!isSending) {
                                 isSending = true
-                                sendReport(selectedIssue!!.option, textEntry)
+                                sendReport(selectedIssue!!.option, textEntry, eateryid)
                                 isSending = false
-                                coroutineScope.launch {
-                                    modalBottomSheetState.hide()
-                                }
                             }
+                            hide()
+                            setTextEntry("")
+                            setSelectedIssue(issue)
                         },
                         enabled = textEntry.isNotEmpty() && selectedIssue != null && !isSending,
                         colors = ButtonDefaults.buttonColors(

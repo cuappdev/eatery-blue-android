@@ -32,6 +32,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.*
 import com.cornellappdev.android.eateryblue.ui.viewmodels.SupportViewModel
 import kotlinx.coroutines.launch
 
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
@@ -52,9 +53,12 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
         ),
         sheetElevation = 8.dp,
         sheetContent = {
-            ReportBottomSheet(issue = issue, sendReport = { issue, report ->
-                supportViewModel.sendReport(issue, report)
-            }) {
+            ReportBottomSheet(
+                issue = issue,
+                eateryid = null,
+                sendReport = { issue, report, eateryid ->
+                    supportViewModel.sendReport(issue, report)
+                }) {
                 coroutineScope.launch {
                     modalBottomSheetState.hide()
                 }
@@ -293,5 +297,3 @@ fun FAQCreation(
     }
     SettingsLineSeparator()
 }
-
-
