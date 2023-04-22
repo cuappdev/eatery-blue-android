@@ -26,7 +26,6 @@ import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.ui.components.general.EateryCard
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eateryblue.ui.theme.GraySix
 import com.cornellappdev.android.eateryblue.ui.theme.GrayTwo
 import com.cornellappdev.android.eateryblue.ui.viewmodels.FavoritesViewModel
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
@@ -55,12 +54,13 @@ fun FavoritesScreen(
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
-        Text(
-            text = "Manage your favorite eateries",
-            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
-            modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
-        )
+//        Text(
+//            text = "Manage your favorite eateries",
+//            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
+//            color = GraySix,
+//            modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
+//        )
+        // TODO add filtering
 
         when (favoriteViewModel.eateryRetrievalState) {
             is EateryRetrievalState.Pending -> {
