@@ -48,7 +48,8 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
     showBottomBar: MutableState<Boolean>,
     onSearchClick: () -> Unit,
-    onEateryClick: (eatery: Eatery) -> Unit
+    onEateryClick: (eatery: Eatery) -> Unit,
+    onFavoriteClick: () -> Unit
 ) {
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -269,7 +270,7 @@ fun HomeScreen(
 
                                             IconButton(
                                                 onClick = {
-                                                    // TODO favorites screen
+                                                    onFavoriteClick()
                                                 },
                                                 modifier = Modifier
                                                     .size(40.dp)

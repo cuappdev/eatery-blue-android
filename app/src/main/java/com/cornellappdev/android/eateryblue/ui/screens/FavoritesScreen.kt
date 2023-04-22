@@ -26,7 +26,6 @@ import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.ui.components.general.EateryCard
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eateryblue.ui.theme.GraySix
 import com.cornellappdev.android.eateryblue.ui.theme.GrayTwo
 import com.cornellappdev.android.eateryblue.ui.viewmodels.FavoritesViewModel
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
@@ -41,7 +40,7 @@ fun FavoritesScreen(
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     LaunchedEffect(Unit) {
-        favoriteViewModel.updateFavorites()
+        favoriteViewModel.queryFavoriteEateries()
     }
 
     Column(
@@ -55,12 +54,8 @@ fun FavoritesScreen(
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
-        Text(
-            text = "Manage your favorite eateries",
-            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
-            modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
-        )
+
+        // TODO add filtering
 
         when (favoriteViewModel.eateryRetrievalState) {
             is EateryRetrievalState.Pending -> {
@@ -116,9 +111,11 @@ fun FavoritesScreen(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(items = favoriteViewModel.favoriteEateries, key = { eatery ->
-                            eatery.id!!
-                        }) { eatery ->
+                        items(
+                            items = favoriteViewModel.favoriteEateries.distinct(),
+                            key = { eatery ->
+                                eatery.id!!
+                            }) { eatery ->
                             EateryCard(
                                 eatery = eatery,
                                 isFavorite = true,

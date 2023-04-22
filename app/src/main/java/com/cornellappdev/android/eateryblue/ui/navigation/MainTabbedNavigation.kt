@@ -44,7 +44,7 @@ fun NavigationSetup(hasOnboarded: Boolean) {
             showBottomBar.value = false
         }
         Routes.FAVORITES.route -> {
-            showBottomBar.value = false
+            showBottomBar.value = true
         }
         Routes.PRIVACY.route -> {
             showBottomBar.value = false
@@ -162,10 +162,13 @@ fun SetupNavHost(
             HomeScreen(showBottomBar = showBottomBar, onSearchClick = {
                 FirstTimeShown.firstTimeShown = false
                 navController.navigate(Routes.SEARCH.route)
-            }) {
+            }, onEateryClick = {
                 FirstTimeShown.firstTimeShown = false
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+            }, onFavoriteClick = {
+                navController.navigate(Routes.FAVORITES.route)
             }
+            )
         }
         composable(
             Routes.UPCOMING.route,
@@ -322,10 +325,11 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 2500)
                 )
             }) {
-            FavoritesScreen {
+            FavoritesScreen(onEateryClick = {
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            }
+            })
         }
+
         composable(
             route = Routes.LEGAL.route,
             enterTransition = {
