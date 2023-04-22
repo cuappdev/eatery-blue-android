@@ -29,6 +29,7 @@ import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
+import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
@@ -549,6 +550,7 @@ fun AlertsSection(eatery: Eatery) {
 @Composable
 fun EateryMenuWidget(event: Event) {
     var openDropdown by remember { mutableStateOf(true) }
+    var filterText by remember { mutableStateOf("") }
 
     Row(
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
@@ -637,74 +639,58 @@ fun EateryMenuWidget(event: Event) {
                                 style = EateryBlueTypography.button,
                                 modifier = Modifier.weight(1f)
                             )
-//                            if (menuItem.basePrice != null) {
-//                                Text(
-//                                    text = String.format("$%.2f", menuItem.basePrice),
-//                                    style = EateryBlueTypography.subtitle2,
-//                                    color = GrayFive
-//                                )
-//                            }
-
                         }
-//                        if (!menuItem.description.isNullOrBlank()) {
-//                            Text(
-//                                text = menuItem.description,
-//                                style = EateryBlueTypography.body2,
-//                                modifier = Modifier.weight(1f),
-//                                color = GrayFive
-//                            )
-//                        }
-                    }
-                    if (category.items.lastIndex != index) {
-                        Spacer(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(GrayZero, CircleShape)
-                        )
+                        if (category.items.lastIndex != index) {
+                            Spacer(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(GrayZero, CircleShape)
+                            )
+                        }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(GrayZero, CircleShape)
+        )
+
     }
 
-    Spacer(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(GrayZero, CircleShape)
-    )
-
-}
-
-@Composable
-fun ReportButtonEateryDetails() {
-    Surface(
-        shape = RoundedCornerShape(17.dp),
-        modifier = Modifier
-            .height(50.dp)
-            .padding(vertical = 8.dp),
-        color = GrayZero,
-        contentColor = Color.Black
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(ButtonDefaults.ContentPadding)
+    @Composable
+    fun ReportButtonEateryDetails() {
+        Surface(
+            shape = RoundedCornerShape(17.dp),
+            modifier = Modifier
+                .height(50.dp)
+                .padding(vertical = 8.dp),
+            color = GrayZero,
+            contentColor = Color.Black
         ) {
-            Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(
-                text = "Report an Issue",
-                style = EateryBlueTypography.button,
-                color = Color.Black,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(ButtonDefaults.ContentPadding)
+            ) {
+                Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Text(
+                    text = "Report an Issue",
+                    style = EateryBlueTypography.button,
+                    color = Color.Black,
+                )
+            }
         }
-    }
 
+    }
 }
 
 /**
