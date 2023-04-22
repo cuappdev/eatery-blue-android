@@ -5,7 +5,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -61,7 +62,7 @@ fun OnboardingCarousel(
             verticalArrangement = Arrangement.Top
         ) {
             HorizontalPager(
-                count = 4, state = headerPagerState, userScrollEnabled = false
+                count = 7, state = headerPagerState, userScrollEnabled = false
             ) { page ->
                 OnboardingHeader(
                     num = page,
@@ -72,7 +73,7 @@ fun OnboardingCarousel(
 
             Box {
                 HorizontalPager(
-                    count = 4,
+                    count = 7,
                     modifier = Modifier
                         .padding(top = 16.dp, start = 0.dp, end = 0.dp)
                         .zIndex(1f),
@@ -92,15 +93,34 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(1),
                             )
                         }
+
                         2 -> {
                             OnboardingPage(
                                 num = 2,
                                 pagerOffset = calculateCurrentOffsetForPage(2),
                             )
                         }
-                        // Leave this empty. The fourth page is filled by the
-                        // HorizontalPager below.
                         3 -> {
+                            OnboardingPage(
+                                num = 3,
+                                pagerOffset = calculateCurrentOffsetForPage(3),
+                            )
+                        }
+                        4 -> {
+                            OnboardingPage(
+                                num = 4,
+                                pagerOffset = calculateCurrentOffsetForPage(4),
+                            )
+                        }
+                        5 -> {
+                            OnboardingPage(
+                                num = 5,
+                                pagerOffset = calculateCurrentOffsetForPage(5),
+                            )
+                        }
+                        // Leave this empty. The sixth page is filled by the
+                        // HorizontalPager below.
+                        6 -> {
 
                         }
                     }
@@ -109,10 +129,10 @@ fun OnboardingCarousel(
                 // Need a separate HorizontalPager. We don't want the IconSheet + LoginPage
                 // to be affected by the contentPadding of the HorizontalPager above.
                 HorizontalPager(
-                    count = 4,
+                    count = 7,
                     state = iconPagerState,
                     userScrollEnabled = false,
-                    modifier = Modifier.zIndex(if (iconPagerState.currentPage == 3) 2f else -1f)
+                    modifier = Modifier.zIndex(if (iconPagerState.currentPage == 6) 2f else -1f)
                 ) { page ->
                     when (page) {
                         0 -> {
@@ -141,6 +161,72 @@ fun OnboardingCarousel(
                             IconSheet(
                                 iconData = listOf(
                                     IconDatum(
+                                        painter = painterResource(id = R.drawable.ic_place),
+                                        side = Side.LEFT,
+                                        rotate = -12f
+                                    ),
+                                    IconDatum(
+                                        painter = painterResource(id = R.drawable.ic_item),
+                                        side = Side.RIGHT,
+                                        rotate = 0f
+                                    ),
+                                    IconDatum(
+                                        painter = painterResource(id = R.drawable.ic_brbs),
+                                        side = Side.LEFT,
+                                        rotate = -24f
+                                    )
+                                ),
+                                pagerOffset = calculateCurrentOffsetForPage(page)
+                            )
+                        }
+                        2 -> {
+                            IconSheet(
+                                iconData = listOf(
+                                    IconDatum(
+                                        painter = painterResource(id = R.drawable.ic_place),
+                                        side = Side.LEFT,
+                                        rotate = -12f
+                                    ),
+                                    IconDatum(
+                                        painter = painterResource(id = R.drawable.ic_item),
+                                        side = Side.RIGHT,
+                                        rotate = 0f
+                                    ),
+                                    IconDatum(
+                                        painter = painterResource(id = R.drawable.ic_brbs),
+                                        side = Side.LEFT,
+                                        rotate = -24f
+                                    )
+                                ),
+                                pagerOffset = calculateCurrentOffsetForPage(page)
+                            )
+                        }
+                        3 -> {
+                            IconSheet(
+                                iconData = listOf(
+                                    IconDatum(
+                                        painter = painterResource(id = R.drawable.ic_place),
+                                        side = Side.LEFT,
+                                        rotate = -12f
+                                    ),
+                                    IconDatum(
+                                        painter = painterResource(id = R.drawable.ic_item),
+                                        side = Side.RIGHT,
+                                        rotate = 0f
+                                    ),
+                                    IconDatum(
+                                        painter = painterResource(id = R.drawable.ic_brbs),
+                                        side = Side.LEFT,
+                                        rotate = -24f
+                                    )
+                                ),
+                                pagerOffset = calculateCurrentOffsetForPage(page)
+                            )
+                        }
+                        4 -> {
+                            IconSheet(
+                                iconData = listOf(
+                                    IconDatum(
                                         painter = painterResource(id = R.drawable.ic_selected_off),
                                         side = Side.RIGHT,
                                         rotate = -12f
@@ -154,24 +240,24 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
-                        2 -> {
+                        5 -> {
                             IconSheet(
                                 iconData = listOf(
                                     IconDatum(
-                                        painter = painterResource(id = R.drawable.ic_clock),
-                                        side = Side.LEFT,
+                                        painter = painterResource(id = R.drawable.ic_selected_off),
+                                        side = Side.RIGHT,
                                         rotate = -12f
                                     ),
                                     IconDatum(
-                                        painter = painterResource(id = R.drawable.ic_watch_big),
-                                        side = Side.RIGHT,
-                                        rotate = 24f
-                                    ),
+                                        painter = painterResource(id = R.drawable.ic_bell),
+                                        side = Side.LEFT,
+                                        rotate = 0f
+                                    )
                                 ),
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
-                        3 -> {
+                        6 -> {
                             Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                                 LoginPage(onSuccess = onLoginSuccess, onError = onLoginError)
                             }
