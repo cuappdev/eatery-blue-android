@@ -5,7 +5,6 @@ enum class Filter(val text: String) {
     NORTH("North"),
     WEST("West"),
     CENTRAL("Central"),
-    //ALL_CAMPUS("All Campus"),
     FAVORITES("Favorites"),
     BRB("BRBs"),
     CASH("Cash or credit"),
