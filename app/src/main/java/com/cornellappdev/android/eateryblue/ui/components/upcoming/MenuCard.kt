@@ -64,7 +64,7 @@ fun MenuCard(
         backgroundColor = Color.White,
 
     ) {
-        Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
+        Column(modifier = Modifier.padding(start = 12.dp, top = 5.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 var event = eatery.getSelectedDayMeal(selectedMealInt, day)
 
@@ -80,9 +80,10 @@ fun MenuCard(
                         Text(
                             text = text,
                             style = EateryBlueTypography.h5,
+                            modifier = Modifier.padding(top = 10.dp),
                         )
                         Text(
-                            modifier = Modifier.padding(top = 20.dp),
+                            modifier = Modifier.padding(top = 30.dp),
                             text = "Closed",
                             style = EateryBlueTypography.subtitle2,
                             color = Red
@@ -90,7 +91,7 @@ fun MenuCard(
                         Box(
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
-                                .padding(end = 12.dp)
+                                .padding(end = 12.dp, top = 5.dp, bottom = 5.dp)
                         ) {
                             ClosedEateryDetails(
                                 eatery = eatery,
@@ -99,21 +100,27 @@ fun MenuCard(
                         }
 
                     } else {
+                        var text = eatery.name ?: ""
+                        if (text.length > 30) {
+                            text = text.substring(0, 30)
+                            text = text.trim()
+                            text = "$text..."
+                        }
+
                         Text(
-                            text = eatery.name ?: "",
+                            text = text,
                             style = EateryBlueTypography.h5,
+                            modifier = Modifier.padding(top = 10.dp),
                         )
-
-
                         IconButton(
                             onClick = {
                                 openDropdown = !openDropdown
                             },
                             modifier = Modifier
-                                .padding(top = 10.dp, end = 20.dp)
+                                .padding(end = 20.dp)
                                 .size(24.dp)
                                 .background(color = GrayZero, shape = CircleShape)
-                                .align(Alignment.TopEnd)
+                                .align(Alignment.CenterEnd)
                         ) {
                             Icon(
                                 imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
@@ -123,7 +130,7 @@ fun MenuCard(
                         }
                         Row {
                             Text(
-                                modifier = Modifier.padding(top = 20.dp),
+                                modifier = Modifier.padding(top = 30.dp),
                                 text = "Open",
                                 style = EateryBlueTypography.subtitle2,
                                 color = Green
@@ -132,7 +139,7 @@ fun MenuCard(
                             if (event[0].startTime != null && event[0].endTime != null) {
                                 Text(
                                     modifier = Modifier.padding(
-                                        top = 20.dp,
+                                        top = 30.dp,
                                         start = 12.dp,
                                         bottom = 10.dp
                                     ),

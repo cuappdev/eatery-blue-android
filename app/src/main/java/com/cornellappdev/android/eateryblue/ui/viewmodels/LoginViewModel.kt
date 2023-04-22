@@ -29,7 +29,7 @@ class LoginViewModel @Inject constructor(
         getSavedLoginInfo()
     }
 
-    fun getSavedLoginInfo() = viewModelScope.launch {
+    private fun getSavedLoginInfo() = viewModelScope.launch {
         isLoggedIn = if (userPreferencesRepository.getIsLoggedIn()) {
             val loginInfo = userPreferencesRepository.fetchLoginInfo()
             LoggedInStatus.IsLoggedIn(loginInfo.first, loginInfo.second)
