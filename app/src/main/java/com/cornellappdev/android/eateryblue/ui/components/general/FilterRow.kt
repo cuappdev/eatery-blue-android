@@ -243,32 +243,7 @@ fun FilterRowUpcoming(
                 )
             }
         }
-        item {
-            Button(
-                onClick = {
-                    onFilterClicked(Filter.ALL_CAMPUS)
-                },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.ALL_CAMPUS
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.ALL_CAMPUS
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.ALL_CAMPUS.text,
-                )
-            }
-        }
+
 
         item {
             Button(
@@ -357,5 +332,6 @@ fun FilterRowUpcoming(
         }
     }
 }
+
 
 

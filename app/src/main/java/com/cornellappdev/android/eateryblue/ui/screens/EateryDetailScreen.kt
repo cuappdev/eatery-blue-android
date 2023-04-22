@@ -62,8 +62,6 @@ fun EateryDetailScreen(
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState,
         sheetContent = {
-            // Supports multiple different Bottom Sheets. Additional Bottom Sheets
-            // should be added as a branch here and as an Enum class under BottomSheetContent.
             when (sheetContent) {
                 BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
                     PaymentMethodsAvailable(selectedPaymentMethods = paymentMethods) {
@@ -109,7 +107,7 @@ fun EateryDetailScreen(
             }
 
             is EateryRetrievalState.Error -> {
-                Text(text = "ERRor")
+                Text(text = "ERROR")
             }
             is EateryRetrievalState.Success -> {
                 val eatery = eateryDetailViewModel.eatery
@@ -551,7 +549,6 @@ fun AlertsSection(eatery: Eatery) {
 @Composable
 fun EateryMenuWidget(event: Event) {
     var openDropdown by remember { mutableStateOf(true) }
-    var filterText by remember { mutableStateOf("") }
 
     Row(
         modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
@@ -707,6 +704,7 @@ fun ReportButtonEateryDetails() {
             )
         }
     }
+
 }
 
 /**

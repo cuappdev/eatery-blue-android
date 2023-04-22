@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.screens
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Canvas
@@ -50,7 +51,6 @@ import java.time.ZoneId
 @Composable
 fun UpcomingMenuScreen(
     upcomingViewModel: UpcomingViewModel = hiltViewModel(),
-    showBottomBar: MutableState<Boolean>,
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -71,27 +71,43 @@ fun UpcomingMenuScreen(
 
     /** Handles the number and calender at the top*/
     var zoneId: ZoneId? = ZoneId.of("America/New_York")
-    val currentDay = LocalDate.now(zoneId)
+    var today = LocalDate.now(zoneId)
+    var currentDay by remember { mutableStateOf(today) }
+    Log.d("current day", currentDay.dayOfWeek.value.toString())
+    Log.d("current day2", currentDay.dayOfMonth.toString())
     var dayWeek: Int = currentDay.dayOfWeek.value
     val dayNum: Int = currentDay.dayOfMonth
+    var dayNames = mutableListOf<String>()
+    var dayWeeks = mutableListOf<Int>()
     var days = mutableListOf<Int>()
-    var dayNames = mutableListOf("Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat")
-    if (dayWeek == 7) {
-        dayWeek = 0
-    }
-    for (i in dayWeek downTo 1) {
-        days.add(currentDay.minusDays(i.toLong()).dayOfMonth)
-    }
+
+
+    dayWeeks.add(dayWeek)
     days.add(dayNum)
-    for (i in 1 until 7 - dayWeek) {
+    for (i in 1 until 7) {
+        dayWeeks.add(currentDay.plusDays(i.toLong()).dayOfWeek.value)
         days.add(currentDay.plusDays(i.toLong()).dayOfMonth)
     }
+    Log.d("list for cal", dayWeeks.toList().toString())
+    dayWeeks.forEach {
+        var dayName = ""
+        when (it) {
+            1 -> dayName = "Mon"
+            2 -> dayName = "Tues"
+            3 -> dayName = "Wed"
+            4 -> dayName = "Thurs"
+            5 -> dayName = "Fri"
+            6 -> dayName = "Sat"
+            7 -> dayName = "Sun"
+
+        }
+        dayNames.add(dayName)
+    }
+
     val coroutineScope = rememberCoroutineScope()
 
-    var selectedDay by remember { mutableStateOf(dayWeek + 1) }
-
-    //upcomingViewModel.selectDay(selectedDay)
-
+    var weekDayIndex = 0
+    var selectedDay by remember { mutableStateOf(weekDayIndex) }
 
     val listState = rememberLazyListState()
     remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
@@ -239,7 +255,6 @@ fun UpcomingMenuScreen(
                     }
                     when (upcomingViewModel.eateryRetrievalState) {
                         is EateryRetrievalState.Pending -> {
-                            upcomingViewModel.initializeFilter()
                             items(UpcomingLoadingItem.upcomingItems) { item ->
                                 CreateUpcomingLoadingItem(
                                     item,
@@ -251,6 +266,7 @@ fun UpcomingMenuScreen(
                             item { Text(text = "error") }
                         }
                         is EateryRetrievalState.Success -> {
+                            upcomingViewModel.initializeFilter()
                             if (upcomingViewModel.currentFiltersSelected.isNotEmpty()) {
                                 if (upcomingViewModel.filteredResults.isNotEmpty()) {
                                     item {
@@ -265,14 +281,62 @@ fun UpcomingMenuScreen(
                                                 ),
                                             verticalArrangement = Arrangement.spacedBy(12.dp),
                                         ) {
-                                            upcomingViewModel.filteredResults.forEach { eatery ->
-                                                MenuCard(
-                                                    eatery = eatery,
-                                                    day = selectedDay,
-                                                    meal = selectedMealFilters
-                                                ) {
-                                                    onEateryClick(it)
+                                            val northEateries =
+                                                upcomingViewModel.filteredResults.filter { it.campusArea == "North" }
+                                            val westEateries =
+                                                upcomingViewModel.filteredResults.filter { it.campusArea == "West" }
+                                            val centralEateries =
+                                                upcomingViewModel.filteredResults.filter { it.campusArea == "Central" }
+                                            if (northEateries.isNotEmpty()) {
+                                                Text(
+                                                    modifier = Modifier.padding(start = 6.dp),
+                                                    text = "North",
+                                                    style = EateryBlueTypography.h4
+                                                )
+                                                northEateries.forEach { eatery ->
+                                                    MenuCard(
+                                                        eatery = eatery,
+                                                        day = selectedDay,
+                                                        meal = selectedMealFilters
+                                                    ) {
+                                                        onEateryClick(it)
+                                                    }
                                                 }
+
+                                            }
+                                            if (centralEateries.isNotEmpty()) {
+                                                Text(
+                                                    modifier = Modifier.padding(start = 6.dp),
+                                                    text = "Central",
+                                                    style = EateryBlueTypography.h4
+                                                )
+                                                centralEateries.forEach { eatery ->
+                                                    MenuCard(
+                                                        eatery = eatery,
+                                                        day = selectedDay,
+                                                        meal = selectedMealFilters
+                                                    ) {
+                                                        onEateryClick(it)
+                                                    }
+                                                }
+
+                                            }
+                                            if (westEateries.isNotEmpty()) {
+                                                Text(
+                                                    modifier = Modifier.padding(start = 6.dp),
+                                                    text = "West",
+                                                    style = EateryBlueTypography.h4
+                                                )
+                                                westEateries.forEach { eatery ->
+                                                    MenuCard(
+                                                        eatery = eatery,
+                                                        day = selectedDay,
+                                                        meal = selectedMealFilters
+                                                    ) {
+                                                        onEateryClick(it)
+                                                    }
+                                                }
+
                                             }
                                         }
                                     }
