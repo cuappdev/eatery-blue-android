@@ -43,18 +43,16 @@ class HomeViewModel @Inject constructor(
     fun queryAllEateries() = viewModelScope.launch {
         try {
             val eateryResponse = eateryRepository.getAllEateries()
-            if (eateryResponse.success) {
-                eateryResponse.data?.let { _allEateries.addAll(it) }
+            _allEateries.addAll(eateryResponse)
 
-                val favoriteEateriesIds =
-                    userPreferencesRepository.getFavoritesMap().keys
-                favoriteEateries.addAll(_allEateries.filter {
-                    favoriteEateriesIds.contains(it.id)
-                })
+            val favoriteEateriesIds =
+                userPreferencesRepository.getFavoritesMap().keys
+            favoriteEateries.addAll(_allEateries.filter {
+                favoriteEateriesIds.contains(it.id)
+            })
 
-                eateryRetrievalState = EateryRetrievalState.Success
-            }
-        } catch (_: Exception) {
+            eateryRetrievalState = EateryRetrievalState.Success
+        } catch (e: Exception) {
             eateryRetrievalState = EateryRetrievalState.Error
         }
     }

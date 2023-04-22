@@ -301,11 +301,13 @@ fun EateryCardPrimaryHeader(eatery: Eatery, isCompact: Boolean) {
                 tint = GrayFive,
                 modifier = Modifier.padding(end = 4.dp, top = 1.dp)
             )
+
             Text(
                 text = "${eatery.getWaitTimes() ?: "3-5"} min wait",
                 color = GrayFive,
                 style = EateryBlueTypography.subtitle2
             )
+
             DotSeparator()
             EateryMenuSummary(eatery = eatery)
         }
@@ -341,6 +343,7 @@ fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean) {
                 color = GrayFive,
                 style = EateryBlueTypography.subtitle2
             )
+
             val waitTimes = eatery.getWaitTimes()
             if (!waitTimes.isNullOrEmpty()) {
                 DotSeparator()
@@ -356,6 +359,7 @@ fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean) {
                     style = EateryBlueTypography.subtitle2
                 )
             }
+
         }
     }
 }

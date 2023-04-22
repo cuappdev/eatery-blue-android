@@ -31,8 +31,8 @@ object NetworkModule {
 
         return OkHttpClient
             .Builder()
-            .readTimeout(15, TimeUnit.SECONDS)
-            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(200, TimeUnit.SECONDS)
+            .connectTimeout(200, TimeUnit.SECONDS)
             .addInterceptor(logging)
             .build()
     }
@@ -40,9 +40,9 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideMoshi(): Moshi = Moshi.Builder()
+        .add(DateTimeAdapter())
         .add(TimestampAdapter())
         .add(DateAdapter())
-        .add(DateTimeAdapter())
         .add(TransactionTypeAdapter())
         .add(AccountTypeAdapter())
         .add(KotlinJsonAdapterFactory())

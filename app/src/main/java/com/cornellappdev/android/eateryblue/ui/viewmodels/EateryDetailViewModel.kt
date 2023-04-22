@@ -38,13 +38,11 @@ class EateryDetailViewModel @Inject constructor(
     private fun queryEatery() = viewModelScope.launch {
         try {
             val eateryResponse = eateryRepository.getAllEateries()
-            if (eateryResponse.success) {
-                isFavorite = userPreferencesRepository.getFavorite(eateryId)
-                eatery = eateryResponse.data?.first {
-                    it.id == eateryId
-                }!!
-                eateryRetrievalState = EateryRetrievalState.Success
+            isFavorite = userPreferencesRepository.getFavorite(eateryId)
+            eatery = eateryResponse.first {
+                it.id == eateryId
             }
+            eateryRetrievalState = EateryRetrievalState.Success
         } catch (_: Exception) {
             eateryRetrievalState = EateryRetrievalState.Error
         }

@@ -49,21 +49,16 @@ class SearchViewModel @Inject constructor(
     fun queryAllEateries() = viewModelScope.launch {
         try {
             val eateryResponse = eateryRepository.getAllEateries()
-            if (eateryResponse.success) {
-                eateryResponse.data?.let {
-                    _allEateries.addAll(it)
-                    searchResultState = SearchRetrievalState.Success(it)
-                }
+            _allEateries.addAll(eateryResponse)
 
-                val favoriteEateriesIds =
-                    userPreferencesRepository.getFavoritesMap().keys
-                favoriteEateries.addAll(allEateries.filter {
-                    favoriteEateriesIds.contains(it.id)
-                })
+            val favoriteEateriesIds =
+                userPreferencesRepository.getFavoritesMap().keys
+            favoriteEateries.addAll(allEateries.filter {
+                favoriteEateriesIds.contains(it.id)
+            })
 
-                recentSearches = userPreferencesRepository.getRecentSearches().toMutableStateList()
-                eateryRetrievalState = EateryRetrievalState.Success
-            }
+            recentSearches = userPreferencesRepository.getRecentSearches().toMutableStateList()
+            eateryRetrievalState = EateryRetrievalState.Success
         } catch (_: Exception) {
             eateryRetrievalState = EateryRetrievalState.Error
         }

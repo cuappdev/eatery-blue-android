@@ -25,7 +25,7 @@ fun OnboardingPage(
                     // the horizontalPager's offset to make the last phone look stationary.
                     .graphicsLayer {
                         val pageOffset =
-                            if (num < 2) 0f else -pagerOffset.coerceIn(0f, 1f)
+                            if (num < 3) 0f else -pagerOffset.coerceIn(0f, 1f)
 
                         val lerp = { startValue: Float, endValue: Float, fraction: Float ->
                             startValue + (fraction * (endValue - startValue))
