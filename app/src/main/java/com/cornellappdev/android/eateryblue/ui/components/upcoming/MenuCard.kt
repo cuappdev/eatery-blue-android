@@ -29,7 +29,8 @@ import com.cornellappdev.android.eateryblue.ui.theme.Green
 import java.time.format.DateTimeFormatter
 
 /**
- * The
+ * Represents the card for each eatery that is shown in the list
+ * in the upcoming menu screen
  */
 @Composable
 fun MenuCard(
@@ -110,7 +111,7 @@ fun MenuCard(
                             },
                             modifier = Modifier
                                 .padding(top = 10.dp, end = 20.dp)
-                                .size(28.dp)
+                                .size(24.dp)
                                 .background(color = GrayZero, shape = CircleShape)
                                 .align(Alignment.TopEnd)
                         ) {
@@ -159,7 +160,7 @@ fun MenuCard(
             if (openDropdown) {
                 Spacer(
                     modifier = Modifier
-                        .padding(start = 12.dp, end = 16.dp, bottom = 8.dp)
+                        .padding(end = 12.dp, bottom = 8.dp)
                         .fillMaxWidth()
                         .height(1.dp)
                         .background(GrayZero, CircleShape)

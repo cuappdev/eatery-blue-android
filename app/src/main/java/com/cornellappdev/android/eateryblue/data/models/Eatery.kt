@@ -192,11 +192,7 @@ data class Event(
     @Json(name = "start") val startTime: LocalDateTime? = null,
     @Json(name = "end") val endTime: LocalDateTime? = null,
     @Json(name = "menu") val menu: List<MenuCategory>? = null
-) {
-    fun getBreakfast() {
-
-    }
-}
+)
 
 @JsonClass(generateAdapter = true)
 data class MenuCategory(

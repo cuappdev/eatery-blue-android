@@ -76,9 +76,6 @@ class UpcomingViewModel @Inject constructor(
 
     fun removeFilter(filter: Filter) = viewModelScope.launch {
         _currentFiltersSelected.remove(filter)
-        if (_currentFiltersSelected.isEmpty()) {
-            // _currentFiltersSelected.add(Filter.ALL_CAMPUS)
-        }
         filterEateries()
     }
 
