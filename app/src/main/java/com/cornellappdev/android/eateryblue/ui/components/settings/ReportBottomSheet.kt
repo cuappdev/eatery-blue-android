@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.components.settings
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -220,7 +219,8 @@ fun ReportBottomSheet(
                                 isSending = false
                             }
                             hide()
-                            Log.d("isvisible?", modalBottomSheetState.isVisible.toString())
+                            setTextEntry("")
+                            setSelectedIssue(issue)
                         },
                         enabled = textEntry.isNotEmpty() && selectedIssue != null && !isSending,
                         colors = ButtonDefaults.buttonColors(

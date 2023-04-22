@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eateryblue.ui.theme.GrayTwo
-import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -123,7 +122,7 @@ fun EateryDetailLoadingScreen(
                         .align(Alignment.TopEnd)
                         .shimmer(shimmer)
                         .padding(16.dp)
-                        .size(35.dp), color = GrayZero,
+                        .size(35.dp), color = GrayTwo,
                     shape = CircleShape
                 ) {}
 

@@ -409,6 +409,7 @@ fun EateryDetailScreen(
                                 .background(GrayZero)
                         )
 
+                        // Report an issue button
                         Column(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
                             Text(
                                 text = "Make Eatery Better",
