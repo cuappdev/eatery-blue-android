@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +28,10 @@ import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
+import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
+import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
+import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
+import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.*
 import com.cornellappdev.android.eateryblue.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
@@ -34,6 +39,8 @@ import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.glide.GlideImage
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -43,12 +50,14 @@ import java.time.format.DateTimeFormatter
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel()
 ) {
+    val shimmer = rememberShimmer(ShimmerBounds.View)
     val context = LocalContext.current
     val modalBottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
     val paymentMethods = remember { mutableStateListOf<PaymentMethodsAvailable>() }
     val coroutineScope = rememberCoroutineScope()
+    var issue by remember { mutableStateOf<Issue?>(null) }
 
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState,
@@ -69,6 +78,20 @@ fun EateryDetailScreen(
                 BottomSheetContent.WAIT_TIME -> {
                     // TODO finish
                 }
+                BottomSheetContent.REPORT -> {
+                    eateryDetailViewModel.eatery.id?.let {
+                        ReportBottomSheet(
+                            issue = issue,
+                            eateryid = it,
+                            sendReport = { issue, report, eateryid ->
+                                eateryDetailViewModel.sendReport(issue, report, eateryid)
+                            }) {
+                            coroutineScope.launch {
+                                modalBottomSheetState.hide()
+                            }
+                        }
+                    }
+                }
             }
         },
         sheetShape = RoundedCornerShape(
@@ -82,7 +105,7 @@ fun EateryDetailScreen(
         when (eateryDetailViewModel.eateryRetrievalState) {
             is EateryRetrievalState.Pending -> {
                 Text(text = "loading")
-
+                EateryDetailLoadingScreen(shimmer)
             }
 
             is EateryRetrievalState.Error -> {
@@ -379,6 +402,63 @@ fun EateryDetailScreen(
                         eatery.getTodaysEvents().forEach { event ->
                             EateryMenuWidget(event = event)
                         }
+
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(16.dp)
+                                .background(GrayZero)
+                        )
+
+                        Column(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
+                            Text(
+                                text = "Make Eatery Better",
+                                style = EateryBlueTypography.h5,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                            Text(
+                                text = "Help us make this info more accurate by letting us know what's wrong.",
+                                style = EateryBlueTypography.body2,
+                                modifier = Modifier.padding(bottom = 5.dp),
+                                color = GrayFive
+                            )
+
+                            Spacer(Modifier.height(8.dp))
+                            //reporting button
+                            Button(
+                                shape = RoundedCornerShape(24.dp),
+                                modifier = Modifier
+                                    .height(35.dp)
+                                    .shadow(0.dp),
+                                onClick = {
+                                    sheetContent = BottomSheetContent.REPORT
+                                    coroutineScope.launch {
+                                        modalBottomSheetState.show()
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    backgroundColor = GrayZero,
+                                )
+                            ) {
+                                Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                Text(
+                                    text = "Report an Issue",
+                                    style = EateryBlueTypography.button,
+                                    color = Color.Black
+                                )
+                            }
+
+                            Spacer(Modifier.height(8.dp))
+
+                        }
+
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(16.dp)
+                                .background(GrayZero)
+                        )
                     }
                 }
             }
@@ -511,93 +591,122 @@ fun EateryMenuWidget(event: Event) {
             )
         }
     }
-    /**
+
     if (openDropdown) {
-    Column(modifier = Modifier.padding(vertical = 12.dp)) {
-    SearchBar(
-    searchText = filterText,
-    onSearchTextChange = { filterText = it },
-    placeholderText = "Search the menu...",
-    modifier = Modifier.padding(horizontal = 16.dp),
-    onCancelClicked = {
-    filterText = ""
+        Column(modifier = Modifier.padding(vertical = 12.dp)) {
+            SearchBar(
+                searchText = filterText,
+                onSearchTextChange = { filterText = it },
+                placeholderText = "Search the menu...",
+                modifier = Modifier.padding(horizontal = 16.dp),
+                onCancelClicked = {
+                    filterText = ""
+                }
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(GrayZero, CircleShape)
+            )
+
+            event.menu?.forEach { category ->
+                val filteredItems =
+                    category.items?.filter {
+                        it.name?.contains(filterText, true)
+//                            ?: it.description?.contains(
+//                            filterText,
+//                            true
+//                        )
+                            ?: false
+                    }
+                if (filteredItems.isNullOrEmpty())
+                    return@forEach
+
+                Text(
+                    text = category.category ?: "Category",
+                    style = EateryBlueTypography.h5,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                )
+                filteredItems.forEachIndexed { index, menuItem ->
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                    ) {
+                        Row {
+                            Text(
+                                text = menuItem.name ?: "Item Name",
+                                style = EateryBlueTypography.button,
+                                modifier = Modifier.weight(1f)
+                            )
+//                            if (menuItem.basePrice != null) {
+//                                Text(
+//                                    text = String.format("$%.2f", menuItem.basePrice),
+//                                    style = EateryBlueTypography.subtitle2,
+//                                    color = GrayFive
+//                                )
+//                            }
+
+                        }
+//                        if (!menuItem.description.isNullOrBlank()) {
+//                            Text(
+//                                text = menuItem.description,
+//                                style = EateryBlueTypography.body2,
+//                                modifier = Modifier.weight(1f),
+//                                color = GrayFive
+//                            )
+//                        }
+                    }
+                    if (category.items.lastIndex != index) {
+                        Spacer(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(GrayZero, CircleShape)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
     }
-    )
 
     Spacer(
-    modifier = Modifier
-    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
-    .fillMaxWidth()
-    .height(1.dp)
-    .background(GrayZero, CircleShape)
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(GrayZero, CircleShape)
     )
 
-    event.menu?.forEach { category ->
-    val filteredItems =
-    category.items?.filter {
-    it.name?.contains(filterText, true) ?: it.description?.contains(
-    filterText,
-    true
-    ) ?: false
-    }
-    if (filteredItems.isNullOrEmpty())
-    return@forEach
+}
 
-    Text(
-    text = category.category ?: "Category",
-    style = EateryBlueTypography.h5,
-    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-    )
-    filteredItems.forEachIndexed { index, menuItem ->
-    Column(
-    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+@Composable
+fun ReportButtonEateryDetails() {
+    Surface(
+        shape = RoundedCornerShape(17.dp),
+        modifier = Modifier
+            .height(50.dp)
+            .padding(vertical = 8.dp),
+        color = GrayZero,
+        contentColor = Color.Black
     ) {
-    Row {
-    Text(
-    text = menuItem.name ?: "Item Name",
-    style = EateryBlueTypography.button,
-    modifier = Modifier.weight(1f)
-    )
-    if (menuItem.basePrice != null) {
-    Text(
-    text = String.format("$%.2f", menuItem.basePrice),
-    style = EateryBlueTypography.subtitle2,
-    color = GrayFive
-    )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(ButtonDefaults.ContentPadding)
+        ) {
+            Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+            Text(
+                text = "Report an Issue",
+                style = EateryBlueTypography.button,
+                color = Color.Black,
+            )
+        }
     }
-
-    }
-    if (!menuItem.description.isNullOrBlank()) {
-    Text(
-    text = menuItem.description,
-    style = EateryBlueTypography.body2,
-    modifier = Modifier.weight(1f),
-    color = GrayFive
-    )
-    }
-    }
-    if (category.items.lastIndex != index) {
-    Spacer(
-    modifier = Modifier
-    .padding(horizontal = 16.dp)
-    .fillMaxWidth()
-    .height(1.dp)
-    .background(GrayZero, CircleShape)
-    )
-    }
-    }
-    Spacer(
-    modifier = Modifier
-    .fillMaxWidth()
-    .height(8.dp)
-    .background(GrayZero)
-    )
-    }
-    }
-
-    Spacer(modifier = Modifier.height(20.dp))
-    }
-     */
 }
 
 /**
@@ -606,5 +715,5 @@ fun EateryMenuWidget(event: Event) {
  * All possible bottom sheets should be added here and switched to before expanding via modalBottomSheetState.
  */
 enum class BottomSheetContent {
-    PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME
+    PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME, REPORT
 }

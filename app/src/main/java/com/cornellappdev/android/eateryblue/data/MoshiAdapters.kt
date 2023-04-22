@@ -53,7 +53,7 @@ class ReportAdapter {
     fun toJson(report: ReportSendBody): String {
         val gson = Gson()
         val json = gson.toJson(report)
-        Log.i("JsonTest", json)
+        Log.d("JsonTest", json)
         return json
     }
 

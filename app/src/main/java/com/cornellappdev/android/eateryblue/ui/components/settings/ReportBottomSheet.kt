@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.components.settings
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -41,7 +42,8 @@ enum class Issue(val option: String) {
 @Composable
 fun ReportBottomSheet(
     issue: Issue?,
-    sendReport: (issue: String, report: String) -> Unit,
+    eateryid: Int?,
+    sendReport: (issue: String, report: String, eateryid: Int?) -> Unit,
     hide: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -214,12 +216,11 @@ fun ReportBottomSheet(
                         onClick = {
                             if (!isSending) {
                                 isSending = true
-                                sendReport(selectedIssue!!.option, textEntry)
+                                sendReport(selectedIssue!!.option, textEntry, eateryid)
                                 isSending = false
-                                coroutineScope.launch {
-                                    modalBottomSheetState.hide()
-                                }
                             }
+                            hide()
+                            Log.d("isvisible?", modalBottomSheetState.isVisible.toString())
                         },
                         enabled = textEntry.isNotEmpty() && selectedIssue != null && !isSending,
                         colors = ButtonDefaults.buttonColors(

@@ -11,12 +11,11 @@ import javax.inject.Singleton
 
 @Singleton
 class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
-    suspend fun sendReport(issue: String, report: String): Any =
+    suspend fun sendReport(issue: String, report: String, eateryid: Int?): Any =
         networkApi.sendReport(
             report = ReportSendBody(
-                eatery_id = 1,
-                type = issue,
-                content = report
+                eatery = eateryid,
+                content = "$issue: $report"
             )
         )
 
