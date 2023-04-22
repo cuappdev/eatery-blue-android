@@ -36,6 +36,7 @@ data class Eatery(
 ) {
     fun getWalkTimes(): Int? {
         val currentLocation = LocationHandler.currentLocation
+        Log.d("current location", currentLocation.toString())
         val results = floatArrayOf(0f)
         if (latitude == null || longitude == null || currentLocation == null)
             return null

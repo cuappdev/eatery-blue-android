@@ -326,28 +326,26 @@ fun HomeScreen(
                                                 text = "Nearest to You",
                                                 style = EateryBlueTypography.h4,
                                             )
-
-                                            IconButton(
-                                                onClick = {
-                                                    // TODO nearest to you
-                                                },
-                                                modifier = Modifier
-                                                    .size(40.dp)
-                                                    .background(
-                                                        color = GrayZero,
-                                                        shape = CircleShape
-                                                    )
-                                            ) {
-                                                Icon(
-                                                    Icons.Default.ArrowForward,
-                                                    contentDescription = "Nearest to You",
-                                                    tint = Color.Black
-                                                )
-                                            }
                                         }
-                                        // TODO nearest to you eateries
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            homeViewModel.updateNearest()
+                                            items(homeViewModel.nearestEateries) { eatery ->
+                                                EateryCard(
+                                                    eatery = eatery,
+                                                    isFavorite = false,
+                                                    modifier = Modifier.fillParentMaxWidth(0.85f),
+                                                    onFavoriteClick = {
+                                                        if (!it) {
+                                                            homeViewModel.removeFavorite(eatery.id)
+                                                        }
+                                                    }) {
+                                                    onEateryClick(it)
+                                                }
+                                            }
 
+                                            item {
+                                                Spacer(Modifier.width(16.dp))
+                                            }
                                         }
                                     }
                                 }
@@ -374,23 +372,6 @@ fun HomeScreen(
                                                 style = EateryBlueTypography.h4,
                                             )
 
-                                            IconButton(
-                                                onClick = {
-                                                    // TODO swipe for a bite screen, not sure what this is but there's a button that leads to something on the designs
-                                                },
-                                                modifier = Modifier
-                                                    .size(40.dp)
-                                                    .background(
-                                                        color = GrayZero,
-                                                        shape = CircleShape
-                                                    )
-                                            ) {
-                                                Icon(
-                                                    Icons.Default.ArrowForward,
-                                                    contentDescription = "Swipe for a bite",
-                                                    tint = Color.Black
-                                                )
-                                            }
                                         }
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                             items(swipeEateries) { eatery ->
@@ -457,6 +438,7 @@ fun HomeScreen(
                                 }
                             }
                         }
+                        else -> {}
                     }
                 }
             })
