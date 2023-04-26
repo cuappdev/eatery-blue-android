@@ -33,6 +33,9 @@ class HomeViewModel @Inject constructor(
     var favoriteEateries = mutableStateListOf<Eatery>()
         private set
 
+    var nearestEateries = mutableStateListOf<Eatery>()
+        private set
+
     var filteredResults = mutableStateListOf<Eatery>()
         private set
 
@@ -63,6 +66,13 @@ class HomeViewModel @Inject constructor(
         favoriteEateries = _allEateries.filter {
             favoriteEateriesKeys.contains(it.id)
         }.toCollection(mutableStateListOf())
+    }
+
+    fun updateNearest() = viewModelScope.launch {
+        var eateries = _allEateries.sortedBy { it.getWalkTimes() }
+        nearestEateries = eateries.slice(0..5).toCollection(
+            mutableStateListOf()
+        )
     }
 
     fun addFilter(filter: Filter) = viewModelScope.launch {
