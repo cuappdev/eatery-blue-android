@@ -39,6 +39,12 @@ class HomeViewModel @Inject constructor(
     var filteredResults = mutableStateListOf<Eatery>()
         private set
 
+    var bigPopUp by mutableStateOf(false)
+
+    fun setPopUp(bool: Boolean) {
+        bigPopUp = bool
+    }
+
     init {
         queryAllEateries()
     }

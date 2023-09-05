@@ -6,15 +6,42 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.*
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +54,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
-import com.cornellappdev.android.eateryblue.ui.components.general.*
+import com.cornellappdev.android.eateryblue.ui.components.general.EateryCard
+import com.cornellappdev.android.eateryblue.ui.components.general.Filter
+import com.cornellappdev.android.eateryblue.ui.components.general.FilterRow
+import com.cornellappdev.android.eateryblue.ui.components.general.NoEateryFound
+import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsBottomSheet
+import com.cornellappdev.android.eateryblue.ui.components.general.PermissionRequestDialog
+import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
 import com.cornellappdev.android.eateryblue.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eateryblue.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
@@ -74,6 +107,75 @@ fun HomeScreen(
             }
         }
     }
+
+    // This is the announcements framework. Replace image or popup with necessary materials. Do NOT delete unused imports.
+//    Box(
+//        modifier = Modifier
+//            .fillMaxWidth(1f)
+//            .background(Color.Transparent, RoundedCornerShape(20.dp))
+//    ) {
+//        if (!homeViewModel.bigPopUp) {
+//            Popup(alignment = Alignment.BottomEnd) {
+//
+//                Box(
+//                    Modifier
+//                        .padding(16.dp)
+//                        .width(50.dp)
+//                        .height(50.dp)
+//                        .background(Color.White, RoundedCornerShape(10.dp))
+//                        .clip(RoundedCornerShape(10.dp))
+//                        .clickable { homeViewModel.setPopUp(true) }
+//                ) {
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.ic_appdev),
+//                        tint = Color.Red,
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .alpha(.6f),
+//                        contentDescription = "popup logo"
+//                    )
+//                }
+//            }
+//        } else {
+//            Popup(alignment = Alignment.Center, properties = PopupProperties(focusable = true)) {
+//                Box(
+//                    Modifier
+//                        .fillMaxWidth(.8f)
+//                        .fillMaxHeight(.4f)
+//                        .background(Color.White, RoundedCornerShape(20.dp))
+//                        .clip(RoundedCornerShape(20.dp))
+//                        .focusable(true)
+//                ) {
+//                    Image(
+//                        painter = painterResource(id = R.drawable.recruitment_popup_2),
+//                        contentScale = ContentScale.Crop,
+//                        modifier = Modifier
+//                            .fillMaxSize(),
+//                        contentDescription = null
+//                    )
+//                    IconButton(
+//                        onClick = {
+//                            homeViewModel.setPopUp(false)
+//                        },
+//                        modifier = Modifier
+//                            .size(40.dp)
+//                            .background(color = Color.Transparent, shape = CircleShape)
+//                            .align(Alignment.TopEnd)
+//                            .alpha(.4f)
+//                    ) {
+//                        Icon(
+//                            Icons.Default.Close,
+//                            contentDescription = Icons.Default.Close.name,
+//                            Modifier
+//                                .size(30.dp)
+//                                .background(Color.White, CircleShape)
+//                                .clip(CircleShape)
+//                        )
+//                    }
+//                }
+//            }
+//        }
+
 
     Box {
         ModalBottomSheetLayout(
@@ -175,9 +277,11 @@ fun HomeScreen(
                                 CreateMainLoadingItem(item, shimmer)
                             }
                         }
+
                         is EateryRetrievalState.Error -> {
                             // TODO Add No Internet/Oopsie display
                         }
+
                         is EateryRetrievalState.Success -> {
                             item {
                                 SearchBar(
@@ -351,9 +455,10 @@ fun HomeScreen(
                                 }
 
                                 item {
-                                    val swipeEateries = homeViewModel.allEateries.filter { eatery ->
-                                        eatery.paymentAcceptsMealSwipes == true
-                                    }
+                                    val swipeEateries =
+                                        homeViewModel.allEateries.filter { eatery ->
+                                            eatery.paymentAcceptsMealSwipes == true
+                                        }
 
                                     Column(
                                         modifier = Modifier.padding(
@@ -438,6 +543,7 @@ fun HomeScreen(
                                 }
                             }
                         }
+
                         else -> {}
                     }
                 }
