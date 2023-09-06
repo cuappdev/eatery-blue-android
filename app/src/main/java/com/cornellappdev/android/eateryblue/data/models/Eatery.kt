@@ -1,7 +1,6 @@
 package com.cornellappdev.android.eateryblue.data.models
 
 import android.location.Location
-import android.util.Log
 import com.cornellappdev.android.eateryblue.util.Constants.AVERAGE_WALK_SPEED
 import com.cornellappdev.android.eateryblue.util.LocationHandler
 import com.squareup.moshi.Json
@@ -141,7 +140,6 @@ data class Eatery(
 
     fun getOpenUntil(): String? {
         val currentEvents = getCurrentEvents()
-        Log.d("OpenUntil", currentEvents.toString())
         if (currentEvents.isEmpty())
             return null
 
