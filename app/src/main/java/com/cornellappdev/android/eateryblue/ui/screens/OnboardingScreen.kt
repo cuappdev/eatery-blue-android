@@ -3,7 +3,10 @@ package com.cornellappdev.android.eateryblue.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -143,6 +146,9 @@ fun OnboardingScreen(
                             onboardingViewModel.updateOnboardingCompleted()
                             proceedHome.invoke()
                         },
+                        onProceed = {
+                            proceedHome.invoke()
+                        }
                     )
                 }
             }
