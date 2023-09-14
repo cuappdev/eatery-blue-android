@@ -56,7 +56,7 @@ sealed class NavigationItem(
         val bottomNavTabList = listOf(
             Home,
             Upcoming,
-            Profile
+            //Profile
 
         )
     }

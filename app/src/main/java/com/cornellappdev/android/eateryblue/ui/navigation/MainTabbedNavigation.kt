@@ -270,15 +270,15 @@ fun SetupNavHost(
                     Routes.LEGAL to { navController.navigate(Routes.LEGAL.route) },
                     Routes.PRIVACY to { navController.navigate(Routes.PRIVACY.route) },
                     Routes.SUPPORT to { navController.navigate(Routes.SUPPORT.route) },
-                    Routes.PROFILE to {
-                        navController.navigate("${Routes.PROFILE.route}/false") {
-                            if (navController.isOnBackStack(Routes.ACCOUNT.route)) {
-                                popUpTo(Routes.ACCOUNT.route) { inclusive = true }
-                            } else {
-                                popUpTo(Routes.SETTINGS.route) { inclusive = true }
-                            }
-                        }
-                    }
+//                    Routes.PROFILE to {
+//                        navController.navigate("${Routes.PROFILE.route}/false") {
+//                            if (navController.isOnBackStack(Routes.ACCOUNT.route)) {
+//                                popUpTo(Routes.ACCOUNT.route) { inclusive = true }
+//                            } else {
+//                                popUpTo(Routes.SETTINGS.route) { inclusive = true }
+//                            }
+//                        }
+//                    }
                 ))
 
         }
