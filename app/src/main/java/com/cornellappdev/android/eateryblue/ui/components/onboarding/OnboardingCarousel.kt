@@ -83,7 +83,6 @@ fun OnboardingCarousel(
                 )
             }
 
-
             Box {
 
                 HorizontalPager(
@@ -131,6 +130,7 @@ fun OnboardingCarousel(
                                 num = 5,
                                 pagerOffset = calculateCurrentOffsetForPage(5),
                             )
+                            //Proceed to Eatery Button
                             Button(
                                 shape = RoundedCornerShape(24.dp),
                                 modifier = Modifier
