@@ -66,9 +66,9 @@ fun NavigationSetup(hasOnboarded: Boolean) {
                 targetState = showBottomBar.value,
                 transitionSpec = {
                     expandVertically(
-                        animationSpec = tween(durationMillis = 2500),
+                        animationSpec = tween(durationMillis = 500),
                         expandFrom = Alignment.Bottom
-                    ) with shrinkVertically(animationSpec = tween(durationMillis = 2500))
+                    ) with shrinkVertically(animationSpec = tween(durationMillis = 500))
                 }
             ) { state ->
                 if (state) {
@@ -134,12 +134,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             OnboardingScreen(
@@ -151,12 +151,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             HomeScreen(showBottomBar = showBottomBar, onSearchClick = {
@@ -175,12 +175,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             UpcomingMenuScreen {
@@ -193,12 +193,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             EateryDetailScreen()
@@ -208,12 +208,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             SearchScreen {
@@ -229,12 +229,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) { backStackEntry ->
             val autoLogin = backStackEntry.arguments?.getBoolean("autoLogin")!!
@@ -255,12 +255,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             SettingsScreen(
@@ -287,12 +287,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) { backStackEntry ->
             // TODO account page
@@ -302,12 +302,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             AboutScreen()
@@ -317,12 +317,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             FavoritesScreen(onEateryClick = {
@@ -335,12 +335,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             LegalScreen()
@@ -350,12 +350,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             PrivacyScreen()
@@ -365,12 +365,12 @@ fun SetupNavHost(
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
                 fadeOut(
-                    animationSpec = tween(durationMillis = 2500)
+                    animationSpec = tween(durationMillis = 500)
                 )
             }) {
             SupportScreen()
