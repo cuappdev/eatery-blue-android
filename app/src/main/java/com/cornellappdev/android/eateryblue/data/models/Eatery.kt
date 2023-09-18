@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class Eatery(
@@ -53,6 +53,7 @@ data class Eatery(
             return null
 
         val waitTimeDay = waitTimes.find { waitTimeDay ->
+            // checks if today is the right day
             waitTimeDay.canonicalDate
                 ?.toInstant()
                 ?.truncatedTo(ChronoUnit.DAYS)
@@ -76,9 +77,30 @@ data class Eatery(
         if (events.isNullOrEmpty())
             return listOf()
 
-        return events.filter { event ->
+        var todayEvents = events.filter { event ->
             currentTime.dayOfYear == event.startTime?.dayOfYear
         }.sortedBy { it.startTime }
+        // is sorting them here too slow?
+        todayEvents.forEach { event ->
+            var i = 0
+            var chefs: MutableList<MenuCategory> = mutableListOf()
+            event.menu?.forEach { menuCategory ->
+                if (menuCategory.category != null && menuCategory.category == "Chef's Table") {
+                    val chef = event.menu[i]
+                    chefs.add(chef)
+                } else if (menuCategory.category != null && menuCategory.category == "Chef's Table - Sides") {
+                    val chef = event.menu[i]
+                    chefs.add(0, chef)
+                }
+                i++
+            }
+            chefs.forEach { menuCategory ->
+                event.menu?.remove(menuCategory)
+                event.menu?.add(0, menuCategory)
+            }
+        }
+
+        return todayEvents
     }
 
     fun getSelectedDayMeal(meal: Int, day: Int): List<Event>? {
@@ -89,9 +111,11 @@ data class Eatery(
             1 -> {
                 "Breakfast"
             }
+
             2 -> {
                 "Lunch"
             }
+
             else -> {
                 "Dinner"
             }
@@ -174,6 +198,7 @@ data class WaitTimeDay(
     @Json(name = "data") val data: List<WaitTimeData>? = null
 )
 
+
 @JsonClass(generateAdapter = true)
 data class WaitTimeData(
     @Json(name = "timestamp") val timestamp: LocalDateTime? = null,
@@ -189,7 +214,7 @@ data class Event(
     @Json(name = "event_description") val description: String? = null,
     @Json(name = "start") val startTime: LocalDateTime? = null,
     @Json(name = "end") val endTime: LocalDateTime? = null,
-    @Json(name = "menu") val menu: List<MenuCategory>? = null
+    @Json(name = "menu") val menu: MutableList<MenuCategory>? = null
 )
 
 @JsonClass(generateAdapter = true)
