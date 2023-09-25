@@ -436,10 +436,14 @@ fun HomeScreen(
                                             items(homeViewModel.nearestEateries) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
-                                                    isFavorite = false,
+                                                    isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                        favoriteEatery.id == eatery.id
+                                                    },
                                                     modifier = Modifier.fillParentMaxWidth(0.85f),
                                                     onFavoriteClick = {
-                                                        if (!it) {
+                                                        if (it) {
+                                                            homeViewModel.addFavorite(eatery.id)
+                                                        } else {
                                                             homeViewModel.removeFavorite(eatery.id)
                                                         }
                                                     }) {
