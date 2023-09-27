@@ -157,7 +157,8 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "Conner Swenberg",
         "TK Kong",
         "Connor Reinhold",
-        "Sergio Diaz"
+        "Sergio Diaz",
+        "Matthew Wong"
     ),
     TeamPosition.IOS to listOf(
         "Reade Plunkett",
@@ -166,7 +167,10 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "Gonzalo Gonzalez",
         "Ethan Fine",
         "Daniel Vebman",
-        "Sergio Diaz"
+        "Sergio Diaz",
+        "Jennifer Gu",
+        "Antoinette Torres",
+        "Jayson Hahn"
     ),
     TeamPosition.DESIGN to listOf(
         "Brendan Elliot",
@@ -175,7 +179,8 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "TK Kong",
         "Zain Khoja",
         "Gracie Jing",
-        "Zixian Jia"
+        "Zixian Jia",
+        "Kathleen Anderson"
     ),
     TeamPosition.BACKEND to listOf(
         "Orka Sinha",
@@ -185,7 +190,10 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "Alanna Zhou",
         "Conner Swenberg",
         "Archit Mehta",
-        "Marya Kim"
+        "Marya Kim",
+        "Mateo Weiner",
+        "Kidus Zegeye",
+        "Thomas Vignos"
     ),
     TeamPosition.ANDROID to listOf(
         "Jonvi Rollins",
@@ -199,14 +207,20 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "Chris Desir",
         "Kevin Sun",
         "Corwin Zhang",
-        "Justin Guo"
+        "Justin Guo",
+        "Emily Hu",
+        "Sophie Meng",
+        "Gregor Guerrier"
     ),
     TeamPosition.MARKETER to listOf(
         "Neha Malepati",
         "Faith Earley",
         "Cat Zhang",
         "Lucy Zhang",
-        "Jane Lee"
+        "Jane Lee",
+        "Vivian Park",
+        "Carnell Zhou",
+        "Matthew Wong"
     ),
 )
 
