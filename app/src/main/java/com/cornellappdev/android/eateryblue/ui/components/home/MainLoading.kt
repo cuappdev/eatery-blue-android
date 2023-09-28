@@ -99,6 +99,7 @@ sealed class MainLoadingItem {
                         )
                     ) {}
                 }
+
                 is FilterOptions -> {
                     Row(
                         modifier = Modifier
@@ -115,6 +116,7 @@ sealed class MainLoadingItem {
 
                     }
                 }
+
                 is EaterySectionLabel -> {
                     Text(
                         text = item.label,
@@ -125,6 +127,7 @@ sealed class MainLoadingItem {
                         color = GrayThree
                     )
                 }
+
                 is EaterySectionList -> {
                     CompositionLocalProvider(
                         LocalOverscrollConfiguration provides null
@@ -142,6 +145,7 @@ sealed class MainLoadingItem {
                         }
                     }
                 }
+
                 is Spacer -> {
                     Spacer(modifier = Modifier.height(24.dp))
                     Text(
@@ -153,6 +157,7 @@ sealed class MainLoadingItem {
                         color = GrayThree
                     )
                 }
+
                 is EateryItem -> {
                     EateryBlob(
                         modifier = Modifier

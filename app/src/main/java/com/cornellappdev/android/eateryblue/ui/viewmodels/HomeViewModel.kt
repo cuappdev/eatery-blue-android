@@ -125,27 +125,27 @@ class HomeViewModel @Inject constructor(
 
         val allLocationsValid =
             !_currentFiltersSelected.contains(Filter.NORTH) &&
-                    !_currentFiltersSelected.contains(Filter.CENTRAL) &&
-                    !_currentFiltersSelected.contains(Filter.WEST)
+                !_currentFiltersSelected.contains(Filter.CENTRAL) &&
+                !_currentFiltersSelected.contains(Filter.WEST)
 
         // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
         // or one/multiple are selected and the eatery is located there.
         passesFilter = passesFilter &&
-                (allLocationsValid || ((_currentFiltersSelected.contains(Filter.NORTH) && eatery.campusArea == "North") ||
-                        (_currentFiltersSelected.contains(Filter.WEST) && eatery.campusArea == "West") ||
-                        (_currentFiltersSelected.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))
+            (allLocationsValid || ((_currentFiltersSelected.contains(Filter.NORTH) && eatery.campusArea == "North") ||
+                (_currentFiltersSelected.contains(Filter.WEST) && eatery.campusArea == "West") ||
+                (_currentFiltersSelected.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))
 
         val allPaymentMethodsValid =
             !_currentFiltersSelected.contains(Filter.CASH) &&
-                    !_currentFiltersSelected.contains(Filter.BRB) &&
-                    !_currentFiltersSelected.contains(Filter.SWIPES)
+                !_currentFiltersSelected.contains(Filter.BRB) &&
+                !_currentFiltersSelected.contains(Filter.SWIPES)
 
         // Passes filter if all three aren't selected (therefore any payment method is valid, specified by allPaymentMethodsValid)
         // or one/multiple are selected and the eatery takes it.
         return passesFilter &&
-                (allPaymentMethodsValid || ((_currentFiltersSelected.contains(Filter.SWIPES) && eatery.paymentAcceptsMealSwipes == true) ||
-                        (_currentFiltersSelected.contains(Filter.BRB) && eatery.paymentAcceptsBrbs == true) ||
-                        (_currentFiltersSelected.contains(Filter.CASH) && eatery.paymentAcceptsCash == true)))
+            (allPaymentMethodsValid || ((_currentFiltersSelected.contains(Filter.SWIPES) && eatery.paymentAcceptsMealSwipes == true) ||
+                (_currentFiltersSelected.contains(Filter.BRB) && eatery.paymentAcceptsBrbs == true) ||
+                (_currentFiltersSelected.contains(Filter.CASH) && eatery.paymentAcceptsCash == true)))
     }
 
     fun addFavorite(eateryId: Int?) = viewModelScope.launch {

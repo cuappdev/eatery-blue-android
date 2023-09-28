@@ -63,7 +63,7 @@ fun MenuCard(
         shape = RoundedCornerShape(10.dp),
         backgroundColor = Color.White,
 
-    ) {
+        ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 var event = eatery.getSelectedDayMeal(selectedMealInt, day)

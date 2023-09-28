@@ -5,7 +5,14 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -100,6 +107,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(0),
                             )
                         }
+
                         1 -> {
                             OnboardingPage(
                                 num = 1,
@@ -113,18 +121,21 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(2),
                             )
                         }
+
                         3 -> {
                             OnboardingPage(
                                 num = 3,
                                 pagerOffset = calculateCurrentOffsetForPage(3),
                             )
                         }
+
                         4 -> {
                             OnboardingPage(
                                 num = 4,
                                 pagerOffset = calculateCurrentOffsetForPage(4),
                             )
                         }
+
                         5 -> {
                             OnboardingPage(
                                 num = 5,
@@ -199,6 +210,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         1 -> {
                             IconSheet(
                                 iconData = listOf(
@@ -221,6 +233,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         2 -> {
                             IconSheet(
                                 iconData = listOf(
@@ -243,6 +256,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         3 -> {
                             IconSheet(
                                 iconData = listOf(
@@ -265,6 +279,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         4 -> {
                             IconSheet(
                                 iconData = listOf(
@@ -282,6 +297,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         5 -> {
                             IconSheet(
                                 iconData = listOf(

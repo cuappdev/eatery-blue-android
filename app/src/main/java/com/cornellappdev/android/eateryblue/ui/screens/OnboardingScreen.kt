@@ -135,6 +135,7 @@ fun OnboardingScreen(
                             )
                         }
                     }
+
                 1 -> {
                     OnboardingCarousel(
                         fadePage = fadePage,

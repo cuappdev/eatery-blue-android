@@ -112,16 +112,16 @@ class UpcomingViewModel @Inject constructor(
 
         val allLocationsValid =
             !_currentFiltersSelected.contains(Filter.NORTH) &&
-                    !_currentFiltersSelected.contains(Filter.CENTRAL) &&
-                    !_currentFiltersSelected.contains(Filter.WEST)
+                !_currentFiltersSelected.contains(Filter.CENTRAL) &&
+                !_currentFiltersSelected.contains(Filter.WEST)
 
         // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
         // or one/multiple are selected and the eatery is located there.
         passesFilter = allDiningHalls
-                &&
-                (allLocationsValid || ((_currentFiltersSelected.contains(Filter.NORTH) && eatery.campusArea == "North") ||
-                        (_currentFiltersSelected.contains(Filter.WEST) && eatery.campusArea == "West") ||
-                        (_currentFiltersSelected.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))
+            &&
+            (allLocationsValid || ((_currentFiltersSelected.contains(Filter.NORTH) && eatery.campusArea == "North") ||
+                (_currentFiltersSelected.contains(Filter.WEST) && eatery.campusArea == "West") ||
+                (_currentFiltersSelected.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))
 
         return passesFilter
     }

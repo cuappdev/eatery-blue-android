@@ -1,10 +1,20 @@
 package com.cornellappdev.android.eateryblue.ui.components.general
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
@@ -17,7 +27,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eateryblue.R
-import com.cornellappdev.android.eateryblue.ui.theme.*
+import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
+import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
+import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
+import com.cornellappdev.android.eateryblue.ui.theme.Green
+import com.cornellappdev.android.eateryblue.ui.theme.Red
 
 @Composable
 fun PaymentMethodsBottomSheet(
