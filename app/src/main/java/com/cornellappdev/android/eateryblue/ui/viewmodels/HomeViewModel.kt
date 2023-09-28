@@ -51,7 +51,7 @@ class HomeViewModel @Inject constructor(
 
     fun queryAllEateries() = viewModelScope.launch {
         try {
-            val eateryResponse = eateryRepository.getAllEateries()
+            val eateryResponse = eateryRepository.getHomeEateries()
             _allEateries.addAll(eateryResponse)
 
             val favoriteEateriesIds =

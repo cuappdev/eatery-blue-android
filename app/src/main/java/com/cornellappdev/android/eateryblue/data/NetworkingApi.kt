@@ -28,6 +28,9 @@ interface NetworkApi {
     @GET("/eatery")
     suspend fun fetchEateries(): List<Eatery>
 
+    @GET("/eatery/simple")
+    suspend fun fetchHomeEateries(): List<Eatery>
+
     @GET("/event")
     suspend fun fetchEvents(): ApiResponse<List<Event>>
 

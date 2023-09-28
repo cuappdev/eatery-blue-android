@@ -12,6 +12,9 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     suspend fun getAllEateries(): List<Eatery> =
         networkApi.fetchEateries()
 
+    suspend fun getHomeEateries(): List<Eatery> =
+        networkApi.fetchHomeEateries()
+
     suspend fun getAllEvents(): ApiResponse<List<Event>> =
         networkApi.fetchEvents()
 }
