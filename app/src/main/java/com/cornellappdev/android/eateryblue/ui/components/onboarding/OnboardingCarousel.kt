@@ -5,7 +5,14 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -136,8 +143,8 @@ fun OnboardingCarousel(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(
-                                        start = 48.dp,
-                                        end = 48.dp,
+                                        start = .1f.dp,
+                                        end = .1f.dp,
                                         bottom = 32.dp,
                                         top = 24.dp
                                     )
