@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eateryblue
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val hasOnboarded = runBlocking {
+            Log.d("ONBOARDED?????", userPreferences.getHasOnboarded().toString())
             return@runBlocking userPreferences.getHasOnboarded()
         }
 
@@ -27,7 +29,7 @@ class MainActivity : ComponentActivity() {
         // Want to eventually switch over to this typography
         val typography = androidx.compose.material3.Typography()
         setContent {
-            androidx.compose.material3.MaterialTheme() {
+            androidx.compose.material3.MaterialTheme {
                 NavigationSetup(hasOnboarded)
             }
         }
