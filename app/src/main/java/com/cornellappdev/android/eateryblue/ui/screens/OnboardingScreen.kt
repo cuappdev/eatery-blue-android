@@ -147,6 +147,7 @@ fun OnboardingScreen(
                             proceedHome.invoke()
                         },
                         onProceed = {
+                            onboardingViewModel.updateOnboardingCompleted()
                             proceedHome.invoke()
                         }
                     )
