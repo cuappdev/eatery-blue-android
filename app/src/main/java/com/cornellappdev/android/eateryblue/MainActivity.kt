@@ -1,7 +1,6 @@
 package com.cornellappdev.android.eateryblue
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.core.view.WindowCompat
@@ -20,7 +19,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val hasOnboarded = runBlocking {
-            Log.d("ONBOARDED?????", userPreferences.getHasOnboarded().toString())
             return@runBlocking userPreferences.getHasOnboarded()
         }
 
