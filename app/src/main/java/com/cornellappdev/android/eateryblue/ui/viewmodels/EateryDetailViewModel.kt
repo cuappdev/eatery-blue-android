@@ -12,8 +12,6 @@ import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRep
 import com.cornellappdev.android.eateryblue.data.repositories.UserRepository
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -43,7 +41,7 @@ class EateryDetailViewModel @Inject constructor(
             }
         }
     }.stateIn(
-        CoroutineScope(Dispatchers.Main),
+        viewModelScope,
         SharingStarted.Eagerly,
         EateryApiResponse.Pending
     )

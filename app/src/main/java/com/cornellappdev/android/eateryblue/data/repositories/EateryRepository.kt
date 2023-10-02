@@ -43,7 +43,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     fun pingBackend() {
         // TODO: Add some way of letting a user re-ping by calling this method when an error occurs.
         //  There should be some sort of UI (e.g. pull up to refresh, error state w/ button, etc.)
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val eateries = getAllEateries()
                 _eateryFlow.value = EateryApiResponse.Success(eateries)
