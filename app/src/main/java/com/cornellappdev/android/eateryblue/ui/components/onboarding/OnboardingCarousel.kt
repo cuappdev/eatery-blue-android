@@ -147,8 +147,8 @@ fun OnboardingCarousel(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(
-                                        start = 48.dp,
-                                        end = 48.dp,
+                                        start = .1f.dp,
+                                        end = .1f.dp,
                                         bottom = 32.dp,
                                         top = 24.dp
                                     )

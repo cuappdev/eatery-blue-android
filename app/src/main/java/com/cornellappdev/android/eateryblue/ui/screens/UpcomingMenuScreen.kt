@@ -83,6 +83,7 @@ fun UpcomingMenuScreen(
     /** instantiates the meal filter list*/
 
     val selectedMealFilters = remember { mutableStateListOf<Filter>() }
+    if (selectedMealFilters.isEmpty()) selectedMealFilters.add(Filter.BREAKFAST)
     if (modalBottomSheetState.currentValue != ModalBottomSheetValue.Hidden) {
         DisposableEffect(Unit) {
             onDispose {
@@ -184,7 +185,7 @@ fun UpcomingMenuScreen(
                                             modifier = Modifier.align(Alignment.Center),
                                             textAlign = TextAlign.Center,
                                             text = "Upcoming Menus",
-                                            color = Color.White,
+                                            color = White,
                                             style = TextStyle(
                                                 fontWeight = FontWeight.SemiBold,
                                                 fontSize = 20.sp
@@ -201,7 +202,7 @@ fun UpcomingMenuScreen(
                                     ) {
                                         Text(
                                             text = "Upcoming Menus",
-                                            color = Color.White,
+                                            color = White,
                                             style = EateryBlueTypography.h2
                                         )
                                     }

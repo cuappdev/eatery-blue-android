@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         // Want to eventually switch over to this typography
         val typography = androidx.compose.material3.Typography()
         setContent {
-            androidx.compose.material3.MaterialTheme() {
+            androidx.compose.material3.MaterialTheme {
                 NavigationSetup(hasOnboarded)
             }
         }

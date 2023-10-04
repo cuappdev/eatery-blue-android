@@ -16,9 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -589,9 +591,10 @@ fun EateryMenuWidget(event: Event) {
                 .background(color = GrayZero, shape = CircleShape)
         ) {
             Icon(
-                imageVector = if (openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
                 contentDescription = "Expand menu",
-                tint = Color.Black
+                modifier = Modifier
+                    .size(26.dp),
             )
         }
     }

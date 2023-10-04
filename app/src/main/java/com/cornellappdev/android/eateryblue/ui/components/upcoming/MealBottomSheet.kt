@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eateryblue.ui.components.upcoming
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -75,6 +76,13 @@ fun MealBottomSheet(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 10.dp)
+            .clickable {
+                if (!selectedFilters.contains(Filter.BREAKFAST)) {
+                    selectedFilters.clear()
+                    selectedFilters.add(Filter.BREAKFAST)
+                }
+
+            }
     ) {
         Column {
             Text(
@@ -121,7 +129,15 @@ fun MealBottomSheet(
             .height(1.dp)
             .background(GrayZero, CircleShape)
     )
-    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+    Row(horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                if (!selectedFilters.contains(Filter.LUNCH)) {
+                    selectedFilters.clear()
+                    selectedFilters.add(Filter.LUNCH)
+                }
+            }) {
         Column {
             Text(
                 text = "Lunch",
@@ -168,7 +184,15 @@ fun MealBottomSheet(
             .height(1.dp)
             .background(GrayZero, CircleShape)
     )
-    Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+    Row(horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                if (!selectedFilters.contains(Filter.DINNER)) {
+                    selectedFilters.clear()
+                    selectedFilters.add(Filter.DINNER)
+                }
+            }) {
         Column {
             Text(
                 text = "Dinner",
@@ -192,7 +216,6 @@ fun MealBottomSheet(
             modifier = Modifier
                 .align(CenterVertically)
                 .padding(end = 16.dp, start = 100.dp),
-
             ) {
             if (selectedFilters.contains(Filter.DINNER)) {
                 Icon(
