@@ -99,6 +99,7 @@ sealed class UpcomingLoadingItem {
                         color = GrayThree
                     )
                 }
+
                 is EaterySectionList -> {
                     CompositionLocalProvider(
                         LocalOverscrollConfiguration provides null
@@ -116,6 +117,7 @@ sealed class UpcomingLoadingItem {
                         }
                     }
                 }
+
                 else -> {
                     Row {
                         Spacer(modifier = Modifier.weight(1f))

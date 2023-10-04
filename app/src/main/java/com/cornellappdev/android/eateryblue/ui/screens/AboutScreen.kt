@@ -6,7 +6,18 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,7 +28,12 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -31,7 +47,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eateryblue.R
-import com.cornellappdev.android.eateryblue.ui.theme.*
+import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
+import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
+import com.cornellappdev.android.eateryblue.ui.theme.GrayOne
+import com.cornellappdev.android.eateryblue.ui.theme.GraySix
 import kotlinx.coroutines.launch
 
 @Composable
@@ -157,7 +177,8 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "Conner Swenberg",
         "TK Kong",
         "Connor Reinhold",
-        "Sergio Diaz"
+        "Sergio Diaz",
+        "Matthew Wong"
     ),
     TeamPosition.IOS to listOf(
         "Reade Plunkett",
@@ -166,7 +187,10 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "Gonzalo Gonzalez",
         "Ethan Fine",
         "Daniel Vebman",
-        "Sergio Diaz"
+        "Sergio Diaz",
+        "Jennifer Gu",
+        "Antoinette Torres",
+        "Jayson Hahn"
     ),
     TeamPosition.DESIGN to listOf(
         "Brendan Elliot",
@@ -175,7 +199,8 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "TK Kong",
         "Zain Khoja",
         "Gracie Jing",
-        "Zixian Jia"
+        "Zixian Jia",
+        "Kathleen Anderson"
     ),
     TeamPosition.BACKEND to listOf(
         "Orka Sinha",
@@ -185,7 +210,10 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "Alanna Zhou",
         "Conner Swenberg",
         "Archit Mehta",
-        "Marya Kim"
+        "Marya Kim",
+        "Mateo Weiner",
+        "Kidus Zegeye",
+        "Thomas Vignos"
     ),
     TeamPosition.ANDROID to listOf(
         "Jonvi Rollins",
@@ -199,14 +227,20 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
         "Chris Desir",
         "Kevin Sun",
         "Corwin Zhang",
-        "Justin Guo"
+        "Justin Guo",
+        "Emily Hu",
+        "Sophie Meng",
+        "Gregor Guerrier"
     ),
     TeamPosition.MARKETER to listOf(
         "Neha Malepati",
         "Faith Earley",
         "Cat Zhang",
         "Lucy Zhang",
-        "Jane Lee"
+        "Jane Lee",
+        "Vivian Park",
+        "Carnell Zhou",
+        "Matthew Wong"
     ),
 )
 

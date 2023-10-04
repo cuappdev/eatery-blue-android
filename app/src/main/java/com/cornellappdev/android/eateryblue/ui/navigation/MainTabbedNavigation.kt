@@ -40,21 +40,27 @@ fun NavigationSetup(hasOnboarded: Boolean) {
         Routes.ONBOARDING.route -> {
             showBottomBar.value = false
         }
+
         Routes.ABOUT.route -> {
             showBottomBar.value = false
         }
+
         Routes.FAVORITES.route -> {
             showBottomBar.value = true
         }
+
         Routes.PRIVACY.route -> {
             showBottomBar.value = false
         }
+
         Routes.LEGAL.route -> {
             showBottomBar.value = false
         }
+
         Routes.SUPPORT.route -> {
             showBottomBar.value = false
         }
+
         else -> {
             showBottomBar.value = true
         }
@@ -279,7 +285,8 @@ fun SetupNavHost(
 //                            }
 //                        }
 //                    }
-                ))
+                )
+            )
 
         }
         composable(

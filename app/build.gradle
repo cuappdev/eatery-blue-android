@@ -8,6 +8,9 @@ plugins {
     id 'com.google.dagger.hilt.android'
 }
 
+android.buildFeatures.buildConfig true
+
+
 def secretsPropertiesFile = rootProject.file('secrets.properties')
 def secretsProperties = new Properties()
 secretsProperties.load(new FileInputStream(secretsPropertiesFile))
@@ -18,10 +21,10 @@ android {
 
     defaultConfig {
         applicationId "com.cornellappdev.android.eateryblue"
-        minSdk 26
+        minSdk 33
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 55
+        versionName "2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

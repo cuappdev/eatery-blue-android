@@ -13,7 +13,8 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class TimestampAdapter {
     @ToJson
@@ -98,15 +99,19 @@ class AccountTypeAdapter {
             AccountType.BRBS -> {
                 "brb"
             }
+
             AccountType.CITYBUCKS -> {
                 "city bucks"
             }
+
             AccountType.LAUNDRY -> {
                 "laundry"
             }
+
             AccountType.MEALSWIPES -> {
                 "meal plan"
             }
+
             else -> {
                 "other"
             }
