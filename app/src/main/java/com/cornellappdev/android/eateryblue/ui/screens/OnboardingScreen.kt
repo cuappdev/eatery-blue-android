@@ -135,6 +135,7 @@ fun OnboardingScreen(
                             )
                         }
                     }
+
                 1 -> {
                     OnboardingCarousel(
                         fadePage = fadePage,
@@ -147,6 +148,7 @@ fun OnboardingScreen(
                             proceedHome.invoke()
                         },
                         onProceed = {
+                            onboardingViewModel.updateOnboardingCompleted()
                             proceedHome.invoke()
                         }
                     )

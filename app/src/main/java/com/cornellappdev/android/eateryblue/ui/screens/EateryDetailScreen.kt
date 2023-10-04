@@ -16,9 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,7 +37,7 @@ import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.*
 import com.cornellappdev.android.eateryblue.ui.viewmodels.EateryDetailViewModel
-import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.glide.GlideImage
@@ -60,58 +62,62 @@ fun EateryDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     var issue by remember { mutableStateOf<Issue?>(null) }
 
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetContent = {
-            when (sheetContent) {
-                BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
-                    PaymentMethodsAvailable(selectedPaymentMethods = paymentMethods) {
-                        coroutineScope.launch {
-                            modalBottomSheetState.hide()
+    when (val eateryApiResponse = eateryDetailViewModel.eatery.collectAsState().value) {
+        is EateryApiResponse.Pending -> {
+            EateryDetailLoadingScreen(shimmer)
+        }
+
+        is EateryApiResponse.Error -> {
+            Text(text = "ERROR")
+        }
+
+        is EateryApiResponse.Success -> {
+            val eatery = eateryApiResponse.data
+            ModalBottomSheetLayout(
+                sheetState = modalBottomSheetState,
+                sheetContent = {
+                    when (sheetContent) {
+                        BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
+                            PaymentMethodsAvailable(selectedPaymentMethods = paymentMethods) {
+                                coroutineScope.launch {
+                                    modalBottomSheetState.hide()
+                                }
+                            }
                         }
-                    }
-                }
-                BottomSheetContent.HOURS -> {
-                    // TODO finish
-                }
-                BottomSheetContent.WAIT_TIME -> {
-                    // TODO finish
-                }
-                BottomSheetContent.REPORT -> {
-                    eateryDetailViewModel.eatery.id?.let {
-                        ReportBottomSheet(
-                            issue = issue,
-                            eateryid = it,
-                            sendReport = { issue, report, eateryid ->
-                                eateryDetailViewModel.sendReport(issue, report, eateryid)
-                            }) {
-                            coroutineScope.launch {
-                                modalBottomSheetState.hide()
+
+                        BottomSheetContent.HOURS -> {
+                            // TODO finish
+                        }
+
+                        BottomSheetContent.WAIT_TIME -> {
+                            // TODO finish
+                        }
+
+                        BottomSheetContent.REPORT -> {
+                            eatery.id?.let {
+                                ReportBottomSheet(
+                                    issue = issue,
+                                    eateryid = it,
+                                    sendReport = { issue, report, eateryid ->
+                                        eateryDetailViewModel.sendReport(issue, report, eateryid)
+                                    }) {
+                                    coroutineScope.launch {
+                                        modalBottomSheetState.hide()
+                                    }
+                                }
                             }
                         }
                     }
-                }
-            }
-        },
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 12.dp,
-            topEnd = 12.dp
-        ),
-        sheetElevation = 8.dp
-    ) {
-        when (eateryDetailViewModel.eateryRetrievalState) {
-            is EateryRetrievalState.Pending -> {
-                Text(text = "loading")
-                EateryDetailLoadingScreen(shimmer)
-            }
+                },
+                sheetShape = RoundedCornerShape(
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp,
+                    topStart = 12.dp,
+                    topEnd = 12.dp
+                ),
+                sheetElevation = 8.dp
+            ) {
 
-            is EateryRetrievalState.Error -> {
-                Text(text = "ERROR")
-            }
-            is EateryRetrievalState.Success -> {
-                val eatery = eateryDetailViewModel.eatery
                 paymentMethods.apply {
                     if (eatery.paymentAcceptsCash == true) add(PaymentMethodsAvailable.CASH)
                     if (eatery.paymentAcceptsBrbs == true) add(PaymentMethodsAvailable.BRB)
@@ -585,9 +591,10 @@ fun EateryMenuWidget(event: Event) {
                 .background(color = GrayZero, shape = CircleShape)
         ) {
             Icon(
-                imageVector = if (openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
                 contentDescription = "Expand menu",
-                tint = Color.Black
+                modifier = Modifier
+                    .size(26.dp),
             )
         }
     }

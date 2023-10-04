@@ -85,9 +85,11 @@ fun FavoritesScreen(
                     }
                 }
             }
+
             is EateryRetrievalState.Error -> {
                 // TODO Add No Internet/Oopsie display
             }
+
             is EateryRetrievalState.Success -> {
                 if (favoriteViewModel.favoriteEateries.isEmpty()) {
                     Box(
