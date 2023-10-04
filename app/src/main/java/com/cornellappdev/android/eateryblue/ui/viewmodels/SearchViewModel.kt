@@ -1,6 +1,10 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eateryblue.data.models.Eatery
@@ -48,7 +52,7 @@ class SearchViewModel @Inject constructor(
 
     fun queryAllEateries() = viewModelScope.launch {
         try {
-            val eateryResponse = eateryRepository.getAllEateries()
+            val eateryResponse = eateryRepository.getHomeEateries()
             _allEateries.addAll(eateryResponse)
 
             val favoriteEateriesIds =

@@ -5,6 +5,7 @@ import com.cornellappdev.android.eateryblue.data.models.*
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.*
@@ -25,8 +26,11 @@ interface NetworkApi {
         @Body body: GetApiRequestBody<GetApiTransactionHistoryParams>
     ): GetApiResponse<TransactionsResponse>
 
-    @GET("/eatery")
+    @GET("/eatery/")
     suspend fun fetchEateries(): List<Eatery>
+
+    @GET("/eatery/{eatery_id}")
+    suspend fun fetchEatery(@Path(value = "eatery_id") eateryId: String): Eatery
 
     @GET("/eatery/simple")
     suspend fun fetchHomeEateries(): List<Eatery>
