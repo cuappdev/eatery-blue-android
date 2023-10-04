@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
-import androidx.compose.ui.window.Popup
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
@@ -60,7 +59,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import kotlin.reflect.jvm.internal.impl.descriptors.Visibilities.Local
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -88,12 +86,15 @@ fun EateryDetailScreen(
                         }
                     }
                 }
+
                 BottomSheetContent.HOURS -> {
                     // TODO finish
                 }
+
                 BottomSheetContent.WAIT_TIME -> {
                     // TODO finish
                 }
+
                 BottomSheetContent.REPORT -> {
                     eateryDetailViewModel.eatery.id?.let {
                         ReportBottomSheet(
@@ -127,6 +128,7 @@ fun EateryDetailScreen(
             is EateryRetrievalState.Error -> {
                 Text(text = "ERROR")
             }
+
             is EateryRetrievalState.Success -> {
                 val eatery = eateryDetailViewModel.eatery
                 paymentMethods.apply {
@@ -653,17 +655,17 @@ fun EateryMenuWidget(event: Event) {
 
     /** If the calendar icon is pressed a dialog pops up allowing the user to select through
      * the upcoming meals at a specific dining hall */
-    if(openUpcoming){
+    if (openUpcoming) {
         Dialog(
             // Allow dialog box to span the entire page and make it disappear when openUpcoming is false
             properties = DialogProperties(usePlatformDefaultWidth = false),
-            onDismissRequest = {openUpcoming = false }
+            onDismissRequest = { openUpcoming = false }
 
         ) {
             // Get the dialog window and set it to the bottom using gravity
             val dialogWindowProvider = LocalView.current.parent as DialogWindowProvider
             dialogWindowProvider.window.setGravity(Gravity.BOTTOM)
-            var currSelectedDay by remember { mutableStateOf( selectedDay ) }
+            var currSelectedDay by remember { mutableStateOf(selectedDay) }
             // Dialog Box
             Card(
                 modifier = Modifier
@@ -671,7 +673,7 @@ fun EateryMenuWidget(event: Event) {
                     .height(284.dp),
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             ) {
-                Column (
+                Column(
                     modifier = Modifier.padding(
                         top = 15.dp,
                         start = 15.dp,
@@ -736,7 +738,7 @@ fun EateryMenuWidget(event: Event) {
                                             color = GrayFive,
                                         )
                                     }
-                                } else if (i == currSelectedDay){
+                                } else if (i == currSelectedDay) {
                                     Canvas(
                                         modifier = Modifier
                                             .size(size = 35.dp)
@@ -769,11 +771,12 @@ fun EateryMenuWidget(event: Event) {
                         modifier = Modifier
                             .padding(bottom = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        Button(onClick = {
-                                        selectedDay = currSelectedDay
-                                        openUpcoming = false
-                                         },
+                    ) {
+                        Button(
+                            onClick = {
+                                selectedDay = currSelectedDay
+                                openUpcoming = false
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp),
@@ -794,7 +797,7 @@ fun EateryMenuWidget(event: Event) {
                             modifier = Modifier.padding(top = 12.dp),
                             text = AnnotatedString("Reset"),
                             style = EateryBlueTypography.body2,
-                            onClick = {selectedDay = weekDayIndex}
+                            onClick = { selectedDay = weekDayIndex }
                         )
                     }
 
