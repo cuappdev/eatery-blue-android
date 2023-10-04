@@ -35,23 +35,43 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      */
     val eateryFlow = _eateryFlow.asStateFlow()
 
+    private val _homeEateryFlow: MutableStateFlow<EateryApiResponse<List<Eatery>>> =
+        MutableStateFlow(EateryApiResponse.Pending)
+
+    /**
+     * A [StateFlow] emitting [EateryApiResponse]s for lists of home eateries.
+     */
+    val homeEateryFlow = _homeEateryFlow.asStateFlow()
+
     init {
         // Start loading backend as soon as the app initializes.
-        pingBackend()
+        pingAllEateries()
+        pingHomeEateries()
     }
 
     /**
      * Makes a new call to backend for all the eatery data.
      */
-    fun pingBackend() {
-        // TODO: Add some way of letting a user re-ping by calling this method when an error occurs.
-        //  There should be some sort of UI (e.g. pull up to refresh, error state w/ button, etc.)
+    fun pingAllEateries() {
+        _eateryFlow.value = EateryApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val eateries = getAllEateries()
                 _eateryFlow.value = EateryApiResponse.Success(eateries)
             } catch (_: Exception) {
                 _eateryFlow.value = EateryApiResponse.Error
+            }
+        }
+    }
+
+    fun pingHomeEateries() {
+        _homeEateryFlow.value = EateryApiResponse.Pending
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val eateries = getHomeEateries()
+                _homeEateryFlow.value = EateryApiResponse.Success(eateries)
+            } catch (_: Exception) {
+                _homeEateryFlow.value = EateryApiResponse.Error
             }
         }
     }
