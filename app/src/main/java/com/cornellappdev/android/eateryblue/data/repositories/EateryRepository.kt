@@ -56,7 +56,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     /**
      * Makes a new call to backend for all the eatery data.
      */
-    fun pingAllEateries() {
+    private fun pingAllEateries() {
         _eateryFlow.value = EateryApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -71,7 +71,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     /**
      * Makes a new call to backend for all the abridged home eatery data.
      */
-    fun pingHomeEateries() {
+    private fun pingHomeEateries() {
         _homeEateryFlow.value = EateryApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -94,7 +94,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      * `eateryApiCache[eateryId]` is guaranteed to contain a state actively loading that eatery's
      * data.
      */
-    fun pingEatery(eateryId: Int) {
+    private fun pingEatery(eateryId: Int) {
         // If first time calling, make new state.
         if (eateryApiCache[eateryId] == null) {
             eateryApiCache[eateryId] = mutableStateOf(EateryApiResponse.Pending)

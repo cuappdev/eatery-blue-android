@@ -31,6 +31,8 @@ class FavoritesViewModel @Inject constructor(
         queryFavoriteEateries()
     }
 
+    // TODO: Change to directly read from [EateryRepository]'s `homeEateryFlow`
+    //  Also, combine with the favorites map flow.
     fun queryFavoriteEateries() = viewModelScope.launch {
         try {
             favoriteEateries.clear()

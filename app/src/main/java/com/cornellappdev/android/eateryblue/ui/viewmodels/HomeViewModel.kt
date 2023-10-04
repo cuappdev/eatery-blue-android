@@ -53,6 +53,8 @@ class HomeViewModel @Inject constructor(
         queryAllEateries()
     }
 
+    // TODO: Change to directly read from [EateryRepository]'s `homeEateryFlow`
+    //  Also, combine with the favorites map flow.
     fun queryAllEateries() = viewModelScope.launch {
         try {
             val eateryResponse = eateryRepository.getHomeEateries()

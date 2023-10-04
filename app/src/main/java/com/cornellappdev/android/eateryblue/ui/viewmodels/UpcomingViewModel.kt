@@ -38,6 +38,7 @@ class UpcomingViewModel @Inject constructor(
         queryAllEateries()
     }
 
+    // TODO: Change to directly read from [EateryRepository]'s `eateryFlow`
     private fun queryAllEateries() = viewModelScope.launch {
         eateryRetrievalState = try {
             val eateryResponse = eateryRepository.getAllEateries()
