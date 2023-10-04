@@ -62,7 +62,7 @@ fun EateryDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     var issue by remember { mutableStateOf<Issue?>(null) }
 
-    when (val eateryApiResponse = eateryDetailViewModel.eatery.collectAsState().value) {
+    when (val eateryApiResponse = eateryDetailViewModel.eatery.value) {
         is EateryApiResponse.Pending -> {
             EateryDetailLoadingScreen(shimmer)
         }

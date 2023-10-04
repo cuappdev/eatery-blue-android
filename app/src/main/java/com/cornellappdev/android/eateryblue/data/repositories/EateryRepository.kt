@@ -1,5 +1,8 @@
 package com.cornellappdev.android.eateryblue.data.repositories
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import com.cornellappdev.android.eateryblue.data.NetworkApi
 import com.cornellappdev.android.eateryblue.data.models.ApiResponse
 import com.cornellappdev.android.eateryblue.data.models.Eatery
@@ -8,6 +11,7 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiRespons
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -64,6 +68,9 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
         }
     }
 
+    /**
+     * Makes a new call to backend for all the abridged home eatery data.
+     */
     fun pingHomeEateries() {
         _homeEateryFlow.value = EateryApiResponse.Pending
         CoroutineScope(Dispatchers.IO).launch {
@@ -74,5 +81,47 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
                 _homeEateryFlow.value = EateryApiResponse.Error
             }
         }
+    }
+
+    /**
+     * A map from eatery ids to the states representing their API loading calls.
+     */
+    private val eateryApiCache : MutableMap<Int, MutableState<EateryApiResponse<Eatery>>>
+        = mutableMapOf()
+
+    /**
+     * Makes a new call to backend for the specified eatery. After calling,
+     * `eateryApiCache[eateryId]` is guaranteed to contain a state actively loading that eatery's
+     * data.
+     */
+    fun pingEatery(eateryId: Int) {
+        // If first time calling, make new state.
+        if (eateryApiCache[eateryId] == null) {
+            eateryApiCache[eateryId] = mutableStateOf(EateryApiResponse.Pending)
+        }
+
+        eateryApiCache[eateryId]!!.value = EateryApiResponse.Pending
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val eatery = getEatery(eateryId = eateryId)
+                eateryApiCache[eateryId]!!.value = EateryApiResponse.Success(eatery)
+            } catch (_: Exception) {
+                eateryApiCache[eateryId]!!.value = EateryApiResponse.Error
+            }
+        }
+    }
+
+    /**
+     * Returns the [State] representing the API call for the specified eatery.
+     */
+    fun getEateryFlow(eateryId: Int) : State<EateryApiResponse<Eatery>> {
+        // If not called yet or is in an error, re-ping.
+        if (!eateryApiCache.contains(eateryId)
+            || eateryApiCache[eateryId]!!.value is EateryApiResponse.Error) {
+            pingEatery(eateryId = eateryId)
+        }
+
+        return eateryApiCache[eateryId]!!
     }
 }

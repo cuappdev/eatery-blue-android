@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,9 +12,12 @@ import com.cornellappdev.android.eateryblue.data.repositories.EateryRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserRepository
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -28,42 +32,18 @@ class EateryDetailViewModel @Inject constructor(
 ) : ViewModel() {
     private val eateryId: Int = checkNotNull(savedStateHandle["eateryId"])
 
-    var eatery: StateFlow<EateryApiResponse<Eatery>> = eateryRepository.eateryFlow.map { eateries ->
-        when (eateries) {
-            is EateryApiResponse.Pending -> EateryApiResponse.Pending
-
-            is EateryApiResponse.Error -> EateryApiResponse.Error
-
-            is EateryApiResponse.Success -> {
-                EateryApiResponse.Success(eateries.data.first {
-                    it.id == eateryId
-                })
-            }
-        }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        EateryApiResponse.Pending
-    )
-        private set
+    var eatery : State<EateryApiResponse<Eatery>> = mutableStateOf(EateryApiResponse.Pending)
 
     var isFavorite by mutableStateOf(false)
         private set
 
     init {
-        queryEatery()
+        openEatery(eateryId)
     }
 
-    private fun queryEatery() =
-        viewModelScope.launch {
-            try {
-                eatery = eateryRepository.getEatery(eateryId)
-                isFavorite = userPreferencesRepository.getFavorite(eateryId)
-                eateryRetrievalState = EateryRetrievalState.Success
-            } catch (_: Exception) {
-                eateryRetrievalState = EateryRetrievalState.Error
-            }
-        }
+    fun openEatery(eateryId: Int) {
+        eatery = eateryRepository.getEateryFlow(eateryId)
+    }
 
     fun toggleFavorite() = viewModelScope.launch {
         userPreferencesRepository.setFavorite(eateryId, !isFavorite)
