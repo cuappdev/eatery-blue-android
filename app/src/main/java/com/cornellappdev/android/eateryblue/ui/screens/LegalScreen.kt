@@ -1,4 +1,4 @@
- package com.cornellappdev.android.eateryblue.ui.screens
+package com.cornellappdev.android.eateryblue.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth

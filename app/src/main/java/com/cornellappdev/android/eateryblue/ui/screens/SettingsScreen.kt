@@ -212,9 +212,11 @@ fun SettingsScreen(
                     LoggedInStatus.Pending -> {
 
                     }
+
                     LoggedInStatus.NotLoggedIn -> {
 
                     }
+
                     is LoggedInStatus.IsLoggedIn -> {
                         val loginInfo = loginViewModel.isLoggedIn as LoggedInStatus.IsLoggedIn
 

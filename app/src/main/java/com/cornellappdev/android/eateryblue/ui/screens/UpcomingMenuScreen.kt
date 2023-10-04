@@ -286,9 +286,11 @@ fun UpcomingMenuScreen(
                                 )
                             }
                         }
+
                         is EateryRetrievalState.Error -> {
                             item { Text(text = "error") }
                         }
+
                         is EateryRetrievalState.Success -> {
                             upcomingViewModel.initializeFilter()
                             if (upcomingViewModel.currentFiltersSelected.isNotEmpty()) {
@@ -392,4 +394,3 @@ fun UpcomingMenuScreen(
             })
     }
 }
-

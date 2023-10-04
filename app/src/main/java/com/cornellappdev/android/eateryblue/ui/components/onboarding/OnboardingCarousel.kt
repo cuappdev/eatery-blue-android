@@ -107,6 +107,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(0),
                             )
                         }
+
                         1 -> {
                             OnboardingPage(
                                 num = 1,
@@ -120,18 +121,21 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(2),
                             )
                         }
+
                         3 -> {
                             OnboardingPage(
                                 num = 3,
                                 pagerOffset = calculateCurrentOffsetForPage(3),
                             )
                         }
+
                         4 -> {
                             OnboardingPage(
                                 num = 4,
                                 pagerOffset = calculateCurrentOffsetForPage(4),
                             )
                         }
+
                         5 -> {
                             OnboardingPage(
                                 num = 5,
@@ -206,6 +210,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         1 -> {
                             IconSheet(
                                 iconData = listOf(
@@ -228,6 +233,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         2 -> {
                             IconSheet(
                                 iconData = listOf(
@@ -250,6 +256,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         3 -> {
                             IconSheet(
                                 iconData = listOf(
@@ -272,6 +279,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         4 -> {
                             IconSheet(
                                 iconData = listOf(
@@ -289,6 +297,7 @@ fun OnboardingCarousel(
                                 pagerOffset = calculateCurrentOffsetForPage(page)
                             )
                         }
+
                         5 -> {
                             IconSheet(
                                 iconData = listOf(
