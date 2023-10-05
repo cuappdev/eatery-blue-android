@@ -114,8 +114,15 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     /**
      * Returns the [State] representing the API call for the specified eatery.
+     * If ALL eateries are already loaded, then this simply instantly returns that.
      */
     fun getEateryState(eateryId: Int) : State<EateryApiResponse<Eatery>> {
+        if (eateryFlow.value is EateryApiResponse.Success) {
+            return mutableStateOf(EateryApiResponse.Success(
+                (eateryFlow.value as EateryApiResponse.Success<List<Eatery>>)
+                    .data.find {it.id == eateryId}!!))
+        }
+
         // If not called yet or is in an error, re-ping.
         if (!eateryApiCache.contains(eateryId)
             || eateryApiCache[eateryId]!!.value is EateryApiResponse.Error) {
