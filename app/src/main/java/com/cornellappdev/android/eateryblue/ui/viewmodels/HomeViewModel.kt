@@ -14,6 +14,8 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,6 +32,8 @@ class HomeViewModel @Inject constructor(
     private val _allEateries = mutableSetOf<Eatery>()
     val allEateries: Set<Eatery> = _allEateries
 
+    private val mutex = Mutex()
+
     var favoriteEateries = mutableStateListOf<Eatery>()
         private set
 
@@ -39,7 +43,7 @@ class HomeViewModel @Inject constructor(
     var filteredResults = mutableStateListOf<Eatery>()
         private set
 
-    var bigPopUp by mutableStateOf(false)
+    private var bigPopUp by mutableStateOf(false)
 
     fun setPopUp(bool: Boolean) {
         bigPopUp = bool
@@ -49,6 +53,8 @@ class HomeViewModel @Inject constructor(
         queryAllEateries()
     }
 
+    // TODO: Change to directly read from [EateryRepository]'s `homeEateryFlow`
+    //  Also, combine with the favorites map flow.
     fun queryAllEateries() = viewModelScope.launch {
         try {
             val eateryResponse = eateryRepository.getHomeEateries()
@@ -67,11 +73,13 @@ class HomeViewModel @Inject constructor(
     }
 
     fun updateFavorites() = viewModelScope.launch {
-        val favoriteEateriesKeys =
-            userPreferencesRepository.getFavoritesMap().keys
-        favoriteEateries = _allEateries.filter {
-            favoriteEateriesKeys.contains(it.id)
-        }.toCollection(mutableStateListOf())
+        mutex.withLock {
+            val favoriteEateriesKeys =
+                userPreferencesRepository.getFavoritesMap().keys
+            favoriteEateries = _allEateries.filter {
+                favoriteEateriesKeys.contains(it.id)
+            }.toCollection(mutableStateListOf())
+        }
     }
 
     fun updateNearest() = viewModelScope.launch {
@@ -148,22 +156,25 @@ class HomeViewModel @Inject constructor(
                 (_currentFiltersSelected.contains(Filter.CASH) && eatery.paymentAcceptsCash == true)))
     }
 
+    // Mutex needed to address different coroutine access
     fun addFavorite(eateryId: Int?) = viewModelScope.launch {
         if (eateryId == null) return@launch
-
-        userPreferencesRepository.setFavorite(eateryId, true)
-
-        _allEateries.firstOrNull { eatery ->
-            eatery.id == eateryId
-        }?.let { matchingEatery -> favoriteEateries.add(matchingEatery) }
+        mutex.withLock {
+            userPreferencesRepository.setFavorite(eateryId, true)
+            _allEateries.firstOrNull { eatery ->
+                eatery.id == eateryId
+            }?.let { matchingEatery -> favoriteEateries.add(matchingEatery) }
+        }
     }
 
     fun removeFavorite(eateryId: Int?) = viewModelScope.launch {
         if (eateryId == null) return@launch
 
-        userPreferencesRepository.setFavorite(eateryId, false)
-        favoriteEateries.removeIf { eatery ->
-            eatery.id == eateryId
+        mutex.withLock {
+            userPreferencesRepository.setFavorite(eateryId, false)
+            favoriteEateries.removeIf { eatery ->
+                eatery.id == eateryId
+            }
         }
     }
 

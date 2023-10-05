@@ -31,9 +31,13 @@ class FavoritesViewModel @Inject constructor(
         queryFavoriteEateries()
     }
 
+    // TODO: Change to directly read from [EateryRepository]'s `homeEateryFlow`
+    //  Also, combine with the favorites map flow.
     fun queryFavoriteEateries() = viewModelScope.launch {
         try {
-            val eateryResponse = eateryRepository.getAllEateries()
+            favoriteEateries.clear()
+            eateryRetrievalState = EateryRetrievalState.Pending
+            val eateryResponse = eateryRepository.getHomeEateries()
             allEateries.addAll(eateryResponse)
 
             val favoriteEateriesIds =
@@ -55,6 +59,7 @@ class FavoritesViewModel @Inject constructor(
         favoriteEateries.removeIf { eatery ->
             eatery.id == eateryId
         }
+        updateFavorites()
     }
 
     fun updateFavorites() = viewModelScope.launch {

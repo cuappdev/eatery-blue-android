@@ -3,6 +3,7 @@ package com.cornellappdev.android.eateryblue.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -47,6 +48,7 @@ fun FavoritesScreen(
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
+
     LaunchedEffect(Unit) {
         favoriteViewModel.queryFavoriteEateries()
     }
@@ -62,6 +64,8 @@ fun FavoritesScreen(
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
+
+        Spacer(modifier = Modifier.height(10.dp))
 
         // TODO add filtering
 
