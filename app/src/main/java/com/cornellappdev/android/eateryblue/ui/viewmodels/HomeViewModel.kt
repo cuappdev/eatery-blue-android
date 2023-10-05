@@ -1,7 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -39,22 +38,41 @@ class HomeViewModel @Inject constructor(
      * A flow emitting all eateries with the appropriate filters applied.
      */
     val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
-        eateryRepository.homeEateryFlow.combine(_filtersFlow) { apiResponse, filters ->
+        combine(
+            eateryRepository.homeEateryFlow,
+            _filtersFlow,
+            userPreferencesRepository.favoritesFlow
+        ) { apiResponse, filters, favorites ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> EateryApiResponse.Error
                 is EateryApiResponse.Pending -> EateryApiResponse.Pending
                 is EateryApiResponse.Success -> {
                     EateryApiResponse.Success(
                         apiResponse.data.filter {
-                            passesFilter(it, filters)
+                            passesFilter(it, filters, favorites)
                         })
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
 
-    // TODO: Favorites
-    var favoriteEateries = mutableStateListOf<Eatery>()
-        private set
+    /**
+     * A flow emitting all the eateries the user has favorited.
+     */
+    val favoriteEateries =
+        combine(
+            eateryRepository.homeEateryFlow,
+            userPreferencesRepository.favoritesFlow
+        ) { apiResponse, favorites ->
+            when (apiResponse) {
+                is EateryApiResponse.Error -> listOf()
+                is EateryApiResponse.Pending -> listOf()
+                is EateryApiResponse.Success -> {
+                    apiResponse.data.filter {
+                        favorites[it.id] == true
+                    }
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
     /**
      * A [StateFlow] that emits the 6 nearest eateries based on location.
@@ -103,7 +121,11 @@ class HomeViewModel @Inject constructor(
     /**
      * Determines if the eatery passes the filter inspection based on what's currently selected.
      */
-    private fun passesFilter(eatery: Eatery, filters: List<Filter>): Boolean {
+    private fun passesFilter(
+        eatery: Eatery,
+        filters: List<Filter>,
+        favorites: Map<Int, Boolean>
+    ): Boolean {
         var passesFilter = true
         if (filters.contains(Filter.UNDER_10)) {
             val walkTimes = eatery.getWalkTimes()
@@ -111,9 +133,7 @@ class HomeViewModel @Inject constructor(
         }
 
         if (filters.contains(Filter.FAVORITES)) {
-            passesFilter = favoriteEateries.any {
-                it.id == eatery.id
-            }
+            passesFilter = favorites[eatery.id] == true
         }
 
         val allLocationsValid =
@@ -142,11 +162,13 @@ class HomeViewModel @Inject constructor(
     }
 
     fun addFavorite(eateryId: Int?) = viewModelScope.launch {
-        // TODO: Fix favoriting flow.
+        if (eateryId != null)
+            userPreferencesRepository.setFavorite(eateryId, true)
     }
 
     fun removeFavorite(eateryId: Int?) = viewModelScope.launch {
-        // TODO: Fix favoriting flow.
+        if (eateryId != null)
+            userPreferencesRepository.setFavorite(eateryId, false)
     }
 
     fun getNotificationFlowCompleted() = runBlocking {

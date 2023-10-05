@@ -94,6 +94,7 @@ fun HomeScreen(
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
     val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
+    val favorites = homeViewModel.favoriteEateries.collectAsState().value
 
     // Here a DisposableEffect is launched when the bottom sheet opens. 
     // When it disappears it's from the view hierarchy, which will cause
@@ -328,7 +329,7 @@ fun HomeScreen(
                                         ) {
                                             EateryCard(
                                                 eatery = eatery,
-                                                isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                isFavorite = favorites.any { favoriteEatery ->
                                                     favoriteEatery.id == eatery.id
                                                 },
                                                 onFavoriteClick = {
@@ -395,7 +396,7 @@ fun HomeScreen(
                                         }
 
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                            items(homeViewModel.favoriteEateries) { eatery ->
+                                            items(favorites) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
                                                     isFavorite = true,
@@ -438,7 +439,7 @@ fun HomeScreen(
                                             items(nearestEateries) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
-                                                    isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                    isFavorite = favorites.any { favoriteEatery ->
                                                         favoriteEatery.id == eatery.id
                                                     },
                                                     modifier = Modifier.fillParentMaxWidth(0.85f),
@@ -488,7 +489,7 @@ fun HomeScreen(
                                             items(swipeEateries) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
-                                                    isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                    isFavorite = favorites.any { favoriteEatery ->
                                                         favoriteEatery.id == eatery.id
                                                     },
                                                     modifier = Modifier.fillParentMaxWidth(0.85f),
@@ -533,7 +534,7 @@ fun HomeScreen(
                                     ) {
                                         EateryCard(
                                             eatery = eatery,
-                                            isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                            isFavorite = favorites.any { favoriteEatery ->
                                                 favoriteEatery.id == eatery.id
                                             },
                                             onFavoriteClick = {

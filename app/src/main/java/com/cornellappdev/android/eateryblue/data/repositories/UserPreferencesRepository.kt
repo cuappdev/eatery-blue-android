@@ -4,8 +4,15 @@ import androidx.datastore.core.DataStore
 import com.cornellappdev.android.eateryblue.UserPreferences
 import com.cornellappdev.android.eateryblue.util.Constants.PASSWORD_ALIAS
 import com.cornellappdev.android.eateryblue.util.encryptData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,6 +23,13 @@ class UserPreferencesRepository @Inject constructor(
     private val userPreferencesStore: DataStore<UserPreferences>,
 ) {
     private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
+
+    /**
+     * A flow automatically emitting maps indicating whether particular Eateries are favorited.
+     */
+    val favoritesFlow : StateFlow<Map<Int, Boolean>> = userPreferencesFlow.map { prefs ->
+        prefs.favoritesMap
+    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, mapOf())
 
     suspend fun setHasOnboarded(hasOnboarded: Boolean) {
         userPreferencesStore.updateData { currentPreferences ->
@@ -29,14 +43,19 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setFavorite(eateryId: Int, isFavorite: Boolean) {
-        userPreferencesStore.updateData { currentPreferences ->
-            // There's no set data structure for protobuffs, so if the ID isn't in the map then
-            // it isn't a favorite (hence the removal instead of making false)
-            if (isFavorite) {
-                currentPreferences.toBuilder().putFavorites(eateryId, true).build()
-            } else {
-                currentPreferences.toBuilder().removeFavorites(eateryId).build()
+    /**
+     * Asynchronously sets the indicated eatery id as favorite or not.
+     */
+    fun setFavorite(eateryId: Int, isFavorite: Boolean) {
+        CoroutineScope(Dispatchers.IO).launch {
+            userPreferencesStore.updateData { currentPreferences ->
+                // There's no set data structure for protobuffs, so if the ID isn't in the map then
+                // it isn't a favorite (hence the removal instead of making false)
+                if (isFavorite) {
+                    currentPreferences.toBuilder().putFavorites(eateryId, true).build()
+                } else {
+                    currentPreferences.toBuilder().removeFavorites(eateryId).build()
+                }
             }
         }
     }
@@ -79,9 +98,6 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun getFavoritesMap(): Map<Int, Boolean> =
         userPreferencesFlow.first().favoritesMap
-
-    suspend fun getFavorite(eateryId: Int): Boolean =
-        userPreferencesFlow.first().getFavoritesOrDefault(eateryId, false)
 
     suspend fun getHasOnboarded(): Boolean =
         userPreferencesFlow.first().hasOnboarded
