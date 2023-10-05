@@ -161,12 +161,12 @@ class HomeViewModel @Inject constructor(
                         (filters.contains(Filter.CASH) && eatery.paymentAcceptsCash == true)))
     }
 
-    fun addFavorite(eateryId: Int?) = viewModelScope.launch {
+    fun addFavorite(eateryId: Int?) {
         if (eateryId != null)
             userPreferencesRepository.setFavorite(eateryId, true)
     }
 
-    fun removeFavorite(eateryId: Int?) = viewModelScope.launch {
+    fun removeFavorite(eateryId: Int?) {
         if (eateryId != null)
             userPreferencesRepository.setFavorite(eateryId, false)
     }

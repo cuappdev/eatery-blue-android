@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,7 +37,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayTwo
 import com.cornellappdev.android.eateryblue.ui.viewmodels.FavoritesViewModel
-import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
@@ -49,11 +48,7 @@ fun FavoritesScreen(
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
-
-    LaunchedEffect(Unit) {
-        Log.i("favorites", "balhlakbakjlkrga")
-        favoriteViewModel.queryFavoriteEateries()
-    }
+    val favoriteEateriesApiResponse = favoriteViewModel.favoriteEateries.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -71,8 +66,8 @@ fun FavoritesScreen(
 
         // TODO add filtering
 
-        when (favoriteViewModel.eateryRetrievalState) {
-            is EateryRetrievalState.Pending -> {
+        when (favoriteEateriesApiResponse) {
+            is EateryApiResponse.Pending -> {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -86,12 +81,13 @@ fun FavoritesScreen(
                 }
             }
 
-            is EateryRetrievalState.Error -> {
+            is EateryApiResponse.Error -> {
                 // TODO Add No Internet/Oopsie display
             }
 
-            is EateryRetrievalState.Success -> {
-                if (favoriteViewModel.favoriteEateries.isEmpty()) {
+            is EateryApiResponse.Success -> {
+                val favoriteEateries = favoriteEateriesApiResponse.data
+                if (favoriteEateries.isEmpty()) {
                     Box(
                         modifier = Modifier
                             .fillMaxHeight(0.7f)
@@ -128,7 +124,7 @@ fun FavoritesScreen(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(
-                            items = favoriteViewModel.favoriteEateries.distinct(),
+                            items = favoriteEateries,
                             key = { eatery ->
                                 eatery.id!!
                             }) { eatery ->

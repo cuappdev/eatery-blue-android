@@ -19,16 +19,16 @@ import javax.inject.Singleton
 
 @Singleton
 class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
-    suspend fun getAllEateries(): List<Eatery> =
+    private suspend fun getAllEateries(): List<Eatery> =
         networkApi.fetchEateries()
 
-    suspend fun getEatery(eateryId: Int): Eatery =
+    private suspend fun getEatery(eateryId: Int): Eatery =
         networkApi.fetchEatery(eateryId = eateryId.toString())
 
-    suspend fun getHomeEateries(): List<Eatery> =
+    private suspend fun getHomeEateries(): List<Eatery> =
         networkApi.fetchHomeEateries()
 
-    suspend fun getAllEvents(): ApiResponse<List<Event>> =
+    private suspend fun getAllEvents(): ApiResponse<List<Event>> =
         networkApi.fetchEvents()
 
     private val _eateryFlow: MutableStateFlow<EateryApiResponse<List<Eatery>>> =
@@ -115,7 +115,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     /**
      * Returns the [State] representing the API call for the specified eatery.
      */
-    fun getEateryFlow(eateryId: Int) : State<EateryApiResponse<Eatery>> {
+    fun getEateryState(eateryId: Int) : State<EateryApiResponse<Eatery>> {
         // If not called yet or is in an error, re-ping.
         if (!eateryApiCache.contains(eateryId)
             || eateryApiCache[eateryId]!!.value is EateryApiResponse.Error) {
