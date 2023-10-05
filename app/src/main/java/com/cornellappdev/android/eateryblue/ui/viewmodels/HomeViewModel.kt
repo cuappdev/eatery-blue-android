@@ -31,6 +31,9 @@ class HomeViewModel @Inject constructor(
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
     val filtersFlow = _filtersFlow.asStateFlow()
 
+    /**
+     * A flow emitting all eateries with the appropriate filters applied.
+     */
     val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
         eateryRepository.homeEateryFlow.combine(_filtersFlow) { apiResponse, filters ->
             when (apiResponse) {
@@ -49,7 +52,12 @@ class HomeViewModel @Inject constructor(
     var favoriteEateries = mutableStateListOf<Eatery>()
         private set
 
-    var nearestEateries: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
+    /**
+     * A [StateFlow] that emits the 6 nearest eateries based on location.
+     *
+     * TODO: Walk times may not be updating automatically; may have to change location to use state.
+     */
+    val nearestEateries: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
         when (apiResponse) {
             is EateryApiResponse.Error -> listOf()
             is EateryApiResponse.Pending -> listOf()
