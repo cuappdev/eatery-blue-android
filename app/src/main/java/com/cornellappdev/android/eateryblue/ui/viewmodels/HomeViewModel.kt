@@ -29,6 +29,10 @@ class HomeViewModel @Inject constructor(
     private val eateryRepository: EateryRepository
 ) : ViewModel() {
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
+
+    /**
+     * A flow of filters applied to the screen.
+     */
     val filtersFlow = _filtersFlow.asStateFlow()
 
     /**
