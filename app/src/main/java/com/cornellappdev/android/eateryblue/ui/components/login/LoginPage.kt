@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.components.login
 
+import android.util.Log
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebView
@@ -184,7 +185,6 @@ fun LoginPage(
 
             LoginState.Error -> {
                 onError()
-                TODO("user endpoint doesn't exist on backend so logging in is failing everytime")
             }
 
             is LoginState.Success -> {
@@ -207,14 +207,18 @@ fun LoginWebView(
 
     AndroidView(factory = {
         WebView(it).apply {
-            layoutParams = ViewGroup.LayoutParams(0, 0)
-            settings.javaScriptEnabled = true
-            webViewClient = CustomWebViewClient(
-                netId = netId,
-                password = password,
-                onSuccess = onSuccess,
-                onWrongCredentials = onWrongCredentials,
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
             )
+            settings.javaScriptEnabled = true
+            webViewClient =
+                CustomWebViewClient(
+                    netId = netId,
+                    password = password,
+                    onSuccess = onSuccess,
+                    onWrongCredentials = onWrongCredentials,
+                )
             loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
         }
     }, update = {
@@ -236,6 +240,7 @@ class CustomWebViewClient(
         lastUrl = url
         if (url?.contains("sessionId=") == true) {
             val sessionToken = url.substringAfter("sessionId=").removeSuffix("&")
+            Log.d("SESSIONIDDDDD", sessionToken)
             onSuccess(sessionToken)
         } else if (attempts > 1) {
             onWrongCredentials()

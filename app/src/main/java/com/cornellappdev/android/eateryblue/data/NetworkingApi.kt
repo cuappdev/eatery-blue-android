@@ -6,23 +6,27 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Url
 import java.text.SimpleDateFormat
 import java.time.Duration
 import java.util.*
 
 interface NetworkApi {
-    @POST("user")
+    @POST()
     suspend fun fetchUser(
+        @Url url: String,
         @Body body: GetApiRequestBody<GetApiUserParams>
     ): GetApiResponse<User>
 
-    @POST("commerce")
+    @POST()
     suspend fun fetchAccounts(
+        @Url url: String,
         @Body body: GetApiRequestBody<GetApiAccountsParams>
     ): GetApiResponse<AccountsResponse>
 
-    @POST("commerce")
+    @POST()
     suspend fun fetchTransactionHistory(
+        @Url url: String,
         @Body body: GetApiRequestBody<GetApiTransactionHistoryParams>
     ): GetApiResponse<TransactionsResponse>
 
