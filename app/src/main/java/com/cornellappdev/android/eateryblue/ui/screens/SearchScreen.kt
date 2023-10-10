@@ -26,7 +26,7 @@ import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.viewmodels.SearchViewModel
-import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.glide.GlideImage
@@ -47,15 +47,13 @@ fun SearchScreen(
     val coroutineScope = rememberCoroutineScope()
     var searchText by remember { mutableStateOf("") }
 
+    val favorites = searchViewModel.favoriteEateries.collectAsState().value
+    val filters = searchViewModel.filtersFlow.collectAsState().value
+    val eateryApiResponse = searchViewModel.searchResultEateries.collectAsState().value
+
     // Automatically brings the search bar into focus when the view is composed
     LaunchedEffect(Unit) {
-        if (searchViewModel.firstLaunch) {
-            focusRequester.requestFocus()
-            searchViewModel.firstLaunch = false
-        }
-
-        // TODO check to see if this belonging in the else branch of above is better
-        searchViewModel.updateFavorites()
+        focusRequester.requestFocus()
     }
 
     // Here a DisposableEffect is launched when the bottom sheet opens.
@@ -93,7 +91,10 @@ fun SearchScreen(
             Column {
                 SearchBar(
                     searchText = searchText,
-                    onSearchTextChange = { searchText = it },
+                    onSearchTextChange = {
+                        searchText = it
+                        searchViewModel.queryEateries(it)
+                    },
                     placeholderText = "Search for grub...",
                     modifier = Modifier
                         .padding(top = 64.dp, bottom = 12.dp, start = 16.dp, end = 16.dp),
@@ -106,14 +107,14 @@ fun SearchScreen(
 
                 FilterRow(
                     modifier = Modifier.padding(start = 16.dp, bottom = 12.dp),
-                    currentFiltersSelected = searchViewModel.currentFiltersSelected,
+                    currentFiltersSelected = filters,
                     onPaymentMethodsClicked = {
                         coroutineScope.launch {
                             modalBottomSheetState.show()
                         }
                     },
                     onFilterClicked = { filter ->
-                        if (searchViewModel.currentFiltersSelected.contains(filter)) {
+                        if (filters.contains(filter)) {
                             searchViewModel.removeFilter(filter)
                         } else {
                             searchViewModel.addFilter(filter)
@@ -128,7 +129,7 @@ fun SearchScreen(
                 )
 
                 if (searchText.isEmpty()) {
-                    if (searchViewModel.eateryRetrievalState is EateryRetrievalState.Success) {
+                    if (eateryApiResponse is EateryApiResponse.Success) {
                         Row(
                             modifier = Modifier
                                 .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
@@ -153,7 +154,7 @@ fun SearchScreen(
                             horizontalArrangement = Arrangement.spacedBy(16.dp),
                             modifier = Modifier.padding(start = 16.dp)
                         ) {
-                            items(items = searchViewModel.favoriteEateries, key = { eatery ->
+                            items(items = favorites, key = { eatery ->
                                 eatery.id!!
                             }) { eatery ->
                                 FavoriteItem(eatery, onEateryClick)
@@ -166,9 +167,13 @@ fun SearchScreen(
                             text = "Recent Searches",
                             style = EateryBlueTypography.h4
                         )
+
+                        // TODO: Store & Display recent searches to/from user preferences.
+                        //  Justin: I already implemented this back in the day.
+                        //  Why tf did it get deleted...?
                     }
                 } else {
-
+                    // TODO: Show search results.
                 }
             }
         }

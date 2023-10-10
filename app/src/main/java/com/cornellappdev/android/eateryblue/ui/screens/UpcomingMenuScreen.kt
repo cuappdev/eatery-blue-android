@@ -29,6 +29,7 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -38,7 +39,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.TextStyle
@@ -59,7 +59,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.viewmodels.UpcomingViewModel
-import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
@@ -80,6 +80,9 @@ fun UpcomingMenuScreen(
         initialValue = ModalBottomSheetValue.Hidden
     )
 
+    val filters = upcomingViewModel.filtersFlow.collectAsState().value
+    val eateriesApiResponse = upcomingViewModel.eateryFlow.collectAsState().value
+
     /** instantiates the meal filter list*/
 
     val selectedMealFilters = remember { mutableStateListOf<Filter>() }
@@ -94,16 +97,14 @@ fun UpcomingMenuScreen(
     }
 
     /** Handles the number and calender at the top*/
-    var zoneId: ZoneId? = ZoneId.of("America/New_York")
-    var today = LocalDate.now(zoneId)
-    var currentDay by remember { mutableStateOf(today) }
-    Log.d("current day", currentDay.dayOfWeek.value.toString())
-    Log.d("current day2", currentDay.dayOfMonth.toString())
-    var dayWeek: Int = currentDay.dayOfWeek.value
+    val zoneId: ZoneId? = ZoneId.of("America/New_York")
+    val today = LocalDate.now(zoneId)
+    val currentDay by remember { mutableStateOf(today) }
+    val dayWeek: Int = currentDay.dayOfWeek.value
     val dayNum: Int = currentDay.dayOfMonth
-    var dayNames = mutableListOf<String>()
-    var dayWeeks = mutableListOf<Int>()
-    var days = mutableListOf<Int>()
+    val dayNames = mutableListOf<String>()
+    val dayWeeks = mutableListOf<Int>()
+    val days = mutableListOf<Int>()
 
 
     dayWeeks.add(dayWeek)
@@ -130,8 +131,7 @@ fun UpcomingMenuScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    var weekDayIndex = 0
-    var selectedDay by remember { mutableStateOf(weekDayIndex) }
+    var selectedDay by remember { mutableStateOf(0) }
 
     val listState = rememberLazyListState()
     remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
@@ -157,11 +157,11 @@ fun UpcomingMenuScreen(
                 )
             },
             content = { ->
-                val listState = rememberLazyListState()
+                val innerListState = rememberLazyListState()
                 val isFirstVisible =
-                    remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+                    remember { derivedStateOf { innerListState.firstVisibleItemIndex > 0 } }
                 LazyColumn(
-                    state = listState, modifier = Modifier.fillMaxSize()
+                    state = innerListState, modifier = Modifier.fillMaxSize()
                 ) {
 
                     stickyHeader {
@@ -260,14 +260,14 @@ fun UpcomingMenuScreen(
                     item {
                         FilterRowUpcoming(
                             modifier = Modifier.padding(start = 16.dp),
-                            currentFiltersSelected = upcomingViewModel.currentFiltersSelected,
+                            currentFiltersSelected = filters,
                             onMealsClicked = {
                                 coroutineScope.launch {
                                     modalBottomSheetState.show()
                                 }
                             },
                             onFilterClicked = { filter ->
-                                if (upcomingViewModel.currentFiltersSelected.contains(
+                                if (filters.contains(
                                         filter
                                     )
                                 ) {
@@ -277,8 +277,8 @@ fun UpcomingMenuScreen(
                                 }
                             })
                     }
-                    when (upcomingViewModel.eateryRetrievalState) {
-                        is EateryRetrievalState.Pending -> {
+                    when (eateriesApiResponse) {
+                        is EateryApiResponse.Pending -> {
                             items(UpcomingLoadingItem.upcomingItems) { item ->
                                 CreateUpcomingLoadingItem(
                                     item,
@@ -287,14 +287,14 @@ fun UpcomingMenuScreen(
                             }
                         }
 
-                        is EateryRetrievalState.Error -> {
+                        is EateryApiResponse.Error -> {
                             item { Text(text = "error") }
                         }
 
-                        is EateryRetrievalState.Success -> {
-                            upcomingViewModel.initializeFilter()
-                            if (upcomingViewModel.currentFiltersSelected.isNotEmpty()) {
-                                if (upcomingViewModel.filteredResults.isNotEmpty()) {
+                        is EateryApiResponse.Success -> {
+                            val eateries = eateriesApiResponse.data
+                            if (filters.isNotEmpty()) {
+                                if (eateries.isNotEmpty()) {
                                     item {
                                         Column(
                                             modifier = Modifier
@@ -308,11 +308,11 @@ fun UpcomingMenuScreen(
                                             verticalArrangement = Arrangement.spacedBy(12.dp),
                                         ) {
                                             val northEateries =
-                                                upcomingViewModel.filteredResults.filter { it.campusArea == "North" }
+                                                eateries.filter { it.campusArea == "North" }
                                             val westEateries =
-                                                upcomingViewModel.filteredResults.filter { it.campusArea == "West" }
+                                                eateries.filter { it.campusArea == "West" }
                                             val centralEateries =
-                                                upcomingViewModel.filteredResults.filter { it.campusArea == "Central" }
+                                                eateries.filter { it.campusArea == "Central" }
                                             if (northEateries.isNotEmpty()) {
                                                 Text(
                                                     modifier = Modifier.padding(start = 6.dp),
@@ -389,8 +389,6 @@ fun UpcomingMenuScreen(
                     }
 
                 }
-
-
             })
     }
 }

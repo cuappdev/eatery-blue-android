@@ -36,8 +36,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -67,7 +67,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.viewmodels.HomeViewModel
-import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
@@ -91,10 +91,10 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     val shimmer = rememberShimmer(ShimmerBounds.View)
 
-    // Refreshes the favorites when this view appears everytime.
-    LaunchedEffect(Unit) {
-        homeViewModel.updateFavorites()
-    }
+    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
+    val filters = homeViewModel.filtersFlow.collectAsState().value
+    val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
+    val favorites = homeViewModel.favoriteEateries.collectAsState().value
 
     // Here a DisposableEffect is launched when the bottom sheet opens. 
     // When it disappears it's from the view hierarchy, which will cause
@@ -253,7 +253,9 @@ fun HomeScreen(
                                             top = 24.dp
                                         )
                                     ) {
-                                        AnimatedVisibility(visible = homeViewModel.eateryRetrievalState is EateryRetrievalState.Success) {
+                                        AnimatedVisibility(
+                                            visible = eateriesApiResponse is EateryApiResponse.Success
+                                        ) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.ic_eaterylogo),
                                                 contentDescription = null,
@@ -271,18 +273,20 @@ fun HomeScreen(
                         }
                     }
 
-                    when (homeViewModel.eateryRetrievalState) {
-                        is EateryRetrievalState.Pending -> {
+                    when (eateriesApiResponse) {
+                        is EateryApiResponse.Pending -> {
                             items(MainLoadingItem.mainItems) { item ->
                                 CreateMainLoadingItem(item, shimmer)
                             }
                         }
 
-                        is EateryRetrievalState.Error -> {
+                        is EateryApiResponse.Error -> {
                             // TODO Add No Internet/Oopsie display
                         }
 
-                        is EateryRetrievalState.Success -> {
+                        is EateryApiResponse.Success -> {
+                            val eateries = eateriesApiResponse.data
+
                             item {
                                 SearchBar(
                                     searchText = "",
@@ -299,14 +303,14 @@ fun HomeScreen(
 
                                 FilterRow(
                                     modifier = Modifier.padding(start = 16.dp),
-                                    currentFiltersSelected = homeViewModel.currentFiltersSelected,
+                                    currentFiltersSelected = filters,
                                     onPaymentMethodsClicked = {
                                         coroutineScope.launch {
                                             modalBottomSheetState.show()
                                         }
                                     },
                                     onFilterClicked = { filter ->
-                                        if (homeViewModel.currentFiltersSelected.contains(filter)) {
+                                        if (filters.contains(filter)) {
                                             homeViewModel.removeFilter(filter)
                                         } else {
                                             homeViewModel.addFilter(filter)
@@ -314,9 +318,9 @@ fun HomeScreen(
                                     })
                             }
 
-                            if (homeViewModel.currentFiltersSelected.isNotEmpty()) {
-                                if (homeViewModel.filteredResults.isNotEmpty()) {
-                                    itemsIndexed(homeViewModel.filteredResults) { index, eatery ->
+                            if (filters.isNotEmpty()) {
+                                if (eateries.isNotEmpty()) {
+                                    items(eateries) { eatery ->
                                         Box(
                                             Modifier.padding(
                                                 horizontal = 16.dp,
@@ -325,7 +329,7 @@ fun HomeScreen(
                                         ) {
                                             EateryCard(
                                                 eatery = eatery,
-                                                isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                isFavorite = favorites.any { favoriteEatery ->
                                                     favoriteEatery.id == eatery.id
                                                 },
                                                 onFavoriteClick = {
@@ -392,7 +396,7 @@ fun HomeScreen(
                                         }
 
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                            items(homeViewModel.favoriteEateries) { eatery ->
+                                            items(favorites) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
                                                     isFavorite = true,
@@ -432,11 +436,10 @@ fun HomeScreen(
                                             )
                                         }
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                            homeViewModel.updateNearest()
-                                            items(homeViewModel.nearestEateries) { eatery ->
+                                            items(nearestEateries) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
-                                                    isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                    isFavorite = favorites.any { favoriteEatery ->
                                                         favoriteEatery.id == eatery.id
                                                     },
                                                     modifier = Modifier.fillParentMaxWidth(0.85f),
@@ -460,7 +463,7 @@ fun HomeScreen(
 
                                 item {
                                     val swipeEateries =
-                                        homeViewModel.allEateries.filter { eatery ->
+                                        eateries.filter { eatery ->
                                             eatery.paymentAcceptsMealSwipes == true
                                         }
 
@@ -486,7 +489,7 @@ fun HomeScreen(
                                             items(swipeEateries) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
-                                                    isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                                    isFavorite = favorites.any { favoriteEatery ->
                                                         favoriteEatery.id == eatery.id
                                                     },
                                                     modifier = Modifier.fillParentMaxWidth(0.85f),
@@ -519,7 +522,7 @@ fun HomeScreen(
                                 }
 
                                 itemsIndexed(
-                                    homeViewModel.allEateries.toList()
+                                    eateries
                                 ) { index, eatery ->
                                     Box(
                                         Modifier.padding(
@@ -531,7 +534,7 @@ fun HomeScreen(
                                     ) {
                                         EateryCard(
                                             eatery = eatery,
-                                            isFavorite = homeViewModel.favoriteEateries.any { favoriteEatery ->
+                                            isFavorite = favorites.any { favoriteEatery ->
                                                 favoriteEatery.id == eatery.id
                                             },
                                             onFavoriteClick = {
@@ -547,8 +550,6 @@ fun HomeScreen(
                                 }
                             }
                         }
-
-                        else -> {}
                     }
                 }
             })
