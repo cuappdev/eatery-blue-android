@@ -125,6 +125,40 @@ data class Eatery(
         }
     }
 
+    /**
+     * Parameters: None
+     * Return: Returns a list of events of the available meals that the given eatery
+     * has for the day.
+     */
+    fun getAvailableMeals(day: Int): List<Event> {
+        var currentDay = LocalDate.now()
+        currentDay = currentDay.plusDays(day.toLong())
+        if (events.isNullOrEmpty())
+            return mutableListOf()
+
+        var availableEvents = mutableListOf<Event>()
+        var dayEvents = events?.filter { event ->
+            currentDay.dayOfYear == event.startTime?.dayOfYear
+        }
+        dayEvents!!.forEach { event ->
+            availableEvents.add(event)
+        }
+        return availableEvents.reversed()
+    }
+
+    /**
+     * Parameters: string of the meal description, int of day of relevance
+     * Return: Returns the meals that fit the name and day description given.
+     * (One or no meals may be returned)
+     */
+    fun getIndividualMealForDay(meal: String, day: Int): List<Event>? {
+        var currentDay = LocalDate.now()
+        currentDay = currentDay.plusDays(day.toLong())
+        return events?.filter { event ->
+            currentDay.dayOfYear == event.startTime?.dayOfYear && event.description == meal
+        }
+    }
+
     private fun getCurrentEvents(): List<Event> {
         val currentTime = LocalDateTime.now()
         if (events.isNullOrEmpty())

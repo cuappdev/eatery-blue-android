@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.Gravity
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -416,9 +417,35 @@ fun EateryDetailScreen(
                                 .background(GrayZero)
                         )
 
-                        eatery.getTodaysEvents().forEach { event ->
-                            EateryMenuWidget(event = event)
+                        var currDay by remember { mutableStateOf(0) }
+                        var currMeal by remember { mutableStateOf("") }
+
+                        val updateEvent: (Int, String) -> Unit = { day, event ->
+                            currDay = day
+                            currMeal = event
                         }
+
+                        if (currMeal == "") {
+                            eatery.getIndividualMealForDay(
+                                eatery.getAvailableMeals(currDay)[0].description!!,
+                                currDay
+                            )!!.forEach { event ->
+                                EateryMenuWidget(
+                                    event = event,
+                                    onMenuUpdate = updateEvent,
+                                    currEatery = eatery
+                                )
+                            }
+                        } else {
+                            eatery.getIndividualMealForDay(currMeal, currDay)!!.forEach { event ->
+                                EateryMenuWidget(
+                                    event = event,
+                                    onMenuUpdate = updateEvent,
+                                    currEatery = eatery
+                                )
+                            }
+                        }
+
 
                         Spacer(
                             modifier = Modifier
@@ -568,7 +595,7 @@ fun AlertsSection(eatery: Eatery) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun EateryMenuWidget(event: Event) {
+fun EateryMenuWidget(event: Event, onMenuUpdate: (Int, String) -> Unit, currEatery: Eatery) {
     /** Handles the number and calender at the top*/
     var zoneId: ZoneId? = ZoneId.of("America/New_York")
     var today = LocalDate.now(zoneId)
@@ -604,10 +631,9 @@ fun EateryMenuWidget(event: Event) {
         dayNames.add(dayName)
     }
 
-    val coroutineScope = rememberCoroutineScope()
-
     var weekDayIndex = 0
     var selectedDay by remember { mutableStateOf(weekDayIndex) }
+    var selectedMeal by remember { mutableStateOf("") }
     var openUpcoming by remember { mutableStateOf(false) }
     var filterText by remember { mutableStateOf("") }
 
@@ -665,11 +691,18 @@ fun EateryMenuWidget(event: Event) {
             val dialogWindowProvider = LocalView.current.parent as DialogWindowProvider
             dialogWindowProvider.window.setGravity(Gravity.BOTTOM)
             var currSelectedDay by remember { mutableStateOf(selectedDay) }
+            var currSelectedMeal by remember {
+                mutableStateOf(
+                    currEatery.getAvailableMeals(
+                        currSelectedDay
+                    )[0].description!!
+                )
+            }
             // Dialog Box
             Card(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(284.dp),
+                    .fillMaxWidth(),
+                /*.height(284.dp)*/
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             ) {
                 Column(
@@ -718,6 +751,10 @@ fun EateryMenuWidget(event: Event) {
                             .padding(bottom = 12.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
+                        /**
+                         * Create the calendar aspect of the menu where a the current day is circled in black
+                         * and the selected day is circled in blue (so the user can know what day they are on)
+                         */
                         for (i in 0..6) {
                             Box(modifier = Modifier.width(40.dp)) {
                                 Text(
@@ -765,6 +802,102 @@ fun EateryMenuWidget(event: Event) {
                             }
                         }
                     }
+
+                    /**
+                     * Fetch all the menus that the specific eatery has for the selected day and
+                     * use this to make the list of options that they can choose from to change the menu
+                     * similarly make the selection button black if that is the current menu being looked at
+                     * and any new menu that the user wants to move to will be in blue
+                     */
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .padding(bottom = 12.dp),
+                    ) {
+                        currEatery.getAvailableMeals(currSelectedDay)
+                            .forEachIndexed { index, event ->
+                                var select = when (currSelectedMeal) {
+                                    "" -> event.description == selectedMeal
+                                    else -> event.description == currSelectedMeal
+                                }
+                                if (index != 0) {
+                                    Spacer(
+                                        modifier = Modifier
+                                            .padding(
+                                                start = 6.dp,
+                                                end = 6.dp,
+                                                top = 6.dp,
+                                                bottom = 6.dp
+                                            )
+                                            .fillMaxWidth()
+                                            .height(1.dp)
+                                            .background(GrayZero, CircleShape)
+                                    )
+                                }
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .selectable(
+                                            selected = select,
+                                            onClick = { currSelectedMeal = event.description!! }
+                                        ),
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(start = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = event.description ?: "Full Menu",
+                                            style = EateryBlueTypography.h5,
+                                        )
+                                        if (event.startTime != null && event.endTime != null) {
+                                            Text(
+                                                text = "${
+                                                    event.startTime.format(
+                                                        DateTimeFormatter.ofPattern(
+                                                            "K:mm a"
+                                                        )
+                                                    )
+                                                } - ${
+                                                    event.endTime.format(
+                                                        DateTimeFormatter.ofPattern("K:mm a")
+                                                    )
+                                                }",
+                                                style = EateryBlueTypography.subtitle2,
+                                                color = GrayFive
+                                            )
+                                        }
+
+                                    }
+                                    IconToggleButton(
+                                        checked = select,
+                                        onCheckedChange = { currSelectedMeal = event.description!! }
+                                    ) {
+                                        Icon(
+                                            modifier = Modifier.size(32.dp),
+                                            imageVector = ImageVector.vectorResource(
+                                                id = if (currSelectedMeal == event.description
+                                                    || (selectedMeal == event.description && selectedDay == currSelectedDay)
+                                                )
+                                                    R.drawable.ic_selected else R.drawable.ic_unselected
+                                            ),
+                                            contentDescription = null,
+                                            tint =
+                                            if (currSelectedMeal == event.description
+                                                && (selectedDay != currSelectedDay || selectedMeal != currSelectedMeal)
+                                            )
+                                                EateryBlue else Color.Black
+                                        )
+                                    }
+                                }
+
+                            }
+                    }
+                    /**
+                     * Resets and shows the menu that has been selected
+                     */
                     // Show menu and reset menu buttons
                     Column(
                         modifier = Modifier
@@ -774,7 +907,10 @@ fun EateryMenuWidget(event: Event) {
                         Button(
                             onClick = {
                                 selectedDay = currSelectedDay
+                                selectedMeal = currSelectedMeal
+                                onMenuUpdate(selectedDay, selectedMeal)
                                 openUpcoming = false
+
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -799,86 +935,81 @@ fun EateryMenuWidget(event: Event) {
                             onClick = { selectedDay = weekDayIndex }
                         )
                     }
-
                 }
-
             }
         }
     }
 
-    if (true) {
-        Column(modifier = Modifier.padding(vertical = 12.dp)) {
-            SearchBar(
-                searchText = filterText,
-                onSearchTextChange = { filterText = it },
-                placeholderText = "Search the menu...",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                onCancelClicked = {
-                    filterText = ""
-                }
-            )
-            Spacer(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(GrayZero, CircleShape)
-            )
-
-            event.menu?.forEach { category ->
-                val filteredItems =
-                    category.items?.filter {
-                        it.name?.contains(filterText, true)
-//                            ?: it.description?.contains(
-//                            filterText,
-//                            true
-//                        )
-                            ?: false
-                    }
-                if (filteredItems.isNullOrEmpty())
-                    return@forEach
-
-                Text(
-                    text = category.category ?: "Category",
-                    style = EateryBlueTypography.h5,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                )
-                filteredItems.forEachIndexed { index, menuItem ->
-                    Column(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                    ) {
-                        Row {
-                            Text(
-                                text = menuItem.name ?: "Item Name",
-                                style = EateryBlueTypography.button,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        if (category.items.lastIndex != index) {
-                            Spacer(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(GrayZero, CircleShape)
-                            )
-                        }
-                    }
-                }
+    Column(modifier = Modifier.padding(vertical = 12.dp)) {
+        SearchBar(
+            searchText = filterText,
+            onSearchTextChange = { filterText = it },
+            placeholderText = "Search the menu...",
+            modifier = Modifier.padding(horizontal = 16.dp),
+            onCancelClicked = {
+                filterText = ""
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
+        )
         Spacer(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
                 .fillMaxWidth()
                 .height(1.dp)
                 .background(GrayZero, CircleShape)
         )
 
+        event.menu?.forEach { category ->
+            val filteredItems =
+                category.items?.filter {
+                    it.name?.contains(filterText, true)
+//                            ?: it.description?.contains(
+//                            filterText,
+//                            true
+//                        )
+                        ?: false
+                }
+            if (filteredItems.isNullOrEmpty())
+                return@forEach
+
+            Text(
+                text = category.category ?: "Category",
+                style = EateryBlueTypography.h5,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            )
+            filteredItems.forEachIndexed { index, menuItem ->
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Row {
+                        Text(
+                            text = menuItem.name ?: "Item Name",
+                            style = EateryBlueTypography.button,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    if (category.items.lastIndex != index) {
+                        Spacer(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(GrayZero, CircleShape)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
     }
+
+    Spacer(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(GrayZero, CircleShape)
+    )
 
     @Composable
     fun ReportButtonEateryDetails() {
@@ -903,7 +1034,6 @@ fun EateryMenuWidget(event: Event) {
                 )
             }
         }
-
     }
 }
 
