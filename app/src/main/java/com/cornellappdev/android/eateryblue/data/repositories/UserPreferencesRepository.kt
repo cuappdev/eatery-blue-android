@@ -27,9 +27,13 @@ class UserPreferencesRepository @Inject constructor(
     /**
      * A flow automatically emitting maps indicating whether particular Eateries are favorited.
      */
-    val favoritesFlow : StateFlow<Map<Int, Boolean>> = userPreferencesFlow.map { prefs ->
+    val favoritesFlow: StateFlow<Map<Int, Boolean>> = userPreferencesFlow.map { prefs ->
         prefs.favoritesMap
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, mapOf())
+
+    val recentSearchesFlow: StateFlow<List<Int>> = userPreferencesFlow.map { prefs ->
+        prefs.recentSearchesList
+    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, listOf())
 
     suspend fun setHasOnboarded(hasOnboarded: Boolean) {
         userPreferencesStore.updateData { currentPreferences ->
@@ -87,11 +91,13 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun addRecentSearch(eateryId: Int) {
         val recentSearches = userPreferencesFlow.first().recentSearchesList
-        recentSearches.add(0, eateryId)
+        if (eateryId == 0) return
+//        recentSearches.add(0, eateryId)
         userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
-                .clearRecentSearches()
-                .addAllRecentSearches(recentSearches.take(10))
+                .addRecentSearches(eateryId)
+//                .clearRecentSearches()
+//                .addAllRecentSearches(recentSearches.take(10))
                 .build()
         }
     }
