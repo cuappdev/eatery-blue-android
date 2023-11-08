@@ -90,14 +90,9 @@ class UserPreferencesRepository @Inject constructor(
     }
 
     suspend fun addRecentSearch(eateryId: Int) {
-        val recentSearches = userPreferencesFlow.first().recentSearchesList
-        if (eateryId == 0) return
-//        recentSearches.add(0, eateryId)
         userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
                 .addRecentSearches(eateryId)
-//                .clearRecentSearches()
-//                .addAllRecentSearches(recentSearches.take(10))
                 .build()
         }
     }
