@@ -360,7 +360,6 @@ fun HomeScreen(
                                 item {
                                     Column(
                                         modifier = Modifier.padding(
-                                            start = 16.dp,
                                             bottom = 24.dp,
                                             top = 12.dp
                                         )
@@ -368,7 +367,7 @@ fun HomeScreen(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(bottom = 17.dp, end = 16.dp),
+                                                .padding(start = 16.dp, bottom = 17.dp, end = 16.dp),
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                         ) {
                                             Text(
@@ -396,6 +395,9 @@ fun HomeScreen(
                                         }
 
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            item {
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                            }
                                             items(favorites) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
@@ -420,14 +422,13 @@ fun HomeScreen(
                                 item {
                                     Column(
                                         modifier = Modifier.padding(
-                                            start = 16.dp,
                                             bottom = 24.dp
                                         )
                                     ) {
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(bottom = 17.dp, end = 16.dp),
+                                                .padding(start = 16.dp, bottom = 17.dp, end = 16.dp),
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                         ) {
                                             Text(
@@ -436,6 +437,9 @@ fun HomeScreen(
                                             )
                                         }
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            item {
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                            }
                                             items(nearestEateries) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
@@ -469,14 +473,13 @@ fun HomeScreen(
 
                                     Column(
                                         modifier = Modifier.padding(
-                                            start = 16.dp,
                                             bottom = 24.dp
                                         )
                                     ) {
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(bottom = 17.dp, end = 16.dp),
+                                                .padding(start = 16.dp, bottom = 17.dp, end = 16.dp),
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                         ) {
                                             Text(
@@ -486,6 +489,9 @@ fun HomeScreen(
 
                                         }
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                            item {
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                            }
                                             items(swipeEateries) { eatery ->
                                                 EateryCard(
                                                     eatery = eatery,
