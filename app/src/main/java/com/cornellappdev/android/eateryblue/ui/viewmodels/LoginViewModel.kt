@@ -1,16 +1,19 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eateryblue.data.models.User
 import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserRepository
 import com.cornellappdev.android.eateryblue.ui.screens.CurrentUser
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,32 +22,42 @@ class LoginViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
-    var loginState: LoginState by mutableStateOf(LoginState.Pending)
-        private set
 
-    var isLoggedIn: LoggedInStatus by mutableStateOf(LoggedInStatus.Pending)
-        private set
+    private var _loginState: MutableStateFlow<LoggingInStatus> =
+        MutableStateFlow(LoggingInStatus.NotLoggedIn)
+    var loginState = _loginState.asStateFlow()
 
-    init {
-        getSavedLoginInfo()
-    }
+    var userCredentials = combine(
+        userPreferencesRepository.usernameFlow, userPreferencesRepository.passwordFlow
+    ) { username, password ->
+        Pair(username, password)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, Pair("", ""))
 
-    fun getSavedLoginInfo() = viewModelScope.launch {
-        isLoggedIn = if (userPreferencesRepository.getIsLoggedIn()) {
-            val loginInfo = userPreferencesRepository.fetchLoginInfo()
-            LoggedInStatus.IsLoggedIn(loginInfo.first, loginInfo.second)
-        } else {
-            LoggedInStatus.NotLoggedIn
-        }
-    }
+
+//    var isLoggedIn: LoggedInStatus by mutableStateOf(LoggedInStatus.Pending)
+//        private set
+
+//    init {
+//        getSavedLoginInfo()
+//    }
+
+//    fun getSavedLoginInfo() = viewModelScope.launch {
+//        loginState = if (userPreferencesRepository.usernameFlow.value.isNotEmpty() && userPreferencesRepository.passwordFlow.value.isNotEmpty()) {
+//            val loginInfo = userPreferencesRepository.fetchLoginInfo()
+//            LoggedInStatus.IsLoggedIn(loginInfo.first, loginInfo.second)
+//        } else {
+//            LoggedInStatus.NotLoggedIn
+//        }
+//    }
 
     fun saveLoginInfo(username: String, password: String) = viewModelScope.launch {
+        // TODO send new username and password to userCredentials flow
         userPreferencesRepository.saveLoginInfo(username, password)
         userPreferencesRepository.setIsLoggedIn(true)
     }
 
     fun getUser(sessionId: String) = viewModelScope.launch {
-        loginState = try {
+        _loginState.value = try {
             val user = userRepository.getUser(sessionId).response!!
             val account = userRepository.getAccount(sessionId, user.id!!).response!!.accounts
             val transactions =
@@ -53,10 +66,10 @@ class LoginViewModel @Inject constructor(
             user.transactions = transactions
 
             CurrentUser.user = user
-            LoginState.Success(user)
+            LoggingInStatus.LoggingIn(EateryApiResponse.Success(user))
         } catch (e: Exception) {
             Log.d("LOGIN", e.stackTraceToString())
-            LoginState.Error
+            LoggingInStatus.LoggingIn(EateryApiResponse.Error)
         }
     }
 
@@ -67,20 +80,8 @@ class LoginViewModel @Inject constructor(
     }
 }
 
-/**
- * A sealed hierarchy describing the current status of logging in.
- */
-sealed interface LoginState {
-    data class Success(val user: User) : LoginState
-    object Error : LoginState
-    object Pending : LoginState
-}
 
-/**
- * A sealed hierarchy describing the current status of isLoggedIn
- */
-sealed interface LoggedInStatus {
-    data class IsLoggedIn(val username: String, val password: String) : LoggedInStatus
-    object NotLoggedIn : LoggedInStatus
-    object Pending : LoggedInStatus
+sealed interface LoggingInStatus {
+    object NotLoggedIn : LoggingInStatus
+    data class LoggingIn(val user: EateryApiResponse<User>) : LoggingInStatus
 }

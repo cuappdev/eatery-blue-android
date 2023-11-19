@@ -114,6 +114,7 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
                 unselectedContentColor = Color.Unspecified,
                 onClick = {
                     FirstTimeShown.firstTimeShown = false
+
                     navController.navigate(item.route)
                 }
             )
@@ -248,13 +249,15 @@ fun SetupNavHost(
                 autoLogin = autoLogin,
                 onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
                 onLoginSuccess = {
-                    navController.navigate(Routes.ACCOUNT.route) {
-                        // User shouldn't be able to navigate back to Profile screen
-                        popUpTo("${Routes.PROFILE.route}/{autoLogin}") {
-                            inclusive = true
-                        }
-                    }
-                })
+                    // TODO: switch EateryApiResponse to Success with correct data
+//                    navController.navigate(Routes.ACCOUNT.route) {
+//                        // User shouldn't be able to navigate back to Profile screen
+//                        popUpTo("${Routes.PROFILE.route}/{autoLogin}") {
+//                            inclusive = true
+//                        }
+//                    }
+                }
+            )
         }
         composable(
             route = Routes.SETTINGS.route,
@@ -276,15 +279,15 @@ fun SetupNavHost(
                     Routes.LEGAL to { navController.navigate(Routes.LEGAL.route) },
                     Routes.PRIVACY to { navController.navigate(Routes.PRIVACY.route) },
                     Routes.SUPPORT to { navController.navigate(Routes.SUPPORT.route) },
-//                    Routes.PROFILE to {
-//                        navController.navigate("${Routes.PROFILE.route}/false") {
-//                            if (navController.isOnBackStack(Routes.ACCOUNT.route)) {
-//                                popUpTo(Routes.ACCOUNT.route) { inclusive = true }
-//                            } else {
-//                                popUpTo(Routes.SETTINGS.route) { inclusive = true }
-//                            }
-//                        }
-//                    }
+                    Routes.PROFILE to {
+                        navController.navigate("${Routes.PROFILE.route}/false") {
+                            if (navController.isOnBackStack(Routes.ACCOUNT.route)) {
+                                popUpTo(Routes.ACCOUNT.route) { inclusive = true }
+                            } else {
+                                popUpTo(Routes.SETTINGS.route) { inclusive = true }
+                            }
+                        }
+                    }
                 )
             )
 

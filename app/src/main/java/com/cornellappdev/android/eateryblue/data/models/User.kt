@@ -2,7 +2,6 @@ package com.cornellappdev.android.eateryblue.data.models
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
 data class User(
@@ -35,13 +34,16 @@ data class TransactionsResponse(
     @Json(name = "transactions") val transactions: List<Transaction>? = null
 )
 
+// TODO: figure out how to parse the postedDate and transactionType correctly
 @JsonClass(generateAdapter = true)
 data class Transaction(
     @Json(name = "transactionId") val id: String? = null,
     @Json(name = "amount") val amount: Double? = null,
     @Json(name = "resultingBalance") val resultingBalance: Double? = null,
-    @Json(name = "postedDate") val date: LocalDateTime? = null,
-    @Json(name = "transactionType") val transactionType: TransactionType? = null,
+//    @Json(name = "postedDate") val date: LocalDateTime? = null,
+//    @Json(name = "transactionType") val transactionType: TransactionType? = null,
+    @Json(name = "postedDate") val date: String? = null,
+    @Json(name = "transactionType") val transactionType: Int? = null,
     @Json(name = "accountName") val accountType: AccountType? = null,
     @Json(name = "locationName") val location: String? = null,
 )

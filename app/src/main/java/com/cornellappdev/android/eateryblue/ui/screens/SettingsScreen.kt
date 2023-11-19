@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,8 +24,9 @@ import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
-import com.cornellappdev.android.eateryblue.ui.viewmodels.LoggedInStatus
+import com.cornellappdev.android.eateryblue.ui.viewmodels.LoggingInStatus
 import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -34,6 +36,8 @@ fun SettingsScreen(
     destinations: HashMap<Routes, () -> Unit>
 ) {
     // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false.
+    var loginStatus = loginViewModel.loginState.collectAsState().value
+
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -208,52 +212,63 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                when (loginViewModel.isLoggedIn) {
-                    LoggedInStatus.Pending -> {
+                // TODO: Check if settings screen works with new login refactor.
+                when (loginStatus) {
+                    LoggingInStatus.NotLoggedIn -> {
 
                     }
 
-                    LoggedInStatus.NotLoggedIn -> {
+                    is LoggingInStatus.LoggingIn -> {
+                        when (loginStatus.user) {
+                            EateryApiResponse.Pending -> {
 
-                    }
+                            }
 
-                    is LoggedInStatus.IsLoggedIn -> {
-                        val loginInfo = loginViewModel.isLoggedIn as LoggedInStatus.IsLoggedIn
+                            EateryApiResponse.Error -> {
+                                Text("SHOW LOGIN SCREEN AND A TOAST ABOUT ERROR")
+                            }
 
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 34.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Logged in as ${loginInfo.username}",
-                                style = EateryBlueTypography.h5,
-                                color = GrayFive
-                            )
-                            Button(
-                                onClick = {
-                                    loginViewModel.logOut()
-                                    destinations[Routes.PROFILE]?.invoke()
-                                },
-                                shape = RoundedCornerShape(25.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = GrayZero,
-                                    contentColor = Color.Black
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Logout,
-                                    contentDescription = Icons.Default.Logout.name,
-                                )
-                                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                                Text(
-                                    text = "Log out",
-                                    style = EateryBlueTypography.button
-                                )
+                            is EateryApiResponse.Success -> {
+                                val loginInfo =
+                                    loginViewModel.userCredentials.collectAsState().value
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 34.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Logged in as ${loginInfo.first}",
+                                        style = EateryBlueTypography.h5,
+                                        color = GrayFive
+                                    )
+                                    Button(
+                                        onClick = {
+                                            loginViewModel.logOut()
+                                            destinations[Routes.PROFILE]?.invoke()
+                                        },
+                                        shape = RoundedCornerShape(25.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            backgroundColor = GrayZero,
+                                            contentColor = Color.Black
+                                        )
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Logout,
+                                            contentDescription = Icons.Default.Logout.name,
+                                        )
+                                        Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                                        Text(
+                                            text = "Log out",
+                                            style = EateryBlueTypography.button
+                                        )
+                                    }
+                                }
                             }
                         }
+
                     }
                 }
             }

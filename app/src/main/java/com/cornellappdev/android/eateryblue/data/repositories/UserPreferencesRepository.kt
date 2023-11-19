@@ -27,9 +27,17 @@ class UserPreferencesRepository @Inject constructor(
     /**
      * A flow automatically emitting maps indicating whether particular Eateries are favorited.
      */
-    val favoritesFlow : StateFlow<Map<Int, Boolean>> = userPreferencesFlow.map { prefs ->
+    val favoritesFlow: StateFlow<Map<Int, Boolean>> = userPreferencesFlow.map { prefs ->
         prefs.favoritesMap
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, mapOf())
+
+    val usernameFlow: StateFlow<String> = userPreferencesFlow.map { prefs ->
+        prefs.username
+    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, "")
+
+    val passwordFlow: StateFlow<String> = userPreferencesFlow.map { prefs ->
+        prefs.password
+    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, "")
 
     suspend fun setHasOnboarded(hasOnboarded: Boolean) {
         userPreferencesStore.updateData { currentPreferences ->
@@ -116,4 +124,6 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun fetchLoginInfo(): Pair<String, String> =
         Pair(userPreferencesFlow.first().username, userPreferencesFlow.first().password)
+
+
 }

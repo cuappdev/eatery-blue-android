@@ -15,6 +15,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,8 +37,6 @@ import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayThree
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
-import com.cornellappdev.android.eateryblue.ui.viewmodels.LoggedInStatus
-import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginState
 import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
 
 @Composable
@@ -52,6 +51,8 @@ fun LoginPage(
     val passwordFocus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
+    var savedUsername = loginViewModel.userCredentials.collectAsState().value.first
+    var savedPassword = loginViewModel.userCredentials.collectAsState().value.second
     var netId by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var attemptSignIn by rememberSaveable { mutableStateOf(false) }
@@ -59,27 +60,16 @@ fun LoginPage(
     var tryCacheLogin by rememberSaveable { mutableStateOf(autoLogin) }
 
     // TODO test cache log in
+    // TODO figure out how to give typed in user/password back to viewmodel
     // Tries to login using credentials that's stored locally.
     if (tryCacheLogin) {
-        when (loginViewModel.isLoggedIn) {
-            LoggedInStatus.Pending -> {
+        // TODO: design the new screen, as this should display the LoginPage grayed out with a loading animation,
+        //  since we want the user to know we are already trying their login info.
 
-            }
-
-            LoggedInStatus.NotLoggedIn -> {
-                onAutoLoginFail()
-                tryCacheLogin = false
-            }
-
-            is LoggedInStatus.IsLoggedIn -> {
-                val loginInfo = loginViewModel.isLoggedIn as LoggedInStatus.IsLoggedIn
-                netId = loginInfo.username
-                password = loginInfo.password
-
-                // Will activate the LoginWebView
-                attemptSignIn = true
-            }
-        }
+        netId = savedUsername
+        password = savedPassword
+        // Will activate the LoginWebView
+        attemptSignIn = true
     } else {
         Column(modifier = Modifier.zIndex(1f)) {
             Text(
@@ -177,21 +167,27 @@ fun LoginPage(
             }
         }
 
-        when (loginViewModel.loginState) {
-            LoginState.Pending -> {
+        // TODO: decide how to handle different states of LoggingInStatus. There is logic for this in ProfileScreen,
+        //  so do we need to repeat it here?
+        //  On success, need to update ViewModel with new login information.
+        //  On error, call onError().
+        //  On pending, show loading animation screen.
+        //  I left the old code below to show what needs to be handled.
 
-            }
-
-            LoginState.Error -> {
-                onError()
-                TODO("user endpoint doesn't exist on backend so logging in is failing everytime")
-            }
-
-            is LoginState.Success -> {
-                loginViewModel.saveLoginInfo(netId, password)
-                onSuccess((loginViewModel.loginState as LoginState.Success).user)
-            }
-        }
+//        when (loginViewModel.loginState) {
+//            LoginState.Pending -> {
+//
+//            }
+//
+//            LoginState.Error -> {
+//                onError()
+//            }
+//
+//            is LoginState.Success -> {
+//                loginViewModel.saveLoginInfo(netId, password)
+//                onSuccess((loginViewModel.loginState as LoginState.Success).user)
+//            }
+//        }
     }
 }
 

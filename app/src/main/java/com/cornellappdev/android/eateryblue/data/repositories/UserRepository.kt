@@ -31,6 +31,7 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     suspend fun getUser(sessionId: String): GetApiResponse<User> =
         networkApi.fetchUser(
+            url = BuildConfig.GET_BACKEND_URL + "user",
             body = GetApiRequestBody(
                 version = "1",
                 method = "retrieve",
@@ -42,6 +43,7 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     suspend fun getAccount(sessionId: String, userId: String): GetApiResponse<AccountsResponse> =
         networkApi.fetchAccounts(
+            url = BuildConfig.GET_BACKEND_URL + "commerce",
             body = GetApiRequestBody(
                 version = "1",
                 method = "retrieveAccountsByUser",
@@ -60,6 +62,7 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
             endDate.toInstant().minus(Duration.ofDays(1460))
         )
     ): GetApiResponse<TransactionsResponse> = networkApi.fetchTransactionHistory(
+        url = BuildConfig.GET_BACKEND_URL + "commerce",
         body = GetApiRequestBody(
             version = "1",
             method = "retrieveTransactionHistory",

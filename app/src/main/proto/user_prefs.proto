@@ -31,8 +31,9 @@ message UserPreferences {
   //  // If the user was previously logged in, this field is true and
   //  // indicates cached data should be loaded.
   //  bool wasLoggedIn = 5;
-  //  repeated AccountProto accounts = 6;
-  //  repeated TransactionProto transactionHistory = 7;
+  //  repeated AccountProto accounts = 9;
+  //
+  //  repeated TransactionProto transactionHistory = 10;
   //
   //  //** END OF CACHED LOGIN DATA *********
   //
