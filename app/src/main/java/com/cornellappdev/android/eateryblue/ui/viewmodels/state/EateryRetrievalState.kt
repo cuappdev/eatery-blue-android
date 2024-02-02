@@ -4,15 +4,6 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiRespons
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse.Pending
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse.Success
 
-// TODO: Delete this, and replace it with [EateryApiResponse]. Also, replace all occurrences of this
-//  with a Flow-based networking model. See EateryDetailViewModel for an example of using flow
-//  mapping / combination to best fit with Jetpack Compose.
-sealed class EateryRetrievalState {
-    object Pending : EateryRetrievalState()
-    object Error : EateryRetrievalState()
-    object Success : EateryRetrievalState()
-}
-
 /**
  * Represents the state of an api response fetching data of type [T].
  * Can be: [Pending], which represents the call still loading in, [Error], which represents the

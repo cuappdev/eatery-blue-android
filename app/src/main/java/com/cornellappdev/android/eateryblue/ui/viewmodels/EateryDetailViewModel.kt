@@ -12,14 +12,7 @@ import com.cornellappdev.android.eateryblue.data.repositories.EateryRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserRepository
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
-import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,10 +35,13 @@ class EateryDetailViewModel @Inject constructor(
     }
 
     fun openEatery(eateryId: Int) {
-        eatery = eateryRepository.getEateryFlow(eateryId)
+        // Technically, this isn't using the Flow architecture correctly, but it's safe to assume
+        //  this will work since this screen is only accessible after eatery info is loaded.
+        eatery = eateryRepository.getEateryState(eateryId)
+        isFavorite = userPreferencesRepository.favoritesFlow.value[eateryId] == true
     }
 
-    fun toggleFavorite() = viewModelScope.launch {
+    fun toggleFavorite() {
         userPreferencesRepository.setFavorite(eateryId, !isFavorite)
         isFavorite = !isFavorite
     }

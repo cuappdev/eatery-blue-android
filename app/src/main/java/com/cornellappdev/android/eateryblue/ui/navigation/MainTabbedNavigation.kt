@@ -222,9 +222,11 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            SearchScreen {
+            SearchScreen(onEateryClick = {
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            }
+            }, onFavoriteClick = {
+                navController.navigate(Routes.FAVORITES.route)
+            })
         }
         composable(
             route = "${Routes.PROFILE.route}/{autoLogin}",

@@ -1,17 +1,14 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.repositories.EateryRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRepository
-import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryRetrievalState
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,61 +16,28 @@ class FavoritesViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val eateryRepository: EateryRepository
 ) : ViewModel() {
-    var eateryRetrievalState: EateryRetrievalState by mutableStateOf(EateryRetrievalState.Pending)
-        private set
+    /**
+     * A flow emitting all the eateries the user has favorited.
+     */
+    val favoriteEateries =
+        combine(
+            eateryRepository.homeEateryFlow,
+            userPreferencesRepository.favoritesFlow
+        ) { apiResponse, favorites ->
+            when (apiResponse) {
+                is EateryApiResponse.Error -> EateryApiResponse.Pending
+                is EateryApiResponse.Pending -> EateryApiResponse.Error
+                is EateryApiResponse.Success -> {
+                    EateryApiResponse.Success(
+                        apiResponse.data.filter {
+                            favorites[it.id] == true
+                        })
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
 
-    private val allEateries = mutableSetOf<Eatery>()
-
-    var favoriteEateries = mutableStateListOf<Eatery>()
-        private set
-
-    init {
-        queryFavoriteEateries()
-    }
-
-    // TODO: Change to directly read from [EateryRepository]'s `homeEateryFlow`
-    //  Also, combine with the favorites map flow.
-    fun queryFavoriteEateries() = viewModelScope.launch {
-        try {
-            favoriteEateries.clear()
-            eateryRetrievalState = EateryRetrievalState.Pending
-            val eateryResponse = eateryRepository.getHomeEateries()
-            allEateries.addAll(eateryResponse)
-
-            val favoriteEateriesIds =
-                userPreferencesRepository.getFavoritesMap().keys
-            favoriteEateries.addAll(allEateries.filter {
-                favoriteEateriesIds.contains(it.id)
-            })
-
-            eateryRetrievalState = EateryRetrievalState.Success
-        } catch (_: Exception) {
-            eateryRetrievalState = EateryRetrievalState.Error
-        }
-    }
-
-    fun removeFavorite(eateryId: Int?) = viewModelScope.launch {
-        if (eateryId == null) return@launch
-
-        userPreferencesRepository.setFavorite(eateryId, false)
-        favoriteEateries.removeIf { eatery ->
-            eatery.id == eateryId
-        }
-        updateFavorites()
-    }
-
-    fun updateFavorites() = viewModelScope.launch {
-        eateryRetrievalState = EateryRetrievalState.Pending
-        try {
-            val favoriteEateriesKeys =
-                userPreferencesRepository.getFavoritesMap().keys
-            favoriteEateries = allEateries.filter {
-                favoriteEateriesKeys.contains(it.id)
-            }.toCollection(mutableStateListOf())
-
-            eateryRetrievalState = EateryRetrievalState.Success
-        } catch (_: Exception) {
-            eateryRetrievalState = EateryRetrievalState.Error
-        }
+    fun removeFavorite(eateryId: Int?) {
+        if (eateryId != null)
+            userPreferencesRepository.setFavorite(eateryId, false)
     }
 }
