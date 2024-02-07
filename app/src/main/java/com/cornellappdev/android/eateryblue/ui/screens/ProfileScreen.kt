@@ -10,31 +10,22 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.cornellappdev.android.eateryblue.data.models.User
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.ui.components.login.LoginPage
-import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
-import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eateryblue.ui.theme.GraySix
+import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
 
 
 @Composable
 fun ProfileScreen(
-    autoLogin: Boolean = true,
+    loginViewModel: LoginViewModel = hiltViewModel(),
     onSettingsClicked: () -> Unit,
-    onLoginSuccess: (user: User) -> Unit
 ) {
-    var attemptAutoLogin by remember { mutableStateOf(autoLogin) }
+    val state = loginViewModel.state.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -53,26 +44,18 @@ fun ProfileScreen(
                 tint = Color.Black
             )
         }
+        when (state) {
+            is LoginViewModel.State.Login -> {
+                LoginPage(
+                    loginState = state,
+                    loginViewModel = loginViewModel
+                )
+            }
 
-        Text(
-            text = "Log in with Eatery",
-            style = EateryBlueTypography.h3,
-            color = EateryBlue
-        )
-
-        Text(
-            text = "See your meal swipes, BRBs, and more",
-            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
-            modifier = Modifier.padding(top = 7.dp)
-        )
-
-        LoginPage(onSuccess = onLoginSuccess, onError = {
-            attemptAutoLogin = false
-        }, onAutoLoginFail = {
-            attemptAutoLogin = false
-        }) {
-            attemptAutoLogin = false
+            is LoginViewModel.State.Account -> {
+                Text(text = state.user.phone!!)
+            }
         }
+
     }
 }

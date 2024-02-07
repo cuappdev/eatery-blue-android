@@ -16,181 +16,147 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.BuildConfig
-import com.cornellappdev.android.eateryblue.data.models.User
 import com.cornellappdev.android.eateryblue.ui.components.general.CustomTextField
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eateryblue.ui.theme.GraySix
 import com.cornellappdev.android.eateryblue.ui.theme.GrayThree
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
-import com.cornellappdev.android.eateryblue.ui.viewmodels.LoggedInStatus
-import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginState
 import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
 
 @Composable
 fun LoginPage(
-    loginViewModel: LoginViewModel = hiltViewModel(),
-    autoLogin: Boolean = true,
-    onSuccess: (User) -> Unit,
-    onError: () -> Unit,
-    onAutoLoginFail: () -> Unit = {},
+    loginState: LoginViewModel.State.Login,
+    loginViewModel: LoginViewModel,
     onWrongCredentials: () -> Unit = {}
 ) {
     val passwordFocus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
-    var netId by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-    var attemptSignIn by rememberSaveable { mutableStateOf(false) }
-    val clickable = netId.isNotEmpty() && password.isNotEmpty() && !attemptSignIn
-    var tryCacheLogin by rememberSaveable { mutableStateOf(autoLogin) }
+    val clickable =
+        loginState.netid.isNotEmpty() && loginState.password.isNotEmpty() && !loginState.loading
 
-    // TODO test cache log in
-    // Tries to login using credentials that's stored locally.
-    if (tryCacheLogin) {
-        when (loginViewModel.isLoggedIn) {
-            LoggedInStatus.Pending -> {
+    Column(modifier = Modifier.zIndex(1f)) {
+        Text(
+            text = "Log in with Eatery",
+            style = EateryBlueTypography.h3,
+            color = EateryBlue
+        )
 
+        Text(
+            text = "See your meal swipes, BRBs, and more",
+            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
+            color = GraySix,
+            modifier = Modifier.padding(top = 7.dp)
+        )
+        Text(
+            text = "NetID",
+            style = EateryBlueTypography.h5,
+            color = Color.Black,
+            modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
+        )
+
+        CustomTextField(
+            value = loginState.netid,
+            onValueChange = {
+                loginViewModel.onNetIDTyped(it)
+            },
+            enabled = !loginState.loading,
+            placeholder = "Type your NetID (e.g. abc123)",
+            backgroundColor = GrayZero,
+            onSubmit = {
+                if (loginState.netid.isNotEmpty()) passwordFocus.requestFocus()
             }
+        )
 
-            LoggedInStatus.NotLoggedIn -> {
-                onAutoLoginFail()
-                tryCacheLogin = false
-            }
+        Text(
+            text = "Password",
+            style = EateryBlueTypography.h5,
+            color = Color.Black,
+            modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
+        )
 
-            is LoggedInStatus.IsLoggedIn -> {
-                val loginInfo = loginViewModel.isLoggedIn as LoggedInStatus.IsLoggedIn
-                netId = loginInfo.username
-                password = loginInfo.password
-
-                // Will activate the LoginWebView
-                attemptSignIn = true
-            }
-        }
-    } else {
-        Column(modifier = Modifier.zIndex(1f)) {
-            Text(
-                text = "NetID",
-                style = EateryBlueTypography.h5,
-                color = Color.Black,
-                modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
-            )
-
-            CustomTextField(
-                value = netId,
-                onValueChange = {
-                    netId = it
-                },
-                enabled = !attemptSignIn,
-                placeholder = "Type your NetID (e.g. abc123)",
-                backgroundColor = GrayZero,
-                onSubmit = {
-                    if (netId.isNotEmpty()) passwordFocus.requestFocus()
-                }
-            )
-
-            Text(
-                text = "Password",
-                style = EateryBlueTypography.h5,
-                color = Color.Black,
-                modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
-            )
-
-            CustomTextField(
-                value = password,
-                onValueChange = {
-                    password = it
-                },
-                enabled = !attemptSignIn,
-                placeholder = "Type your password...",
-                backgroundColor = GrayZero,
-                focusRequester = passwordFocus,
-                isPassword = true,
-                onSubmit = {
-                    if (password.isNotEmpty()) {
-                        focusManager.clearFocus()
-                    }
-                }
-            )
-
-            Button(
-                enabled = clickable,
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 66.dp)
-                    .height(56.dp),
-                onClick = {
+        CustomTextField(
+            value = loginState.password,
+            onValueChange = {
+                loginViewModel.onPasswordTyped(it)
+            },
+            enabled = !loginState.loading,
+            placeholder = "Type your password...",
+            backgroundColor = GrayZero,
+            focusRequester = passwordFocus,
+            isPassword = true,
+            onSubmit = {
+                if (loginState.password.isNotEmpty()) {
                     focusManager.clearFocus()
-                    attemptSignIn = true
-                },
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (clickable) EateryBlue else GrayZero
-                ),
-                elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
-            ) {
-                Text(
-                    text = if (attemptSignIn) "Logging in..." else "Log in",
-                    color = if (clickable) Color.White else GrayThree,
-                    style = EateryBlueTypography.h5
-                )
+                }
             }
-        }
+        )
 
-        if (attemptSignIn) {
-            // LoginWebView should take up no space whatsoever. User should not be able to see it.
-            Box(
-                modifier = Modifier
-                    .size(0.dp)
-                    .zIndex(-2f)
-            ) {
-                LoginWebView(netId = netId, password = password, onSuccess = { sessionId ->
+        Button(
+            enabled = clickable,
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 66.dp)
+                .height(56.dp),
+            onClick = {
+                focusManager.clearFocus()
+                loginViewModel.onLoginPressed()
+            },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = if (clickable) EateryBlue else GrayZero
+            ),
+            elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
+        ) {
+            Text(
+                text = if (loginState.loading) "Logging in..." else "Log in",
+                color = if (clickable) Color.White else GrayThree,
+                style = EateryBlueTypography.h5
+            )
+        }
+    }
+
+    if (loginState.loading) {
+        // LoginWebView should take up no space whatsoever. User should not be able to see it.
+        Box(
+            modifier = Modifier
+                .size(0.dp)
+                .zIndex(-2f)
+        ) {
+            LoginWebView(
+                netId = loginState.netid,
+                password = loginState.password,
+                onSuccess = { sessionId ->
                     loginViewModel.getUser(sessionId)
-                    attemptSignIn = false
-                }, onWrongCredentials = {
+                    loginViewModel.onLoginPressed()
+                },
+                onWrongCredentials = {
                     onWrongCredentials()
-                    if (!tryCacheLogin) {
-                        // Toast is only shown for non-cache login attempts
-                        showWrongCredentialsToast(context)
-                    } else {
-                        // If the login attempt was from credentials stored locally, they
-                        // were incorrect and the user needs to login again.
-                        netId = ""
-                        password = ""
-                    }
-                    tryCacheLogin = false
-                    attemptSignIn = false
+//                    if (!tryCacheLogin) {
+//                        // Toast is only shown for non-cache login attempts
+//                        showWrongCredentialsToast(context)
+//                    } else {
+//                        // If the login attempt was from credentials stored locally, they
+//                        // were incorrect and the user needs to login again.
+//                        netId = ""
+//                        password = ""
+//                    }
+//                    tryCacheLogin = false
+//                    attemptSignIn = false
                 })
-            }
-        }
 
-        when (loginViewModel.loginState) {
-            LoginState.Pending -> {
-
-            }
-
-            LoginState.Error -> {
-                onError()
-            }
-
-            is LoginState.Success -> {
-                loginViewModel.saveLoginInfo(netId, password)
-                onSuccess((loginViewModel.loginState as LoginState.Success).user)
-            }
         }
     }
 }
