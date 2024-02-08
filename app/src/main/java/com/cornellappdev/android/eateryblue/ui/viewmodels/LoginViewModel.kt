@@ -60,6 +60,21 @@ class LoginViewModel @Inject constructor(
         return CurrentUser.user!!.accounts!!.find { account -> account.type == accountType }
     }
 
+    fun updateAccountFilter(newAccountType: AccountType) {
+        val currState = _state.value
+        if (currState !is State.Account) return
+
+        // currState is a Login state (expected).
+        val newState = State.Account(
+            currState.user,
+            "",
+            newAccountType
+        )
+
+        // Send the new netID Login state down.
+        _state.value = newState
+    }
+
     fun getTransactionsOfType(accountType: AccountType, query: String): List<Transaction>? {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
         if (_state.value !is State.Account || CurrentUser.user == null) return null

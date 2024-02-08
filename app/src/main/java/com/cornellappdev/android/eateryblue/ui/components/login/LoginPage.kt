@@ -53,11 +53,11 @@ fun LoginPage(
             .zIndex(1f)
             .padding(horizontal = 16.dp)
     ) {
-        Text(
-            text = "Log in with Eatery",
-            style = EateryBlueTypography.h3,
-            color = EateryBlue
-        )
+//        Text(
+//            text = "Log in with Eatery",
+//            style = EateryBlueTypography.h3,
+//            color = EateryBlue
+//        )
 
         Text(
             text = "See your meal swipes, BRBs, and more",
