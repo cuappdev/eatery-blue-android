@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eateryblue.ui.components.login
 
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebView
@@ -47,7 +48,11 @@ fun LoginPage(
     val clickable =
         loginState.netid.isNotEmpty() && loginState.password.isNotEmpty() && !loginState.loading
 
-    Column(modifier = Modifier.zIndex(1f)) {
+    Column(
+        modifier = Modifier
+            .zIndex(1f)
+            .padding(horizontal = 16.dp)
+    ) {
         Text(
             text = "Log in with Eatery",
             style = EateryBlueTypography.h3,
@@ -103,7 +108,6 @@ fun LoginPage(
                 }
             }
         )
-
         Button(
             enabled = clickable,
             shape = RoundedCornerShape(24.dp),
@@ -126,37 +130,24 @@ fun LoginPage(
                 style = EateryBlueTypography.h5
             )
         }
-    }
-
-    if (loginState.loading) {
-        // LoginWebView should take up no space whatsoever. User should not be able to see it.
-        Box(
-            modifier = Modifier
-                .size(0.dp)
-                .zIndex(-2f)
-        ) {
-            LoginWebView(
-                netId = loginState.netid,
-                password = loginState.password,
-                onSuccess = { sessionId ->
-                    loginViewModel.getUser(sessionId)
-                    loginViewModel.onLoginPressed()
-                },
-                onWrongCredentials = {
-                    onWrongCredentials()
-//                    if (!tryCacheLogin) {
-//                        // Toast is only shown for non-cache login attempts
-//                        showWrongCredentialsToast(context)
-//                    } else {
-//                        // If the login attempt was from credentials stored locally, they
-//                        // were incorrect and the user needs to login again.
-//                        netId = ""
-//                        password = ""
-//                    }
-//                    tryCacheLogin = false
-//                    attemptSignIn = false
-                })
-
+        if (loginState.loading) {
+            // LoginWebView should take up no space whatsoever. User should not be able to see it.
+            Box(
+                modifier = Modifier
+                    .size(0.dp)
+                    .zIndex(-1f)
+            ) {
+                LoginWebView(
+                    netId = loginState.netid,
+                    password = loginState.password,
+                    onSuccess = { sessionId ->
+                        loginViewModel.getUser(sessionId)
+                        loginViewModel.onLoginPressed()
+                    },
+                    onWrongCredentials = {
+                        onWrongCredentials()
+                    })
+            }
         }
     }
 }
@@ -173,6 +164,7 @@ fun LoginWebView(
 
     AndroidView(factory = {
         WebView(it).apply {
+            visibility = View.INVISIBLE
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
@@ -206,7 +198,7 @@ class CustomWebViewClient(
         lastUrl = url
         if (url?.contains("sessionId=") == true) {
             val sessionToken = url.substringAfter("sessionId=").removeSuffix("&")
-            Log.d("SESSIONIDDDDD", sessionToken)
+            Log.d("SessionID", sessionToken)
             onSuccess(sessionToken)
         } else if (attempts > 1) {
             onWrongCredentials()

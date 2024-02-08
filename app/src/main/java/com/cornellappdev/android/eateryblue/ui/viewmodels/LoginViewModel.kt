@@ -6,7 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.android.eateryblue.data.models.Account
 import com.cornellappdev.android.eateryblue.data.models.AccountType
+import com.cornellappdev.android.eateryblue.data.models.Transaction
 import com.cornellappdev.android.eateryblue.data.models.User
 import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserRepository
@@ -15,6 +17,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,9 +45,31 @@ class LoginViewModel @Inject constructor(
         ) : State()
     }
 
-    private var _state = MutableStateFlow<State>(State.Login("", "", null, false))
+    private var _state = MutableStateFlow<State>(
+        if (CurrentUser.user == null) {
+            State.Login("", "", null, false)
+        } else {
+            State.Account(CurrentUser.user!!, "", AccountType.BRBS)
+        }
+    )
     val state = _state.asStateFlow()
+
     //
+    fun checkAccount(accountType: AccountType): Account? {
+        if (_state.value !is State.Account || CurrentUser.user == null) return null
+        return CurrentUser.user!!.accounts!!.find { account -> account.type == accountType }
+    }
+
+    fun getTransactionsOfType(accountType: AccountType, query: String): List<Transaction>? {
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+        if (_state.value !is State.Account || CurrentUser.user == null) return null
+        return CurrentUser.user!!.transactions!!.filter { transaction ->
+            transaction.accountType == accountType
+                    && LocalDateTime.parse(transaction.date, inputFormatter) >= LocalDateTime.now()
+                .minusDays(30)
+                    && transaction.location!!.lowercase().contains(query.lowercase())
+        }
+    }
 
     fun onNetIDTyped(newNetid: String) {
         val currState = _state.value
@@ -96,8 +122,34 @@ class LoginViewModel @Inject constructor(
 
         // Send the new loading Login state down
         _state.value = newState
-
     }
+
+    fun onLoginFailed() {
+        val currState = _state.value
+        if (currState !is State.Login) return
+
+        val loginState = currState
+
+        val newState = State.Login(
+            loginState.netid,
+            password = "",
+            failureMessage = "",
+            false
+        )
+        _state.value = newState
+    }
+
+    fun onLogoutPressed() {
+        CurrentUser.user = null
+        val currState = _state.value
+        if (currState !is State.Account) return
+
+        val newState = State.Login(
+            "", "", null, false
+        )
+        _state.value = newState
+    }
+
 
     var isLoggedIn: LoggedInStatus by mutableStateOf(LoggedInStatus.Pending)
         private set
@@ -152,11 +204,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun logOut() = viewModelScope.launch {
-        CurrentUser.user = null
-        userPreferencesRepository.setIsLoggedIn(false)
-        userPreferencesRepository.saveLoginInfo("", "")
-    }
+//    fun logOut() = viewModelScope.launch {
+//        CurrentUser.user = null
+//        userPreferencesRepository.setIsLoggedIn(false)
+//        userPreferencesRepository.saveLoginInfo("", "")
+//    }
 }
 
 /**

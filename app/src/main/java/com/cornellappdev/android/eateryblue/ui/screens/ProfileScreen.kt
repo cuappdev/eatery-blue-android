@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.android.eateryblue.ui.components.login.AccountPage
 import com.cornellappdev.android.eateryblue.ui.components.login.LoginPage
 import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
 
@@ -26,14 +26,13 @@ fun ProfileScreen(
     onSettingsClicked: () -> Unit,
 ) {
     val state = loginViewModel.state.collectAsState().value
-
     Column(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())
     ) {
         IconButton(
             modifier = Modifier
+                .padding(end = 16.dp)
                 .align(Alignment.End)
                 .size(32.dp),
             onClick = { onSettingsClicked() }) {
@@ -48,12 +47,14 @@ fun ProfileScreen(
             is LoginViewModel.State.Login -> {
                 LoginPage(
                     loginState = state,
-                    loginViewModel = loginViewModel
+                    loginViewModel = loginViewModel,
+                    onWrongCredentials = { loginViewModel.onLoginFailed() }
                 )
+
             }
 
             is LoginViewModel.State.Account -> {
-                Text(text = state.user.phone!!)
+                AccountPage(accountState = state, loginViewModel = loginViewModel)
             }
         }
 

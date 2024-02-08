@@ -245,18 +245,10 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) { backStackEntry ->
-            val autoLogin = backStackEntry.arguments?.getBoolean("autoLogin")!!
+//            val autoLogin = backStackEntry.arguments?.getBoolean("autoLogin")!!
             ProfileScreen(
-                autoLogin = autoLogin,
-                onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
-                onLoginSuccess = {
-                    navController.navigate(Routes.ACCOUNT.route) {
-                        // User shouldn't be able to navigate back to Profile screen
-                        popUpTo("${Routes.PROFILE.route}/{autoLogin}") {
-                            inclusive = true
-                        }
-                    }
-                })
+                onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) }
+            )
         }
         composable(
             route = Routes.SETTINGS.route,
