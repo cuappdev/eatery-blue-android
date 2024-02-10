@@ -75,15 +75,15 @@ class LoginViewModel @Inject constructor(
         _state.value = newState
     }
 
-    fun getTransactionsOfType(accountType: AccountType, query: String): List<Transaction>? {
+    fun getTransactionsOfType(accountType: AccountType, query: String): List<Transaction> {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-        if (_state.value !is State.Account || CurrentUser.user == null) return null
-        return CurrentUser.user!!.transactions!!.filter { transaction ->
+        if (_state.value !is State.Account || CurrentUser.user == null) return listOf()
+        return CurrentUser.user!!.transactions?.filter { transaction ->
             transaction.accountType == accountType
                     && LocalDateTime.parse(transaction.date, inputFormatter) >= LocalDateTime.now()
                 .minusDays(30)
                     && transaction.location!!.lowercase().contains(query.lowercase())
-        }
+        } ?: listOf()
     }
 
     fun onNetIDTyped(newNetid: String) {
@@ -137,6 +137,7 @@ class LoginViewModel @Inject constructor(
 
         // Send the new loading Login state down
         _state.value = newState
+
     }
 
     fun onLoginFailed() {
@@ -155,14 +156,15 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onLogoutPressed() {
-        CurrentUser.user = null
-        val currState = _state.value
-        if (currState !is State.Account) return
-
         val newState = State.Login(
             "", "", null, false
         )
         _state.value = newState
+        viewModelScope.launch {
+            CurrentUser.user = null
+            userPreferencesRepository.setIsLoggedIn(false)
+            userPreferencesRepository.saveLoginInfo("", "")
+        }
     }
 
 
@@ -173,30 +175,28 @@ class LoginViewModel @Inject constructor(
         getSavedLoginInfo()
     }
 
-    fun getSavedLoginInfo() = viewModelScope.launch {
-        isLoggedIn = if (userPreferencesRepository.getIsLoggedIn()) {
+    private fun getSavedLoginInfo() = viewModelScope.launch {
+        if (userPreferencesRepository.getIsLoggedIn()) {
             val loginInfo = userPreferencesRepository.fetchLoginInfo()
-            LoggedInStatus.IsLoggedIn(loginInfo.first, loginInfo.second)
-        } else {
-            LoggedInStatus.NotLoggedIn
+            getUser(loginInfo.first)
         }
     }
 
-//    fun saveLoginInfo(username: String, password: String) = viewModelScope.launch {
-//        userPreferencesRepository.saveLoginInfo(username, password)
-//        userPreferencesRepository.setIsLoggedIn(true)
-//    }
-
     fun getUser(sessionId: String) = viewModelScope.launch {
         try {
+            val currState = _state.value
             val user = userRepository.getUser(sessionId).response!!
             val account = userRepository.getAccount(sessionId, user.id!!).response!!.accounts
             val transactions =
                 userRepository.getTransactionHistory(sessionId, user.id).response!!.transactions
             user.accounts = account
             user.transactions = transactions
-
             CurrentUser.user = user
+
+            if (currState is State.Login) {
+                userPreferencesRepository.saveLoginInfo(sessionId, currState.password)
+                userPreferencesRepository.setIsLoggedIn(true)
+            }
             val newState = State.Account(
                 user = user,
                 query = "",
@@ -215,15 +215,10 @@ class LoginViewModel @Inject constructor(
                 )
                 _state.value = newState
             }
-
+            userPreferencesRepository.saveLoginInfo("", "")
+            userPreferencesRepository.setIsLoggedIn(false)
         }
     }
-
-//    fun logOut() = viewModelScope.launch {
-//        CurrentUser.user = null
-//        userPreferencesRepository.setIsLoggedIn(false)
-//        userPreferencesRepository.saveLoginInfo("", "")
-//    }
 }
 
 /**

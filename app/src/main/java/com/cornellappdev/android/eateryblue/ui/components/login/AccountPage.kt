@@ -1,7 +1,11 @@
 package com.cornellappdev.android.eateryblue.ui.components.login
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,8 +31,11 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,9 +47,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.AccountType
 import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
@@ -53,13 +64,16 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(
+    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
+    ExperimentalAnimationApi::class
+)
 @Composable
 fun AccountPage(
     accountState: LoginViewModel.State.Account,
     loginViewModel: LoginViewModel,
+    onSettingsClicked: () -> Unit
 ) {
-    val context = LocalContext.current
     var filterText by remember { mutableStateOf("") }
     val modalBottomSheetState =
         rememberModalBottomSheetState(
@@ -100,177 +114,316 @@ fun AccountPage(
         ),
         sheetElevation = 8.dp
     ) {
-        Column(modifier = Modifier.zIndex(1f)) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        val innerListState = rememberLazyListState()
+        val isFirstVisible =
+            remember { derivedStateOf { innerListState.firstVisibleItemIndex > 1 } }
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(EateryBlue)
+                    .then(Modifier.statusBarsPadding())
+                    .padding(bottom = 7.dp),
+            ) {
+                AnimatedContent(
+                    targetState = isFirstVisible.value
+                ) { isFirstVisible ->
+                    if (isFirstVisible) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(color = EateryBlue)
+                                .padding(top = 12.dp)
+                        ) {
+                            Text(
+                                modifier = Modifier.align(Alignment.Center),
+                                textAlign = TextAlign.Center,
+                                text = "Account",
+                                color = Color.White,
+                                style = TextStyle(
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 20.sp
+                                )
+                            )
+
+                            IconButton(
+                                modifier = Modifier.align(Alignment.CenterEnd),
+                                onClick = {
+                                    onSettingsClicked()
+                                }
+                            ) {
+                                Icon(
+                                    modifier = Modifier.size(28.dp),
+                                    imageVector = Icons.Outlined.Settings,
+                                    contentDescription = Icons.Outlined.Settings.name,
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(color = EateryBlue)
+                                .then(Modifier.statusBarsPadding())
+                                .padding(bottom = 7.dp),
+                        ) {
+                            IconButton(
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .align(Alignment.End)
+                                    .size(32.dp)
+                                    .statusBarsPadding(),
+                                onClick = { onSettingsClicked() }) {
+                                Icon(
+                                    modifier = Modifier.size(28.dp),
+                                    imageVector = Icons.Outlined.Settings,
+                                    contentDescription = Icons.Outlined.Settings.name,
+                                    tint = Color.White
+                                )
+                            }
+                            Column(
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    end = 16.dp,
+                                    top = 24.dp
+                                )
+                            ) {
+                                Text(
+                                    text = "Account",
+                                    color = Color.White,
+                                    style = EateryBlueTypography.h2
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            LazyColumn(state = innerListState) {
+                stickyHeader {
+
+                }
+                item {
+                    (Column(modifier = Modifier.padding(horizontal = 16.dp)) {
 //                Text(
 //                    text = "Account",
 //                    style = EateryBlueTypography.h3,
 //                    color = EateryBlue
 //                )
-                Column(
-                ) {
-                    Text(
-                        text = "Meal Plan",
-                        style = EateryBlueTypography.h4,
-                        modifier = Modifier.padding(top = 16.dp)
-                    )
-                    MealPlanRow(
-                        accountName = "Meal Swipes",
-                        accountType = AccountType.UNLIMITED,
-                        loginViewModel = loginViewModel
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(GrayZero, CircleShape)
-                    )
-                    MealPlanRow(
-                        accountName = "Big Red Bucks",
-                        accountType = AccountType.BRBS,
-                        loginViewModel = loginViewModel
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(GrayZero, CircleShape)
-                    )
-                    MealPlanRow(
-                        accountName = "City Bucks",
-                        accountType = AccountType.CITYBUCKS,
-                        loginViewModel = loginViewModel
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(GrayZero, CircleShape)
-                    )
-                    MealPlanRow(
-                        accountName = "Laundry",
-                        accountType = AccountType.LAUNDRY,
-                        loginViewModel = loginViewModel
-                    )
-                }
-            }
-
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(16.dp)
-                    .background(GrayZero)
-            )
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(top = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = when (accountState.accountFilter.name) {
-                                "MEALSWIPES" -> "Meal Swipes"
-                                "BRBS" -> "Big Red Bucks"
-                                "LAUNDRY" -> "Laundry"
-                                "CITYBUCKS" -> "City Bucks"
-                                else -> "Account Type"
-                            },
-                            style = EateryBlueTypography.h4,
-
-                            )
-                    }
-                    IconButton(
-                        onClick = {
-                            sheetContent = BottomSheetContent.ACCOUNT_TYPE
-                            coroutineScope.launch {
-                                modalBottomSheetState.show()
-                            }
-                        },
-                        modifier = Modifier
-                            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
-                            .background(color = GrayZero, shape = CircleShape)
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_brbs),
-                            contentDescription = "Cange Account Type",
-                            modifier = Modifier
-                                .size(26.dp)
-                        )
-                    }
-                }
-                SearchBar(
-                    searchText = filterText,
-                    onSearchTextChange = { filterText = it },
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    placeholderText = "Search for transactions...",
-                    onCancelClicked = {
-                        filterText = ""
-                    }
-                )
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(GrayZero, CircleShape)
-                )
-                Text(
-                    text = "Past 30 Days",
-                    modifier = Modifier.padding(vertical = 12.dp),
-                    style = EateryBlueTypography.h5
-                )
-                LazyColumn {
-                    items(
-                        loginViewModel.getTransactionsOfType(
-                            accountState.accountFilter,
-                            filterText
-                        )!!
-                    ) { it ->
-                        val inputFormatter =
-                            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-                        val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
-                        val dateTime = LocalDateTime.parse(it.date, inputFormatter)
-
-                        Row(
-                            modifier = Modifier.height(64.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
                         ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(text = "${it.location}", style = EateryBlueTypography.button)
-                                Text(
-                                    text = outputFormatter.format(dateTime),
-                                    style = EateryBlueTypography.subtitle2
-                                )
-                            }
                             Text(
-                                modifier = Modifier.weight(0.2f),
-                                textAlign = TextAlign.Right,
-                                text = "$${"%.2f".format(it.amount)}",
-                                style = EateryBlueTypography.button
+                                text = "Meal Plan",
+                                style = EateryBlueTypography.h4,
+                                modifier = Modifier.padding(top = 16.dp)
+                            )
+                            MealPlanRow(
+                                accountName = "Meal Swipes",
+                                accountType = AccountType.MEALSWIPES,
+                                loginViewModel = loginViewModel
+                            )
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(GrayZero, CircleShape)
+                            )
+                            MealPlanRow(
+                                accountName = "Big Red Bucks",
+                                accountType = AccountType.BRBS,
+                                loginViewModel = loginViewModel
+                            )
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(GrayZero, CircleShape)
+                            )
+                            MealPlanRow(
+                                accountName = "City Bucks",
+                                accountType = AccountType.CITYBUCKS,
+                                loginViewModel = loginViewModel
+                            )
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(GrayZero, CircleShape)
+                            )
+                            MealPlanRow(
+                                accountName = "Laundry",
+                                accountType = AccountType.LAUNDRY,
+                                loginViewModel = loginViewModel
                             )
                         }
+                    })
+                }
+
+                item {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(16.dp)
+                            .background(GrayZero)
+                    )
+                }
+
+                stickyHeader {
+                    Column(
+                        modifier = Modifier
+                            .background(color = Color.White)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    text = when (accountState.accountFilter.name) {
+                                        "MEALSWIPES" -> "Meal Swipes"
+                                        "BRBS" -> "Big Red Bucks"
+                                        "LAUNDRY" -> "Laundry"
+                                        "CITYBUCKS" -> "City Bucks"
+                                        else -> "Account Type"
+                                    },
+                                    style = EateryBlueTypography.h4,
+
+                                    )
+                            }
+                            IconButton(
+                                onClick = {
+                                    sheetContent = BottomSheetContent.ACCOUNT_TYPE
+                                    coroutineScope.launch {
+                                        modalBottomSheetState.show()
+                                    }
+                                },
+                                modifier = Modifier
+                                    .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                                    .background(color = GrayZero, shape = CircleShape)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    contentDescription = "Change Account Type",
+                                    modifier = Modifier
+                                        .size(26.dp)
+                                )
+                            }
+                        }
+                        SearchBar(
+                            searchText = filterText,
+                            onSearchTextChange = { filterText = it },
+                            modifier = Modifier.padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
+                            placeholderText = "Search for transactions...",
+                            onCancelClicked = {
+                                filterText = ""
+                            }
+                        )
                         Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(1.dp)
+                                .padding(horizontal = 16.dp)
                                 .background(GrayZero, CircleShape)
                         )
+                        Text(
+                            text = "Past 30 Days",
+                            modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
+                            style = EateryBlueTypography.h5
+                        )
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .padding(horizontal = 16.dp)
+                                .background(GrayZero, CircleShape)
+                        )
+
+
                     }
                 }
+                items(
+                    loginViewModel.getTransactionsOfType(
+                        accountState.accountFilter,
+                        filterText
+                    )
+                ) { it ->
+                    val inputFormatter =
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+                    val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
+                    val dateTime = LocalDateTime.parse(it.date, inputFormatter)
+                    Row(
+                        modifier = Modifier
+                            .height(64.dp)
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = "${it.location}", style = EateryBlueTypography.button)
+                            Text(
+                                text = outputFormatter.format(dateTime),
+                                style = EateryBlueTypography.subtitle2
+                            )
+                        }
+                        var amtColor by remember { mutableStateOf(Color.Unspecified) }
+                        var amtString by remember { mutableStateOf("$0.00") }
+                        when {
+                            it.transactionType == 3 -> {
+                                amtString = "+$%.2f".format(it.amount)
+                                amtColor =
+                                    Color(LocalContext.current.resources.getColor(R.color.green))
+                            }
 
+                            it.amount?.toInt() == 0 -> {
+                                amtString = "$0.00"
+                                amtColor = Color.Black
+                            }
+
+                            else -> {
+                                amtString = "-$%.2f".format(it.amount)
+                                amtColor =
+                                    Color(LocalContext.current.resources.getColor(R.color.red))
+                            }
+                        }
+                        Text(
+                            text = amtString,
+                            modifier = Modifier.weight(0.2f),
+                            color = amtColor,
+                            textAlign = TextAlign.Right,
+                            style = EateryBlueTypography.button,
+                        )
+
+                    }
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(GrayZero, CircleShape)
+                    )
+                }
             }
         }
+
     }
 }
 
 
 @Composable
 fun MealPlanRow(accountName: String, accountType: AccountType, loginViewModel: LoginViewModel) {
-
+    fun findMealPlan(): String {
+        return "%.0f".format(
+            loginViewModel.checkAccount(AccountType.UNLIMITED)?.balance
+                ?: loginViewModel.checkAccount(AccountType.BEAR_BASIC)?.balance
+                ?: loginViewModel.checkAccount(AccountType.BEAR_CHOICE)?.balance
+                ?: loginViewModel.checkAccount(AccountType.BEAR_TRADITIONAL)?.balance ?: 0
+        )
+    }
     Row(
         modifier = Modifier.height(50.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -283,9 +436,11 @@ fun MealPlanRow(accountName: String, accountType: AccountType, loginViewModel: L
         Text(
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Right,
-            text = "$${
-                "%.2f".format(loginViewModel.checkAccount(accountType)!!.balance)
-            }",
+            text = if (accountType != AccountType.MEALSWIPES) {
+                "$" + "%.2f".format(loginViewModel.checkAccount(accountType)?.balance ?: 0)
+            } else {
+                (findMealPlan() ?: 0).toString() + " remaining this week"
+            },
             style = EateryBlueTypography.button,
         )
     }
@@ -329,7 +484,7 @@ fun AccountTypesAvailable(
         }
         Column {
             selectedPaymentMethod.forEachIndexed { index, account ->
-                var select = when (selected) {
+                val select = when (selected) {
                     account -> true
                     else -> false
                 }
@@ -364,7 +519,7 @@ fun AccountTypesAvailable(
                                 id = if (select) R.drawable.ic_selected else R.drawable.ic_unselected
                             ),
                             contentDescription = null,
-                            tint = Color.Black
+                            tint = Color.Unspecified
                         )
                     }
                 }
@@ -401,7 +556,6 @@ fun AccountTypesAvailable(
                     color = Color.White
                 )
             }
-
         }
     }
 }

@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.ui.components.settings.AppIconBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.settings.SettingsLineSeparator
@@ -30,7 +29,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SettingsScreen(
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel,
     destinations: HashMap<Routes, () -> Unit>
 ) {
     // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false
@@ -211,7 +210,6 @@ fun SettingsScreen(
 
                 when (state) {
                     is LoginViewModel.State.Login -> {
-                        Text(text = "Poop")
                     }
 
                     is LoginViewModel.State.Account -> {

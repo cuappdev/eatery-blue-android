@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -23,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.cornellappdev.android.eateryblue.ui.screens.*
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
+import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -128,6 +130,7 @@ fun SetupNavHost(
     hasOnboarded: Boolean,
     navController: NavHostController,
     showBottomBar: MutableState<Boolean>,
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
@@ -247,6 +250,7 @@ fun SetupNavHost(
             }) { backStackEntry ->
 //            val autoLogin = backStackEntry.arguments?.getBoolean("autoLogin")!!
             ProfileScreen(
+                loginViewModel = loginViewModel,
                 onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) }
             )
         }
@@ -279,7 +283,8 @@ fun SetupNavHost(
                             }
                         }
                     }
-                )
+                ),
+                loginViewModel = loginViewModel
             )
 
         }

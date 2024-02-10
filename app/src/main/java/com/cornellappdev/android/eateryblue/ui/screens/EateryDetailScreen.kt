@@ -96,15 +96,6 @@ fun EateryDetailScreen(
                                 }
                             }
                         }
-
-                        BottomSheetContent.HOURS -> {
-                            // TODO finish
-                        }
-
-                        BottomSheetContent.WAIT_TIME -> {
-                            // TODO finish
-                        }
-
                         BottomSheetContent.REPORT -> {
                             eatery.id?.let {
                                 ReportBottomSheet(
@@ -119,6 +110,8 @@ fun EateryDetailScreen(
                                 }
                             }
                         }
+
+                        else -> {}
                     }
                 },
                 sheetShape = RoundedCornerShape(

@@ -1,5 +1,7 @@
 package com.cornellappdev.android.eateryblue.ui.components.login
 
+import android.content.Context
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.cornellappdev.android.eateryblue.BuildConfig
+import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.ui.components.general.CustomTextField
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
@@ -36,6 +40,9 @@ import com.cornellappdev.android.eateryblue.ui.theme.GraySix
 import com.cornellappdev.android.eateryblue.ui.theme.GrayThree
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun LoginPage(
@@ -43,10 +50,14 @@ fun LoginPage(
     loginViewModel: LoginViewModel,
     onWrongCredentials: () -> Unit = {}
 ) {
+    val shimmer = rememberShimmer(ShimmerBounds.View)
+    val shimmerModifier =
+        if (loginState.loading) Modifier.shimmer(customShimmer = shimmer) else Modifier
     val passwordFocus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val clickable =
         loginState.netid.isNotEmpty() && loginState.password.isNotEmpty() && !loginState.loading
+
 
     Column(
         modifier = Modifier
@@ -73,6 +84,7 @@ fun LoginPage(
         )
 
         CustomTextField(
+            modifier = Modifier.then(shimmerModifier),
             value = loginState.netid,
             onValueChange = {
                 loginViewModel.onNetIDTyped(it)
@@ -93,6 +105,7 @@ fun LoginPage(
         )
 
         CustomTextField(
+            modifier = Modifier.then(shimmerModifier),
             value = loginState.password,
             onValueChange = {
                 loginViewModel.onPasswordTyped(it)
@@ -113,6 +126,7 @@ fun LoginPage(
             shape = RoundedCornerShape(24.dp),
             modifier = Modifier
                 .fillMaxWidth()
+                .then(shimmerModifier)
                 .padding(top = 66.dp)
                 .height(56.dp),
             onClick = {
@@ -146,7 +160,9 @@ fun LoginPage(
                     },
                     onWrongCredentials = {
                         onWrongCredentials()
-                    })
+                    },
+                    context = LocalContext.current
+                )
             }
         }
     }
@@ -157,7 +173,8 @@ fun LoginWebView(
     netId: String,
     password: String,
     onSuccess: (String) -> Unit,
-    onWrongCredentials: () -> Unit
+    onWrongCredentials: () -> Unit,
+    context: Context
 ) {
     CookieManager.getInstance().removeAllCookies(null)
     CookieManager.getInstance().flush()
@@ -176,6 +193,7 @@ fun LoginWebView(
                     password = password,
                     onSuccess = onSuccess,
                     onWrongCredentials = onWrongCredentials,
+                    context = context
                 )
             loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
         }
@@ -184,11 +202,13 @@ fun LoginWebView(
     })
 }
 
+var loadingMessage = ""
 class CustomWebViewClient(
     private val netId: String,
     private val password: String,
     val onSuccess: (String) -> Unit,
-    val onWrongCredentials: () -> Unit
+    val onWrongCredentials: () -> Unit,
+    val context: Context
 ) : WebViewClient() {
     private var attempts = 0
     private var lastUrl: String? = null
@@ -202,6 +222,64 @@ class CustomWebViewClient(
             onSuccess(sessionToken)
         } else if (attempts > 1) {
             onWrongCredentials()
+        } else if (url?.contains("auth/prompt") == true) {
+            val handler = Handler()
+            val interval = 1000L // Interval in milliseconds (e.g., check every second)
+            val runnable = object : Runnable {
+                override fun run() {
+                    // Execute JavaScript to get document element by ID
+                    view?.evaluateJavascript("javascript:document.querySelectorAll('[id*=\"header-text\"], [id*=\"push-success-label\"]')[0].innerHTML;") { message ->
+                        loadingMessage = message
+                        when (loadingMessage) {
+                            "\"Check for a Duo Push\"" -> {
+                                LoginToast(
+                                    context,
+                                    "Authenticating",
+                                    R.drawable.ic_bell,
+                                    R.color.light_yellow,
+                                    R.color.yellow
+                                )
+                            }
+
+                            "\"Open Duo Mobile\"" -> {
+                                LoginToast(
+                                    context,
+                                    "Authenticating",
+                                    R.drawable.ic_bell,
+                                    R.color.light_yellow,
+                                    R.color.yellow
+                                )
+                            }
+
+                            "\"Duo Push timed out\"" -> {
+                                LoginToast(
+                                    context,
+                                    "Timed Out",
+                                    R.drawable.ic_error,
+                                    R.color.light_red,
+                                    R.color.red
+                                )
+                            }
+
+                            "\"Success!\"" -> {
+                                LoginToast(
+                                    context,
+                                    "Successful Login",
+                                    es.dmoral.toasty.R.drawable.ic_check_white_24dp,
+                                    R.color.light_green,
+                                    R.color.green
+                                )
+                            }
+                        }
+                    }
+
+                    // Schedule the next execution
+                    handler.postDelayed(this, interval)
+                }
+            }
+
+            // Start the initial execution
+            handler.post(runnable)
         } else if (url?.contains("shibidp") == true) {
             // Injects the username and password into their respective spots on the
             // login form.
