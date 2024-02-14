@@ -247,8 +247,7 @@ fun SetupNavHost(
                 fadeOut(
                     animationSpec = tween(durationMillis = 500)
                 )
-            }) { backStackEntry ->
-//            val autoLogin = backStackEntry.arguments?.getBoolean("autoLogin")!!
+            }) {
             ProfileScreen(
                 loginViewModel = loginViewModel,
                 onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) }

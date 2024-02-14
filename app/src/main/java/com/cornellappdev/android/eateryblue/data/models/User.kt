@@ -66,7 +66,7 @@ enum class AccountType {
 }
 
 enum class TransactionType(val value: Int) {
-    DEPOSIT(3), SPEND(1), NOOP(0), WHAT(2);
+    DEPOSIT(3), SPEND(1), NOOP(0), MISC(2);
 
     companion object {
         fun fromInt(value: Int) = values().first { it.value == value }

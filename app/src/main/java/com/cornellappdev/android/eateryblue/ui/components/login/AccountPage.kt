@@ -205,16 +205,8 @@ fun AccountPage(
                 }
             }
             LazyColumn(state = innerListState) {
-                stickyHeader {
-
-                }
                 item {
                     (Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-//                Text(
-//                    text = "Account",
-//                    style = EateryBlueTypography.h3,
-//                    color = EateryBlue
-//                )
                         Column(
                         ) {
                             Text(
@@ -222,7 +214,7 @@ fun AccountPage(
                                 style = EateryBlueTypography.h4,
                                 modifier = Modifier.padding(top = 16.dp)
                             )
-                            MealPlanRow(
+                            AccountBalanceRow(
                                 accountName = "Meal Swipes",
                                 accountType = AccountType.MEALSWIPES,
                                 loginViewModel = loginViewModel
@@ -233,7 +225,7 @@ fun AccountPage(
                                     .height(1.dp)
                                     .background(GrayZero, CircleShape)
                             )
-                            MealPlanRow(
+                            AccountBalanceRow(
                                 accountName = "Big Red Bucks",
                                 accountType = AccountType.BRBS,
                                 loginViewModel = loginViewModel
@@ -244,7 +236,7 @@ fun AccountPage(
                                     .height(1.dp)
                                     .background(GrayZero, CircleShape)
                             )
-                            MealPlanRow(
+                            AccountBalanceRow(
                                 accountName = "City Bucks",
                                 accountType = AccountType.CITYBUCKS,
                                 loginViewModel = loginViewModel
@@ -255,7 +247,7 @@ fun AccountPage(
                                     .height(1.dp)
                                     .background(GrayZero, CircleShape)
                             )
-                            MealPlanRow(
+                            AccountBalanceRow(
                                 accountName = "Laundry",
                                 accountType = AccountType.LAUNDRY,
                                 loginViewModel = loginViewModel
@@ -415,7 +407,11 @@ fun AccountPage(
 
 
 @Composable
-fun MealPlanRow(accountName: String, accountType: AccountType, loginViewModel: LoginViewModel) {
+fun AccountBalanceRow(
+    accountName: String,
+    accountType: AccountType,
+    loginViewModel: LoginViewModel
+) {
     fun findMealPlan(): String {
         return "%.0f".format(
             loginViewModel.checkAccount(AccountType.UNLIMITED)?.balance
@@ -439,7 +435,7 @@ fun MealPlanRow(accountName: String, accountType: AccountType, loginViewModel: L
             text = if (accountType != AccountType.MEALSWIPES) {
                 "$" + "%.2f".format(loginViewModel.checkAccount(accountType)?.balance ?: 0)
             } else {
-                (findMealPlan() ?: 0).toString() + " remaining this week"
+                (findMealPlan()).toString() + " remaining this week"
             },
             style = EateryBlueTypography.button,
         )

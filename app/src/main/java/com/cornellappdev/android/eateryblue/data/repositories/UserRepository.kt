@@ -29,7 +29,6 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
             )
         )
 
-    // TODO change this to use get backend?
     suspend fun getUser(sessionId: String): GetApiResponse<User> =
         networkApi.fetchUser(
             url = BuildConfig.GET_BACKEND_URL + "user",

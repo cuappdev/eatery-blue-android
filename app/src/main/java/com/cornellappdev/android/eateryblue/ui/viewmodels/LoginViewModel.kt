@@ -1,9 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eateryblue.data.models.Account
@@ -52,6 +48,8 @@ class LoginViewModel @Inject constructor(
             State.Account(CurrentUser.user!!, "", AccountType.BRBS)
         }
     )
+
+    // Convert the state to a flow that can be updated by screens that use the LoginViewModel
     val state = _state.asStateFlow()
 
     //
@@ -167,10 +165,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-
-    var isLoggedIn: LoggedInStatus by mutableStateOf(LoggedInStatus.Pending)
-        private set
-
     init {
         getSavedLoginInfo()
     }
@@ -204,7 +198,6 @@ class LoginViewModel @Inject constructor(
             )
             _state.value = newState
         } catch (e: Exception) {
-            Log.d("LOGIN", e.stackTraceToString())
             val currState = _state.value
             if (currState is State.Login) {
                 val newState = State.Login(
@@ -219,22 +212,4 @@ class LoginViewModel @Inject constructor(
             userPreferencesRepository.setIsLoggedIn(false)
         }
     }
-}
-
-/**
- * A sealed hierarchy describing the current status of logging in.
- */
-sealed interface LoginState {
-    data class Success(val user: User) : LoginState
-    object Error : LoginState
-    object Pending : LoginState
-}
-
-/**
- * A sealed hierarchy describing the current status of isLoggedIn
- */
-sealed interface LoggedInStatus {
-    data class IsLoggedIn(val username: String, val password: String) : LoggedInStatus
-    object NotLoggedIn : LoggedInStatus
-    object Pending : LoggedInStatus
 }

@@ -8,12 +8,10 @@ import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -64,12 +62,6 @@ fun LoginPage(
             .zIndex(1f)
             .padding(horizontal = 16.dp)
     ) {
-//        Text(
-//            text = "Log in with Eatery",
-//            style = EateryBlueTypography.h3,
-//            color = EateryBlue
-//        )
-
         Text(
             text = "See your meal swipes, BRBs, and more",
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
@@ -146,24 +138,18 @@ fun LoginPage(
         }
         if (loginState.loading) {
             // LoginWebView should take up no space whatsoever. User should not be able to see it.
-            Box(
-                modifier = Modifier
-                    .size(0.dp)
-                    .zIndex(-1f)
-            ) {
-                LoginWebView(
-                    netId = loginState.netid,
-                    password = loginState.password,
-                    onSuccess = { sessionId ->
-                        loginViewModel.getUser(sessionId)
-                        loginViewModel.onLoginPressed()
-                    },
-                    onWrongCredentials = {
-                        onWrongCredentials()
-                    },
-                    context = LocalContext.current
-                )
-            }
+            LoginWebView(
+                netId = loginState.netid,
+                password = loginState.password,
+                onSuccess = { sessionId ->
+                    loginViewModel.getUser(sessionId)
+                    loginViewModel.onLoginPressed()
+                },
+                onWrongCredentials = {
+                    onWrongCredentials()
+                },
+                context = LocalContext.current
+            )
         }
     }
 }
