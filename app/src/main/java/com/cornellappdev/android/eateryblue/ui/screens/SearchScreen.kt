@@ -36,10 +36,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -80,8 +78,8 @@ fun SearchScreen(
         initialValue = ModalBottomSheetValue.Hidden
     )
     val coroutineScope = rememberCoroutineScope()
-    var searchText by remember { mutableStateOf("") }
 
+    val query by searchViewModel.searchFlow.collectAsState()
     val favorites = searchViewModel.favoriteEateries.collectAsState().value
     val recentSearches =
         searchViewModel.recentSearches.collectAsState().value.reversed().take(10).distinct()
@@ -90,8 +88,9 @@ fun SearchScreen(
 
 
     // Automatically brings the search bar into focus when the view is composed
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+    LaunchedEffect(null) {
+        if (query.isEmpty())
+            focusRequester.requestFocus()
     }
 
     // Here a DisposableEffect is launched when the bottom sheet opens.
@@ -122,15 +121,14 @@ fun SearchScreen(
 
                 Column(modifier = Modifier.background(Color.White)) {
                     SearchBar(
-                        searchText = searchText,
+                        searchText = query,
                         onSearchTextChange = {
-                            searchText = it
                             searchViewModel.queryEateries(it)
                         },
                         placeholderText = "Search for grub...",
                         modifier = Modifier.padding(
                             top = 64.dp,
-                            bottom = 12.dp,
+                            bottom = 6.dp,
                             start = 16.dp,
                             end = 16.dp
                         ),
@@ -139,7 +137,7 @@ fun SearchScreen(
                         enabled = true
                     )
 
-                    FilterRow(modifier = Modifier.padding(start = 16.dp, bottom = 12.dp),
+                    FilterRow(
                         currentFiltersSelected = filters,
                         onPaymentMethodsClicked = {
                             coroutineScope.launch {
@@ -154,6 +152,7 @@ fun SearchScreen(
                             }
                         })
 
+                    Spacer(modifier = Modifier.height(6.dp))
                     Spacer(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -164,7 +163,7 @@ fun SearchScreen(
             }
 
             item {
-                if (searchText.isEmpty()) {
+                if (query.isEmpty()) {
                     if (eateryApiResponse is EateryApiResponse.Success) {
                         Row(
                             modifier = Modifier
@@ -222,7 +221,7 @@ fun SearchScreen(
                                         horizontal = 16.dp, vertical = 12.dp
                                     )
                                 ) {
-                                    var eatery = eateryResponse.data
+                                    val eatery = eateryResponse.data
                                     EateryCard(
                                         eatery = eatery,
                                         isFavorite = favorites.any { favoriteEatery ->
@@ -244,7 +243,7 @@ fun SearchScreen(
                     }
                 } else {
                     if (eateryApiResponse is EateryApiResponse.Success) {
-                        var eateries = eateryApiResponse.data
+                        val eateries = eateryApiResponse.data
                         eateries.forEach { eatery ->
                             Box(
                                 Modifier.padding(

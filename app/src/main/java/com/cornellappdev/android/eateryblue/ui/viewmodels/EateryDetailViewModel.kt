@@ -25,7 +25,7 @@ class EateryDetailViewModel @Inject constructor(
 ) : ViewModel() {
     private val eateryId: Int = checkNotNull(savedStateHandle["eateryId"])
 
-    var eatery : State<EateryApiResponse<Eatery>> = mutableStateOf(EateryApiResponse.Pending)
+    var eatery: State<EateryApiResponse<Eatery>> = mutableStateOf(EateryApiResponse.Pending)
 
     var isFavorite by mutableStateOf(false)
         private set
