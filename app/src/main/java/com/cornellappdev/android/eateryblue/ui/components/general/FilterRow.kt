@@ -24,8 +24,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 fun FilterRow(
     currentFiltersSelected: List<Filter>,
     onPaymentMethodsClicked: () -> Unit,
-    onFilterClicked: (Filter) -> Unit,
-    modifier: Modifier = Modifier,
+    onFilterClicked: (Filter) -> Unit
 ) {
     val paymentMethodFilters = currentFiltersSelected.filter { filter ->
         filter in setOf(Filter.BRB, Filter.CASH, Filter.SWIPES)
@@ -36,16 +35,19 @@ fun FilterRow(
             it.text
         }
 
-    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    val buttonPadding = PaddingValues(vertical = 8.dp, horizontal = 12.dp)
+
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        item {
+            Spacer(modifier = Modifier.width(10.dp))
+        }
+
         item {
             Button(
                 onClick = {
                     onFilterClicked(Filter.UNDER_10)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (currentFiltersSelected.contains(
@@ -69,10 +71,7 @@ fun FilterRow(
                 onClick = {
                     onPaymentMethodsClicked()
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (paymentMethodFilters.isNotEmpty()) Color.Black else GrayZero,
@@ -96,10 +95,7 @@ fun FilterRow(
                 onClick = {
                     onFilterClicked(Filter.FAVORITES)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (currentFiltersSelected.contains(
@@ -123,10 +119,7 @@ fun FilterRow(
                 onClick = {
                     onFilterClicked(Filter.NORTH)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (currentFiltersSelected.contains(
@@ -150,10 +143,7 @@ fun FilterRow(
                 onClick = {
                     onFilterClicked(Filter.WEST)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (currentFiltersSelected.contains(
@@ -177,10 +167,7 @@ fun FilterRow(
                 onClick = {
                     onFilterClicked(Filter.CENTRAL)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (currentFiltersSelected.contains(
@@ -219,17 +206,16 @@ fun FilterRowUpcoming(
         if (mealFilters.isEmpty()) "Breakfast" else mealFilters.joinToString {
             it.text
         }
-    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
 
+    val buttonPadding = PaddingValues(vertical = 8.dp, horizontal = 12.dp)
+
+    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
             Button(
                 onClick = {
                     onMealsClicked()
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (mealFilters.isNotEmpty()) Color.Black else GrayZero,
@@ -254,10 +240,7 @@ fun FilterRowUpcoming(
                 onClick = {
                     onFilterClicked(Filter.NORTH)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (currentFiltersSelected.contains(
@@ -282,10 +265,7 @@ fun FilterRowUpcoming(
                 onClick = {
                     onFilterClicked(Filter.WEST)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (currentFiltersSelected.contains(
@@ -309,10 +289,7 @@ fun FilterRowUpcoming(
                 onClick = {
                     onFilterClicked(Filter.CENTRAL)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
+                contentPadding = buttonPadding,
                 shape = RoundedCornerShape(100.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = if (currentFiltersSelected.contains(
