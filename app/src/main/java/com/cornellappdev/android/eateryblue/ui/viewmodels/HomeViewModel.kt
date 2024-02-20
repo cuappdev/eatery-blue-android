@@ -84,7 +84,7 @@ class HomeViewModel @Inject constructor(
             is EateryApiResponse.Error -> listOf()
             is EateryApiResponse.Pending -> listOf()
             is EateryApiResponse.Success -> {
-                apiResponse.data.sortedBy { it.getWalkTimes() }.let{ nearestSorted ->
+                apiResponse.data.sortedBy { it.getWalkTimes() }.let { nearestSorted ->
                     if (nearestSorted.size < 6) nearestSorted
                     else nearestSorted.slice(0..5)
                 }

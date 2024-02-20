@@ -29,9 +29,14 @@ class SearchViewModel @Inject constructor(
     val filtersFlow = _filtersFlow.asStateFlow()
 
     /**
-     * The current search query. Private. Combine with other flows to filter by search query.
+     * The current search query. Combine with other flows to filter by search query.
      */
-    private val searchFlow: MutableStateFlow<String> = MutableStateFlow("")
+    private val _searchFlow: MutableStateFlow<String> = MutableStateFlow("")
+
+    /**
+     * The current String search query.
+     */
+    val searchFlow = _searchFlow.asStateFlow()
 
     /**
      * A flow of the eateries that should show up with the current query.
@@ -39,7 +44,7 @@ class SearchViewModel @Inject constructor(
     val searchResultEateries = combine(
         eateryRepository.homeEateryFlow,
         filtersFlow,
-        searchFlow
+        _searchFlow
     ) { eateryApiResponse, filters, searchQuery ->
         when (eateryApiResponse) {
             is EateryApiResponse.Error -> EateryApiResponse.Error
@@ -98,7 +103,7 @@ class SearchViewModel @Inject constructor(
     }
 
     fun queryEateries(query: String) {
-        searchFlow.value = query
+        _searchFlow.value = query
     }
 
     private fun Eatery.passesFilter(filters: List<Filter>): Boolean {

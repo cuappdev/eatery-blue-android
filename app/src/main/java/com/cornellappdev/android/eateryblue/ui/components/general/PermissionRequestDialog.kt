@@ -79,12 +79,12 @@ fun PermissionRequestDialog(
                         ) {
                             Text(
                                 text = "Location permissions are necessary to show you " +
-                                    "eateries that are the closest to you!" +
-                                    if (notificationPermissionState.shouldShowRationale || !notificationFlowStatus) {
-                                        ""
-                                    } else {
-                                        "\n\nPlease click the button below to go to the settings to enable notifications."
-                                    },
+                                        "eateries that are the closest to you!" +
+                                        if (notificationPermissionState.shouldShowRationale || !notificationFlowStatus) {
+                                            ""
+                                        } else {
+                                            "\n\nPlease click the button below to go to the settings to enable notifications."
+                                        },
                                 textAlign = TextAlign.Center,
                                 fontWeight = FontWeight.Medium
                             )

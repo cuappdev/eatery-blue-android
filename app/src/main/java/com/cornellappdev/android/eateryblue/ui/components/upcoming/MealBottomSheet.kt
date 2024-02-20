@@ -216,7 +216,7 @@ fun MealBottomSheet(
             modifier = Modifier
                 .align(CenterVertically)
                 .padding(end = 16.dp, start = 100.dp),
-            ) {
+        ) {
             if (selectedFilters.contains(Filter.DINNER)) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
