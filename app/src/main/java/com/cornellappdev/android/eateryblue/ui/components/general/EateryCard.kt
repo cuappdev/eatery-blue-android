@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -214,7 +215,7 @@ fun EateryCard(
         )
     )
     val closedAlpha by animateFloatAsState(
-        targetValue = if (eatery.isClosed()) .53f else 0f,
+        targetValue = if (eatery.isClosed()) .53f else 1f,
         label = "Closed Fade",
         animationSpec = tween(250)
     )
@@ -233,7 +234,8 @@ fun EateryCard(
                 Crossfade(
                     targetState = bitmapState?.value,
                     label = "imageFade",
-                    animationSpec = tween(250)
+                    animationSpec = tween(250),
+                    modifier = Modifier.alpha(closedAlpha)
                 ) { apiResponse ->
                     when (apiResponse) {
                         is EateryApiResponse.Success ->
@@ -267,14 +269,6 @@ fun EateryCard(
                                 contentScale = ContentScale.Crop,
                             )
                     }
-                }
-                if (eatery.isClosed()) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(130.dp)
-                            .background(color = Color.White.copy(alpha = closedAlpha))
-                    )
                 }
                 if (!xMinutesUntilClosing?.value.isNullOrEmpty()) {
                     Card(
