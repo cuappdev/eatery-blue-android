@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eateryblue.data.models.Account
@@ -52,12 +53,33 @@ class LoginViewModel @Inject constructor(
     // Convert the state to a flow that can be updated by screens that use the LoginViewModel
     val state = _state.asStateFlow()
 
-    //
-    fun checkAccount(accountType: AccountType): Account? {
-        if (_state.value !is State.Account || CurrentUser.user == null) return null
-        return CurrentUser.user!!.accounts!!.find { account -> account.type == accountType }
-    }
+    // List of all available meal plans
+    val mealPlanList = mutableListOf(
+        AccountType.FLEX,
+        AccountType.BEAR_TRADITIONAL,
+        AccountType.BEAR_CHOICE,
+        AccountType.BEAR_BASIC,
+        AccountType.UNLIMITED,
+        AccountType.HOUSE_AFFILIATE,
+        AccountType.HOUSE_MEALPLAN,
+        AccountType.JUST_BUCKS,
+        AccountType.OFF_CAMPUS
+    )
 
+    // Check what the meal plan is against our list of meal plans
+    fun checkAccounts(): Account? {
+        if (_state.value !is State.Account || CurrentUser.user == null) return null
+        var currAccount: Account? = null
+        CurrentUser.user!!.accounts!!.forEach {
+            if (mealPlanList.contains(it.type)) {
+                Log.d("Mealplan", it.type.toString())
+                currAccount = it
+            }
+        }
+        Log.d("Final Plan", currAccount!!.type.toString())
+        return currAccount
+    }
+    
     fun updateAccountFilter(newAccountType: AccountType) {
         val currState = _state.value
         if (currState !is State.Account) return
