@@ -35,7 +35,7 @@
         </activity>
 
         <activity-alias
-            android:name=".MainActivityDefault"
+            android:name=".MainActivity"
             android:enabled="true"
             android:exported="true"
             android:icon="@mipmap/ic_launcher_default"

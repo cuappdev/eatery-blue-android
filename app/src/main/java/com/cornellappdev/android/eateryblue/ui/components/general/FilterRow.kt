@@ -105,6 +105,87 @@ fun FilterRow(
         }
 
         item {
+            Button(
+                onClick = {
+                    onFilterClicked(Filter.UNDER_10)
+                },
+                contentPadding = PaddingValues(
+                    horizontal = 10.dp,
+                    vertical = 8.dp
+                ),
+                shape = RoundedCornerShape(100.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (currentFiltersSelected.contains(
+                            Filter.UNDER_10
+                        )
+                    ) Color.Black else GrayZero,
+                    contentColor = if (currentFiltersSelected.contains(
+                            Filter.UNDER_10
+                        )
+                    ) Color.White else Color.Black
+                )
+            ) {
+                Text(
+                    Filter.UNDER_10.text,
+                )
+            }
+        }
+
+        item {
+            Button(
+                onClick = {
+                    onPaymentMethodsClicked()
+                },
+                contentPadding = PaddingValues(
+                    horizontal = 10.dp,
+                    vertical = 8.dp
+                ),
+                shape = RoundedCornerShape(100.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (paymentMethodFilters.isNotEmpty()) Color.Black else GrayZero,
+                    contentColor = if (paymentMethodFilters.isNotEmpty()) Color.White else Color.Black
+                )
+            ) {
+                Text(
+                    paymentMethodFilterText,
+                )
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                Icon(
+                    Icons.Default.ExpandMore,
+                    contentDescription = "Favorite",
+                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                )
+            }
+        }
+
+        item {
+            Button(
+                onClick = {
+                    onFilterClicked(Filter.FAVORITES)
+                },
+                contentPadding = PaddingValues(
+                    horizontal = 10.dp,
+                    vertical = 8.dp
+                ),
+                shape = RoundedCornerShape(100.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (currentFiltersSelected.contains(
+                            Filter.FAVORITES
+                        )
+                    ) Color.Black else GrayZero,
+                    contentColor = if (currentFiltersSelected.contains(
+                            Filter.FAVORITES
+                        )
+                    ) Color.White else Color.Black
+                )
+            ) {
+                Text(
+                    Filter.FAVORITES.text,
+                )
+            }
+        }
+
+        item {
             Spacer(Modifier.width(16.dp))
         }
     }

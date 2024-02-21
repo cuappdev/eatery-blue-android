@@ -7,13 +7,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.ui.components.settings.AppIconBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.settings.SettingsLineSeparator
@@ -23,17 +23,17 @@ import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
-import com.cornellappdev.android.eateryblue.ui.viewmodels.LoggedInStatus
 import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SettingsScreen(
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel,
     destinations: HashMap<Routes, () -> Unit>
 ) {
-    // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false.
+    // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false
+    val state = loginViewModel.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -208,18 +208,11 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                when (loginViewModel.isLoggedIn) {
-                    LoggedInStatus.Pending -> {
-
+                when (state) {
+                    is LoginViewModel.State.Login -> {
                     }
 
-                    LoggedInStatus.NotLoggedIn -> {
-
-                    }
-
-                    is LoggedInStatus.IsLoggedIn -> {
-                        val loginInfo = loginViewModel.isLoggedIn as LoggedInStatus.IsLoggedIn
-
+                    is LoginViewModel.State.Account -> {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -228,13 +221,13 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Logged in as ${loginInfo.username}",
+                                text = "Logged in as ${state.user.userName!!.substringBefore('@')}",
                                 style = EateryBlueTypography.h5,
                                 color = GrayFive
                             )
                             Button(
                                 onClick = {
-                                    loginViewModel.logOut()
+                                    loginViewModel.onLogoutPressed()
                                     destinations[Routes.PROFILE]?.invoke()
                                 },
                                 shape = RoundedCornerShape(25.dp),

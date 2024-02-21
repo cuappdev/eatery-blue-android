@@ -7,24 +7,22 @@ import android.text.SpannableStringBuilder
 import android.text.style.StyleSpan
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.cornellappdev.android.eateryblue.R
 import es.dmoral.toasty.Toasty
 
-fun showWrongCredentialsToast(context: Context) {
-    val wrongCredentialsMessage = "NetID and/or password incorrect, please try again"
+fun LoginToast(context: Context, message: String, icon: Int, color: Int, borderColor: Int) {
     val ssb =
-        SpannableStringBuilder(wrongCredentialsMessage)
+        SpannableStringBuilder(message)
     ssb.setSpan(
         StyleSpan(Typeface.BOLD),
-        0, wrongCredentialsMessage.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE
+        0, message.length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE
     )
 
     Toasty.custom(
         context,
         ssb,
-        ContextCompat.getDrawable(context, R.drawable.ic_error),
-        ContextCompat.getColor(context, R.color.light_red),
-        ContextCompat.getColor(context, R.color.red),
+        ContextCompat.getDrawable(context, icon),
+        ContextCompat.getColor(context, color),
+        ContextCompat.getColor(context, borderColor),
         Toast.LENGTH_SHORT,
         true,
         true

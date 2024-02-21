@@ -2,7 +2,6 @@ package com.cornellappdev.android.eateryblue.data.models
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
 data class User(
@@ -40,8 +39,9 @@ data class Transaction(
     @Json(name = "transactionId") val id: String? = null,
     @Json(name = "amount") val amount: Double? = null,
     @Json(name = "resultingBalance") val resultingBalance: Double? = null,
-    @Json(name = "postedDate") val date: LocalDateTime? = null,
-    @Json(name = "transactionType") val transactionType: TransactionType? = null,
+    @Json(name = "postedDate") val date: String? = null,
+    // make this TransactionType later
+    @Json(name = "transactionType") val transactionType: Int? = null,
     @Json(name = "accountName") val accountType: AccountType? = null,
     @Json(name = "locationName") val location: String? = null,
 )
@@ -66,7 +66,7 @@ enum class AccountType {
 }
 
 enum class TransactionType(val value: Int) {
-    DEPOSIT(3), SPEND(1), NOOP(0);
+    DEPOSIT(3), SPEND(1), NOOP(0), MISC(2);
 
     companion object {
         fun fromInt(value: Int) = values().first { it.value == value }

@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -23,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.cornellappdev.android.eateryblue.ui.screens.*
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
+import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -128,6 +130,7 @@ fun SetupNavHost(
     hasOnboarded: Boolean,
     navController: NavHostController,
     showBottomBar: MutableState<Boolean>,
+    loginViewModel: LoginViewModel = hiltViewModel()
 ) {
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
@@ -244,19 +247,11 @@ fun SetupNavHost(
                 fadeOut(
                     animationSpec = tween(durationMillis = 500)
                 )
-            }) { backStackEntry ->
-            val autoLogin = backStackEntry.arguments?.getBoolean("autoLogin")!!
+            }) {
             ProfileScreen(
-                autoLogin = autoLogin,
-                onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
-                onLoginSuccess = {
-                    navController.navigate(Routes.ACCOUNT.route) {
-                        // User shouldn't be able to navigate back to Profile screen
-                        popUpTo("${Routes.PROFILE.route}/{autoLogin}") {
-                            inclusive = true
-                        }
-                    }
-                })
+                loginViewModel = loginViewModel,
+                onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) }
+            )
         }
         composable(
             route = Routes.SETTINGS.route,
@@ -278,16 +273,17 @@ fun SetupNavHost(
                     Routes.LEGAL to { navController.navigate(Routes.LEGAL.route) },
                     Routes.PRIVACY to { navController.navigate(Routes.PRIVACY.route) },
                     Routes.SUPPORT to { navController.navigate(Routes.SUPPORT.route) },
-//                    Routes.PROFILE to {
-//                        navController.navigate("${Routes.PROFILE.route}/false") {
-//                            if (navController.isOnBackStack(Routes.ACCOUNT.route)) {
-//                                popUpTo(Routes.ACCOUNT.route) { inclusive = true }
-//                            } else {
-//                                popUpTo(Routes.SETTINGS.route) { inclusive = true }
-//                            }
-//                        }
-//                    }
-                )
+                    Routes.PROFILE to {
+                        navController.navigate("${Routes.PROFILE.route}/false") {
+                            if (navController.isOnBackStack(Routes.ACCOUNT.route)) {
+                                popUpTo(Routes.ACCOUNT.route) { inclusive = true }
+                            } else {
+                                popUpTo(Routes.SETTINGS.route) { inclusive = true }
+                            }
+                        }
+                    }
+                ),
+                loginViewModel = loginViewModel
             )
 
         }

@@ -62,6 +62,22 @@ class ReportAdapter {
     }
 }
 
+class TransactionDateAdapter {
+    @FromJson
+    fun fromJson(date: String): Date {
+        try {
+            val simpleDate =
+                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZ", Locale.US).parse(date)
+            if (simpleDate != null) {
+                return simpleDate
+            }
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        }
+        return Date(0)
+    }
+}
+
 class DateTimeAdapter {
     @ToJson
     fun toJson(dateTime: LocalDateTime): String {
