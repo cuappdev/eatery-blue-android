@@ -48,35 +48,6 @@ fun FilterRow(
         item {
             FilterButton(
                 onFilterClicked = {
-                    onFilterClicked(Filter.UNDER_10)
-                },
-                selected = currentFiltersSelected.contains(Filter.UNDER_10),
-                text = Filter.UNDER_10.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = onPaymentMethodsClicked,
-                selected = paymentMethodFilters.isNotEmpty(),
-                text = paymentMethodFilterText,
-                icon = Icons.Default.ExpandMore
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.FAVORITES)
-                },
-                selected = currentFiltersSelected.contains(Filter.FAVORITES),
-                text = Filter.FAVORITES.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
                     onFilterClicked(Filter.NORTH)
                 },
                 selected = currentFiltersSelected.contains(Filter.NORTH),
@@ -105,84 +76,32 @@ fun FilterRow(
         }
 
         item {
-            Button(
-                onClick = {
+            FilterButton(
+                onFilterClicked = {
                     onFilterClicked(Filter.UNDER_10)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.UNDER_10
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.UNDER_10
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.UNDER_10.text,
-                )
-            }
+                selected = currentFiltersSelected.contains(Filter.UNDER_10),
+                text = Filter.UNDER_10.text
+            )
         }
 
         item {
-            Button(
-                onClick = {
-                    onPaymentMethodsClicked()
-                },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (paymentMethodFilters.isNotEmpty()) Color.Black else GrayZero,
-                    contentColor = if (paymentMethodFilters.isNotEmpty()) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    paymentMethodFilterText,
-                )
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Icon(
-                    Icons.Default.ExpandMore,
-                    contentDescription = "Favorite",
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
-                )
-            }
+            FilterButton(
+                onFilterClicked = onPaymentMethodsClicked,
+                selected = paymentMethodFilters.isNotEmpty(),
+                text = paymentMethodFilterText,
+                icon = Icons.Default.ExpandMore
+            )
         }
 
         item {
-            Button(
-                onClick = {
+            FilterButton(
+                onFilterClicked = {
                     onFilterClicked(Filter.FAVORITES)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.FAVORITES
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.FAVORITES
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.FAVORITES.text,
-                )
-            }
+                selected = currentFiltersSelected.contains(Filter.FAVORITES),
+                text = Filter.FAVORITES.text
+            )
         }
 
         item {
