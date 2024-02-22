@@ -59,12 +59,12 @@ fun MenuCard(
     }
 
     Card(
-        elevation = 10.dp,
+        elevation = 5.dp,
         shape = RoundedCornerShape(10.dp),
         backgroundColor = Color.White,
         modifier = Modifier.clickable { openDropdown = !openDropdown }
 
-        ) {
+    ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 val event = eatery.getSelectedDayMeal(selectedMealInt, day)
