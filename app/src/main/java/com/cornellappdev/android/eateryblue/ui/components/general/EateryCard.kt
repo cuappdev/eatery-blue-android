@@ -221,7 +221,7 @@ fun EateryCard(
     )
 
     Card(
-        elevation = 10.dp,
+        elevation = 3.dp,
         shape = RoundedCornerShape(10.dp),
         onClick = {
             selectEatery(eatery)
