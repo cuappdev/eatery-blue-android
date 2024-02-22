@@ -732,7 +732,8 @@ fun EateryMenuWidget(event: Event) {
                                             color = GrayFive,
                                         )
                                     }
-                                } else if (i == currSelectedDay) {
+                                }
+                                if (i == currSelectedDay) {
                                     Canvas(
                                         modifier = Modifier
                                             .size(size = 35.dp)
