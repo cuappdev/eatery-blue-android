@@ -378,6 +378,8 @@ fun EateryCardPrimaryHeader(eatery: Eatery, isCompact: Boolean) {
 @Composable
 fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean) {
     if (!isCompact && eatery.getWalkTimes() != null) {
+        val walkText =
+            "${if (eatery.getWalkTimes()!! > 0) eatery.getWalkTimes() else "< 1"} min walk"
         Row(
             modifier = Modifier.padding(top = 2.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -389,7 +391,7 @@ fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean) {
                 modifier = Modifier.padding(end = 4.dp, top = 1.dp)
             )
             Text(
-                text = "${eatery.getWalkTimes()} min walk",
+                text = walkText,
                 color = GrayFive,
                 style = EateryBlueTypography.subtitle2
             )
