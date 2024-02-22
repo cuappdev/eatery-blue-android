@@ -72,7 +72,7 @@ fun EateryDetailScreen(
     var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
     val paymentMethods = remember { mutableStateListOf<PaymentMethodsAvailable>() }
     val coroutineScope = rememberCoroutineScope()
-    var issue by remember { mutableStateOf<Issue?>(null) }
+    val issue by remember { mutableStateOf<Issue?>(null) }
 
     when (val eateryApiResponse = eateryDetailViewModel.eatery.value) {
         is EateryApiResponse.Pending -> {
@@ -409,9 +409,11 @@ fun EateryDetailScreen(
                                 .background(GrayZero)
                         )
 
-                        eatery.getTodaysEvents().forEach { event ->
-                            EateryMenuWidget(event = event)
+                        val nextEvent: Event? = eatery.getCurrentEvent()
+                        if (nextEvent != null) {
+                            EateryMenuWidget(event = nextEvent)
                         }
+
 
                         Spacer(
                             modifier = Modifier
@@ -563,16 +565,16 @@ fun AlertsSection(eatery: Eatery) {
 @Composable
 fun EateryMenuWidget(event: Event) {
     /** Handles the number and calender at the top*/
-    var zoneId: ZoneId? = ZoneId.of("America/New_York")
-    var today = LocalDate.now(zoneId)
-    var currentDay by remember { mutableStateOf(today) }
+    val zoneId: ZoneId? = ZoneId.of("America/New_York")
+    val today = LocalDate.now(zoneId)
+    val currentDay by remember { mutableStateOf(today) }
     Log.d("current day", currentDay.dayOfWeek.value.toString())
     Log.d("current day2", currentDay.dayOfMonth.toString())
-    var dayWeek: Int = currentDay.dayOfWeek.value
+    val dayWeek: Int = currentDay.dayOfWeek.value
     val dayNum: Int = currentDay.dayOfMonth
-    var dayNames = mutableListOf<String>()
-    var dayWeeks = mutableListOf<Int>()
-    var days = mutableListOf<Int>()
+    val dayNames = mutableListOf<String>()
+    val dayWeeks = mutableListOf<Int>()
+    val days = mutableListOf<Int>()
 
 
     dayWeeks.add(dayWeek)
@@ -597,9 +599,9 @@ fun EateryMenuWidget(event: Event) {
         dayNames.add(dayName)
     }
 
-    val coroutineScope = rememberCoroutineScope()
+    rememberCoroutineScope()
 
-    var weekDayIndex = 0
+    val weekDayIndex = 0
     var selectedDay by remember { mutableStateOf(weekDayIndex) }
     var openUpcoming by remember { mutableStateOf(false) }
     var filterText by remember { mutableStateOf("") }

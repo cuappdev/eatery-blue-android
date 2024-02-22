@@ -103,6 +103,13 @@ data class Eatery(
         return todayEvents
     }
 
+    fun getCurrentEvent(): Event? {
+        return getTodaysEvents().find {
+            it.startTime?.isBefore(LocalDateTime.now()) ?: true
+                    && it.endTime?.isAfter(LocalDateTime.now()) ?: true
+        }
+    }
+
     fun getSelectedDayMeal(meal: Int, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())
