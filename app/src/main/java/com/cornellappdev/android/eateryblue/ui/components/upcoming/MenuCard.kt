@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eateryblue.ui.components.upcoming
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,7 +36,6 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun MenuCard(
     eatery: Eatery,
-    modifier: Modifier = Modifier.fillMaxWidth(),
     day: Int,
     meal: SnapshotStateList<Filter>,
     selectEatery: (eatery: Eatery) -> Unit = {},
@@ -51,7 +51,7 @@ fun MenuCard(
         selectedMeal = meal[0]
 
     }
-    var selectedMealInt: Int = when (selectedMeal) {
+    val selectedMealInt: Int = when (selectedMeal) {
         Filter.BREAKFAST -> 1
         Filter.LUNCH -> 2
         Filter.DINNER -> 3
@@ -62,11 +62,12 @@ fun MenuCard(
         elevation = 10.dp,
         shape = RoundedCornerShape(10.dp),
         backgroundColor = Color.White,
+        modifier = Modifier.clickable { openDropdown = !openDropdown }
 
         ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                var event = eatery.getSelectedDayMeal(selectedMealInt, day)
+                val event = eatery.getSelectedDayMeal(selectedMealInt, day)
 
                 if (event != null) {
                     if (event.isEmpty()) {
