@@ -1,5 +1,7 @@
 package com.cornellappdev.android.eateryblue.ui.components.upcoming
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -174,21 +176,23 @@ fun MenuCard(
                 }
             }
 
-            if (openDropdown) {
-                Spacer(
-                    modifier = Modifier
-                        .padding(end = 12.dp, bottom = 8.dp)
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(GrayZero, CircleShape)
-                )
-                Box(modifier = Modifier.padding(end = 12.dp)) {
-                    OpenEateryDetails(
-                        eatery = eatery,
-                        selectEatery = { selectEatery(eatery) },
-                        meal = selectedMealInt,
-                        day = day,
+            Column(modifier = Modifier.animateContentSize(tween(250)).fillMaxWidth()) {
+                if (openDropdown) {
+                    Spacer(
+                        modifier = Modifier
+                            .padding(end = 12.dp, bottom = 8.dp)
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(GrayZero, CircleShape)
                     )
+                    Box(modifier = Modifier.padding(end = 12.dp)) {
+                        OpenEateryDetails(
+                            eatery = eatery,
+                            selectEatery = { selectEatery(eatery) },
+                            meal = selectedMealInt,
+                            day = day,
+                        )
+                    }
                 }
             }
         }

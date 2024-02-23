@@ -207,7 +207,6 @@ fun MealBottomSheet(
         }
         IconButton(
             onClick = {
-
                 if (!selectedFilters.contains(Filter.DINNER)) {
                     selectedFilters.clear()
                     selectedFilters.add(Filter.DINNER)
