@@ -88,7 +88,7 @@ fun SearchScreen(
     val recentSearches =
         searchViewModel.recentSearches.collectAsState().value.reversed().take(10).distinct()
     val filters = searchViewModel.filtersFlow.collectAsState().value
-    val eateryApiResponse = searchViewModel.searchResultEateries.collectAsState().value
+    val searchResponse = searchViewModel.searchResultEateries.collectAsState().value
 
 
     // Automatically brings the search bar into focus when the view is composed
@@ -141,7 +141,11 @@ fun SearchScreen(
                         enabled = true
                     )
 
-                    Column(modifier = Modifier.animateContentSize().fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier
+                            .animateContentSize()
+                            .fillMaxWidth()
+                    ) {
                         AnimatedVisibility(
                             visible = query.isNotEmpty(),
                             enter = popIn(),
@@ -176,7 +180,7 @@ fun SearchScreen(
 
             item {
                 if (query.isEmpty()) {
-                    if (eateryApiResponse is EateryApiResponse.Success) {
+                    if (searchResponse is EateryApiResponse.Success) {
                         // FAVORITES
                         Box(
                             modifier = Modifier
@@ -274,37 +278,33 @@ fun SearchScreen(
 
                         }
                     }
-                } else {
-                    if (eateryApiResponse is EateryApiResponse.Success) {
-                        val eateries = eateryApiResponse.data
-                        eateries.forEach { eatery ->
-                            Box(
-                                Modifier.padding(
-                                    horizontal = 16.dp, vertical = 12.dp
-                                )
-                            ) {
-                                EateryCard(eatery = eatery,
-                                    isFavorite = favorites.any { favoriteEatery ->
-                                        favoriteEatery.id == eatery.id
-                                    },
-                                    onFavoriteClick = {
-                                        if (it) {
-                                            searchViewModel.addFavorite(eatery.id)
-                                        } else {
-                                            searchViewModel.removeFavorite(eatery.id)
-                                        }
-                                    }) {
-                                    searchViewModel.addRecentSearch(it.id)
-                                    onEateryClick(it)
-                                }
+                } else if (searchResponse is EateryApiResponse.Success) {
+                    // SEARCH QUERY
+                    val searchEateries = searchResponse.data
+                    searchEateries.forEach { eatery ->
+                        Box(
+                            Modifier.padding(
+                                horizontal = 16.dp, vertical = 12.dp
+                            )
+                        ) {
+                            EateryCard(eatery = eatery,
+                                isFavorite = favorites.any { favoriteEatery ->
+                                    favoriteEatery.id == eatery.id
+                                },
+                                onFavoriteClick = {
+                                    if (it) {
+                                        searchViewModel.addFavorite(eatery.id)
+                                    } else {
+                                        searchViewModel.removeFavorite(eatery.id)
+                                    }
+                                }) {
+                                searchViewModel.addRecentSearch(it.id)
+                                onEateryClick(it)
                             }
                         }
                     }
-
                 }
             }
-
-
         }
     })
 }

@@ -51,7 +51,7 @@ class SearchViewModel @Inject constructor(
             is EateryApiResponse.Pending -> EateryApiResponse.Pending
             is EateryApiResponse.Success -> {
                 EateryApiResponse.Success(
-                    eateryApiResponse.data.filter {
+                    eateryApiResponse.data.sortedBy { it.isClosed() }.filter {
                         it.passesFilter(filters) && it.passesSearch(searchQuery)
                     })
             }
