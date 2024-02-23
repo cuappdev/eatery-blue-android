@@ -76,6 +76,8 @@ class HomeViewModel @Inject constructor(
                     apiResponse.data.filter {
                         favorites[it.id] == true
                     }
+                        .sortedBy { it.name }
+                        .sortedBy { it.isClosed() }
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
