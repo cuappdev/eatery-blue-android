@@ -414,10 +414,7 @@ fun AccountBalanceRow(
 ) {
     fun findMealPlan(): String {
         return "%.0f".format(
-            loginViewModel.checkAccount(AccountType.UNLIMITED)?.balance
-                ?: loginViewModel.checkAccount(AccountType.BEAR_BASIC)?.balance
-                ?: loginViewModel.checkAccount(AccountType.BEAR_CHOICE)?.balance
-                ?: loginViewModel.checkAccount(AccountType.BEAR_TRADITIONAL)?.balance ?: 0
+            loginViewModel.checkAccounts()?.balance ?: 0
         )
     }
     Row(
@@ -433,9 +430,9 @@ fun AccountBalanceRow(
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Right,
             text = if (accountType != AccountType.MEALSWIPES) {
-                "$" + "%.2f".format(loginViewModel.checkAccount(accountType)?.balance ?: 0)
+                "$" + "%.2f".format(loginViewModel.checkAccounts()?.balance ?: 0)
             } else {
-                (findMealPlan()).toString() + " remaining this week"
+                findMealPlan() + " remaining this week"
             },
             style = EateryBlueTypography.button,
         )
