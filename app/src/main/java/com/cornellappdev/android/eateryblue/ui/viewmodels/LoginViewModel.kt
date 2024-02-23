@@ -79,7 +79,7 @@ class LoginViewModel @Inject constructor(
         Log.d("Final Plan", currAccount!!.type.toString())
         return currAccount
     }
-    
+
     fun updateAccountFilter(newAccountType: AccountType) {
         val currState = _state.value
         if (currState !is State.Account) return

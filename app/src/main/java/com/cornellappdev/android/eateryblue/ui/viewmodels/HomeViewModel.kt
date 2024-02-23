@@ -36,6 +36,8 @@ class HomeViewModel @Inject constructor(
 
     /**
      * A flow emitting all eateries with the appropriate filters applied.
+     *
+     * Sorted (by descending priority): Open/Closed, Alphabetically
      */
     val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
         combine(
@@ -50,6 +52,10 @@ class HomeViewModel @Inject constructor(
                     EateryApiResponse.Success(
                         apiResponse.data.filter {
                             passesFilter(it, filters, favorites)
+                        }.sortedBy { eatery ->
+                            eatery.name
+                        }.sortedBy { eatery ->
+                            eatery.isClosed()
                         })
                 }
             }
@@ -77,6 +83,8 @@ class HomeViewModel @Inject constructor(
     /**
      * A [StateFlow] that emits the 6 nearest eateries based on location.
      *
+     * Sorted (by descending priority): Open/Closed, Walk Time
+     *
      * TODO: Walk times may not be updating automatically; may have to change location to use state.
      */
     val nearestEateries: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
@@ -84,10 +92,11 @@ class HomeViewModel @Inject constructor(
             is EateryApiResponse.Error -> listOf()
             is EateryApiResponse.Pending -> listOf()
             is EateryApiResponse.Success -> {
-                apiResponse.data.sortedBy { it.getWalkTimes() }.let { nearestSorted ->
-                    if (nearestSorted.size < 6) nearestSorted
-                    else nearestSorted.slice(0..5)
-                }
+                apiResponse.data.sortedBy { it.getWalkTimes() }.sortedBy { it.isClosed() }
+                    .let { nearestSorted ->
+                        if (nearestSorted.size < 6) nearestSorted
+                        else nearestSorted.slice(0..5)
+                    }
             }
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
