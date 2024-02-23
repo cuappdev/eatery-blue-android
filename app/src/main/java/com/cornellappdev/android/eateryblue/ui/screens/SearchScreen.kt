@@ -141,20 +141,28 @@ fun SearchScreen(
                         enabled = true
                     )
 
-                    FilterRow(
-                        currentFiltersSelected = filters,
-                        onPaymentMethodsClicked = {
-                            coroutineScope.launch {
-                                modalBottomSheetState.show()
-                            }
-                        },
-                        onFilterClicked = { filter ->
-                            if (filters.contains(filter)) {
-                                searchViewModel.removeFilter(filter)
-                            } else {
-                                searchViewModel.addFilter(filter)
-                            }
-                        })
+                    Column(modifier = Modifier.animateContentSize().fillMaxWidth()) {
+                        AnimatedVisibility(
+                            visible = query.isNotEmpty(),
+                            enter = popIn(),
+                            exit = popOut()
+                        ) {
+                            FilterRow(
+                                currentFiltersSelected = filters,
+                                onPaymentMethodsClicked = {
+                                    coroutineScope.launch {
+                                        modalBottomSheetState.show()
+                                    }
+                                },
+                                onFilterClicked = { filter ->
+                                    if (filters.contains(filter)) {
+                                        searchViewModel.removeFilter(filter)
+                                    } else {
+                                        searchViewModel.addFilter(filter)
+                                    }
+                                })
+                        }
+                    }
 
                     Spacer(modifier = Modifier.height(6.dp))
                     Spacer(
