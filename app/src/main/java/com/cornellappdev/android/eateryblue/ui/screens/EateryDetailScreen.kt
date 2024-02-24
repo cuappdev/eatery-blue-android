@@ -849,7 +849,7 @@ fun EateryMenuWidget(event: Event) {
                     .background(GrayZero, CircleShape)
             )
 
-            event.menu?.forEach { category ->
+            event.menu?.forEachIndexed { categoryIndex, category ->
                 val filteredItems =
                     category.items?.filter {
                         it.name?.contains(filterText, true)
@@ -860,7 +860,7 @@ fun EateryMenuWidget(event: Event) {
                             ?: false
                     }
                 if (filteredItems.isNullOrEmpty())
-                    return@forEach
+                    return@forEachIndexed
 
                 Text(
                     text = category.category ?: "Category",
@@ -889,9 +889,13 @@ fun EateryMenuWidget(event: Event) {
                         }
                     }
                 }
+                if (categoryIndex != event.menu!!.lastIndex) {
+                    Divider(color = GrayZero,
+                        modifier = Modifier
+                            .height(10.dp)
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
         }
 
         Spacer(
