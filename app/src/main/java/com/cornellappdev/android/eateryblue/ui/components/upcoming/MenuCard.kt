@@ -112,7 +112,6 @@ fun MenuCard(
                             modifier = Modifier
                                 .padding(top = 10.dp, end = 20.dp)
                                 .size(24.dp)
-                                .background(color = GrayZero, shape = CircleShape)
                                 .align(Alignment.TopEnd)
                         ) {
                             Icon(
