@@ -32,6 +32,7 @@ import java.time.format.DateTimeFormatter
  * Represents the card for each eatery that is shown in the list
  * in the upcoming menu screen
  */
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MenuCard(
     eatery: Eatery,
@@ -62,7 +63,9 @@ fun MenuCard(
         elevation = 5.dp,
         shape = RoundedCornerShape(10.dp),
         backgroundColor = Color.White,
-
+        onClick = {
+            openDropdown = !openDropdown
+        }
         ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
