@@ -59,7 +59,7 @@ fun MenuCard(
     }
 
     Card(
-        elevation = 10.dp,
+        elevation = 5.dp,
         shape = RoundedCornerShape(10.dp),
         backgroundColor = Color.White,
 
