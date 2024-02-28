@@ -879,7 +879,7 @@ fun EateryMenuWidget(event: Event) {
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                            modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
                         ) {
                             Text(
                                 text = menuItem.name ?: "Item Name",
