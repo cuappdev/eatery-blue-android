@@ -86,8 +86,8 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     /**
      * A map from eatery ids to the states representing their API loading calls.
      */
-    private val eateryApiCache : MutableMap<Int, MutableState<EateryApiResponse<Eatery>>>
-        = mutableMapOf()
+    private val eateryApiCache: MutableMap<Int, MutableState<EateryApiResponse<Eatery>>> =
+        mutableMapOf()
 
     /**
      * Makes a new call to backend for the specified eatery. After calling,
@@ -116,16 +116,20 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      * Returns the [State] representing the API call for the specified eatery.
      * If ALL eateries are already loaded, then this simply instantly returns that.
      */
-    fun getEateryState(eateryId: Int) : State<EateryApiResponse<Eatery>> {
+    fun getEateryState(eateryId: Int): State<EateryApiResponse<Eatery>> {
         if (eateryFlow.value is EateryApiResponse.Success) {
-            return mutableStateOf(EateryApiResponse.Success(
-                (eateryFlow.value as EateryApiResponse.Success<List<Eatery>>)
-                    .data.find {it.id == eateryId}!!))
+            return mutableStateOf(
+                EateryApiResponse.Success(
+                    (eateryFlow.value as EateryApiResponse.Success<List<Eatery>>)
+                        .data.find { it.id == eateryId }!!
+                )
+            )
         }
 
         // If not called yet or is in an error, re-ping.
         if (!eateryApiCache.contains(eateryId)
-            || eateryApiCache[eateryId]!!.value is EateryApiResponse.Error) {
+            || eateryApiCache[eateryId]!!.value is EateryApiResponse.Error
+        ) {
             pingEatery(eateryId = eateryId)
         }
 

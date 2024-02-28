@@ -189,6 +189,7 @@ fun LoginWebView(
 }
 
 var loadingMessage = ""
+
 class CustomWebViewClient(
     private val netId: String,
     private val password: String,
