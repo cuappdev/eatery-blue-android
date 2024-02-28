@@ -78,11 +78,14 @@ import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomS
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
+import com.cornellappdev.android.eateryblue.ui.theme.GrayOne
+import com.cornellappdev.android.eateryblue.ui.theme.GrayThree
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
 import com.cornellappdev.android.eateryblue.ui.theme.LightBlue
 import com.cornellappdev.android.eateryblue.ui.theme.Red
 import com.cornellappdev.android.eateryblue.ui.theme.Yellow
+import com.cornellappdev.android.eateryblue.ui.theme.colorInterp
 import com.cornellappdev.android.eateryblue.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import com.valentinilk.shimmer.ShimmerBounds
