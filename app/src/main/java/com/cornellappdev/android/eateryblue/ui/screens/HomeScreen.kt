@@ -367,7 +367,11 @@ fun HomeScreen(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(start = 16.dp, bottom = 17.dp, end = 16.dp),
+                                                .padding(
+                                                    start = 16.dp,
+                                                    bottom = 17.dp,
+                                                    end = 16.dp
+                                                ),
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                         ) {
                                             Text(
@@ -428,7 +432,11 @@ fun HomeScreen(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(start = 16.dp, bottom = 17.dp, end = 16.dp),
+                                                .padding(
+                                                    start = 16.dp,
+                                                    bottom = 17.dp,
+                                                    end = 16.dp
+                                                ),
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                         ) {
                                             Text(
@@ -479,7 +487,11 @@ fun HomeScreen(
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(start = 16.dp, bottom = 17.dp, end = 16.dp),
+                                                .padding(
+                                                    start = 16.dp,
+                                                    bottom = 17.dp,
+                                                    end = 16.dp
+                                                ),
                                             horizontalArrangement = Arrangement.SpaceBetween,
                                         ) {
                                             Text(
