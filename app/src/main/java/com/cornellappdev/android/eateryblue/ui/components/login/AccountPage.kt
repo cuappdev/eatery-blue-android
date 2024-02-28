@@ -431,7 +431,7 @@ fun AccountBalanceRow(
             } else {
                 "%.0f".format(
                     loginViewModel.checkMealPlan()?.balance ?: 0
-                ) + " remaining this week"
+                ) + " remaining"
             },
             style = EateryBlueTypography.button,
         )
