@@ -377,12 +377,8 @@ fun EateryDetailScreen(
                                     .weight(1f, true)
                             ) {
                                 Row(
-                                    modifier = Modifier.clickable {
-                                        sheetContent = BottomSheetContent.HOURS
-                                        coroutineScope.launch {
-                                            modalBottomSheetState.show()
-                                        }
-                                    }, verticalAlignment = Alignment.CenterVertically
+                                    modifier = Modifier,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.Schedule,
