@@ -99,7 +99,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayOne
-import com.cornellappdev.android.eateryblue.ui.theme.GrayThree
+import com.cornellappdev.android.eateryblue.ui.theme.GrayThreein
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
 import com.cornellappdev.android.eateryblue.ui.theme.LightBlue
@@ -154,8 +154,7 @@ fun EateryDetailScreen(
             )
 
             ModalBottomSheetLayout(
-                sheetState = modalBottomSheetState,
-                sheetContent = {
+                sheetState = modalBottomSheetState, sheetContent = {
                     when (sheetContent) {
                         BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
                             PaymentMethodsAvailable(selectedPaymentMethods = paymentMethods) {
@@ -167,8 +166,7 @@ fun EateryDetailScreen(
 
                         BottomSheetContent.REPORT -> {
                             eatery.id?.let {
-                                ReportBottomSheet(
-                                    issue = issue,
+                                ReportBottomSheet(issue = issue,
                                     eateryid = it,
                                     sendReport = { issue, report, eateryid ->
                                         eateryDetailViewModel.sendReport(issue, report, eateryid)
@@ -184,14 +182,9 @@ fun EateryDetailScreen(
 
                         else -> {}
                     }
-                },
-                sheetShape = RoundedCornerShape(
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp,
-                    topStart = 12.dp,
-                    topEnd = 12.dp
-                ),
-                sheetElevation = 8.dp
+                }, sheetShape = RoundedCornerShape(
+                    bottomStart = 0.dp, bottomEnd = 0.dp, topStart = 12.dp, topEnd = 12.dp
+                ), sheetElevation = 8.dp
             ) {
 
                 paymentMethods.apply {
@@ -200,8 +193,7 @@ fun EateryDetailScreen(
                     if (eatery.paymentAcceptsMealSwipes == true) add(PaymentMethodsAvailable.SWIPES)
                 }
                 Column(
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
+                    modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
                     Box {
                         Box {
@@ -325,8 +317,7 @@ fun EateryDetailScreen(
                                 },
                                 shape = RoundedCornerShape(100),
                                 colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = EateryBlue,
-                                    contentColor = Color.White
+                                    backgroundColor = EateryBlue, contentColor = Color.White
                                 )
                             ) {
                                 Icon(
@@ -352,8 +343,7 @@ fun EateryDetailScreen(
                                 },
                                 shape = RoundedCornerShape(100),
                                 colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = GrayZero,
-                                    contentColor = Color.Black
+                                    backgroundColor = GrayZero, contentColor = Color.Black
                                 )
                             ) {
                                 Icon(
@@ -378,9 +368,7 @@ fun EateryDetailScreen(
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 12.dp)
                                 .border(
-                                    1.dp,
-                                    GrayZero,
-                                    RoundedCornerShape(8.dp)
+                                    1.dp, GrayZero, RoundedCornerShape(8.dp)
                                 ),
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
@@ -392,16 +380,12 @@ fun EateryDetailScreen(
                                     .weight(1f, true)
                             ) {
                                 Row(
-//                                    modifier = Modifier.clickable {
-//                                      // TODO: Uncomment when hours are implemented.
-                                    //  Also, this is the wrong place to put the clickable.
-                                    //  Should be for the whole Hours section.
-//                                        sheetContent = BottomSheetContent.HOURS
-//                                        coroutineScope.launch {
-//                                            modalBottomSheetState.show()
-//                                        }
-//                                    },
-                                    verticalAlignment = Alignment.CenterVertically
+                                    modifier = Modifier.clickable {
+                                        sheetContent = BottomSheetContent.HOURS
+                                        coroutineScope.launch {
+                                            modalBottomSheetState.show()
+                                        }
+                                    }, verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Icon(
                                         imageVector = Icons.Outlined.Schedule,
@@ -410,12 +394,9 @@ fun EateryDetailScreen(
                                     )
                                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                     Text(
-                                        text = "Hours",
-                                        style = TextStyle(
-                                            fontWeight = FontWeight.SemiBold,
-                                            fontSize = 16.sp
-                                        ),
-                                        color = GrayFive
+                                        text = "Hours", style = TextStyle(
+                                            fontWeight = FontWeight.SemiBold, fontSize = 16.sp
+                                        ), color = GrayFive
                                     )
                                 }
                                 val openUntil = eatery.getOpenUntil()
@@ -423,8 +404,7 @@ fun EateryDetailScreen(
                                     modifier = Modifier.padding(top = 2.dp),
                                     text = openUntil ?: "Closed",
                                     style = TextStyle(
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 16.sp
+                                        fontWeight = FontWeight.SemiBold, fontSize = 16.sp
                                     ),
                                     color = if (openUntil.isNullOrBlank()) Red else Green,
                                 )
@@ -570,13 +550,10 @@ fun PaymentsWidget(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
     Surface(
         modifier = modifier.clickable {
             onClick.invoke()
-        },
-        shape = CircleShape,
-        color = Color.White
+        }, shape = CircleShape, color = Color.White
     ) {
         Row(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(ButtonDefaults.IconSpacing)
         ) {
             if (eatery.paymentAcceptsMealSwipes == true) {
@@ -608,40 +585,36 @@ fun PaymentsWidget(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
 @Composable
 fun AlertsSection(eatery: Eatery) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(top = 12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 12.dp)
     ) {
 
         eatery.alerts?.forEach {
-            if (!it.description.isNullOrBlank()
-                && it.startTime?.isBefore(LocalDateTime.now()) == true
-                && it.endTime?.isAfter(LocalDateTime.now()) == true
-            )
-                Surface(
+            if (!it.description.isNullOrBlank() && it.startTime?.isBefore(LocalDateTime.now()) == true && it.endTime?.isAfter(
+                    LocalDateTime.now()
+                ) == true
+            ) Surface(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .wrapContentSize(),
+                shape = RoundedCornerShape(5.dp)
+            ) {
+                Row(
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .wrapContentSize(),
-                    shape = RoundedCornerShape(5.dp)
+                        .fillMaxWidth()
+                        .background(LightBlue)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(LightBlue)
-                    ) {
-                        Icon(
-                            Icons.Default.Info,
-                            contentDescription = "Warning",
-                            tint = EateryBlue
-                        )
-                        Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(
-                            text = it.description,
-                            style = EateryBlueTypography.body2,
-                            color = EateryBlue,
-                            modifier = Modifier.padding(start = 5.dp)
-                        )
-                    }
+                    Icon(
+                        Icons.Default.Info, contentDescription = "Warning", tint = EateryBlue
+                    )
+                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                    Text(
+                        text = it.description,
+                        style = EateryBlueTypography.body2,
+                        color = EateryBlue,
+                        modifier = Modifier.padding(start = 5.dp)
+                    )
                 }
+            }
         }
     }
 }
@@ -709,9 +682,7 @@ fun EateryMenuWidget(event: Event) {
                         event.endTime.format(
                             DateTimeFormatter.ofPattern("K:mm a")
                         )
-                    }",
-                    style = EateryBlueTypography.subtitle2,
-                    color = GrayFive
+                    }", style = EateryBlueTypography.subtitle2, color = GrayFive
                 )
             }
 
@@ -727,8 +698,7 @@ fun EateryMenuWidget(event: Event) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
                 contentDescription = "Expand menu",
-                modifier = Modifier
-                    .size(26.dp)
+                modifier = Modifier.size(26.dp)
             )
         }
     }
@@ -748,23 +718,17 @@ fun EateryMenuWidget(event: Event) {
             var currSelectedDay by remember { mutableStateOf(selectedDay) }
             // Dialog Box
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(284.dp),
+                modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             ) {
                 Column(
                     modifier = Modifier.padding(
-                        top = 15.dp,
-                        start = 15.dp,
-                        end = 15.dp
+                        top = 15.dp, start = 15.dp, end = 15.dp
                     ),
                 ) {
-                    // Dialog title and exit button
+                    // Menus & X
                     Row(
-                        modifier = Modifier.padding(
-                            bottom = 12.dp,
-                        ),
+                        modifier = Modifier.padding(bottom = 12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(
@@ -786,70 +750,64 @@ fun EateryMenuWidget(event: Event) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Close Upcoming",
-                                modifier = Modifier
-                                    .size(28.dp)
+                                modifier = Modifier.size(28.dp)
                             )
                         }
                     }
+
                     // Upcoming Day selector
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .wrapContentHeight()
                             .padding(bottom = 12.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         for (i in 0..6) {
-                            Box(modifier = Modifier.width(40.dp)) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
                                 Text(
-                                    text = dayNames[i],
+                                    text = dayNames[i].uppercase(),
                                     color = GrayFive,
                                     textAlign = TextAlign.Center,
                                     style = EateryBlueTypography.caption,
-                                    modifier = Modifier.align(Alignment.TopCenter)
+                                    modifier = Modifier.padding(bottom = 8.dp),
+                                    fontWeight = FontWeight(600)
                                 )
-                                if (i == selectedDay) {
-                                    Canvas(
-                                        modifier = Modifier
-                                            .size(size = 35.dp)
-                                            .align(Alignment.BottomCenter)
-                                    ) {
-                                        drawCircle(
-                                            color = GrayFive,
-                                        )
-                                    }
-                                } else if (i == currSelectedDay) {
-                                    Canvas(
-                                        modifier = Modifier
-                                            .size(size = 35.dp)
-                                            .align(Alignment.BottomCenter)
-                                    ) {
-                                        drawCircle(
-                                            color = EateryBlue,
-                                        )
-                                    }
-                                }
-                                TextButton(onClick = {
-                                    currSelectedDay = i
-                                }) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .padding(vertical = 8.dp, horizontal = 8.dp)
+                                        .clickable { currSelectedDay = i }
+                                ) {
+                                    Surface(
+                                        modifier = Modifier.size(size = 34.dp),
+                                        color = when (i) {
+                                            currSelectedDay -> EateryBlue
+                                            selectedDay -> GrayFive
+                                            else -> Color.Transparent
+                                        },
+                                        shape = CircleShape
+                                    ) {}
+
                                     Text(
                                         text = days[i].toString(),
                                         color = if (i == currSelectedDay || i == selectedDay) Color.White else Color.Black,
                                         style = EateryBlueTypography.h6,
                                         fontWeight = FontWeight.Normal,
                                         textAlign = TextAlign.Center,
-                                        modifier = Modifier.padding(top = 30.dp)
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(bottom = 3.dp)
                                     )
                                 }
-
-
                             }
                         }
                     }
+
                     // Show menu and reset menu buttons
                     Column(
-                        modifier = Modifier
-                            .padding(bottom = 12.dp),
+                        modifier = Modifier.padding(bottom = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Button(
@@ -862,23 +820,24 @@ fun EateryMenuWidget(event: Event) {
                                 .height(48.dp),
                             shape = RoundedCornerShape(100),
                             colors = ButtonDefaults.buttonColors(
-                                backgroundColor = EateryBlue,
-                                contentColor = Color.White
+                                backgroundColor = EateryBlue, contentColor = Color.White
                             )
                         ) {
                             Text(
-                                modifier = Modifier.padding(vertical = 6.dp),
                                 text = "Show menu",
                                 style = EateryBlueTypography.h5,
                                 color = Color.White
                             )
                         }
-                        ClickableText(
-                            modifier = Modifier.padding(top = 12.dp),
+                        ClickableText(modifier = Modifier.padding(top = 12.dp),
                             text = AnnotatedString("Reset"),
-                            style = EateryBlueTypography.body2,
-                            onClick = { selectedDay = weekDayIndex }
-                        )
+                            style = TextStyle(
+                                fontSize = 14.sp,
+                                lineHeight = 17.5.sp,
+                                fontWeight = FontWeight(600),
+                                color = Color(0xFF050505)
+                            ),
+                            onClick = { selectedDay = weekDayIndex })
                     }
 
                 }
@@ -889,15 +848,13 @@ fun EateryMenuWidget(event: Event) {
 
     if (true) {
         Column(modifier = Modifier.padding(vertical = 12.dp)) {
-            SearchBar(
-                searchText = filterText,
+            SearchBar(searchText = filterText,
                 onSearchTextChange = { filterText = it },
                 placeholderText = "Search the menu...",
                 modifier = Modifier.padding(horizontal = 16.dp),
                 onCancelClicked = {
                     filterText = ""
-                }
-            )
+                })
             Spacer(
                 modifier = Modifier
                     .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
@@ -907,17 +864,15 @@ fun EateryMenuWidget(event: Event) {
             )
 
             event.menu?.forEach { category ->
-                val filteredItems =
-                    category.items?.filter {
-                        it.name?.contains(filterText, true)
+                val filteredItems = category.items?.filter {
+                    it.name?.contains(filterText, true)
 //                            ?: it.description?.contains(
 //                            filterText,
 //                            true
 //                        )
-                            ?: false
-                    }
-                if (filteredItems.isNullOrEmpty())
-                    return@forEach
+                        ?: false
+                }
+                if (filteredItems.isNullOrEmpty()) return@forEach
 
                 Text(
                     text = category.category ?: "Category",
