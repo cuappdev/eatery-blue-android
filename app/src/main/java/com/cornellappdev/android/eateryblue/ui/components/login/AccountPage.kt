@@ -426,7 +426,7 @@ fun AccountBalanceRow(
             textAlign = TextAlign.Right,
             text = if (accountType != AccountType.MEALSWIPES) {
                 "$" + "%.2f".format(
-                    loginViewModel.checkAccount(accountType)?.balance ?: 0
+                    loginViewModel.checkAccount(accountType)?.balance?.toFloat() ?: 0f
                 )
             } else {
                 "%.0f".format(
@@ -551,4 +551,3 @@ fun AccountTypesAvailable(
         }
     }
 }
-
