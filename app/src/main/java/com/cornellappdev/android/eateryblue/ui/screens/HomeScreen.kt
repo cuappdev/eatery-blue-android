@@ -3,6 +3,9 @@ package com.cornellappdev.android.eateryblue.ui.screens
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -39,9 +43,12 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -97,6 +104,19 @@ fun HomeScreen(
     val filters = homeViewModel.filtersFlow.collectAsState().value
     val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
+
+    // Code-ugly workaround to make favorites disappearing animation look good.
+    // lastFavorite will, whenever the favorites is deleted, persist the last favorite for a bit.
+    var lastFavorite: Eatery? by remember { mutableStateOf(null) }
+    if (favorites.isNotEmpty()) {
+        lastFavorite = favorites[0]
+    }
+    // A sneaky 6 dp tween.
+    val tweenHeight by animateFloatAsState(
+        targetValue = if (favorites.isEmpty()) 6f else 0f,
+        animationSpec = tween(600, delayMillis = 350),
+        label = "Sneaky tween"
+    )
 
     // Here a DisposableEffect is launched when the bottom sheet opens. 
     // When it disappears it's from the view hierarchy, which will cause
@@ -325,6 +345,7 @@ fun HomeScreen(
                             }
 
                             if (filters.isNotEmpty()) {
+                                // Eateries found; display new screen. O/W, reset filter screen.
                                 if (eateries.isNotEmpty()) {
                                     items(eateries) { eatery ->
                                         Box(
@@ -364,82 +385,102 @@ fun HomeScreen(
                                 }
                             } else {
                                 item {
-                                    AnimatedVisibility(
-                                        visible = favorites.isNotEmpty(),
-                                        enter = popIn(),
-                                        exit = popOut()
+                                    Spacer(modifier = Modifier.height(6.dp))
+
+                                    Box(
+                                        modifier = Modifier
+                                            .animateContentSize()
+                                            .fillMaxWidth()
                                     ) {
-                                        Column(
-                                            modifier = Modifier.padding(
-                                                bottom = 12.dp,
-                                                top = 12.dp
-                                            )
+                                        AnimatedVisibility(
+                                            visible = favorites.isNotEmpty(),
+                                            enter = popIn(),
+                                            exit = popOut()
                                         ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(
-                                                        start = 16.dp,
-                                                        bottom = 17.dp,
-                                                        end = 16.dp
-                                                    ),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Text(
-                                                    text = "Favorite Eateries",
-                                                    style = EateryBlueTypography.h4,
+                                            Column(
+                                                modifier = Modifier.padding(
+                                                    bottom = 24.dp,
+                                                    top = 6.dp
                                                 )
-
-                                                IconButton(
-                                                    onClick = {
-                                                        onFavoriteClick()
-                                                    },
-                                                    modifier = Modifier
-                                                        .size(40.dp)
-                                                        .background(
-                                                            color = GrayZero,
-                                                            shape = CircleShape
-                                                        )
-                                                ) {
-                                                    Icon(
-                                                        Icons.Default.ArrowForward,
-                                                        contentDescription = "Favorites",
-                                                        tint = Color.Black
-                                                    )
-                                                }
-                                            }
-
-                                            LazyRow(
-                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
                                             ) {
-                                                item {
-                                                    Spacer(modifier = Modifier.width(4.dp))
-                                                }
-                                                items(
-                                                    favorites,
-                                                    key = { eatery -> eatery.hashCode() }) { eatery ->
-                                                    EateryCard(
-                                                        eatery = eatery,
-                                                        isFavorite = true,
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(
+                                                            start = 16.dp,
+                                                            bottom = 17.dp,
+                                                            end = 16.dp
+                                                        ),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Text(
+                                                        text = "Favorites",
+                                                        style = EateryBlueTypography.h4,
+                                                    )
+
+                                                    IconButton(
+                                                        onClick = {
+                                                            onFavoriteClick()
+                                                        },
                                                         modifier = Modifier
-                                                            .fillParentMaxWidth(
-                                                                0.85f
+                                                            .size(40.dp)
+                                                            .background(
+                                                                color = GrayZero,
+                                                                shape = CircleShape
                                                             )
-                                                            .animateItemPlacement(),
-                                                        onFavoriteClick = {
-                                                            if (!it) {
-                                                                homeViewModel.removeFavorite(
-                                                                    eatery.id
-                                                                )
-                                                            }
-                                                        }) {
-                                                        onEateryClick(it)
+                                                    ) {
+                                                        Icon(
+                                                            Icons.Default.ArrowForward,
+                                                            contentDescription = "Favorites",
+                                                            tint = Color.Black
+                                                        )
                                                     }
                                                 }
 
-                                                item {
-                                                    Spacer(Modifier.width(16.dp))
+                                                // Checking non-null on lastFavorite is a formality.
+                                                // Show last favorite persisting for a bit.
+                                                // Because it's a fake eatery, don't respond to clicks.
+                                                if (favorites.isEmpty() && lastFavorite != null) {
+                                                    EateryCard(
+                                                        eatery = lastFavorite!!,
+                                                        isFavorite = true,
+                                                        modifier = Modifier
+                                                            .padding(start = 16.dp)
+                                                            .fillParentMaxWidth(0.85f),
+                                                        onFavoriteClick = {}
+                                                    ) {}
+                                                }
+
+                                                LazyRow(
+                                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                                ) {
+                                                    item {
+                                                        Spacer(modifier = Modifier.width(4.dp))
+                                                    }
+                                                    items(
+                                                        favorites,
+                                                        key = { eatery -> eatery.hashCode() }) { eatery ->
+                                                        EateryCard(
+                                                            eatery = eatery,
+                                                            isFavorite = true,
+                                                            modifier = Modifier
+                                                                .fillParentMaxWidth(0.85f)
+                                                                .animateItemPlacement(),
+                                                            onFavoriteClick = {
+                                                                if (!it) {
+                                                                    homeViewModel.removeFavorite(
+                                                                        eatery.id
+                                                                    )
+                                                                }
+                                                            }) {
+                                                            onEateryClick(it)
+                                                        }
+                                                    }
+
+                                                    item {
+                                                        Spacer(Modifier.width(16.dp))
+                                                    }
                                                 }
                                             }
                                         }
@@ -447,10 +488,12 @@ fun HomeScreen(
                                 }
 
                                 item {
+                                    // Sneaky spacer to make padding work right for favorites.
+                                    Spacer(modifier = Modifier.height(tweenHeight.dp))
+
                                     Column(
                                         modifier = Modifier.padding(
-                                            bottom = 24.dp,
-                                            top = 12.dp
+                                            bottom = 24.dp
                                         )
                                     ) {
                                         Row(
@@ -497,61 +540,62 @@ fun HomeScreen(
                                     }
                                 }
 
-                                item {
-                                    val swipeEateries =
-                                        eateries.filter { eatery ->
-                                            eatery.paymentAcceptsMealSwipes == true
-                                        }
-
-                                    Column(
-                                        modifier = Modifier.padding(
-                                            bottom = 24.dp
-                                        )
-                                    ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(
-                                                    start = 16.dp,
-                                                    bottom = 17.dp,
-                                                    end = 16.dp
-                                                ),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                        ) {
-                                            Text(
-                                                text = "Swipe for a Bite",
-                                                style = EateryBlueTypography.h4,
-                                            )
-
-                                        }
-                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                            item {
-                                                Spacer(modifier = Modifier.width(4.dp))
-                                            }
-                                            items(swipeEateries) { eatery ->
-                                                EateryCard(
-                                                    eatery = eatery,
-                                                    isFavorite = favorites.any { favoriteEatery ->
-                                                        favoriteEatery.id == eatery.id
-                                                    },
-                                                    modifier = Modifier.fillParentMaxWidth(0.85f),
-                                                    onFavoriteClick = {
-                                                        if (it) {
-                                                            homeViewModel.addFavorite(eatery.id)
-                                                        } else {
-                                                            homeViewModel.removeFavorite(eatery.id)
-                                                        }
-                                                    }) {
-                                                    onEateryClick(it)
-                                                }
-                                            }
-
-                                            item {
-                                                Spacer(Modifier.width(16.dp))
-                                            }
-                                        }
-                                    }
-                                }
+                                // SWIPE FOR A BITE (Not used.)
+//                                item {
+//                                    val swipeEateries =
+//                                        eateries.filter { eatery ->
+//                                            eatery.paymentAcceptsMealSwipes == true
+//                                        }
+//
+//                                    Column(
+//                                        modifier = Modifier.padding(
+//                                            bottom = 24.dp
+//                                        )
+//                                    ) {
+//                                        Row(
+//                                            modifier = Modifier
+//                                                .fillMaxWidth()
+//                                                .padding(
+//                                                    start = 16.dp,
+//                                                    bottom = 17.dp,
+//                                                    end = 16.dp
+//                                                ),
+//                                            horizontalArrangement = Arrangement.SpaceBetween,
+//                                        ) {
+//                                            Text(
+//                                                text = "Swipe for a Bite",
+//                                                style = EateryBlueTypography.h4,
+//                                            )
+//
+//                                        }
+//                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+//                                            item {
+//                                                Spacer(modifier = Modifier.width(4.dp))
+//                                            }
+//                                            items(swipeEateries) { eatery ->
+//                                                EateryCard(
+//                                                    eatery = eatery,
+//                                                    isFavorite = favorites.any { favoriteEatery ->
+//                                                        favoriteEatery.id == eatery.id
+//                                                    },
+//                                                    modifier = Modifier.fillParentMaxWidth(0.85f),
+//                                                    onFavoriteClick = {
+//                                                        if (it) {
+//                                                            homeViewModel.addFavorite(eatery.id)
+//                                                        } else {
+//                                                            homeViewModel.removeFavorite(eatery.id)
+//                                                        }
+//                                                    }) {
+//                                                    onEateryClick(it)
+//                                                }
+//                                            }
+//
+//                                            item {
+//                                                Spacer(Modifier.width(16.dp))
+//                                            }
+//                                        }
+//                                    }
+//                                }
 
                                 item {
                                     Text(

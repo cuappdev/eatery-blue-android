@@ -19,25 +19,21 @@ class FavoritesViewModel @Inject constructor(
     /**
      * A flow emitting all the eateries the user has favorited.
      */
-    val favoriteEateries =
-        combine(
-            eateryRepository.homeEateryFlow,
-            userPreferencesRepository.favoritesFlow
-        ) { apiResponse, favorites ->
-            when (apiResponse) {
-                is EateryApiResponse.Error -> EateryApiResponse.Pending
-                is EateryApiResponse.Pending -> EateryApiResponse.Error
-                is EateryApiResponse.Success -> {
-                    EateryApiResponse.Success(
-                        apiResponse.data.filter {
-                            favorites[it.id] == true
-                        })
-                }
+    val favoriteEateries = combine(
+        eateryRepository.homeEateryFlow, userPreferencesRepository.favoritesFlow
+    ) { apiResponse, favorites ->
+        when (apiResponse) {
+            is EateryApiResponse.Error -> EateryApiResponse.Pending
+            is EateryApiResponse.Pending -> EateryApiResponse.Error
+            is EateryApiResponse.Success -> {
+                EateryApiResponse.Success(apiResponse.data.filter {
+                    favorites[it.id] == true
+                }.sortedBy { it.name }.sortedBy { it.isClosed() })
             }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
 
     fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, false)
+        if (eateryId != null) userPreferencesRepository.setFavorite(eateryId, false)
     }
 }
