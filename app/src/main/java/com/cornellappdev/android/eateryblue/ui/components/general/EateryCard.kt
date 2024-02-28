@@ -27,7 +27,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
@@ -43,8 +42,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eateryblue.R
@@ -221,7 +222,7 @@ fun EateryCard(
     )
 
     Card(
-        elevation = 10.dp,
+        elevation = 3.dp,
         shape = RoundedCornerShape(10.dp),
         onClick = {
             selectEatery(eatery)
@@ -378,18 +379,22 @@ fun EateryCardPrimaryHeader(eatery: Eatery, isCompact: Boolean) {
 @Composable
 fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean) {
     if (!isCompact && eatery.getWalkTimes() != null) {
+        val walkText =
+            "${if (eatery.getWalkTimes()!! > 0) eatery.getWalkTimes() else "< 1"} min walk"
         Row(
             modifier = Modifier.padding(top = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                Icons.Default.DirectionsWalk,
+                painter = painterResource(id = R.drawable.ic_walk_small),
                 contentDescription = null,
                 tint = GrayFive,
                 modifier = Modifier.padding(end = 4.dp, top = 1.dp)
             )
             Text(
-                text = "${eatery.getWalkTimes()} min walk",
+                text = walkText,
+                fontSize = 14.sp,
+                fontWeight = FontWeight(500),
                 color = GrayFive,
                 style = EateryBlueTypography.subtitle2
             )

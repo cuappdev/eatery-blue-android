@@ -18,7 +18,8 @@ import kotlinx.coroutines.launch
  * Handles background image URL loading.
  */
 object CoilRepository {
-    private val urlMap: MutableMap<String, MutableState<EateryApiResponse<ImageBitmap>>> = mutableMapOf()
+    private val urlMap: MutableMap<String, MutableState<EateryApiResponse<ImageBitmap>>> =
+        mutableMapOf()
 
     /**
      * Returns a [MutableState] containing an [ApiResponse] corresponding to a loading or loaded
@@ -27,7 +28,10 @@ object CoilRepository {
      *
      * Loads images with Coil.
      */
-    fun getUrlState(imageUrl: String, context: Context): MutableState<EateryApiResponse<ImageBitmap>> {
+    fun getUrlState(
+        imageUrl: String,
+        context: Context
+    ): MutableState<EateryApiResponse<ImageBitmap>> {
         val imageLoader = context.imageLoader
 
         // Make new request.

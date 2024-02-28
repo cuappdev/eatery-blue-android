@@ -51,7 +51,7 @@ class SearchViewModel @Inject constructor(
             is EateryApiResponse.Pending -> EateryApiResponse.Pending
             is EateryApiResponse.Success -> {
                 EateryApiResponse.Success(
-                    eateryApiResponse.data.filter {
+                    eateryApiResponse.data.sortedBy { it.isClosed() }.filter {
                         it.passesFilter(filters) && it.passesSearch(searchQuery)
                     })
             }
@@ -143,6 +143,7 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun Eatery.passesSearch(query: String): Boolean {
+        // TODO: We might want to make an asynchronous search repository, cuz this search is SLOW.
         if (query.isEmpty()) return false
         val nameMatch = name?.contains(query, true) ?: false
         val menuMatch = events?.any { event ->
