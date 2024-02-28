@@ -1,7 +1,13 @@
 package com.cornellappdev.android.eateryblue.ui.navigation
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -22,7 +28,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.cornellappdev.android.eateryblue.ui.screens.*
+import com.cornellappdev.android.eateryblue.ui.screens.AboutScreen
+import com.cornellappdev.android.eateryblue.ui.screens.EateryDetailScreen
+import com.cornellappdev.android.eateryblue.ui.screens.FavoritesScreen
+import com.cornellappdev.android.eateryblue.ui.screens.FirstTimeShown
+import com.cornellappdev.android.eateryblue.ui.screens.HomeScreen
+import com.cornellappdev.android.eateryblue.ui.screens.LegalScreen
+import com.cornellappdev.android.eateryblue.ui.screens.OnboardingScreen
+import com.cornellappdev.android.eateryblue.ui.screens.PrivacyScreen
+import com.cornellappdev.android.eateryblue.ui.screens.ProfileScreen
+import com.cornellappdev.android.eateryblue.ui.screens.SearchScreen
+import com.cornellappdev.android.eateryblue.ui.screens.SettingsScreen
+import com.cornellappdev.android.eateryblue.ui.screens.SupportScreen
+import com.cornellappdev.android.eateryblue.ui.screens.UpcomingMenuScreen
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.viewmodels.LoginViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost

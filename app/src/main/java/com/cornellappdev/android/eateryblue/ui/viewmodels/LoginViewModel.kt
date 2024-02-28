@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eateryblue.data.models.Account
@@ -67,19 +66,24 @@ class LoginViewModel @Inject constructor(
     )
 
     // Check what the meal plan is against our list of meal plans
-    fun checkAccounts(): Account? {
+    fun checkMealPlan(): Account? {
         if (_state.value !is State.Account || CurrentUser.user == null) return null
         var currAccount: Account? = null
         CurrentUser.user!!.accounts!!.forEach {
             if (mealPlanList.contains(it.type)) {
-                Log.d("Mealplan", it.type.toString())
                 currAccount = it
             }
         }
-        Log.d("Final Plan", currAccount!!.type.toString())
         return currAccount
     }
 
+    fun checkAccount(accountType: AccountType): Account? {
+        if (_state.value !is State.Account || CurrentUser.user == null) return null
+        return CurrentUser.user!!.accounts!!.find {
+            it.type == accountType
+        }
+    }
+    
     fun updateAccountFilter(newAccountType: AccountType) {
         val currState = _state.value
         if (currState !is State.Account) return
