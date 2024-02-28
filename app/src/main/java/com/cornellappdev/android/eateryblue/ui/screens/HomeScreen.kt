@@ -68,6 +68,8 @@ import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eateryblue.util.popIn
+import com.cornellappdev.android.eateryblue.util.popOut
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
@@ -203,7 +205,11 @@ fun HomeScreen(
                     remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
 
                 // Whole page is meant to be scrollable, hence the use of a LazyColumn here.
-                LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
                     stickyHeader {
                         Column(
                             modifier = Modifier
@@ -293,7 +299,8 @@ fun HomeScreen(
                                     onSearchTextChange = { },
                                     placeholderText = "Search for grub...",
                                     modifier = Modifier
-                                        .padding(vertical = 12.dp, horizontal = 16.dp)
+                                        .padding(horizontal = 16.dp)
+                                        .padding(top = 12.dp, bottom = 6.dp)
                                         .clickable {
                                             onSearchClick()
                                         },
@@ -302,7 +309,6 @@ fun HomeScreen(
                                 )
 
                                 FilterRow(
-                                    modifier = Modifier.padding(start = 16.dp),
                                     currentFiltersSelected = filters,
                                     onPaymentMethodsClicked = {
                                         coroutineScope.launch {
@@ -358,66 +364,83 @@ fun HomeScreen(
                                 }
                             } else {
                                 item {
-                                    Column(
-                                        modifier = Modifier.padding(
-                                            bottom = 24.dp,
-                                            top = 12.dp
-                                        )
+                                    AnimatedVisibility(
+                                        visible = favorites.isNotEmpty(),
+                                        enter = popIn(),
+                                        exit = popOut()
                                     ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(
-                                                    start = 16.dp,
-                                                    bottom = 17.dp,
-                                                    end = 16.dp
-                                                ),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                        ) {
-                                            Text(
-                                                text = "Favorite Eateries",
-                                                style = EateryBlueTypography.h4,
+                                        Column(
+                                            modifier = Modifier.padding(
+                                                bottom = 12.dp,
+                                                top = 12.dp
                                             )
-
-                                            IconButton(
-                                                onClick = {
-                                                    onFavoriteClick()
-                                                },
+                                        ) {
+                                            Row(
                                                 modifier = Modifier
-                                                    .size(40.dp)
-                                                    .background(
-                                                        color = GrayZero,
-                                                        shape = CircleShape
-                                                    )
+                                                    .fillMaxWidth()
+                                                    .padding(
+                                                        start = 16.dp,
+                                                        bottom = 17.dp,
+                                                        end = 16.dp
+                                                    ),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                Icon(
-                                                    Icons.Default.ArrowForward,
-                                                    contentDescription = "Favorites",
-                                                    tint = Color.Black
+                                                Text(
+                                                    text = "Favorite Eateries",
+                                                    style = EateryBlueTypography.h4,
                                                 )
-                                            }
-                                        }
 
-                                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                            item {
-                                                Spacer(modifier = Modifier.width(4.dp))
-                                            }
-                                            items(favorites) { eatery ->
-                                                EateryCard(
-                                                    eatery = eatery,
-                                                    isFavorite = true,
-                                                    modifier = Modifier.fillParentMaxWidth(0.85f),
-                                                    onFavoriteClick = {
-                                                        if (!it) {
-                                                            homeViewModel.removeFavorite(eatery.id)
-                                                        }
-                                                    }) {
-                                                    onEateryClick(it)
+                                                IconButton(
+                                                    onClick = {
+                                                        onFavoriteClick()
+                                                    },
+                                                    modifier = Modifier
+                                                        .size(40.dp)
+                                                        .background(
+                                                            color = GrayZero,
+                                                            shape = CircleShape
+                                                        )
+                                                ) {
+                                                    Icon(
+                                                        Icons.Default.ArrowForward,
+                                                        contentDescription = "Favorites",
+                                                        tint = Color.Black
+                                                    )
                                                 }
                                             }
 
-                                            item {
-                                                Spacer(Modifier.width(16.dp))
+                                            LazyRow(
+                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                            ) {
+                                                item {
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                }
+                                                items(
+                                                    favorites,
+                                                    key = { eatery -> eatery.hashCode() }) { eatery ->
+                                                    EateryCard(
+                                                        eatery = eatery,
+                                                        isFavorite = true,
+                                                        modifier = Modifier
+                                                            .fillParentMaxWidth(
+                                                                0.85f
+                                                            )
+                                                            .animateItemPlacement(),
+                                                        onFavoriteClick = {
+                                                            if (!it) {
+                                                                homeViewModel.removeFavorite(
+                                                                    eatery.id
+                                                                )
+                                                            }
+                                                        }) {
+                                                        onEateryClick(it)
+                                                    }
+                                                }
+
+                                                item {
+                                                    Spacer(Modifier.width(16.dp))
+                                                }
                                             }
                                         }
                                     }
@@ -426,7 +449,8 @@ fun HomeScreen(
                                 item {
                                     Column(
                                         modifier = Modifier.padding(
-                                            bottom = 24.dp
+                                            bottom = 24.dp,
+                                            top = 12.dp
                                         )
                                     ) {
                                         Row(

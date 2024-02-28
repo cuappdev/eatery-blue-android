@@ -1,5 +1,7 @@
 package com.cornellappdev.android.eateryblue.ui.components.general
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -14,18 +16,20 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
+import com.cornellappdev.android.eateryblue.ui.theme.colorInterp
 
 
 @Composable
 fun FilterRow(
     currentFiltersSelected: List<Filter>,
     onPaymentMethodsClicked: () -> Unit,
-    onFilterClicked: (Filter) -> Unit,
-    modifier: Modifier = Modifier,
+    onFilterClicked: (Filter) -> Unit
 ) {
     val paymentMethodFilters = currentFiltersSelected.filter { filter ->
         filter in setOf(Filter.BRB, Filter.CASH, Filter.SWIPES)
@@ -36,171 +40,111 @@ fun FilterRow(
             it.text
         }
 
-    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
-            Button(
-                onClick = {
+            Spacer(modifier = Modifier.width(10.dp))
+        }
+
+        item {
+            FilterButton(
+                onFilterClicked = {
                     onFilterClicked(Filter.NORTH)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.NORTH
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.NORTH
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.NORTH.text,
-                )
-            }
+                selected = currentFiltersSelected.contains(Filter.NORTH),
+                text = Filter.NORTH.text
+            )
         }
 
         item {
-            Button(
-                onClick = {
+            FilterButton(
+                onFilterClicked = {
                     onFilterClicked(Filter.WEST)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.WEST
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.WEST
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.WEST.text,
-                )
-            }
+                selected = currentFiltersSelected.contains(Filter.WEST),
+                text = Filter.WEST.text
+            )
         }
 
         item {
-            Button(
-                onClick = {
+            FilterButton(
+                onFilterClicked = {
                     onFilterClicked(Filter.CENTRAL)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.CENTRAL
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.CENTRAL
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.CENTRAL.text,
-                )
-            }
+                selected = currentFiltersSelected.contains(Filter.CENTRAL),
+                text = Filter.CENTRAL.text
+            )
         }
 
         item {
-            Button(
-                onClick = {
+            FilterButton(
+                onFilterClicked = {
                     onFilterClicked(Filter.UNDER_10)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.UNDER_10
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.UNDER_10
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.UNDER_10.text,
-                )
-            }
+                selected = currentFiltersSelected.contains(Filter.UNDER_10),
+                text = Filter.UNDER_10.text
+            )
         }
 
         item {
-            Button(
-                onClick = {
-                    onPaymentMethodsClicked()
-                },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (paymentMethodFilters.isNotEmpty()) Color.Black else GrayZero,
-                    contentColor = if (paymentMethodFilters.isNotEmpty()) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    paymentMethodFilterText,
-                )
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Icon(
-                    Icons.Default.ExpandMore,
-                    contentDescription = "Favorite",
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
-                )
-            }
+            FilterButton(
+                onFilterClicked = onPaymentMethodsClicked,
+                selected = paymentMethodFilters.isNotEmpty(),
+                text = paymentMethodFilterText,
+                icon = Icons.Default.ExpandMore
+            )
         }
 
         item {
-            Button(
-                onClick = {
+            FilterButton(
+                onFilterClicked = {
                     onFilterClicked(Filter.FAVORITES)
                 },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.FAVORITES
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.FAVORITES
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.FAVORITES.text,
-                )
-            }
+                selected = currentFiltersSelected.contains(Filter.FAVORITES),
+                text = Filter.FAVORITES.text
+            )
         }
 
         item {
             Spacer(Modifier.width(16.dp))
+        }
+    }
+}
+
+/**
+ * One filter button.
+ */
+@Composable
+fun FilterButton(
+    onFilterClicked: () -> Unit,
+    selected: Boolean,
+    text: String,
+    icon: ImageVector? = null
+) {
+    val progress by animateFloatAsState(
+        targetValue = if (selected) 0f else 1f,
+        label = "Button Color",
+        animationSpec = tween(150)
+    )
+    val background = colorInterp(progress, Color.Black, GrayZero)
+    val contentColor = colorInterp(progress, Color.White, Color.Black)
+
+    Button(
+        onClick = onFilterClicked,
+        contentPadding = PaddingValues(vertical = 8.dp, horizontal = 12.dp),
+        shape = RoundedCornerShape(100.dp),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = background,
+            contentColor = contentColor
+        )
+    ) {
+        Text(text)
+        if (icon != null) {
+            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+            Icon(
+                Icons.Default.ExpandMore,
+                contentDescription = "Favorite",
+                modifier = Modifier.size(ButtonDefaults.IconSize)
+            )
         }
     }
 }
@@ -219,116 +163,39 @@ fun FilterRowUpcoming(
         if (mealFilters.isEmpty()) "Breakfast" else mealFilters.joinToString {
             it.text
         }
+
     LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-
         item {
-            Button(
-                onClick = {
-                    onMealsClicked()
-                },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (mealFilters.isNotEmpty()) Color.Black else GrayZero,
-                    contentColor = if (mealFilters.isNotEmpty()) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    mealsFilterText,
-                )
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Icon(
-                    Icons.Default.ExpandMore,
-                    contentDescription = "Favorite",
-                    modifier = Modifier.size(ButtonDefaults.IconSize)
-                )
-            }
-        }
-
-
-        item {
-            Button(
-                onClick = {
-                    onFilterClicked(Filter.NORTH)
-                },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.NORTH
-                        )
-                    ) Color.Black
-                    else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.NORTH
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.NORTH.text,
-                )
-            }
+            FilterButton(
+                onFilterClicked = onMealsClicked,
+                selected = mealFilters.isNotEmpty(),
+                text = mealsFilterText,
+                icon = Icons.Default.ExpandMore
+            )
         }
 
         item {
-            Button(
-                onClick = {
-                    onFilterClicked(Filter.WEST)
-                },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.WEST
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.WEST
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.WEST.text,
-                )
-            }
+            FilterButton(
+                onFilterClicked = { onFilterClicked(Filter.NORTH) },
+                selected = currentFiltersSelected.contains(Filter.NORTH),
+                text = Filter.NORTH.text
+            )
         }
 
         item {
-            Button(
-                onClick = {
-                    onFilterClicked(Filter.CENTRAL)
-                },
-                contentPadding = PaddingValues(
-                    horizontal = 10.dp,
-                    vertical = 8.dp
-                ),
-                shape = RoundedCornerShape(100.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (currentFiltersSelected.contains(
-                            Filter.CENTRAL
-                        )
-                    ) Color.Black else GrayZero,
-                    contentColor = if (currentFiltersSelected.contains(
-                            Filter.CENTRAL
-                        )
-                    ) Color.White else Color.Black
-                )
-            ) {
-                Text(
-                    Filter.CENTRAL.text,
-                )
-            }
+            FilterButton(
+                onFilterClicked = { onFilterClicked(Filter.WEST) },
+                selected = currentFiltersSelected.contains(Filter.WEST),
+                text = Filter.WEST.text
+            )
+        }
+
+        item {
+            FilterButton(
+                onFilterClicked = { onFilterClicked(Filter.CENTRAL) },
+                selected = currentFiltersSelected.contains(Filter.CENTRAL),
+                text = Filter.CENTRAL.text
+            )
         }
 
         item {

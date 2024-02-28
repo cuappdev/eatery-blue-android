@@ -4,25 +4,14 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.view.Gravity
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -56,8 +45,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -77,6 +68,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.models.Event
+import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
 import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
 import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
@@ -93,10 +85,6 @@ import com.cornellappdev.android.eateryblue.ui.theme.Red
 import com.cornellappdev.android.eateryblue.ui.theme.Yellow
 import com.cornellappdev.android.eateryblue.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
-import com.skydoves.landscapist.ImageOptions
-import com.skydoves.landscapist.components.rememberImageComponent
-import com.skydoves.landscapist.glide.GlideImage
-import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
@@ -130,6 +118,18 @@ fun EateryDetailScreen(
 
         is EateryApiResponse.Success -> {
             val eatery = eateryApiResponse.data
+            val bitmapState =
+                eatery.imageUrl?.let { CoilRepository.getUrlState(it, LocalContext.current) }
+            val infiniteTransition = rememberInfiniteTransition()
+            val progress by infiniteTransition.animateFloat(
+                initialValue = 0f,
+                targetValue = .5f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(1000),
+                    repeatMode = RepeatMode.Reverse
+                )
+            )
+
             ModalBottomSheetLayout(
                 sheetState = modalBottomSheetState, sheetContent = {
                     when (sheetContent) {
@@ -172,39 +172,53 @@ fun EateryDetailScreen(
                 ) {
                     Box {
                         Box {
-                            GlideImage(imageModel = { eatery.imageUrl ?: "" },
-                                modifier = Modifier
-                                    .height(240.dp)
-                                    .fillMaxWidth(),
-                                imageOptions = ImageOptions(
-                                    contentScale = ContentScale.Crop,
-                                ),
-                                component = rememberImageComponent {
-                                    +ShimmerPlugin(
-                                        baseColor = Color.White,
-                                        highlightColor = GrayZero,
-                                        durationMillis = 350,
-                                        dropOff = 0.65f,
-                                        tilt = 20f
-                                    )
-                                },
-                                failure = {
-                                    Image(
-                                        modifier = Modifier
-                                            .height(240.dp)
-                                            .fillMaxWidth(),
-                                        painter = painterResource(R.drawable.blank_eatery),
-                                        contentDescription = "Eatery Image",
-                                        contentScale = ContentScale.Crop,
-                                    )
-                                })
-                            if (eatery.isClosed()) {
-                                Spacer(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(240.dp)
-                                        .background(color = Color.White.copy(alpha = 0.53f))
-                                )
+                            Crossfade(
+                                targetState = bitmapState?.value,
+                                label = "imageFade",
+                                animationSpec = tween(250),
+                                modifier = Modifier.alpha(if (eatery.isClosed()) .53f else 1f)
+                            ) { apiResponse ->
+                                when (apiResponse) {
+                                    is EateryApiResponse.Success -> {
+                                        Image(
+                                            bitmap = apiResponse.data,
+                                            modifier = Modifier
+                                                .height(240.dp)
+                                                .fillMaxWidth(),
+                                            contentDescription = "",
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+
+                                    is EateryApiResponse.Pending -> {
+                                        Image(
+                                            bitmap = ImageBitmap(width = 1, height = 1),
+                                            modifier = Modifier
+                                                .height(240.dp)
+                                                .fillMaxWidth()
+                                                .background(
+                                                    colorInterp(
+                                                        progress,
+                                                        GrayOne,
+                                                        GrayThree
+                                                    )
+                                                ),
+                                            contentDescription = "",
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+
+                                    else -> {
+                                        Image(
+                                            modifier = Modifier
+                                                .height(240.dp)
+                                                .fillMaxWidth(),
+                                            painter = painterResource(R.drawable.blank_eatery),
+                                            contentDescription = "Eatery Image",
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                    }
+                                }
                             }
                         }
 

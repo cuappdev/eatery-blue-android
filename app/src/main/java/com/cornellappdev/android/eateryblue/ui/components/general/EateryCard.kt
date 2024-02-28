@@ -1,5 +1,13 @@
 package com.cornellappdev.android.eateryblue.ui.components.general
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,10 +34,14 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,17 +49,17 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
+import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
-import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
+import com.cornellappdev.android.eateryblue.ui.theme.GrayOne
+import com.cornellappdev.android.eateryblue.ui.theme.GrayThree
 import com.cornellappdev.android.eateryblue.ui.theme.Green
 import com.cornellappdev.android.eateryblue.ui.theme.Orange
 import com.cornellappdev.android.eateryblue.ui.theme.Yellow
-import com.skydoves.landscapist.ImageOptions
-import com.skydoves.landscapist.components.rememberImageComponent
-import com.skydoves.landscapist.glide.GlideImage
-import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
+import com.cornellappdev.android.eateryblue.ui.theme.colorInterp
+import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 
 //@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
 //@Composable
@@ -191,6 +203,23 @@ fun EateryCard(
     val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsStateWithLifecycle("")
 
     val interactionSource = MutableInteractionSource()
+    val bitmapState = eatery.imageUrl?.let { CoilRepository.getUrlState(it, LocalContext.current) }
+
+    val infiniteTransition = rememberInfiniteTransition()
+    val progress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = .5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val closedAlpha by animateFloatAsState(
+        targetValue = if (eatery.isClosed()) .53f else 1f,
+        label = "Closed Fade",
+        animationSpec = tween(250)
+    )
+
     Card(
         elevation = 10.dp,
         shape = RoundedCornerShape(10.dp),
@@ -202,41 +231,44 @@ fun EateryCard(
     ) {
         Column {
             Box {
-                GlideImage(
-                    imageModel = { eatery.imageUrl ?: "" },
-                    modifier = Modifier
-                        .height(130.dp)
-                        .fillMaxWidth(),
-                    imageOptions = ImageOptions(
-                        contentScale = ContentScale.Crop,
-                    ),
-                    component = rememberImageComponent {
-                        +ShimmerPlugin(
-                            baseColor = Color.White,
-                            highlightColor = GrayZero,
-                            durationMillis = 350,
-                            dropOff = 0.65f,
-                            tilt = 20f
-                        )
-                    },
-                    failure = {
-                        androidx.compose.foundation.Image(
-                            modifier = Modifier
-                                .height(130.dp)
-                                .fillMaxWidth(),
-                            painter = painterResource(R.drawable.blank_eatery),
-                            contentDescription = "Eatery Image",
-                            contentScale = ContentScale.Crop,
-                        )
+                Crossfade(
+                    targetState = bitmapState?.value,
+                    label = "imageFade",
+                    animationSpec = tween(250),
+                    modifier = Modifier.alpha(closedAlpha)
+                ) { apiResponse ->
+                    when (apiResponse) {
+                        is EateryApiResponse.Success ->
+                            Image(
+                                bitmap = apiResponse.data,
+                                modifier = Modifier
+                                    .height(130.dp)
+                                    .fillMaxWidth(),
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop
+                            )
+
+                        is EateryApiResponse.Pending ->
+                            Image(
+                                bitmap = ImageBitmap(width = 1, height = 1),
+                                modifier = Modifier
+                                    .height(130.dp)
+                                    .fillMaxWidth()
+                                    .background(colorInterp(progress, GrayOne, GrayThree)),
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop
+                            )
+
+                        else ->
+                            Image(
+                                modifier = Modifier
+                                    .height(130.dp)
+                                    .fillMaxWidth(),
+                                painter = painterResource(R.drawable.blank_eatery),
+                                contentDescription = "Eatery Image",
+                                contentScale = ContentScale.Crop,
+                            )
                     }
-                )
-                if (eatery.isClosed()) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(130.dp)
-                            .background(color = Color.White.copy(alpha = 0.53f))
-                    )
                 }
                 if (!xMinutesUntilClosing?.value.isNullOrEmpty()) {
                     Card(
@@ -255,7 +287,7 @@ fun EateryCard(
                         ) {
                             Icon(
                                 Icons.Outlined.Warning,
-                                contentDescription = "Closing in 10 min",
+                                contentDescription = "Closing soon",
                                 modifier = Modifier.size(ButtonDefaults.IconSize)
                             )
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))

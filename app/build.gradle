@@ -140,6 +140,7 @@ dependencies {
     implementation 'com.github.GrenderG:Toasty:1.5.2'
     implementation 'com.valentinilk.shimmer:compose-shimmer:1.0.3'
 
+    implementation "io.coil-kt:coil-compose:2.2.2"
 }
 
 protobuf {
