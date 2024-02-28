@@ -66,7 +66,7 @@ fun MenuCard(
         onClick = {
             openDropdown = !openDropdown
         }
-        ) {
+    ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 var event = eatery.getSelectedDayMeal(selectedMealInt, day)
