@@ -83,10 +83,6 @@ fun UpcomingMenuScreen(
     val filters = upcomingViewModel.filtersFlow.collectAsState().value
     val eateriesApiResponse = upcomingViewModel.eateryFlow.collectAsState().value
 
-    val allThreeMeals = listOf("breakfast","lunch","dinner")
-    val twoMeals = listOf("lunch","dinner")
-    val eateryToMealMap = mapOf("Morrison" to allThreeMeals, "North Star" to twoMeals, "Risley" to twoMeals)
-
     /** instantiates the meal filter list*/
 
     val selectedMealFilters = remember { mutableStateListOf<Filter>() }
