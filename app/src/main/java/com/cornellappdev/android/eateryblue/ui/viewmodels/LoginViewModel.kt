@@ -83,7 +83,7 @@ class LoginViewModel @Inject constructor(
             it.type == accountType
         }
     }
-    
+
     fun updateAccountFilter(newAccountType: AccountType) {
         val currState = _state.value
         if (currState !is State.Account) return

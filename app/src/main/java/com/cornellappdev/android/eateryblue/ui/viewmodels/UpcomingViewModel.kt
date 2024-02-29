@@ -69,10 +69,6 @@ class UpcomingViewModel @Inject constructor(
     private fun addLocationFilters(filter: Filter) = viewModelScope.launch {
         val newList = _filtersFlow.value.toMutableList()
         newList.add(filter)
-        val locations = newList.filter { Filter.LOCATIONS.contains(it) }
-        if (locations.size == 3) {
-            newList.removeAll(Filter.LOCATIONS)
-        }
         _filtersFlow.value = newList
     }
 
