@@ -8,6 +8,7 @@ import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -186,6 +187,103 @@ data class Eatery(
                     45000
                 )
             }
+        }
+    }
+
+    fun formatOperatingHours(): List<Pair<String, List<String>>> {
+        var dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
+
+        events?.forEach { event ->
+
+            val dayOfWeek = event.startTime?.dayOfWeek
+            val openTime = event.startTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
+            val closeTime = event.endTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
+
+            val timeString = "$openTime - $closeTime"
+
+            if (dayOfWeek != null && dailyHours[dayOfWeek]?.none { it.contains(timeString) } != false) {
+                dailyHours.computeIfAbsent(dayOfWeek) { mutableListOf() }.add(timeString)
+            }
+        }
+
+        DayOfWeek.values().forEach { dayOfWeek ->
+            dailyHours.computeIfAbsent(dayOfWeek) { mutableListOf("Closed") }
+        }
+
+        val groupedHours = dailyHours.entries.groupBy({ it.value }, { it.key })
+
+        return groupedHoursFormatHelper(groupedHours)
+    }
+
+    private val dayOrder = mapOf(
+        "Sunday" to 1,
+        "Monday" to 2,
+        "Tuesday" to 3,
+        "Wednesday" to 4,
+        "Thursday" to 5,
+        "Friday" to 6,
+        "Saturday" to 7
+
+    )
+
+    private fun groupedHoursFormatHelper(groupedHours: Map<MutableList<String>, List<DayOfWeek>>): List<Pair<String, List<String>>> {
+        val formattedHours = LinkedHashMap<String, List<String>>()
+
+        groupedHours.forEach { entry ->
+            val days = entry.value.sortedBy {
+                val dayName = "$it".take(1).uppercase() + "$it".drop(1).lowercase()
+                dayOrder[dayName] ?: Int.MAX_VALUE
+            }
+            var curStrings = mutableListOf<String>()
+            for (i in (days.indices)) {
+                val curDay = "${days[i]}".take(1).uppercase() + "${days[i]}".drop(1).lowercase()
+                if (i == days.size - 1) {
+                    curStrings.add(curDay)
+                    val formattedString = formatString(curStrings)
+                    formattedHours[formattedString] = entry.key
+                } else {
+                    curStrings.add(curDay)
+                    if (!isNext("${days[i]}", "${days[i + 1]}")) {
+                        val formattedString = formatString(curStrings)
+                        formattedHours[formattedString] = entry.key
+                        curStrings = mutableListOf()
+                    }
+                }
+            }
+        }
+
+        var formattedHoursList = formattedHours.toList().sortedBy { entry ->
+            val firstDay = entry.first.split(" to ", " ", limit = 2).first()
+            dayOrder[firstDay] ?: Int.MAX_VALUE
+        }
+        return formattedHoursList
+    }
+
+    private fun isNext(day1: String, day2: String): Boolean {
+        if (day1 == "MONDAY") {
+            return day2 == "TUESDAY"
+        } else if (day1 == "TUESDAY") {
+            return day2 == "WEDNESDAY"
+        } else if (day1 == "WEDNESDAY") {
+            return day2 == "THURSDAY"
+        } else if (day1 == "THURSDAY") {
+            return day2 == "FRIDAY"
+        } else if (day1 == "FRIDAY") {
+            return day2 == "SATURDAY"
+        } else if (day1 == "SATURDAY") {
+            return false
+        } else if (day1 == "SUNDAY") {
+            return day2 == "MONDAY"
+        } else {
+            return false
+        }
+    }
+
+    private fun formatString(strings: List<String>): String {
+        if (strings.size > 1) {
+            return "${strings.first()} to ${strings.last()}"
+        } else {
+            return strings.first()
         }
     }
 }
