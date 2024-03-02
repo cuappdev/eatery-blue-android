@@ -178,9 +178,11 @@ fun MenuCard(
                 }
             }
 
-            Column(modifier = Modifier
-                .animateContentSize(tween(250))
-                .fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .animateContentSize(tween(250))
+                    .fillMaxWidth()
+            ) {
                 if (openDropdown) {
                     Spacer(
                         modifier = Modifier
