@@ -6,6 +6,7 @@ import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.repositories.EateryRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eateryblue.ui.components.general.Filter
+import com.cornellappdev.android.eateryblue.ui.components.general.MealFilter
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,59 +22,62 @@ class UpcomingViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val eateryRepository: EateryRepository
 ) : ViewModel() {
-    private val _filtersFlow: MutableStateFlow<List<Filter>> =
-        MutableStateFlow(listOf(Filter.BREAKFAST))
+
+    private val _mealFilterFlow: MutableStateFlow<MealFilter> =
+        MutableStateFlow<MealFilter>(MealFilter.BREAKFAST)
+    private val _locationFilterFlow: MutableStateFlow<List<Filter>> =
+        MutableStateFlow(listOf())
 
     /**
      * A flow of filters applied to the screen.
      */
-    val filtersFlow = _filtersFlow.asStateFlow()
+
+    val mealFilterFlow = _mealFilterFlow.asStateFlow()
+    val locationFilterFlow = _locationFilterFlow.asStateFlow()
 
     /**
      * A flow emitting all eateries with the appropriate filters applied.
      */
-    val eateryFlow = eateryRepository.eateryFlow.combine(_filtersFlow) { apiResponse, filters ->
-        when (apiResponse) {
-            is EateryApiResponse.Error -> EateryApiResponse.Error
-            is EateryApiResponse.Pending -> EateryApiResponse.Pending
-            is EateryApiResponse.Success -> {
-                EateryApiResponse.Success(
-                    apiResponse.data.filter {
-                        passesFilter(it, filters)
-                    })
+    val eateryFlow =
+        eateryRepository.eateryFlow.combine(_locationFilterFlow) { apiResponse, filters ->
+            when (apiResponse) {
+                is EateryApiResponse.Error -> EateryApiResponse.Error
+                is EateryApiResponse.Pending -> EateryApiResponse.Pending
+                is EateryApiResponse.Success -> {
+                    EateryApiResponse.Success(
+                        apiResponse.data.filter {
+                            passesFilter(it, filters)
+                        })
+                }
             }
-        }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
 
-    fun addFilter(filter: Filter) = viewModelScope.launch {
+    fun addLocationFilter(filter: Filter) = viewModelScope.launch {
         addLocationFilters(filter)
     }
 
-    fun removeFilter(filter: Filter) = viewModelScope.launch {
-        val newList = _filtersFlow.value.toMutableList()
+    fun removeLocationFilter(filter: Filter) = viewModelScope.launch {
+        val newList = _locationFilterFlow.value.toMutableList()
         newList.remove(filter)
-        _filtersFlow.value = newList
+        _locationFilterFlow.value = newList
     }
 
-    fun addMealFilters(filters: List<Filter>) = viewModelScope.launch {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.removeAll(Filter.MEALS)
-        newList.addAll(filters)
-        _filtersFlow.value = newList
+    fun changeMealFilter(filter: MealFilter) = viewModelScope.launch {
+        _mealFilterFlow.value = filter
     }
 
-    fun resetFilters() = viewModelScope.launch {
-        _filtersFlow.value = listOf()
+    fun resetLocationFilters() = viewModelScope.launch {
+        _locationFilterFlow.value = listOf()
     }
 
     private fun addLocationFilters(filter: Filter) = viewModelScope.launch {
-        val newList = _filtersFlow.value.toMutableList()
+        val newList = _locationFilterFlow.value.toMutableList()
         newList.add(filter)
         val locations = newList.filter { Filter.LOCATIONS.contains(it) }
         if (locations.size == 3) {
             newList.removeAll(Filter.LOCATIONS)
         }
-        _filtersFlow.value = newList
+        _locationFilterFlow.value = newList
     }
 
     private fun passesFilter(eatery: Eatery, filters: List<Filter>): Boolean {
@@ -93,4 +97,12 @@ class UpcomingViewModel @Inject constructor(
                         (filters.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))
     }
 
+    fun mealToInt(mealFilter: MealFilter): Int {
+        return when (mealFilter) {
+            MealFilter.BREAKFAST -> 1
+            MealFilter.LUNCH -> 2
+            MealFilter.DINNER -> 3
+            else -> 4
+        }
+    }
 }

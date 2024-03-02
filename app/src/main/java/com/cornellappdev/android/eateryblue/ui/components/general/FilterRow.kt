@@ -151,25 +151,18 @@ fun FilterButton(
 
 @Composable
 fun FilterRowUpcoming(
-    currentFiltersSelected: List<Filter>,
+    mealFilter: MealFilter,
+    selectedFilters: List<Filter>,
     onMealsClicked: () -> Unit,
     onFilterClicked: (Filter) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val mealFilters = currentFiltersSelected.filter { filter ->
-        filter in setOf(Filter.BREAKFAST, Filter.LUNCH, Filter.DINNER)
-    }
-    val mealsFilterText: String =
-        if (mealFilters.isEmpty()) "Breakfast" else mealFilters.joinToString {
-            it.text
-        }
-
     LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         item {
             FilterButton(
                 onFilterClicked = onMealsClicked,
-                selected = mealFilters.isNotEmpty(),
-                text = mealsFilterText,
+                selected = true,
+                text = mealFilter.text,
                 icon = Icons.Default.ExpandMore
             )
         }
@@ -177,7 +170,7 @@ fun FilterRowUpcoming(
         item {
             FilterButton(
                 onFilterClicked = { onFilterClicked(Filter.NORTH) },
-                selected = currentFiltersSelected.contains(Filter.NORTH),
+                selected = selectedFilters.contains(Filter.NORTH),
                 text = Filter.NORTH.text
             )
         }
@@ -185,7 +178,7 @@ fun FilterRowUpcoming(
         item {
             FilterButton(
                 onFilterClicked = { onFilterClicked(Filter.WEST) },
-                selected = currentFiltersSelected.contains(Filter.WEST),
+                selected = selectedFilters.contains(Filter.WEST),
                 text = Filter.WEST.text
             )
         }
@@ -193,7 +186,7 @@ fun FilterRowUpcoming(
         item {
             FilterButton(
                 onFilterClicked = { onFilterClicked(Filter.CENTRAL) },
-                selected = currentFiltersSelected.contains(Filter.CENTRAL),
+                selected = selectedFilters.contains(Filter.CENTRAL),
                 text = Filter.CENTRAL.text
             )
         }

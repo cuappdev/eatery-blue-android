@@ -8,14 +8,18 @@ enum class Filter(val text: String) {
     FAVORITES("Favorites"),
     BRB("BRBs"),
     CASH("Cash or credit"),
-    SWIPES("Meal swipes"),
-    BREAKFAST("Breakfast"),
-    LUNCH("Lunch"),
-    DINNER("Dinner");
+    SWIPES("Meal swipes");
 
     companion object {
         val PAYMENT_METHODS = setOf(BRB, CASH, SWIPES)
-        val MEALS = setOf(BREAKFAST, LUNCH, DINNER)
         val LOCATIONS = setOf(NORTH, WEST, CENTRAL)
     }
+}
+
+enum class MealFilter(val text: String, val endTime: Float) {
+    BREAKFAST("Breakfast", 10.5f),
+    LUNCH("Lunch", 14f),
+    LATELUNCH("Late Lunch", 16.5f),
+    DINNER("Dinner", 20.5f),
+    LATEDINNER("Late Dinner", 10.5f);
 }

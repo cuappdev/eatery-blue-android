@@ -77,13 +77,13 @@ data class Eatery(
         if (events.isNullOrEmpty())
             return listOf()
 
-        var todayEvents = events.filter { event ->
+        val todayEvents = events.filter { event ->
             currentTime.dayOfYear == event.startTime?.dayOfYear
         }.sortedBy { it.startTime }
         // is sorting them here too slow?
         todayEvents.forEach { event ->
             var i = 0
-            var chefs: MutableList<MenuCategory> = mutableListOf()
+            val chefs: MutableList<MenuCategory> = mutableListOf()
             event.menu?.forEach { menuCategory ->
                 if (menuCategory.category != null && menuCategory.category == "Chef's Table") {
                     val chef = event.menu[i]
@@ -113,8 +113,7 @@ data class Eatery(
     fun getSelectedDayMeal(meal: Int, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())
-        var mealName = ""
-        mealName = when (meal) {
+        val mealName: String = when (meal) {
             1 -> {
                 "Breakfast"
             }
@@ -123,8 +122,12 @@ data class Eatery(
                 "Lunch"
             }
 
-            else -> {
+            3 -> {
                 "Dinner"
+            }
+
+            else -> {
+                "Null"
             }
         }
         return events?.filter { event ->

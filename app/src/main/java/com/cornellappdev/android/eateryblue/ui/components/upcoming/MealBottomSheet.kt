@@ -14,13 +14,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,7 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eateryblue.R
-import com.cornellappdev.android.eateryblue.ui.components.general.Filter
+import com.cornellappdev.android.eateryblue.ui.components.general.MealFilter
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
@@ -39,11 +43,16 @@ import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
  * The pop up that shows up when users want to pick a different meal as the filter in the upcoming
  * menu screen.
  */
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MealBottomSheet(
-    selectedFilters: MutableList<Filter>,
-    hide: () -> Unit
+    selectedMeal: MealFilter,
+    onSubmit: (MealFilter) -> Unit,
+    hide: () -> Unit,
+    sheetState: ModalBottomSheetState
 ) {
+    val currSelectedMeal = remember { mutableStateOf(selectedMeal) }
+    if (!sheetState.isVisible) currSelectedMeal.value = selectedMeal
     Column(
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = 24.dp)
@@ -60,6 +69,7 @@ fun MealBottomSheet(
 
             IconButton(
                 onClick = {
+                    currSelectedMeal.value = selectedMeal
                     hide()
                 },
                 modifier = Modifier
@@ -77,11 +87,7 @@ fun MealBottomSheet(
             .fillMaxWidth()
             .padding(top = 10.dp)
             .clickable {
-                if (!selectedFilters.contains(Filter.BREAKFAST)) {
-                    selectedFilters.clear()
-                    selectedFilters.add(Filter.BREAKFAST)
-                }
-
+                currSelectedMeal.value = MealFilter.BREAKFAST
             }
     ) {
         Column {
@@ -98,18 +104,14 @@ fun MealBottomSheet(
         }
         IconButton(
             onClick = {
-
-                if (!selectedFilters.contains(Filter.BREAKFAST)) {
-                    selectedFilters.clear()
-                    selectedFilters.add(Filter.BREAKFAST)
-                }
+                currSelectedMeal.value = MealFilter.BREAKFAST
             },
             modifier = Modifier
                 .align(CenterVertically)
                 .padding(end = 16.dp, start = 100.dp),
 
             ) {
-            if (selectedFilters.contains(Filter.BREAKFAST)) {
+            if (currSelectedMeal.value == MealFilter.BREAKFAST) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
                     contentDescription = "Breakfast",
@@ -133,10 +135,7 @@ fun MealBottomSheet(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                if (!selectedFilters.contains(Filter.LUNCH)) {
-                    selectedFilters.clear()
-                    selectedFilters.add(Filter.LUNCH)
-                }
+                currSelectedMeal.value = MealFilter.LUNCH
             }) {
         Column {
             Text(
@@ -152,18 +151,14 @@ fun MealBottomSheet(
         }
         IconButton(
             onClick = {
-
-                if (!selectedFilters.contains(Filter.LUNCH)) {
-                    selectedFilters.clear()
-                    selectedFilters.add(Filter.LUNCH)
-                }
+                currSelectedMeal.value = MealFilter.LUNCH
             },
             modifier = Modifier
                 .align(CenterVertically)
                 .padding(end = 16.dp, start = 100.dp),
 
             ) {
-            if (selectedFilters.contains(Filter.LUNCH)) {
+            if (currSelectedMeal.value == MealFilter.LUNCH) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
                     contentDescription = "Lunch",
@@ -188,10 +183,7 @@ fun MealBottomSheet(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                if (!selectedFilters.contains(Filter.DINNER)) {
-                    selectedFilters.clear()
-                    selectedFilters.add(Filter.DINNER)
-                }
+                currSelectedMeal.value = MealFilter.DINNER
             }) {
         Column {
             Text(
@@ -207,16 +199,13 @@ fun MealBottomSheet(
         }
         IconButton(
             onClick = {
-                if (!selectedFilters.contains(Filter.DINNER)) {
-                    selectedFilters.clear()
-                    selectedFilters.add(Filter.DINNER)
-                }
+                currSelectedMeal.value = MealFilter.DINNER
             },
             modifier = Modifier
                 .align(CenterVertically)
                 .padding(end = 16.dp, start = 100.dp),
         ) {
-            if (selectedFilters.contains(Filter.DINNER)) {
+            if (currSelectedMeal.value == MealFilter.DINNER) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
                     contentDescription = "Dinner",
@@ -230,7 +219,10 @@ fun MealBottomSheet(
         }
     }
     Button(
-        onClick = { hide() },
+        onClick = {
+            onSubmit(currSelectedMeal.value)
+            hide()
+        },
         shape = RoundedCornerShape(32.dp),
         modifier = Modifier
             .padding(top = 20.dp, start = 16.dp, end = 16.dp)
@@ -249,8 +241,7 @@ fun MealBottomSheet(
 
     TextButton(
         onClick = {
-            selectedFilters.clear()
-            selectedFilters.add(Filter.BREAKFAST)
+            currSelectedMeal.value = selectedMeal
             hide()
         },
         modifier = Modifier
