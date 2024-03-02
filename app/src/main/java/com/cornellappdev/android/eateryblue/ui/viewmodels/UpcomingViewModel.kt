@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eateryblue.data.models.Eatery
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,7 +26,7 @@ class UpcomingViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _mealFilterFlow: MutableStateFlow<MealFilter> =
-        MutableStateFlow<MealFilter>(MealFilter.BREAKFAST)
+        MutableStateFlow<MealFilter>(nextMeal() ?: MealFilter.LATEDINNER)
     private val _locationFilterFlow: MutableStateFlow<List<Filter>> =
         MutableStateFlow(listOf())
 
@@ -78,6 +80,15 @@ class UpcomingViewModel @Inject constructor(
             newList.removeAll(Filter.LOCATIONS)
         }
         _locationFilterFlow.value = newList
+    }
+
+    private fun nextMeal(): MealFilter? {
+        Log.d(
+            "Current Time",
+            (LocalDateTime.now().hour + LocalDateTime.now().minute / 60f).toString()
+        )
+        return MealFilter.values()
+            .find { it.endTimes >= LocalDateTime.now().hour + LocalDateTime.now().minute / 60f }
     }
 
     private fun passesFilter(eatery: Eatery, filters: List<Filter>): Boolean {
