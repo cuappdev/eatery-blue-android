@@ -40,6 +40,7 @@ import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.data.models.MenuItem
+import com.cornellappdev.android.eateryblue.ui.components.general.MealFilter
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
@@ -60,8 +61,7 @@ fun MenuCard(
 ) {
     var openDropdown by remember { mutableStateOf(false) }
     val mealFilter = upcomingViewModel.mealFilterFlow.collectAsState().value
-    val meal = upcomingViewModel.mealToInt(mealFilter)
-    val event = eatery.getSelectedDayMeal(meal, day)
+    val event = eatery.getSelectedDayMeal(mealFilter, day)
 
     Card(
         elevation = 10.dp,
@@ -173,7 +173,7 @@ fun MenuCard(
                         OpenEateryDetails(
                             eatery = eatery,
                             selectEatery = { selectEatery(eatery) },
-                            meal = meal,
+                            meal = mealFilter,
                             day = day,
                         )
                     }
@@ -221,7 +221,7 @@ fun ClosedEateryDetails(
 @Composable
 fun OpenEateryDetails(
     eatery: Eatery,
-    meal: Int,
+    meal: MealFilter,
     day: Int,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {

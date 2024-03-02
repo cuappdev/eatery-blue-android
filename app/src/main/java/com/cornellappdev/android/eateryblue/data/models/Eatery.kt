@@ -1,6 +1,8 @@
 package com.cornellappdev.android.eateryblue.data.models
 
 import android.location.Location
+import android.util.Log
+import com.cornellappdev.android.eateryblue.ui.components.general.MealFilter
 import com.cornellappdev.android.eateryblue.util.Constants.AVERAGE_WALK_SPEED
 import com.cornellappdev.android.eateryblue.util.LocationHandler
 import com.squareup.moshi.Json
@@ -110,28 +112,12 @@ data class Eatery(
         }
     }
 
-    fun getSelectedDayMeal(meal: Int, day: Int): List<Event>? {
+    fun getSelectedDayMeal(meal: MealFilter, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())
-        val mealName: String = when (meal) {
-            1 -> {
-                "Breakfast"
-            }
-
-            2 -> {
-                "Lunch"
-            }
-
-            3 -> {
-                "Dinner"
-            }
-
-            else -> {
-                "Null"
-            }
-        }
+        Log.d(name, events?.filter { currentDay.dayOfYear == it.startTime?.dayOfYear }.toString())
         return events?.filter { event ->
-            currentDay.dayOfYear == event.startTime?.dayOfYear && event.description == mealName
+            currentDay.dayOfYear == event.startTime?.dayOfYear && meal.text.contains(event.description)
         }
     }
 

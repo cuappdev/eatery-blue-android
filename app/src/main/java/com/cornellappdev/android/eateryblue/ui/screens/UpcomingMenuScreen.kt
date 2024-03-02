@@ -74,6 +74,7 @@ fun UpcomingMenuScreen(
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
+        skipHalfExpanded = true,
         initialValue = ModalBottomSheetValue.Hidden
     )
 
@@ -292,7 +293,7 @@ fun UpcomingMenuScreen(
                         is EateryApiResponse.Success -> {
                             val eateries = eateriesApiResponse.data.filter {
                                 !it.getSelectedDayMeal(
-                                    upcomingViewModel.mealToInt(mealFilter),
+                                    mealFilter,
                                     selectedDay
                                 ).isNullOrEmpty()
                             }

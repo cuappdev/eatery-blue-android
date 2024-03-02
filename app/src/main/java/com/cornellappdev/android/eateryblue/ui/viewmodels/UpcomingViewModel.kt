@@ -96,13 +96,4 @@ class UpcomingViewModel @Inject constructor(
                         (filters.contains(Filter.WEST) && eatery.campusArea == "West") ||
                         (filters.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))
     }
-
-    fun mealToInt(mealFilter: MealFilter): Int {
-        return when (mealFilter) {
-            MealFilter.BREAKFAST -> 1
-            MealFilter.LUNCH -> 2
-            MealFilter.DINNER -> 3
-            else -> 4
-        }
-    }
 }

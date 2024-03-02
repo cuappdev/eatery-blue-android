@@ -162,7 +162,7 @@ fun FilterRowUpcoming(
             FilterButton(
                 onFilterClicked = onMealsClicked,
                 selected = true,
-                text = mealFilter.text,
+                text = mealFilter.text[0],
                 icon = Icons.Default.ExpandMore
             )
         }

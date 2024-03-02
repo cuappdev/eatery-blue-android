@@ -16,10 +16,9 @@ enum class Filter(val text: String) {
     }
 }
 
-enum class MealFilter(val text: String, val endTime: Float) {
-    BREAKFAST("Breakfast", 10.5f),
-    LUNCH("Lunch", 14f),
-    LATELUNCH("Late Lunch", 16.5f),
-    DINNER("Dinner", 20.5f),
-    LATEDINNER("Late Dinner", 10.5f);
+enum class MealFilter(val text: List<String>) {
+    BREAKFAST(listOf("Breakfast", "Brunch")),
+    LUNCH(listOf("Lunch", "Brunch")),
+    DINNER(listOf("Dinner")),
+    LATEDINNER(listOf("Late Night"));
 }

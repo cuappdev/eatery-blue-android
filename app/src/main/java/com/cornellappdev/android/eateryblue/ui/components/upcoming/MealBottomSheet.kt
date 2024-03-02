@@ -218,6 +218,52 @@ fun MealBottomSheet(
             }
         }
     }
+    Spacer(
+        modifier = Modifier
+            .padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(GrayZero, CircleShape)
+    )
+    Row(horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                currSelectedMeal.value = MealFilter.LATEDINNER
+            }) {
+        Column {
+            Text(
+                text = "Late Dinner",
+                modifier = Modifier.padding(start = 16.dp),
+                style = EateryBlueTypography.h5
+            )
+            Text(
+                text = "8:30 PM-10:30 PM",
+                modifier = Modifier.padding(start = 16.dp),
+                style = EateryBlueTypography.caption
+            )
+        }
+        IconButton(
+            onClick = {
+                currSelectedMeal.value = MealFilter.LATEDINNER
+            },
+            modifier = Modifier
+                .align(CenterVertically)
+                .padding(end = 16.dp, start = 100.dp),
+        ) {
+            if (currSelectedMeal.value == MealFilter.LATEDINNER) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_selected),
+                    contentDescription = "Late Dinner",
+                )
+            } else {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_unselected),
+                    contentDescription = "Late Dinner",
+                )
+            }
+        }
+    }
     Button(
         onClick = {
             onSubmit(currSelectedMeal.value)
