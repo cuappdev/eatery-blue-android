@@ -856,17 +856,18 @@ fun EateryMenuWidget(event: Event) {
                     .background(GrayZero, CircleShape)
             )
 
-            event.menu?.forEach { category ->
-                val filteredItems = category.items?.filter {
-                    it.name?.contains(filterText, true)
+            event.menu?.forEachIndexed { categoryIndex, category ->
+                val filteredItems =
+                    category.items?.filter {
+                        it.name?.contains(filterText, true)
 //                            ?: it.description?.contains(
 //                            filterText,
 //                            true
 //                        )
-                        ?: false
-                }
-                if (filteredItems.isNullOrEmpty()) return@forEach
-
+                            ?: false
+                    }
+                if (filteredItems.isNullOrEmpty())
+                    return@forEachIndexed
                 Text(
                     text = category.category ?: "Category",
                     style = EateryBlueTypography.h5,
@@ -874,29 +875,45 @@ fun EateryMenuWidget(event: Event) {
                 )
                 filteredItems.forEachIndexed { index, menuItem ->
                     Column(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 16.dp,
+                            )
+                            .fillMaxWidth()
                     ) {
-                        Row {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
+                        ) {
                             Text(
                                 text = menuItem.name ?: "Item Name",
                                 style = EateryBlueTypography.button,
                                 modifier = Modifier.weight(1f)
                             )
                         }
-                        if (category.items.lastIndex != index) {
-                            Spacer(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(GrayZero, CircleShape)
-                            )
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            if (category.items.lastIndex != index) {
+                                Spacer(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(GrayZero, CircleShape)
+                                )
+                            }
                         }
+
                     }
                 }
+                if (categoryIndex != event.menu!!.lastIndex) {
+                    Divider(
+                        color = GrayZero,
+                        modifier = Modifier
+                            .height(10.dp)
+                    )
+                }
             }
-
-            Spacer(modifier = Modifier.height(20.dp))
         }
 
         Spacer(

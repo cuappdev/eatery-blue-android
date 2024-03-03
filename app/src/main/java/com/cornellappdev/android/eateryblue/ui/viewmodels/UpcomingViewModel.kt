@@ -25,7 +25,7 @@ class UpcomingViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _mealFilterFlow: MutableStateFlow<MealFilter> =
-        MutableStateFlow<MealFilter>(nextMeal() ?: MealFilter.LATEDINNER)
+        MutableStateFlow<MealFilter>(nextMeal() ?: MealFilter.LATE_DINNER)
     private val _locationFilterFlow: MutableStateFlow<List<Filter>> =
         MutableStateFlow(listOf())
 

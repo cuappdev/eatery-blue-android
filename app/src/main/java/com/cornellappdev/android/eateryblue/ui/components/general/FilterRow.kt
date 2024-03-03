@@ -162,7 +162,10 @@ fun FilterRowUpcoming(
             FilterButton(
                 onFilterClicked = onMealsClicked,
                 selected = true,
-                text = mealFilter.text[0],
+                text = when (mealFilter) {
+                    MealFilter.LATE_DINNER -> "Late Dinner"
+                    else -> mealFilter.text.first()
+                },
                 icon = Icons.Default.ExpandMore
             )
         }
