@@ -32,7 +32,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,7 +43,6 @@ import com.cornellappdev.android.eateryblue.ui.components.general.MealFilter
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
-import com.cornellappdev.android.eateryblue.ui.theme.Green
 import com.cornellappdev.android.eateryblue.ui.viewmodels.UpcomingViewModel
 import java.time.format.DateTimeFormatter
 
@@ -70,88 +68,46 @@ fun MenuCard(
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                if (event.isNullOrEmpty()) {
-                    var text = eatery.name ?: ""
-                    if (text.length > 20) {
-                        text = text.substring(0, 20)
-                        text = text.trim()
-                        text = "$text..."
-                    }
-
-                    Text(
-                        text = text,
-                        style = EateryBlueTypography.h5,
+                Text(
+                    text = eatery.name ?: "",
+                    style = EateryBlueTypography.h5,
+                )
+                IconButton(
+                    onClick = {
+                        openDropdown = !openDropdown
+                    },
+                    modifier = Modifier
+                        .padding(top = 10.dp, end = 20.dp)
+                        .size(24.dp)
+                        .align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                        contentDescription = "Expand menu",
+                        tint = Color.Black
                     )
-                    Text(
-                        modifier = Modifier.padding(top = 20.dp),
-                        text = "Closed",
-                        style = EateryBlueTypography.subtitle2,
-                        color = Red
-                    )
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 12.dp)
-                    ) {
-                        ClosedEateryDetails(
-                            eatery = eatery,
-                            selectEatery = { selectEatery(eatery) },
-                        )
-                    }
-
-                } else {
-                    Text(
-                        text = eatery.name ?: "",
-                        style = EateryBlueTypography.h5,
-                    )
-
-
-                    IconButton(
-                        onClick = {
-                            openDropdown = !openDropdown
-                        },
-                        modifier = Modifier
-                            .padding(top = 10.dp, end = 20.dp)
-                            .size(24.dp)
-                            .align(Alignment.TopEnd)
-                    ) {
-                        Icon(
-                            imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                            contentDescription = "Expand menu",
-                            tint = Color.Black
-                        )
-                    }
-                    Row {
+                }
+                Row {
+                    if (event!![0].startTime != null && event[0].endTime != null) {
                         Text(
-                            modifier = Modifier.padding(top = 20.dp),
-                            text = "Open",
+                            modifier = Modifier.padding(
+                                top = 20.dp,
+                                bottom = 10.dp
+                            ),
+                            text = "${
+                                event[0].startTime?.format(
+                                    DateTimeFormatter.ofPattern(
+                                        "K:mm a"
+                                    )
+                                )
+                            } - ${
+                                event[0].endTime?.format(
+                                    DateTimeFormatter.ofPattern("K:mm a")
+                                )
+                            }",
                             style = EateryBlueTypography.subtitle2,
-                            color = Green
+                            color = GrayFive
                         )
-
-                        if (event[0].startTime != null && event[0].endTime != null) {
-                            Text(
-                                modifier = Modifier.padding(
-                                    top = 20.dp,
-                                    start = 12.dp,
-                                    bottom = 10.dp
-                                ),
-                                text = "${
-                                    event[0].startTime?.format(
-                                        DateTimeFormatter.ofPattern(
-                                            "K:mm a"
-                                        )
-                                    )
-                                } - ${
-                                    event[0].endTime?.format(
-                                        DateTimeFormatter.ofPattern("K:mm a")
-                                    )
-                                }",
-                                style = EateryBlueTypography.subtitle2,
-                                color = GrayFive
-                            )
-                        }
-
                     }
                 }
             }
@@ -170,7 +126,7 @@ fun MenuCard(
                             .background(GrayZero, CircleShape)
                     )
                     Box(modifier = Modifier.padding(end = 12.dp)) {
-                        OpenEateryDetails(
+                        EateryDetails(
                             eatery = eatery,
                             selectEatery = { selectEatery(eatery) },
                             meal = mealFilter,
@@ -183,43 +139,9 @@ fun MenuCard(
     }
 }
 
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ClosedEateryDetails(
-    eatery: Eatery,
-    selectEatery: (eatery: Eatery) -> Unit = {}
-) {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        onClick = {
-            selectEatery(eatery)
-        },
-        backgroundColor = GrayZero,
-    ) {
-        Row(
-            modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 10.dp, bottom = 10.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_eatery),
-                contentDescription = null,
-                tint = Color.Black
-            )
-            Text(
-                text = "Eatery Details",
-                color = Color.Black,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-        }
-
-    }
-
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun OpenEateryDetails(
+fun EateryDetails(
     eatery: Eatery,
     meal: MealFilter,
     day: Int,

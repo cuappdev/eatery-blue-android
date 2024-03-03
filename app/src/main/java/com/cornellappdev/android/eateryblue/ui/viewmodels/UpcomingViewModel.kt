@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eateryblue.data.models.Eatery
@@ -82,11 +81,12 @@ class UpcomingViewModel @Inject constructor(
         _locationFilterFlow.value = newList
     }
 
+    /**
+     * nextMeal returns the next MealFilter that ends after the current time.
+     * (Ex. If it is 10:45am, the next meal is Lunch ending at 2:30pm)
+     * Returns null when no meals end after the current time.
+     */
     private fun nextMeal(): MealFilter? {
-        Log.d(
-            "Current Time",
-            (LocalDateTime.now().hour + LocalDateTime.now().minute / 60f).toString()
-        )
         return MealFilter.values()
             .find { it.endTimes >= LocalDateTime.now().hour + LocalDateTime.now().minute / 60f }
     }

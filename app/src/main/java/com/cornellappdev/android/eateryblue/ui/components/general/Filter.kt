@@ -16,6 +16,11 @@ enum class Filter(val text: String) {
     }
 }
 
+/**
+ * MealFilter enum class which contains enums representing a meal time
+ * text: List of names for meals relevant to that filter (Ex. Breakfast filter shows both Breakfast and Brunch options)
+ * endTimes: Float that represents average end time for meal out of 24
+ */
 enum class MealFilter(val text: List<String>, val endTimes: Float) {
     BREAKFAST(listOf("Breakfast", "Brunch"), 10.5f),
     LUNCH(listOf("Lunch", "Brunch"), 14f),
