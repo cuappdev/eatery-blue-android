@@ -282,7 +282,7 @@ fun EateryEventMenu(event: Event) {
                 Text(
                     text = category.category ?: "",
                     style = EateryBlueTypography.h5,
-                    modifier = Modifier.padding(top = 6.dp, bottom = 6.dp)
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                 )
                 category.items!!.forEach { item ->
                     MenuItemDisplay(item = item)
@@ -296,7 +296,6 @@ fun EateryEventMenu(event: Event) {
 fun MenuItemDisplay(item: MenuItem) {
     Text(
         text = item.name!!,
-        modifier = Modifier.padding(top = 4.dp),
         style = EateryBlueTypography.caption,
         fontWeight = FontWeight.Normal
     )
