@@ -48,6 +48,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 fun MealBottomSheet(
     selectedMeal: MealFilter,
     onSubmit: (MealFilter) -> Unit,
+    onReset: () -> Unit,
     hide: () -> Unit,
     sheetState: ModalBottomSheetState
 ) {
@@ -287,8 +288,8 @@ fun MealBottomSheet(
 
     TextButton(
         onClick = {
-            currSelectedMeal.value = selectedMeal
-            hide()
+
+        hide()
         },
         modifier = Modifier
             .padding(top = 8.dp)

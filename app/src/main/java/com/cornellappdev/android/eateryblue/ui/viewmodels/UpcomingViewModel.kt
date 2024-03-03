@@ -71,6 +71,10 @@ class UpcomingViewModel @Inject constructor(
         _locationFilterFlow.value = listOf()
     }
 
+    fun resetMealFilter() = viewModelScope.launch {
+        _mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
+    }
+
     private fun addLocationFilters(filter: Filter) = viewModelScope.launch {
         val newList = _locationFilterFlow.value.toMutableList()
         newList.add(filter)

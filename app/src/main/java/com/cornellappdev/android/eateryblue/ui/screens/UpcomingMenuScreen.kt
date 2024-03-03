@@ -147,6 +147,9 @@ fun UpcomingMenuScreen(
                     onSubmit = {
                         upcomingViewModel.changeMealFilter(it)
                     },
+                    onReset = {
+                        upcomingViewModel.resetMealFilter()
+                    },
                     hide = {
                         coroutineScope.launch {
                             modalBottomSheetState.hide()
