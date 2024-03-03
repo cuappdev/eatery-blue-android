@@ -122,7 +122,10 @@ fun EateryDetailScreen(
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val context = LocalContext.current
     val modalBottomSheetState =
-        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+        rememberModalBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+            skipHalfExpanded = true
+        )
     var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
     val paymentMethods = remember { mutableStateListOf<PaymentMethodsAvailable>() }
     val coroutineScope = rememberCoroutineScope()
