@@ -52,6 +52,7 @@ import java.time.format.DateTimeFormatter
  * Represents the card for each eatery that is shown in the list
  * in the upcoming menu screen
  */
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MenuCard(
     eatery: Eatery,
@@ -64,9 +65,12 @@ fun MenuCard(
     val event = eatery.getSelectedDayMeal(mealFilter, day)
 
     Card(
-        elevation = 10.dp,
+        elevation = 5.dp,
         shape = RoundedCornerShape(10.dp),
         backgroundColor = Color.White,
+        onClick = {
+            openDropdown = !openDropdown
+        }
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
@@ -128,30 +132,26 @@ fun MenuCard(
                             style = EateryBlueTypography.subtitle2,
                             color = Green
                         )
-
-                        if (event[0].startTime != null && event[0].endTime != null) {
-                            Text(
-                                modifier = Modifier.padding(
-                                    top = 20.dp,
-                                    start = 12.dp,
-                                    bottom = 10.dp
-                                ),
-                                text = "${
-                                    event[0].startTime?.format(
-                                        DateTimeFormatter.ofPattern(
-                                            "K:mm a"
-                                        )
+                        Text(
+                            modifier = Modifier.padding(
+                                top = 20.dp,
+                                start = 12.dp,
+                                bottom = 10.dp
+                            ),
+                            text = "${
+                                event[0].startTime?.format(
+                                    DateTimeFormatter.ofPattern(
+                                        "K:mm a"
                                     )
-                                } - ${
-                                    event[0].endTime?.format(
-                                        DateTimeFormatter.ofPattern("K:mm a")
-                                    )
-                                }",
-                                style = EateryBlueTypography.subtitle2,
-                                color = GrayFive
-                            )
-                        }
-
+                                )
+                            } - ${
+                                event[0].endTime?.format(
+                                    DateTimeFormatter.ofPattern("K:mm a")
+                                )
+                            }",
+                            style = EateryBlueTypography.subtitle2,
+                            color = GrayFive
+                        )
                     }
                 }
             }
