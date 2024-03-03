@@ -229,7 +229,7 @@ fun MealBottomSheet(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                currSelectedMeal.value = MealFilter.LATEDINNER
+                currSelectedMeal.value = MealFilter.LATE_DINNER
             }) {
         Column {
             Text(
@@ -245,13 +245,13 @@ fun MealBottomSheet(
         }
         IconButton(
             onClick = {
-                currSelectedMeal.value = MealFilter.LATEDINNER
+                currSelectedMeal.value = MealFilter.LATE_DINNER
             },
             modifier = Modifier
                 .align(CenterVertically)
                 .padding(end = 16.dp, start = 100.dp),
         ) {
-            if (currSelectedMeal.value == MealFilter.LATEDINNER) {
+            if (currSelectedMeal.value == MealFilter.LATE_DINNER) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
                     contentDescription = "Late Dinner",
