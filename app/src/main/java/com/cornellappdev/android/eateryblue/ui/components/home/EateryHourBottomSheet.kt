@@ -15,18 +15,12 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,7 +33,6 @@ import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
-import com.cornellappdev.android.eateryblue.ui.theme.GrayOne
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
 import com.cornellappdev.android.eateryblue.ui.theme.Red
@@ -99,7 +92,7 @@ fun EateryHourBottomSheet(
         Spacer(modifier = Modifier.height(12.dp))
 
         val openUntil = eatery.getOpenUntil()
-        androidx.compose.material.Text(
+        Text(
             modifier = Modifier.padding(top = 2.dp),
             text = openUntil ?: "Closed",
             style = TextStyle(
