@@ -44,7 +44,11 @@ import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
 import com.cornellappdev.android.eateryblue.ui.theme.Red
 
-@OptIn(ExperimentalMaterialApi::class)
+/**
+ * BottomSheet that displays the specific opening times of days in a week.
+ * Also allows the user to switch to a bottom sheet where they can report
+ * an issue or voice a concern.
+ */
 @Composable
 fun EateryHourBottomSheet(
     eatery: Eatery,
@@ -70,7 +74,7 @@ fun EateryHourBottomSheet(
                     modifier = Modifier.size(32.dp)
                 )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                androidx.compose.material.Text(
+                Text(
                     text = "Hours",
                     style = EateryBlueTypography.h4,
                     color = Color.Black
@@ -108,24 +112,22 @@ fun EateryHourBottomSheet(
 
         val operatingHours = eatery.formatOperatingHours()
 
-        operatingHours.forEachIndexed { index, (dayRange, hours) ->
+        operatingHours.forEach{(dayRange, hours) ->
             Column {
-                Text(text = dayRange, fontSize = 16.sp, color = GrayFive)
+                Text(text = dayRange, fontSize = 16.sp, color = GrayFive,fontWeight = FontWeight(500))
                 hours.forEach { hour ->
                     Text(
                         text = hour,
                         fontSize = 18.sp,
                         color = Color.Black,
-                        fontWeight = FontWeight.Normal
+                        fontWeight = FontWeight(600)
                     )
                 }
-                if (index != operatingHours.lastIndex) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(12.dp)
-                    )
-                }
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(12.dp)
+                )
             }
         }
 

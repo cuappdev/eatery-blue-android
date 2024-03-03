@@ -190,11 +190,18 @@ data class Eatery(
         }
     }
 
+    /**@Return a list of pairs (association list) representing the day(s) of a week
+     * and the corresponding times that a eatery is open
+     *
+     * this is computed by first mapping each dayOfWeek in each element of events to
+     * corresponding opening times, then a helper (groupedHoursFormatHelper) to group
+     * daysOfWeek with the same list of opening times into the association list of
+     * day(s) mapped to opening hours.
+     */
     fun formatOperatingHours(): List<Pair<String, List<String>>> {
         var dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
 
         events?.forEach { event ->
-
             val dayOfWeek = event.startTime?.dayOfWeek
             val openTime = event.startTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
             val closeTime = event.endTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
@@ -215,6 +222,10 @@ data class Eatery(
         return groupedHoursFormatHelper(groupedHours)
     }
 
+    /**
+     * value to represent the custom order of days in a week (with Sunday as
+     * the first day due to a particular design choice). Used for sorting purposes
+     */
     private val dayOrder = mapOf(
         "Sunday" to 1,
         "Monday" to 2,
@@ -226,6 +237,19 @@ data class Eatery(
 
     )
 
+    /**
+     * @Return a list of pairs (association list) representing the day(s) of a week
+     * and the corresponding times that a eatery is open. The list of pairs is sorted
+     * by key (day(s)) with the custom dayOrder
+     *
+     * @Param groupedHours: a Map data structure mapping a MutableList of strings
+     * representing the opening times of a eatery to the days that opens at those
+     * opening times
+     *
+     * The function groups consecutive days of the week that share the same opening time
+     * together; then, these groups, along with days with unique opening times compared
+     * to its neighbor days, are each mapped to the corresponding opening times
+     */
     private fun groupedHoursFormatHelper(groupedHours: Map<MutableList<String>, List<DayOfWeek>>): List<Pair<String, List<String>>> {
         val formattedHours = LinkedHashMap<String, List<String>>()
 
@@ -259,31 +283,39 @@ data class Eatery(
         return formattedHoursList
     }
 
+    /**
+     * @Return Boolean representing if day2 is right (consecutively) after
+     * day1
+     *
+     * @Param day1: a all capitalized string representing a day in the week
+     * @Param day2: a all capitalized string representing a day in the week
+     */
     private fun isNext(day1: String, day2: String): Boolean {
-        if (day1 == "MONDAY") {
-            return day2 == "TUESDAY"
-        } else if (day1 == "TUESDAY") {
-            return day2 == "WEDNESDAY"
-        } else if (day1 == "WEDNESDAY") {
-            return day2 == "THURSDAY"
-        } else if (day1 == "THURSDAY") {
-            return day2 == "FRIDAY"
-        } else if (day1 == "FRIDAY") {
-            return day2 == "SATURDAY"
-        } else if (day1 == "SATURDAY") {
-            return false
-        } else if (day1 == "SUNDAY") {
-            return day2 == "MONDAY"
-        } else {
-            return false
+        return when (day1) {
+            "MONDAY" -> day2 == "TUESDAY"
+            "TUESDAY" -> day2 == "WEDNESDAY"
+            "WEDNESDAY" -> day2 == "THURSDAY"
+            "THURSDAY" -> day2 == "FRIDAY"
+            "FRIDAY" -> day2 == "SATURDAY"
+            "SATURDAY" -> false
+            "SUNDAY" -> day2 == "MONDAY"
+            else -> false
         }
     }
 
+    /**
+     * @Return formatted string representing the duration of days of a week
+     *
+     * @Param strings a list of strings representing day(s) that need to be formatted
+     *
+     * Given a list of strings, format it in the format FirstDay to LastDay.
+     * If the list of string only contains one string, then just return
+     * that one string element.
+     */
     private fun formatString(strings: List<String>): String {
-        if (strings.size > 1) {
-            return "${strings.first()} to ${strings.last()}"
-        } else {
-            return strings.first()
+        return when {
+            strings.size > 1 -> "${strings.first()} to ${strings.last()}"
+            else -> strings.first()
         }
     }
 }
