@@ -45,6 +45,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
+import com.cornellappdev.android.eateryblue.ui.theme.Orange
 import com.cornellappdev.android.eateryblue.ui.viewmodels.UpcomingViewModel
 import java.time.format.DateTimeFormatter
 
@@ -91,22 +92,37 @@ fun MenuCard(
                         tint = Color.Black
                     )
                 }
-                Row {
+                Row(modifier = Modifier.padding(top = 24.dp)) {
                     if (event!![0].startTime != null && event[0].endTime != null) {
                         val closed = eatery.isClosed()
+                        val meal = eatery.getCurrentEvent()
+
+                        val mealName = meal?.description
+                        val differentMeal = !mealFilter.text.contains(meal?.description)
+
+                        val openText = when {
+                            closed -> "Closed"
+                            differentMeal -> "Open for $mealName"
+                            else -> "Open"
+                        }
+
+                        val openColor = when {
+                            closed -> Red
+                            differentMeal -> Orange
+                            else -> Green
+                        }
+
                         if (day == 0) {
                             Text(
-                                modifier = Modifier.padding(top = 20.dp),
-                                text = if (closed) "Closed" else "Open",
+                                text = openText,
                                 style = EateryBlueTypography.subtitle2,
-                                color = if (closed) Red else Green
+                                color = openColor
                             )
                         }
                         Text(
                             modifier = Modifier.padding(
-                                top = 20.dp,
-                                start = if (day == 0) 12.dp else 0.dp,
-                                bottom = 10.dp
+                                start = if (day == 0) 8.dp else 0.dp,
+                                bottom = 8.dp
                             ),
                             text = "${
                                 event[0].startTime?.format(

@@ -105,6 +105,11 @@ data class Eatery(
         return todayEvents
     }
 
+    /**
+     * Returns the currently active event, or null if no event is active.
+     *
+     * Example: At 1 PM, Morrison will return the lunch event.
+     */
     fun getCurrentEvent(): Event? {
         return getTodaysEvents().find {
             it.startTime?.isBefore(LocalDateTime.now()) ?: true
