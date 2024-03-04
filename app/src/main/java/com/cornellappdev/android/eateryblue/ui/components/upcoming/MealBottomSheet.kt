@@ -86,10 +86,11 @@ fun MealBottomSheet(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 10.dp)
+            .padding(top = 2.dp)
             .clickable {
                 currSelectedMeal.value = MealFilter.BREAKFAST
             }
+            .padding(top = 8.dp, bottom = 12.dp)
     ) {
         Column {
             Text(
@@ -127,7 +128,7 @@ fun MealBottomSheet(
     }
     Spacer(
         modifier = Modifier
-            .padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+            .padding(start = 12.dp, end = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
             .background(GrayZero, CircleShape)
@@ -137,7 +138,9 @@ fun MealBottomSheet(
             .fillMaxWidth()
             .clickable {
                 currSelectedMeal.value = MealFilter.LUNCH
-            }) {
+            }
+            .padding(top = 8.dp, bottom = 12.dp)
+    ) {
         Column {
             Text(
                 text = "Lunch",
@@ -175,7 +178,7 @@ fun MealBottomSheet(
     }
     Spacer(
         modifier = Modifier
-            .padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+            .padding(start = 12.dp, end = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
             .background(GrayZero, CircleShape)
@@ -185,7 +188,9 @@ fun MealBottomSheet(
             .fillMaxWidth()
             .clickable {
                 currSelectedMeal.value = MealFilter.DINNER
-            }) {
+            }
+            .padding(top = 8.dp, bottom = 12.dp)
+    ) {
         Column {
             Text(
                 text = "Dinner",
@@ -221,7 +226,7 @@ fun MealBottomSheet(
     }
     Spacer(
         modifier = Modifier
-            .padding(start = 12.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+            .padding(start = 12.dp, end = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
             .background(GrayZero, CircleShape)
@@ -231,7 +236,9 @@ fun MealBottomSheet(
             .fillMaxWidth()
             .clickable {
                 currSelectedMeal.value = MealFilter.LATE_DINNER
-            }) {
+            }
+            .padding(top = 8.dp, bottom = 10.dp)
+    ) {
         Column {
             Text(
                 text = "Late Dinner",
@@ -272,7 +279,7 @@ fun MealBottomSheet(
         },
         shape = RoundedCornerShape(32.dp),
         modifier = Modifier
-            .padding(top = 20.dp, start = 16.dp, end = 16.dp)
+            .padding(top = 10.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = EateryBlue,
@@ -289,7 +296,7 @@ fun MealBottomSheet(
     TextButton(
         onClick = {
 
-        hide()
+            hide()
         },
         modifier = Modifier
             .padding(top = 8.dp)
