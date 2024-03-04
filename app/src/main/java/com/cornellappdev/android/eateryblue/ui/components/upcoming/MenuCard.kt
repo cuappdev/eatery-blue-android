@@ -3,6 +3,7 @@ package com.cornellappdev.android.eateryblue.ui.components.upcoming
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,6 +71,9 @@ fun MenuCard(
         elevation = 5.dp,
         shape = RoundedCornerShape(10.dp),
         backgroundColor = Color.White,
+        modifier = Modifier.clickable {
+            openDropdown = !openDropdown
+        }
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
@@ -77,21 +81,16 @@ fun MenuCard(
                     text = eatery.name ?: "",
                     style = EateryBlueTypography.h5,
                 )
-                IconButton(
-                    onClick = {
-                        openDropdown = !openDropdown
-                    },
+                Icon(
+                    imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                    contentDescription = "Expand menu",
+                    tint = Color.Black,
                     modifier = Modifier
                         .padding(top = 10.dp, end = 20.dp)
                         .size(24.dp)
                         .align(Alignment.TopEnd)
-                ) {
-                    Icon(
-                        imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                        contentDescription = "Expand menu",
-                        tint = Color.Black
-                    )
-                }
+                )
+
                 Row(modifier = Modifier.padding(top = 24.dp)) {
                     if (event!![0].startTime != null && event[0].endTime != null) {
                         val closed = eatery.isClosed()
