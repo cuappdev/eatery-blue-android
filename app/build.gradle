@@ -17,13 +17,13 @@ secretsProperties.load(new FileInputStream(secretsPropertiesFile))
 
 android {
     namespace 'com.cornellappdev.android.eateryblue'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.cornellappdev.android.eateryblue"
         minSdk 33
-        targetSdk 33
-        versionCode 55
+        targetSdk 34
+        versionCode 61
         versionName "2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
