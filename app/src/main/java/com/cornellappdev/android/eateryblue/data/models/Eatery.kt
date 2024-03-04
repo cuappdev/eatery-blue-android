@@ -1,6 +1,8 @@
 package com.cornellappdev.android.eateryblue.data.models
 
 import android.location.Location
+import android.util.Log
+import com.cornellappdev.android.eateryblue.ui.components.general.MealFilter
 import com.cornellappdev.android.eateryblue.util.Constants.AVERAGE_WALK_SPEED
 import com.cornellappdev.android.eateryblue.util.LocationHandler
 import com.squareup.moshi.Json
@@ -78,13 +80,13 @@ data class Eatery(
         if (events.isNullOrEmpty())
             return listOf()
 
-        var todayEvents = events.filter { event ->
+        val todayEvents = events.filter { event ->
             currentTime.dayOfYear == event.startTime?.dayOfYear
         }.sortedBy { it.startTime }
         // is sorting them here too slow?
         todayEvents.forEach { event ->
             var i = 0
-            var chefs: MutableList<MenuCategory> = mutableListOf()
+            val chefs: MutableList<MenuCategory> = mutableListOf()
             event.menu?.forEach { menuCategory ->
                 if (menuCategory.category != null && menuCategory.category == "Chef's Table") {
                     val chef = event.menu[i]
@@ -104,6 +106,11 @@ data class Eatery(
         return todayEvents
     }
 
+    /**
+     * Returns the currently active event, or null if no event is active.
+     *
+     * Example: At 1 PM, Morrison will return the lunch event.
+     */
     fun getCurrentEvent(): Event? {
         return getTodaysEvents().find {
             it.startTime?.isBefore(LocalDateTime.now()) ?: true
@@ -111,25 +118,12 @@ data class Eatery(
         }
     }
 
-    fun getSelectedDayMeal(meal: Int, day: Int): List<Event>? {
+    fun getSelectedDayMeal(meal: MealFilter, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())
-        var mealName = ""
-        mealName = when (meal) {
-            1 -> {
-                "Breakfast"
-            }
-
-            2 -> {
-                "Lunch"
-            }
-
-            else -> {
-                "Dinner"
-            }
-        }
+        Log.d(name, events?.filter { currentDay.dayOfYear == it.startTime?.dayOfYear }.toString())
         return events?.filter { event ->
-            currentDay.dayOfYear == event.startTime?.dayOfYear && event.description == mealName
+            currentDay.dayOfYear == event.startTime?.dayOfYear && meal.text.contains(event.description)
         }
     }
 

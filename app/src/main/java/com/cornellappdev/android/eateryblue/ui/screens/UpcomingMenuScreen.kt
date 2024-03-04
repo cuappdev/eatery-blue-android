@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.screens
 
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Canvas
@@ -32,7 +31,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.data.models.Eatery
-import com.cornellappdev.android.eateryblue.ui.components.general.Filter
 import com.cornellappdev.android.eateryblue.ui.components.general.FilterRowUpcoming
 import com.cornellappdev.android.eateryblue.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eateryblue.ui.components.upcoming.MealBottomSheet
@@ -77,21 +74,18 @@ fun UpcomingMenuScreen(
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
+        skipHalfExpanded = true,
         initialValue = ModalBottomSheetValue.Hidden
     )
 
-    val filters = upcomingViewModel.filtersFlow.collectAsState().value
+    val mealFilter = upcomingViewModel.mealFilterFlow.collectAsState().value
+    val locationFilters = upcomingViewModel.locationFilterFlow.collectAsState().value
     val eateriesApiResponse = upcomingViewModel.eateryFlow.collectAsState().value
 
-    /** instantiates the meal filter list*/
-
-    val selectedMealFilters = remember { mutableStateListOf<Filter>() }
-    if (selectedMealFilters.isEmpty()) selectedMealFilters.add(Filter.BREAKFAST)
     if (modalBottomSheetState.currentValue != ModalBottomSheetValue.Hidden) {
         DisposableEffect(Unit) {
             onDispose {
                 // Handles the case where filters reset as well (by adding an empty list).
-                upcomingViewModel.addMealFilters(selectedMealFilters)
             }
         }
     }
@@ -113,7 +107,7 @@ fun UpcomingMenuScreen(
         dayWeeks.add(currentDay.plusDays(i.toLong()).dayOfWeek.value)
         days.add(currentDay.plusDays(i.toLong()).dayOfMonth)
     }
-    Log.d("list for cal", dayWeeks.toList().toString())
+
     dayWeeks.forEach {
         var dayName = ""
         when (it) {
@@ -148,7 +142,14 @@ fun UpcomingMenuScreen(
             sheetElevation = 8.dp,
             sheetContent = {
                 MealBottomSheet(
-                    selectedFilters = selectedMealFilters,
+                    sheetState = modalBottomSheetState,
+                    selectedMeal = mealFilter,
+                    onSubmit = {
+                        upcomingViewModel.changeMealFilter(it)
+                    },
+                    onReset = {
+                        upcomingViewModel.resetMealFilter()
+                    },
                     hide = {
                         coroutineScope.launch {
                             modalBottomSheetState.hide()
@@ -260,20 +261,21 @@ fun UpcomingMenuScreen(
                     item {
                         FilterRowUpcoming(
                             modifier = Modifier.padding(start = 16.dp),
-                            currentFiltersSelected = filters,
+                            mealFilter = mealFilter,
+                            selectedFilters = locationFilters,
                             onMealsClicked = {
                                 coroutineScope.launch {
                                     modalBottomSheetState.show()
                                 }
                             },
                             onFilterClicked = { filter ->
-                                if (filters.contains(
+                                if (locationFilters.contains(
                                         filter
                                     )
                                 ) {
-                                    upcomingViewModel.removeFilter(filter)
+                                    upcomingViewModel.removeLocationFilter(filter)
                                 } else {
-                                    upcomingViewModel.addFilter(filter)
+                                    upcomingViewModel.addLocationFilter(filter)
                                 }
                             })
                     }
@@ -292,81 +294,87 @@ fun UpcomingMenuScreen(
                         }
 
                         is EateryApiResponse.Success -> {
-                            val eateries = eateriesApiResponse.data
-                            if (filters.isNotEmpty()) {
-                                if (eateries.isNotEmpty()) {
-                                    item {
-                                        Column(
-                                            modifier = Modifier
-                                                .wrapContentHeight()
-                                                .padding(
-                                                    start = 16.dp,
-                                                    end = 16.dp,
-                                                    top = 12.dp,
-                                                    bottom = 12.dp
-                                                ),
-                                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                                        ) {
-                                            val northEateries =
-                                                eateries.filter { it.campusArea == "North" }
-                                            val westEateries =
-                                                eateries.filter { it.campusArea == "West" }
-                                            val centralEateries =
-                                                eateries.filter { it.campusArea == "Central" }
-                                            if (northEateries.isNotEmpty()) {
-                                                Text(
-                                                    modifier = Modifier.padding(start = 6.dp),
-                                                    text = "North",
-                                                    style = EateryBlueTypography.h4
-                                                )
-                                                northEateries.forEach { eatery ->
-                                                    MenuCard(
-                                                        eatery = eatery,
-                                                        day = selectedDay,
-                                                        meal = selectedMealFilters
-                                                    ) {
-                                                        onEateryClick(it)
-                                                    }
-                                                }
+                            val eateries = eateriesApiResponse.data.filter {
+                                !it.getSelectedDayMeal(
+                                    mealFilter,
+                                    selectedDay
+                                ).isNullOrEmpty()
+                            }
+                            val northEateries =
+                                eateries.filter { it.campusArea == "North" }
+                            val westEateries =
+                                eateries.filter { it.campusArea == "West" }
+                            val centralEateries =
+                                eateries.filter { it.campusArea == "Central" }
 
-                                            }
-                                            if (centralEateries.isNotEmpty()) {
-                                                Text(
-                                                    modifier = Modifier.padding(start = 6.dp),
-                                                    text = "Central",
-                                                    style = EateryBlueTypography.h4
-                                                )
-                                                centralEateries.forEach { eatery ->
-                                                    MenuCard(
-                                                        eatery = eatery,
-                                                        day = selectedDay,
-                                                        meal = selectedMealFilters
-                                                    ) {
-                                                        onEateryClick(it)
-                                                    }
-                                                }
+                            if (eateries.isNotEmpty()) {
+                                item {
+                                    Column(
+                                        modifier = Modifier
+                                            .wrapContentHeight()
+                                            .padding(
+                                                start = 16.dp,
+                                                end = 16.dp,
+                                                top = 12.dp,
+                                                bottom = 12.dp
+                                            ),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    ) {
 
-                                            }
-                                            if (westEateries.isNotEmpty()) {
-                                                Text(
-                                                    modifier = Modifier.padding(start = 6.dp),
-                                                    text = "West",
-                                                    style = EateryBlueTypography.h4
-                                                )
-                                                westEateries.forEach { eatery ->
-                                                    MenuCard(
-                                                        eatery = eatery,
-                                                        day = selectedDay,
-                                                        meal = selectedMealFilters
-                                                    ) {
-                                                        onEateryClick(it)
-                                                    }
+                                        if (northEateries.isNotEmpty()) {
+                                            Text(
+                                                modifier = Modifier.padding(start = 6.dp),
+                                                text = "North",
+                                                style = EateryBlueTypography.h4
+                                            )
+                                            northEateries.forEach { eatery ->
+                                                MenuCard(
+                                                    eatery = eatery,
+                                                    day = selectedDay,
+                                                    upcomingViewModel = upcomingViewModel,
+                                                ) {
+                                                    onEateryClick(it)
                                                 }
-
                                             }
+
+                                        }
+                                        if (centralEateries.isNotEmpty()) {
+                                            Text(
+                                                modifier = Modifier.padding(start = 6.dp),
+                                                text = "Central",
+                                                style = EateryBlueTypography.h4
+                                            )
+                                            centralEateries.forEach { eatery ->
+                                                MenuCard(
+                                                    eatery = eatery,
+                                                    day = selectedDay,
+                                                    upcomingViewModel = upcomingViewModel,
+                                                ) {
+                                                    onEateryClick(it)
+                                                }
+                                            }
+
+                                        }
+                                        if (westEateries.isNotEmpty()) {
+                                            Text(
+                                                modifier = Modifier.padding(start = 6.dp),
+                                                text = "West",
+                                                style = EateryBlueTypography.h4
+                                            )
+                                            westEateries.forEach { eatery ->
+                                                MenuCard(
+                                                    eatery = eatery,
+                                                    day = selectedDay,
+                                                    upcomingViewModel = upcomingViewModel,
+                                                ) {
+                                                    onEateryClick(it)
+                                                }
+                                            }
+
                                         }
                                     }
                                 }
+
                             } else {
                                 item {
                                     Box(
@@ -379,7 +387,7 @@ fun UpcomingMenuScreen(
                                                 Alignment.Center
                                             )
                                         ) {
-                                            upcomingViewModel.resetFilters()
+                                            upcomingViewModel.resetLocationFilters()
                                         }
                                     }
                                 }
