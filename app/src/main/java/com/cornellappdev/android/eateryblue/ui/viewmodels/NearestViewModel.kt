@@ -17,7 +17,7 @@ import javax.inject.Inject
  * View Model for Nearest to You screen.
  */
 @HiltViewModel
-class NearestViewModel@Inject constructor(
+class NearestViewModel @Inject constructor(
     private val eateryRepository: EateryRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
@@ -26,16 +26,17 @@ class NearestViewModel@Inject constructor(
      *
      * Sorted (by descending priority): Open/Closed, Walk Time
      */
-    val nearestEateries: StateFlow<List<Eatery>> = eateryRepository.homeEateryFlow.map { apiResponse ->
-        when (apiResponse) {
-            is EateryApiResponse.Error -> listOf()
-            is EateryApiResponse.Pending -> listOf()
-            is EateryApiResponse.Success -> {
-                apiResponse.data.sortedBy { it.getWalkTimes() }.sortedBy { it.isClosed() }
+    val nearestEateries: StateFlow<List<Eatery>> =
+        eateryRepository.homeEateryFlow.map { apiResponse ->
+            when (apiResponse) {
+                is EateryApiResponse.Error -> listOf()
+                is EateryApiResponse.Pending -> listOf()
+                is EateryApiResponse.Success -> {
+                    apiResponse.data.sortedBy { it.getWalkTimes() }.sortedBy { it.isClosed() }
 
+                }
             }
-        }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
     fun removeFavorite(eateryId: Int?) {
         if (eateryId != null) userPreferencesRepository.setFavorite(eateryId, false)
