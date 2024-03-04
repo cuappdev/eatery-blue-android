@@ -48,6 +48,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.Green
 import com.cornellappdev.android.eateryblue.ui.viewmodels.UpcomingViewModel
 import java.time.format.DateTimeFormatter
 
+
 /**
  * Represents the card for each eatery that is shown in the list
  * in the upcoming menu screen
@@ -92,9 +93,19 @@ fun MenuCard(
                 }
                 Row {
                     if (event!![0].startTime != null && event[0].endTime != null) {
+                        val closed = eatery.isClosed()
+                        if (day == 0) {
+                            Text(
+                                modifier = Modifier.padding(top = 20.dp),
+                                text = if (closed) "Closed" else "Open",
+                                style = EateryBlueTypography.subtitle2,
+                                color = if (closed) Red else Green
+                            )
+                        }
                         Text(
                             modifier = Modifier.padding(
                                 top = 20.dp,
+                                start = if (day == 0) 12.dp else 0.dp,
                                 bottom = 10.dp
                             ),
                             text = "${
