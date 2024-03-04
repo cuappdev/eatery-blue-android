@@ -35,6 +35,9 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.NearestViewModel
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 
+/**
+ * The Nearest to You screen that shows eateries sorted by walk times.
+ */
 @Composable
 fun NearestScreen(
     nearestViewModel: NearestViewModel = hiltViewModel(),
@@ -42,6 +45,7 @@ fun NearestScreen(
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val nearestEateries = nearestViewModel.nearestEateries.collectAsState().value
+    val favorites = nearestViewModel.favoriteEateries.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -101,11 +105,9 @@ fun NearestScreen(
                     }) { eatery ->
                     EateryCard(
                         eatery = eatery,
-                        isFavorite = true,
+                        isFavorite = favorites.contains(eatery),
                         onFavoriteClick = {
-                            if (!it) {
-                                nearestViewModel.removeFavorite(eatery.id)
-                            }
+                            nearestViewModel.setFavorite(eatery.id, it)
                         }) {
                         onEateryClick(it)
                     }

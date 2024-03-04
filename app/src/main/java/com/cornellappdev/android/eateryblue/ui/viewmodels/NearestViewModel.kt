@@ -9,6 +9,7 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiRespons
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
@@ -21,6 +22,27 @@ class NearestViewModel @Inject constructor(
     private val eateryRepository: EateryRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
+    /**
+     * A flow emitting all the eateries the user has favorited.
+     */
+    val favoriteEateries =
+        combine(
+            eateryRepository.homeEateryFlow,
+            userPreferencesRepository.favoritesFlow
+        ) { apiResponse, favorites ->
+            when (apiResponse) {
+                is EateryApiResponse.Error -> listOf()
+                is EateryApiResponse.Pending -> listOf()
+                is EateryApiResponse.Success -> {
+                    apiResponse.data.filter {
+                        favorites[it.id] == true
+                    }
+                        .sortedBy { it.name }
+                        .sortedBy { it.isClosed() }
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+
     /**
      * A [StateFlow] that emits all eateries sorted based off distance.
      *
@@ -38,7 +60,10 @@ class NearestViewModel @Inject constructor(
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
-    fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null) userPreferencesRepository.setFavorite(eateryId, false)
+    /**
+     * Changes the favorite status of the given eatery.
+     */
+    fun setFavorite(eateryId: Int?, favorite: Boolean) {
+        if (eateryId != null) userPreferencesRepository.setFavorite(eateryId, favorite)
     }
 }
