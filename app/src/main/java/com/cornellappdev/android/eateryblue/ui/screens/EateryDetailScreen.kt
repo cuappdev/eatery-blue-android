@@ -90,6 +90,7 @@ import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethods
 import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
 import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
+import com.cornellappdev.android.eateryblue.ui.components.home.EateryHourBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
@@ -121,7 +122,10 @@ fun EateryDetailScreen(
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val context = LocalContext.current
     val modalBottomSheetState =
-        rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+        rememberModalBottomSheetState(
+            initialValue = ModalBottomSheetValue.Hidden,
+            skipHalfExpanded = true
+        )
     var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
     val paymentMethods = remember { mutableStateListOf<PaymentMethodsAvailable>() }
     val coroutineScope = rememberCoroutineScope()
@@ -175,7 +179,16 @@ fun EateryDetailScreen(
                             }
                         }
 
-                        // TODO: Hours bottom sheet doesn't seem to exist yet.
+                        BottomSheetContent.HOURS -> {
+                            EateryHourBottomSheet(onDismiss = {
+                                coroutineScope.launch {
+                                    modalBottomSheetState.hide()
+                                }
+                            }, eatery = eatery, onReportIssue = {
+                                sheetContent = BottomSheetContent.REPORT
+
+                            })
+                        }
 
                         else -> {}
                     }
@@ -375,6 +388,12 @@ fun EateryDetailScreen(
                                 modifier = Modifier
                                     .padding(vertical = 12.dp)
                                     .weight(1f, true)
+                                    .clickable {
+                                        sheetContent = BottomSheetContent.HOURS
+                                        coroutineScope.launch {
+                                            modalBottomSheetState.show()
+                                        }
+                                    }
                             ) {
                                 Row(
                                     modifier = Modifier,
