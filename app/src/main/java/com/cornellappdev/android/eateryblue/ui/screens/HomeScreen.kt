@@ -91,7 +91,8 @@ fun HomeScreen(
     showBottomBar: MutableState<Boolean>,
     onSearchClick: () -> Unit,
     onEateryClick: (eatery: Eatery) -> Unit,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: () -> Unit,
+    onNearestClick: () -> Unit
 ) {
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -510,6 +511,24 @@ fun HomeScreen(
                                                 text = "Nearest to You",
                                                 style = EateryBlueTypography.h4,
                                             )
+
+                                            IconButton(
+                                                onClick = {
+                                                    onNearestClick()
+                                                },
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .background(
+                                                        color = GrayZero,
+                                                        shape = CircleShape
+                                                    )
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.ArrowForward,
+                                                    contentDescription = "Nearest to You",
+                                                    tint = Color.Black
+                                                )
+                                            }
                                         }
                                         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                             item {
