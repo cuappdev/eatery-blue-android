@@ -37,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.TextStyle
@@ -130,7 +131,7 @@ fun UpcomingMenuScreen(
     val listState = rememberLazyListState()
     remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val shimmer = rememberShimmer(ShimmerBounds.View)
-    Box {
+    Box(modifier = Modifier.background(Color.White)) {
         ModalBottomSheetLayout(
             sheetState = modalBottomSheetState,
             sheetShape = RoundedCornerShape(

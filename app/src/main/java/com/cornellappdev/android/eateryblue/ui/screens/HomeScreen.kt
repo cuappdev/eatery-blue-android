@@ -200,7 +200,7 @@ fun HomeScreen(
 //        }
 
 
-    Box {
+    Box(modifier = Modifier.background(Color.White)) {
         ModalBottomSheetLayout(
             sheetState = modalBottomSheetState,
             sheetShape = RoundedCornerShape(
