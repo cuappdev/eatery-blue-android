@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -105,9 +104,14 @@ fun EateryHourBottomSheet(
 
         val operatingHours = eatery.formatOperatingHours()
 
-        operatingHours.forEach{(dayRange, hours) ->
+        operatingHours.forEach { (dayRange, hours) ->
             Column {
-                Text(text = dayRange, fontSize = 16.sp, color = GrayFive,fontWeight = FontWeight(500))
+                Text(
+                    text = dayRange,
+                    fontSize = 16.sp,
+                    color = GrayFive,
+                    fontWeight = FontWeight(500)
+                )
                 hours.forEach { hour ->
                     Text(
                         text = hour,

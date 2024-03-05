@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eateryblue.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,8 +35,7 @@ fun ProfileScreen(
     onSettingsClicked: () -> Unit,
 ) {
     val state = loginViewModel.state.collectAsState().value
-    Column(
-    ) {
+    Column(modifier = Modifier.background(Color.White)) {
         when (state) {
             is LoginViewModel.State.Login -> {
                 Column(

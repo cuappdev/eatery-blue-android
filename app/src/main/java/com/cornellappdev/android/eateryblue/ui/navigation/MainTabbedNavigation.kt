@@ -34,6 +34,7 @@ import com.cornellappdev.android.eateryblue.ui.screens.FavoritesScreen
 import com.cornellappdev.android.eateryblue.ui.screens.FirstTimeShown
 import com.cornellappdev.android.eateryblue.ui.screens.HomeScreen
 import com.cornellappdev.android.eateryblue.ui.screens.LegalScreen
+import com.cornellappdev.android.eateryblue.ui.screens.NearestScreen
 import com.cornellappdev.android.eateryblue.ui.screens.OnboardingScreen
 import com.cornellappdev.android.eateryblue.ui.screens.PrivacyScreen
 import com.cornellappdev.android.eateryblue.ui.screens.ProfileScreen
@@ -194,6 +195,8 @@ fun SetupNavHost(
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
             }, onFavoriteClick = {
                 navController.navigate(Routes.FAVORITES.route)
+            }, onNearestClick = {
+                navController.navigate(Routes.NEAREST.route)
             }
             )
         }
@@ -349,6 +352,24 @@ fun SetupNavHost(
                 )
             }) {
             FavoritesScreen(onEateryClick = {
+                navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+            })
+        }
+
+        composable(
+            route = Routes.NEAREST.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
+            }) {
+            NearestScreen(onEateryClick = {
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
             })
         }
