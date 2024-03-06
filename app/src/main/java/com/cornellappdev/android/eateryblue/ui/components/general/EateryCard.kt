@@ -33,6 +33,7 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -201,7 +202,7 @@ fun EateryCard(
     isCompact: Boolean = false,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
-    val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsStateWithLifecycle("")
+    val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsState()?.value
 
     val interactionSource = MutableInteractionSource()
     val bitmapState = eatery.imageUrl?.let { CoilRepository.getUrlState(it, LocalContext.current) }
@@ -271,7 +272,7 @@ fun EateryCard(
                             )
                     }
                 }
-                if (!xMinutesUntilClosing?.value.isNullOrEmpty()) {
+                if (xMinutesUntilClosing != null && xMinutesUntilClosing <= 60) {
                     Card(
                         modifier = Modifier
                             .padding(top = 12.dp, end = 12.dp)
@@ -293,7 +294,7 @@ fun EateryCard(
                             )
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                             Text(
-                                text = "Closing in ${xMinutesUntilClosing!!.value} min",
+                                text = "Closing in $xMinutesUntilClosing min",
                                 style = EateryBlueTypography.button
                             )
                         }

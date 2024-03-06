@@ -35,6 +35,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
 import com.cornellappdev.android.eateryblue.ui.theme.Red
+import com.cornellappdev.android.eateryblue.ui.theme.Yellow
 
 /**
  * BottomSheet that displays the specific opening times of days in a week.
@@ -93,11 +94,16 @@ fun EateryHourBottomSheet(
         val openUntil = eatery.getOpenUntil()
         Text(
             modifier = Modifier.padding(top = 2.dp),
-            text = openUntil ?: "Closed",
+            text =
+                    if (openUntil == null) "Closed"
+                    else if(eatery.isClosingSoon()) "Closing at $openUntil"
+                    else ("Open until $openUntil"),
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ),
-            color = if (openUntil.isNullOrBlank()) Red else Green,
+            color = if (openUntil == null) Red
+                    else if(eatery.isClosingSoon()) Yellow
+                    else Green
         )
 
         Spacer(modifier = Modifier.height(12.dp))

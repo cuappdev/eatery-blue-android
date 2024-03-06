@@ -101,12 +101,14 @@ fun MenuCard(
 
                         val openText = when {
                             closed -> "Closed"
+                            eatery.isClosingSoon() -> "Closing Soon"
                             differentMeal -> "Open for $mealName"
                             else -> "Open"
                         }
 
                         val openColor = when {
                             closed -> Red
+                            eatery.isClosingSoon() -> Orange
                             differentMeal -> Orange
                             else -> Green
                         }
@@ -117,10 +119,14 @@ fun MenuCard(
                                 style = EateryBlueTypography.subtitle2,
                                 color = openColor
                             )
+                            Text(
+                                text = " • ",
+                                style = EateryBlueTypography.subtitle2,
+                                color = GrayFive
+                            )
                         }
                         Text(
                             modifier = Modifier.padding(
-                                start = if (day == 0) 8.dp else 0.dp,
                                 bottom = 8.dp
                             ),
                             text = "${

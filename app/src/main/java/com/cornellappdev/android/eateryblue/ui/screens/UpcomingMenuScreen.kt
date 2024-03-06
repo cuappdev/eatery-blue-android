@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.data.models.Eatery
+import com.cornellappdev.android.eateryblue.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eateryblue.ui.components.general.FilterRowUpcoming
 import com.cornellappdev.android.eateryblue.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eateryblue.ui.components.upcoming.MealBottomSheet
@@ -214,49 +215,18 @@ fun UpcomingMenuScreen(
                     }
 
                     item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .padding(top = 10.dp, bottom = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            for (i in 0..6) {
-                                Box(modifier = Modifier.width(40.dp)) {
-                                    Text(
-                                        text = dayNames[i],
-                                        color = GrayFive,
-                                        textAlign = TextAlign.Center,
-                                        style = EateryBlueTypography.caption,
-                                        modifier = Modifier.align(Alignment.TopCenter)
-                                    )
-                                    if (i == selectedDay) {
-                                        Canvas(
-                                            modifier = Modifier
-                                                .size(size = 35.dp)
-                                                .align(Alignment.BottomCenter)
-                                        ) {
-                                            drawCircle(
-                                                color = GrayFive,
-                                            )
-                                        }
-                                    }
-                                    TextButton(onClick = {
-                                        selectedDay = i
-                                    }) {
-                                        Text(
-                                            text = days[i].toString(),
-                                            color = if (i != selectedDay) Black else White,
-                                            style = EateryBlueTypography.h6,
-                                            fontWeight = FontWeight.Normal,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier.padding(top = 30.dp)
-                                        )
-                                    }
-
-
-                                }
-                            }
+                        val weekDayIndex = 0
+                        var today by remember { mutableStateOf(weekDayIndex) }
+                        Box(
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                        ){
+                            CalendarWeekSelector(
+                                dayNames = dayNames,
+                                currSelectedDay = selectedDay,
+                                selectedDay = today,
+                                days = days,
+                                onClick = {i -> selectedDay = i }
+                            )
                         }
                     }
                     item {
