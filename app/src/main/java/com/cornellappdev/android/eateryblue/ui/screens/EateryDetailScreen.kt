@@ -92,6 +92,7 @@ import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
 import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryHourBottomSheet
+import com.cornellappdev.android.eateryblue.ui.components.home.EateryMenusBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
@@ -189,6 +190,16 @@ fun EateryDetailScreen(
                                 sheetContent = BottomSheetContent.REPORT
 
                             })
+                        }
+
+                        BottomSheetContent.MENUS -> {
+                            EateryMenusBottomSheet (
+                                onDismiss = {
+                                    coroutineScope.launch {
+                                        modalBottomSheetState.hide()
+                                    }
+                                }
+                            )
                         }
 
                         else -> {}
@@ -415,11 +426,16 @@ fun EateryDetailScreen(
                                 val openUntil = eatery.getOpenUntil()
                                 Text(
                                     modifier = Modifier.padding(top = 2.dp),
-                                    text = openUntil ?: "Closed",
+                                    text =
+                                    if (openUntil == null) "Closed"
+                                    else if (eatery.isClosingSoon()) "Closing at $openUntil"
+                                    else ("Open until $openUntil"),
                                     style = TextStyle(
                                         fontWeight = FontWeight.SemiBold, fontSize = 16.sp
                                     ),
-                                    color = if (openUntil.isNullOrBlank()) Red else Green,
+                                    color = if (openUntil == null) Red
+                                    else if (eatery.isClosingSoon()) Yellow
+                                    else Green
                                 )
                             }
 
@@ -441,7 +457,12 @@ fun EateryDetailScreen(
 
                         val nextEvent: Event? = eatery.getCurrentEvent()
                         if (nextEvent != null) {
-                            EateryMenuWidget(event = nextEvent)
+                            sheetContent = BottomSheetContent.HOURS
+                            EateryMenuWidget(event = nextEvent, hoursOnClick = {
+                                sheetContent = BottomSheetContent.MENUS
+                                coroutineScope.launch {
+                                    modalBottomSheetState.show()
+                                }})
                         }
 
 
@@ -586,46 +607,12 @@ fun AlertsSection(eatery: Eatery) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun EateryMenuWidget(event: Event) {
-    /** Handles the number and calender at the top*/
-    val zoneId: ZoneId? = ZoneId.of("America/New_York")
-    val today = LocalDate.now(zoneId)
-    val currentDay by remember { mutableStateOf(today) }
-    Log.d("current day", currentDay.dayOfWeek.value.toString())
-    Log.d("current day2", currentDay.dayOfMonth.toString())
-    val dayWeek: Int = currentDay.dayOfWeek.value
-    val dayNum: Int = currentDay.dayOfMonth
-    val dayNames = mutableListOf<String>()
-    val dayWeeks = mutableListOf<Int>()
-    val days = mutableListOf<Int>()
-
-
-    dayWeeks.add(dayWeek)
-    days.add(dayNum)
-    for (i in 1 until 7) {
-        dayWeeks.add(currentDay.plusDays(i.toLong()).dayOfWeek.value)
-        days.add(currentDay.plusDays(i.toLong()).dayOfMonth)
-    }
-    Log.d("list for cal", dayWeeks.toList().toString())
-    dayWeeks.forEach {
-        var dayName = ""
-        when (it) {
-            1 -> dayName = "Mon"
-            2 -> dayName = "Tues"
-            3 -> dayName = "Wed"
-            4 -> dayName = "Thurs"
-            5 -> dayName = "Fri"
-            6 -> dayName = "Sat"
-            7 -> dayName = "Sun"
-
-        }
-        dayNames.add(dayName)
-    }
-
+fun EateryMenuWidget(
+    event: Event,
+    hoursOnClick : () -> Unit
+) {
     rememberCoroutineScope()
 
-    val weekDayIndex = 0
-    var selectedDay by remember { mutableStateOf(weekDayIndex) }
     var openUpcoming by remember { mutableStateOf(false) }
     var filterText by remember { mutableStateOf("") }
 
@@ -653,7 +640,7 @@ fun EateryMenuWidget(event: Event) {
         }
         IconButton(
             onClick = {
-                openUpcoming = true
+                hoursOnClick()
             },
             modifier = Modifier
                 .padding(all = 8.dp)
@@ -679,93 +666,93 @@ fun EateryMenuWidget(event: Event) {
             // Get the dialog window and set it to the bottom using gravity
             val dialogWindowProvider = LocalView.current.parent as DialogWindowProvider
             dialogWindowProvider.window.setGravity(Gravity.BOTTOM)
-            var currSelectedDay by remember { mutableStateOf(selectedDay) }
+//            var currSelectedDay by remember { mutableStateOf(selectedDay) }
             // Dialog Box
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-            ) {
-                Column(
-                    modifier = Modifier.padding(
-                        top = 15.dp, start = 15.dp, end = 15.dp
-                    ),
-                ) {
-                    // Menus & X
-                    Row(
-                        modifier = Modifier.padding(bottom = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = "Menus",
-                                style = EateryBlueTypography.h4,
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                openUpcoming = false
-                            },
-                            modifier = Modifier
-                                .padding(all = 8.dp)
-                                .background(color = GrayZero, shape = CircleShape)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = "Close Upcoming",
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                    }
-
-                    // Upcoming Day selector
-                   CalendarWeekSelector(
-                       dayNames = dayNames,
-                       currSelectedDay = currSelectedDay,
-                       selectedDay = selectedDay,
-                       days = days,
-                       onClick = {i -> currSelectedDay = i }
-                   )
-
-                    // Show menu and reset menu buttons
-                    Column(
-                        modifier = Modifier.padding(bottom = 12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Button(
-                            onClick = {
-                                selectedDay = currSelectedDay
-                                openUpcoming = false
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp),
-                            shape = RoundedCornerShape(100),
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = EateryBlue, contentColor = Color.White
-                            )
-                        ) {
-                            Text(
-                                text = "Show menu",
-                                style = EateryBlueTypography.h5,
-                                color = Color.White
-                            )
-                        }
-                        ClickableText(modifier = Modifier.padding(top = 12.dp),
-                            text = AnnotatedString("Reset"),
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                lineHeight = 17.5.sp,
-                                fontWeight = FontWeight(600),
-                                color = Color(0xFF050505)
-                            ),
-                            onClick = { selectedDay = weekDayIndex })
-                    }
-
-                }
-
-            }
+//            Card(
+//                modifier = Modifier.fillMaxWidth(),
+//                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+//            ) {
+//                Column(
+//                    modifier = Modifier.padding(
+//                        top = 15.dp, start = 15.dp, end = 15.dp
+//                    ),
+//                ) {
+//                    // Menus & X
+//                    Row(
+//                        modifier = Modifier.padding(bottom = 12.dp),
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        Column(
+//                            modifier = Modifier.weight(1f)
+//                        ) {
+//                            Text(
+//                                text = "Menus",
+//                                style = EateryBlueTypography.h4,
+//                            )
+//                        }
+//                        IconButton(
+//                            onClick = {
+//                                openUpcoming = false
+//                            },
+//                            modifier = Modifier
+//                                .padding(all = 8.dp)
+//                                .background(color = GrayZero, shape = CircleShape)
+//                        ) {
+//                            Icon(
+//                                imageVector = Icons.Default.Close,
+//                                contentDescription = "Close Upcoming",
+//                                modifier = Modifier.size(28.dp)
+//                            )
+//                        }
+//                    }
+//
+//                    // Upcoming Day selector
+//                   CalendarWeekSelector(
+//                       dayNames = dayNames,
+//                       currSelectedDay = currSelectedDay,
+//                       selectedDay = selectedDay,
+//                       days = days,
+//                       onClick = {i -> currSelectedDay = i }
+//                   )
+//
+//                    // Show menu and reset menu buttons
+//                    Column(
+//                        modifier = Modifier.padding(bottom = 12.dp),
+//                        horizontalAlignment = Alignment.CenterHorizontally
+//                    ) {
+//                        Button(
+//                            onClick = {
+//                                selectedDay = currSelectedDay
+//                                openUpcoming = false
+//                            },
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .height(48.dp),
+//                            shape = RoundedCornerShape(100),
+//                            colors = ButtonDefaults.buttonColors(
+//                                backgroundColor = EateryBlue, contentColor = Color.White
+//                            )
+//                        ) {
+//                            Text(
+//                                text = "Show menu",
+//                                style = EateryBlueTypography.h5,
+//                                color = Color.White
+//                            )
+//                        }
+//                        ClickableText(modifier = Modifier.padding(top = 12.dp),
+//                            text = AnnotatedString("Reset"),
+//                            style = TextStyle(
+//                                fontSize = 14.sp,
+//                                lineHeight = 17.5.sp,
+//                                fontWeight = FontWeight(600),
+//                                color = Color(0xFF050505)
+//                            ),
+//                            onClick = { selectedDay = weekDayIndex })
+//                    }
+//
+//                }
+//
+//            }
         }
     }
 
@@ -889,5 +876,5 @@ fun EateryMenuWidget(event: Event) {
  * All possible bottom sheets should be added here and switched to before expanding via modalBottomSheetState.
  */
 enum class BottomSheetContent {
-    PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME, REPORT
+    PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME, REPORT, MENUS
 }

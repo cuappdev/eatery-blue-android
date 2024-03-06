@@ -7,9 +7,14 @@ import com.cornellappdev.android.eateryblue.util.Constants.AVERAGE_WALK_SPEED
 import com.cornellappdev.android.eateryblue.util.LocationHandler
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDate
@@ -146,7 +151,7 @@ data class Eatery(
             return null
 
         val endTime = currentEvents.first().endTime ?: return null
-        return "Open until ${endTime.format(DateTimeFormatter.ofPattern("K:mm a"))}"
+        return "${endTime.format(DateTimeFormatter.ofPattern("K:mm a"))}"
     }
 
     fun isClosed(): Boolean {
@@ -163,7 +168,24 @@ data class Eatery(
         return currentTime.plusMinutes(10).isAfter(endTime)
     }
 
-    fun calculateTimeUntilClosing(): Flow<String>? {
+    /**
+     * Returns true if the eatery has a current event and that event is ending within [minutes].
+     */
+    fun isClosingSoon(minutes: Int = 60): Boolean {
+        // TODO: Make a more well designed StateFlow for the open state of an Eatery
+        //  This should encompass Open, Closing Soon, and Closed.
+        val currentTime = LocalDateTime.now()
+        val currentEvents = getCurrentEvents()
+        if (currentEvents.isEmpty())
+            return false
+
+        val endTime = currentEvents.first().endTime
+        val timeBuffer: Long = Duration.between(currentTime, endTime).toMinutes()
+
+        return timeBuffer < minutes
+    }
+
+    fun calculateTimeUntilClosing(): StateFlow<Int>? {
         val currentTime = LocalDateTime.now()
         val currentEvents = getCurrentEvents()
         if (currentEvents.isEmpty())
@@ -171,17 +193,20 @@ data class Eatery(
         val endTime = currentEvents.first().endTime ?: return null
         var timeBuffer: Long = Duration.between(currentTime, endTime).toMinutes()
 
-
         return flow {
-            while (timeBuffer in 1..30) {
+            while (timeBuffer in 1..60) {
                 timeBuffer = Duration.between(currentTime, endTime).toMinutes()
-                emit(timeBuffer.toString())
+                emit(timeBuffer.toInt())
                 delay(
                     /**45 seconds=*/
                     45000
                 )
             }
-        }
+        }.stateIn(
+            CoroutineScope(Dispatchers.Default),
+            SharingStarted.Eagerly,
+            timeBuffer.toInt()
+        )
     }
 
     /**@Return a list of pairs (association list) representing the day(s) of a week
