@@ -86,6 +86,7 @@ import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
+import com.cornellappdev.android.eateryblue.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
 import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
@@ -768,54 +769,13 @@ fun EateryMenuWidget(event: Event) {
                     }
 
                     // Upcoming Day selector
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        for (i in 0..6) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = dayNames[i].uppercase(),
-                                    color = GrayFive,
-                                    textAlign = TextAlign.Center,
-                                    style = EateryBlueTypography.caption,
-                                    modifier = Modifier.padding(bottom = 8.dp),
-                                    fontWeight = FontWeight(600)
-                                )
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier
-                                        .padding(vertical = 8.dp, horizontal = 8.dp)
-                                        .clickable { currSelectedDay = i }
-                                ) {
-                                    Surface(
-                                        modifier = Modifier.size(size = 34.dp),
-                                        color = when (i) {
-                                            currSelectedDay -> EateryBlue
-                                            selectedDay -> GrayFive
-                                            else -> Color.Transparent
-                                        },
-                                        shape = CircleShape
-                                    ) {}
-
-                                    Text(
-                                        text = days[i].toString(),
-                                        color = if (i == currSelectedDay || i == selectedDay) Color.White else Color.Black,
-                                        style = EateryBlueTypography.h6,
-                                        fontWeight = FontWeight.Normal,
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier
-                                            .align(Alignment.Center)
-                                            .padding(bottom = 3.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
+                   CalendarWeekSelector(
+                       dayNames = dayNames,
+                       currSelectedDay = currSelectedDay,
+                       selectedDay = selectedDay,
+                       days = days,
+                       onClick = {i -> currSelectedDay = i }
+                   )
 
                     // Show menu and reset menu buttons
                     Column(
