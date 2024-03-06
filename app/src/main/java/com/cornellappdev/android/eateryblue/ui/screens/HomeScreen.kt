@@ -211,14 +211,14 @@ fun HomeScreen(
             ),
             sheetElevation = 8.dp,
             sheetContent = {
-                PaymentMethodsBottomSheet(
-                    selectedFilters = selectedPaymentMethodFilters,
-                    hide = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.hide()
+                    PaymentMethodsBottomSheet(
+                        selectedFilters = selectedPaymentMethodFilters,
+                        hide = {
+                            coroutineScope.launch {
+                                modalBottomSheetState.hide()
+                            }
                         }
-                    }
-                )
+                    )
             },
             content = { ->
                 val listState = rememberLazyListState()

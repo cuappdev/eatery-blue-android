@@ -196,7 +196,7 @@ fun PaymentMethodsBottomSheet(
         ) {
             Text(
                 text = "Reset",
-                style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
+                style = EateryBlueTypography.h5,
                 color = Color.Black
             )
         }
