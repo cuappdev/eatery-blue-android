@@ -446,6 +446,54 @@ fun EateryDetailScreen(
                                     .fillMaxHeight(0.5f)
                                     .width(1.dp)
                             )
+                            //                            Column(
+//                                horizontalAlignment = Alignment.CenterHorizontally,
+//                                modifier = Modifier
+//                                    .padding(vertical = 12.dp)
+//                                    .weight(1f, true)
+//                            ) {
+//                                Row(
+//                                    verticalAlignment = Alignment.CenterVertically,
+//                                    modifier = Modifier.clickable {
+//                                        sheetContent = BottomSheetContent.WAIT_TIME
+//                                        coroutineScope.launch {
+//                                            modalBottomSheetState.show()
+//                                        }
+//                                    }
+//                                ) {
+//                                    Icon(
+//                                        imageVector = Icons.Default.HourglassTop,
+//                                        contentDescription = "Watch Icon",
+//                                        tint = GrayFive
+//                                    )
+//                                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+//                                    Text(
+//                                        text = "Wait Time",
+//                                        style = TextStyle(
+//                                            fontWeight = FontWeight.SemiBold,
+//                                            fontSize = 16.sp
+//                                        ),
+//                                        color = GrayFive
+//                                    )
+//                                }
+//
+//                                val waitTimes = eatery.getWaitTimes()
+//                                Text(
+//                                    modifier = Modifier.padding(top = 2.dp),
+//                                    text = if (!waitTimes.isNullOrEmpty() && !eatery.isClosed()) {
+//                                        "$waitTimes minutes"
+//                                    } else {
+//                                        "-"
+//                                    },
+//                                    style = TextStyle(
+//                                        fontWeight = FontWeight.SemiBold,
+//                                        fontSize = 16.sp
+//                                    ),
+//                                    color = Color.Black,
+//                                )
+//
+//
+//                            }
                         }
 
                         Spacer(

@@ -40,6 +40,10 @@ import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import java.time.LocalDate
 import java.time.ZoneId
 
+/**
+ * BottomSheet that allows the menu displayed to be switched to a future
+ * date.
+ */
 @Composable
 fun EateryMenusBottomSheet(
     onDismiss: () -> Unit,

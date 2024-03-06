@@ -29,6 +29,11 @@ import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import java.time.LocalDate
 import java.time.ZoneId
 
+/**
+ * Reusable UI component that displays today and the next six days
+ * Takes in an onClick function that takes in an integer (representing the
+ * index of the day that was clicked) and runs when a selected day is clicked
+ */
 @Composable
 fun CalendarWeekSelector(
     dayNames : List<String>,
