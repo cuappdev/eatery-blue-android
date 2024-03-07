@@ -12,7 +12,7 @@ enum class AppIcon {
 
 val iconMap = hashMapOf(
     AppIcon.DEFAULT to Pair(
-        "com.cornellappdev.android.eateryblue.MainActivityDefault",
+        "com.cornellappdev.android.eateryblue.MainActivity",
         R.drawable.ic_default_off
     ),
     AppIcon.BLUE to Pair(

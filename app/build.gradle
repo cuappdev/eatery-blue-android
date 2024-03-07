@@ -23,8 +23,8 @@ android {
         applicationId "com.cornellappdev.android.eateryblue"
         minSdk 33
         targetSdk 34
-        versionCode 63
-        versionName "2.0.1"
+        versionCode 64
+        versionName "release-2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
