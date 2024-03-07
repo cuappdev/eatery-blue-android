@@ -316,44 +316,46 @@ fun EateryDetailScreen(
                         )
                         Row(
                             modifier = Modifier
-                                .padding(vertical = 12.dp)
+                                .padding(top = 12.dp)
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
-                            Button(
-                                onClick = {
-                                    val getAppIntent =
-                                        context.packageManager.getLaunchIntentForPackage("com.cbord.get")
-                                    if (getAppIntent != null) {
-                                        getAppIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                                        context.startActivity(getAppIntent)
-                                    } else {
-                                        val openPlayIntent = Intent(Intent.ACTION_VIEW).apply {
-                                            data = Uri.parse(
-                                                "https://play.google.com/store/apps/details?id=com.cbord.get"
-                                            )
-                                            setPackage("com.android.vending")
+                            if (eatery.paymentAcceptsMealSwipes == false) {
+                                Button(
+                                    onClick = {
+                                        val getAppIntent =
+                                            context.packageManager.getLaunchIntentForPackage("com.cbord.get")
+                                        if (getAppIntent != null) {
+                                            getAppIntent.addCategory(Intent.CATEGORY_LAUNCHER)
+                                            context.startActivity(getAppIntent)
+                                        } else {
+                                            val openPlayIntent = Intent(Intent.ACTION_VIEW).apply {
+                                                data = Uri.parse(
+                                                    "https://play.google.com/store/apps/details?id=com.cbord.get"
+                                                )
+                                                setPackage("com.android.vending")
+                                            }
+                                            context.startActivity(openPlayIntent)
                                         }
-                                        context.startActivity(openPlayIntent)
-                                    }
-                                },
-                                shape = RoundedCornerShape(100),
-                                colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = EateryBlue, contentColor = Color.White
-                                )
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_android_phone),
-                                    contentDescription = "Phone - Order Online"
-                                )
-                                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                                Text(
-                                    modifier = Modifier.padding(vertical = 6.dp),
-                                    text = "Order online",
-                                    style = EateryBlueTypography.h5,
-                                    color = Color.White
-                                )
-                            }
+                                    },
+                                    shape = RoundedCornerShape(100),
+                                    colors = ButtonDefaults.buttonColors(
+                                        backgroundColor = EateryBlue, contentColor = Color.White
+                                    )
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_android_phone),
+                                        contentDescription = "Phone - Order Online"
+                                    )
+                                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                                    Text(
+                                        modifier = Modifier.padding(vertical = 6.dp),
+                                        text = "Order online",
+                                        style = EateryBlueTypography.h5,
+                                        color = Color.White
+                                    )
+                                }
+                        }
                             Button(
                                 onClick = {
                                     val mapIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -364,6 +366,7 @@ fun EateryDetailScreen(
                                     context.startActivity(mapIntent)
                                 },
                                 shape = RoundedCornerShape(100),
+                                modifier = if(eatery.paymentAcceptsMealSwipes == false) Modifier else Modifier.fillMaxWidth().padding(horizontal = 15.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor = GrayZero, contentColor = Color.Black
                                 )
@@ -388,7 +391,7 @@ fun EateryDetailScreen(
                             modifier = Modifier
                                 .height(IntrinsicSize.Min)
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 12.dp)
+                                .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
                                 .border(
                                     1.dp, GrayZero, RoundedCornerShape(8.dp)
                                 ),

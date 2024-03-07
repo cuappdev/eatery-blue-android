@@ -66,7 +66,7 @@ fun ProfileScreen(
                         )
                     ) {
                         Text(
-                            text = "Log In With Eatery",
+                            text = "Log in with Eatery",
                             color = EateryBlue,
                             style = EateryBlueTypography.h3
                         )

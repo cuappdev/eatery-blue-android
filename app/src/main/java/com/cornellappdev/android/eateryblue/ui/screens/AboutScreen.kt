@@ -291,7 +291,8 @@ fun CreditsRow(position: TeamPosition) {
                     Text(
                         text = teamNameMap[item]!!,
                         style = EateryBlueTypography.button,
-                        color = Color.Black
+                        color = Color.Black,
+                        modifier = Modifier.padding(start = 15.dp)
                     )
                 } else {
                     Box(

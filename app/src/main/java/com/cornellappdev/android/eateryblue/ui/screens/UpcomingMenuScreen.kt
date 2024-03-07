@@ -114,9 +114,9 @@ fun UpcomingMenuScreen(
         var dayName = ""
         when (it) {
             1 -> dayName = "Mon"
-            2 -> dayName = "Tues"
+            2 -> dayName = "Tue"
             3 -> dayName = "Wed"
-            4 -> dayName = "Thurs"
+            4 -> dayName = "Thu"
             5 -> dayName = "Fri"
             6 -> dayName = "Sat"
             7 -> dayName = "Sun"
@@ -309,13 +309,13 @@ fun UpcomingMenuScreen(
                                             }
 
                                         }
-                                        if (centralEateries.isNotEmpty()) {
+                                        if (westEateries.isNotEmpty()) {
                                             Text(
                                                 modifier = Modifier.padding(start = 6.dp),
-                                                text = "Central",
+                                                text = "West",
                                                 style = EateryBlueTypography.h4
                                             )
-                                            centralEateries.forEach { eatery ->
+                                            westEateries.forEach { eatery ->
                                                 MenuCard(
                                                     eatery = eatery,
                                                     day = selectedDay,
@@ -326,13 +326,13 @@ fun UpcomingMenuScreen(
                                             }
 
                                         }
-                                        if (westEateries.isNotEmpty()) {
+                                        if (centralEateries.isNotEmpty()) {
                                             Text(
                                                 modifier = Modifier.padding(start = 6.dp),
-                                                text = "West",
+                                                text = "Central",
                                                 style = EateryBlueTypography.h4
                                             )
-                                            westEateries.forEach { eatery ->
+                                            centralEateries.forEach { eatery ->
                                                 MenuCard(
                                                     eatery = eatery,
                                                     day = selectedDay,

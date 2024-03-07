@@ -213,7 +213,8 @@ fun EateryDetails(
                 Text(
                     text = "View Eatery Details",
                     color = Color.Black,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
+                    fontWeight = FontWeight.Bold
                 )
 
             }
