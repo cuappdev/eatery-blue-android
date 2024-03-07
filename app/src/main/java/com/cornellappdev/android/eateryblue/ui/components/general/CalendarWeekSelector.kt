@@ -1,7 +1,8 @@
 package com.cornellappdev.android.eateryblue.ui.components.general
 
-import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,9 +15,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,8 +24,6 @@ import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
-import java.time.LocalDate
-import java.time.ZoneId
 
 /**
  * Reusable UI component that displays today and the next six days
@@ -36,19 +32,24 @@ import java.time.ZoneId
  */
 @Composable
 fun CalendarWeekSelector(
-    dayNames : List<String>,
-    currSelectedDay:Int,
+    dayNames: List<String>,
+    currSelectedDay: Int,
     selectedDay: Int,
-    days : List<Int>,
-    onClick : (Int) -> Unit
+    days: List<Int>,
+    onClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 12.dp),
+            .then(modifier),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         for (i in 0..6) {
+            val size by animateFloatAsState(
+                targetValue = if (currSelectedDay == i) 1.0f else 0f,
+                label = "Circle Size"
+            )
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -63,11 +64,15 @@ fun CalendarWeekSelector(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .padding(vertical = 8.dp, horizontal = 8.dp)
-                        .clickable { onClick(i)}
+                        .padding(vertical = 8.dp)
+                        .clickable(
+                            indication = null,
+                            interactionSource = MutableInteractionSource()
+                        ) { onClick(i) }
+                        .size(34.dp)
                 ) {
                     Surface(
-                        modifier = Modifier.size(size = 34.dp),
+                        modifier = Modifier.size(size = (34 * size).dp),
                         color = when (i) {
                             currSelectedDay -> if (currSelectedDay == selectedDay) EateryBlue else GrayFive
                             else -> Color.Transparent
@@ -78,9 +83,9 @@ fun CalendarWeekSelector(
                     Text(
                         text = days[i].toString(),
                         color =
-                            if (i != currSelectedDay && i == selectedDay) EateryBlue
-                            else if ((i == currSelectedDay || i == selectedDay)) Color.White
-                            else Color.Black,
+                        if (i != currSelectedDay && i == selectedDay) EateryBlue
+                        else if ((i == currSelectedDay || i == selectedDay)) Color.White
+                        else Color.Black,
                         style = EateryBlueTypography.h6,
                         fontWeight = FontWeight.Normal,
                         textAlign = TextAlign.Center,

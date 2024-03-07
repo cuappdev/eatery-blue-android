@@ -69,13 +69,12 @@ fun EateryMenusBottomSheet(
         var dayName = ""
         when (it) {
             1 -> dayName = "Mon"
-            2 -> dayName = "Tues"
+            2 -> dayName = "Tue"
             3 -> dayName = "Wed"
-            4 -> dayName = "Thurs"
+            4 -> dayName = "Thu"
             5 -> dayName = "Fri"
             6 -> dayName = "Sat"
             7 -> dayName = "Sun"
-
         }
         dayNames.add(dayName)
     }
@@ -127,7 +126,8 @@ fun EateryMenusBottomSheet(
                 currSelectedDay = currSelectedDay,
                 selectedDay = selectedDay,
                 days = days,
-                onClick = {i -> currSelectedDay = i }
+                onClick = {i -> currSelectedDay = i },
+                modifier = Modifier.padding(bottom = 12.dp)
             )
 
             // Show menu and reset menu buttons
