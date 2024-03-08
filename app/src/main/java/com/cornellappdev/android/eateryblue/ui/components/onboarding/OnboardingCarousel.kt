@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -76,10 +77,10 @@ fun OnboardingCarousel(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(),
+                .fillMaxHeight()
+                .systemBarsPadding(),
             verticalArrangement = Arrangement.Top
         ) {
-
             HorizontalPager(
                 count = 6, state = headerPagerState, userScrollEnabled = false
             ) { page ->
@@ -91,7 +92,6 @@ fun OnboardingCarousel(
             }
 
             Box {
-
                 HorizontalPager(
                     count = 6,
                     modifier = Modifier
