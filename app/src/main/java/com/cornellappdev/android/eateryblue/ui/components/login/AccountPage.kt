@@ -430,7 +430,7 @@ fun AccountBalanceRow(
                 )
             } else {
                 "%.0f".format(
-                    loginViewModel.checkMealPlan()?.balance ?: 0
+                    loginViewModel.checkMealPlan()?.balance?.toFloat() ?: 0f
                 ) + " remaining"
             },
             style = EateryBlueTypography.button,
