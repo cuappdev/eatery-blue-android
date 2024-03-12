@@ -46,7 +46,7 @@ class EateryDetailViewModel @Inject constructor(
      * A flow emitting the meal that the user has expressly selected, or null if the user hasn't
      * yet selected anything, in which case we should refer to [_curMeal].
      */
-    private val _userSelectedMeal: MutableStateFlow<Event?> = MutableStateFlow(null)
+    private lateinit var _userSelectedMeal: MutableStateFlow<Event?>
 
     /**
      * A flow emitting the meal to show to the user. You can assume this will not be null if
@@ -76,6 +76,8 @@ class EateryDetailViewModel @Inject constructor(
         _curMeal = eateryFlow.map { eateryApiResponse ->
             null
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+        _userSelectedMeal = MutableStateFlow(null)
 
         mealToShow = _curMeal.combine(_userSelectedMeal) { curr, userSelected ->
             curr
