@@ -16,7 +16,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -41,19 +40,19 @@ class EateryDetailViewModel @Inject constructor(
      * A flow emitting the current or nearest meal of the selected eatery. You may assume this flow
      * is non-null if [eateryFlow] is emitting [EateryApiResponse.Success].
      */
-    private lateinit var _curMeal : StateFlow<Event?>
+    private lateinit var _curMeal: StateFlow<Event?>
 
     /**
      * A flow emitting the meal that the user has expressly selected, or null if the user hasn't
      * yet selected anything, in which case we should refer to [_curMeal].
      */
-    private val _userSelectedMeal : MutableStateFlow<Event?> = MutableStateFlow(null)
+    private val _userSelectedMeal: MutableStateFlow<Event?> = MutableStateFlow(null)
 
     /**
      * A flow emitting the meal to show to the user. You can assume this will not be null if
      * [eateryFlow] is emitting [EateryApiResponse.Success].
      */
-    lateinit var mealToShow : StateFlow<Event?>
+    lateinit var mealToShow: StateFlow<Event?>
 
     // TODO: This sux lol lets change it to a flow somehow, probably like lateinit
     var isFavorite by mutableStateOf(false)
@@ -78,8 +77,8 @@ class EateryDetailViewModel @Inject constructor(
             null
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
-        mealToShow = _curMeal.combine(_userSelectedMeal) {
-                curr, userSelected -> curr
+        mealToShow = _curMeal.combine(_userSelectedMeal) { curr, userSelected ->
+            curr
             // TODO: Implement the flow combine. (It's just emitting curr right now so it compiles)
             //  When userSelected is non null, emit that. Otherwise, default to emitting the current meal.
             //  This is the flow that we'll actually use to tell the screen which meal to show.
