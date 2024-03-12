@@ -13,6 +13,8 @@ import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRep
 import com.cornellappdev.android.eateryblue.data.repositories.UserRepository
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,7 +36,7 @@ class EateryDetailViewModel @Inject constructor(
         openEatery(eateryId)
     }
 
-    fun openEatery(eateryId: Int) {
+    private fun openEatery(eateryId: Int) {
         // Technically, this isn't using the Flow architecture correctly, but it's safe to assume
         //  this will work since this screen is only accessible after eatery info is loaded.
         eatery = eateryRepository.getEateryState(eateryId)
@@ -48,5 +50,13 @@ class EateryDetailViewModel @Inject constructor(
 
     fun sendReport(issue: String, report: String, eateryid: Int?) = viewModelScope.launch {
         userRepository.sendReport(issue, report, eateryid)
+    }
+
+
+    private val _curMeal = MutableStateFlow(getCurMeal())
+    val curMeal = _curMeal.asStateFlow()
+
+    fun getCurMeal(){
+
     }
 }
