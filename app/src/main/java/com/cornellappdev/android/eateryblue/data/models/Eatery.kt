@@ -123,6 +123,15 @@ data class Eatery(
         }
     }
 
+    fun getCurrentDisplayedEvent(): Event {
+        val now = LocalDateTime.now()
+        val todayEvents = getTodaysEvents()
+        val currentEvent = todayEvents.find { event ->
+            (event.startTime?.isBefore(now) ?: true) && (event.endTime?.isAfter(now) ?: true)
+        }
+        return currentEvent ?: todayEvents.find { it.startTime?.isAfter(now) ?: true } ?: todayEvents.last()
+    }
+
     fun getSelectedDayMeal(meal: MealFilter, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())

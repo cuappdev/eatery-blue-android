@@ -8,6 +8,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eateryblue.data.models.Eatery
+import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.data.repositories.EateryRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eateryblue.data.repositories.UserRepository
@@ -16,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,11 +54,12 @@ class EateryDetailViewModel @Inject constructor(
         userRepository.sendReport(issue, report, eateryid)
     }
 
+    private val eateryInstance = (eatery.value as? EateryApiResponse.Success)?.data
 
     private val _curMeal = MutableStateFlow(getCurMeal())
-    val curMeal = _curMeal.asStateFlow()
+    var curMeal = _curMeal.asStateFlow()
 
-    fun getCurMeal(){
-
+    private fun getCurMeal() : Event?{
+        return eateryInstance?.getCurrentDisplayedEvent()
     }
 }

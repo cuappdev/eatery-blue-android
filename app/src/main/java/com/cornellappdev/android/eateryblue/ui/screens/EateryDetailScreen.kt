@@ -53,6 +53,7 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -366,7 +367,9 @@ fun EateryDetailScreen(
                                     context.startActivity(mapIntent)
                                 },
                                 shape = RoundedCornerShape(100),
-                                modifier = if(eatery.paymentAcceptsMealSwipes == false) Modifier else Modifier.fillMaxWidth().padding(horizontal = 15.dp),
+                                modifier = if(eatery.paymentAcceptsMealSwipes == false) Modifier else Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 15.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor = GrayZero, contentColor = Color.Black
                                 )
@@ -506,10 +509,10 @@ fun EateryDetailScreen(
                                 .background(GrayZero)
                         )
 
-                        val nextEvent: Event? = eatery.getCurrentEvent()
+                        val nextEvent by eateryDetailViewModel.curMeal.collectAsState()
                         if (nextEvent != null) {
                             sheetContent = BottomSheetContent.HOURS
-                            EateryMenuWidget(event = nextEvent, hoursOnClick = {
+                            EateryMenuWidget(event = nextEvent!!, hoursOnClick = {
                                 sheetContent = BottomSheetContent.MENUS
                                 coroutineScope.launch {
                                     modalBottomSheetState.show()
