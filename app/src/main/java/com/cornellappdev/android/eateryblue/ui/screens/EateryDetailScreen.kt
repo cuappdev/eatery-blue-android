@@ -2,8 +2,6 @@ package com.cornellappdev.android.eateryblue.ui.screens
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
-import android.view.Gravity
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -31,11 +29,9 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -45,7 +41,6 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Star
@@ -70,24 +65,17 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.DialogWindowProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
-import com.cornellappdev.android.eateryblue.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
 import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
@@ -112,9 +100,7 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiRespons
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -134,7 +120,7 @@ fun EateryDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
 
-    when (val eateryApiResponse = eateryDetailViewModel.eatery.value) {
+    when (val eateryApiResponse = eateryDetailViewModel.eateryFlow.collectAsState().value) {
         is EateryApiResponse.Pending -> {
             EateryDetailLoadingScreen(shimmer)
         }
@@ -509,7 +495,7 @@ fun EateryDetailScreen(
                                 .background(GrayZero)
                         )
 
-                        val nextEvent by eateryDetailViewModel.curMeal.collectAsState()
+                        val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
                         if (nextEvent != null) {
                             sheetContent = BottomSheetContent.HOURS
                             EateryMenuWidget(event = nextEvent!!, hoursOnClick = {
