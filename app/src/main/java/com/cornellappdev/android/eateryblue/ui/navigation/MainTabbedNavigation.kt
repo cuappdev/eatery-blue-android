@@ -29,6 +29,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.cornellappdev.android.eateryblue.ui.components.general.EateryUpdateDialog
 import com.cornellappdev.android.eateryblue.ui.screens.AboutScreen
 import com.cornellappdev.android.eateryblue.ui.screens.EateryDetailScreen
 import com.cornellappdev.android.eateryblue.ui.screens.FavoritesScreen
@@ -112,6 +113,7 @@ fun NavigationSetup(hasOnboarded: Boolean) {
             showBottomBar = showBottomBar
         )
     }
+    EateryUpdateDialog()
 }
 
 @Composable

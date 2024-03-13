@@ -62,6 +62,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.ui.components.general.EateryCard
+import com.cornellappdev.android.eateryblue.ui.components.general.EateryUpdateDialog
 import com.cornellappdev.android.eateryblue.ui.components.general.Filter
 import com.cornellappdev.android.eateryblue.ui.components.general.FilterRow
 import com.cornellappdev.android.eateryblue.ui.components.general.NoEateryFound
