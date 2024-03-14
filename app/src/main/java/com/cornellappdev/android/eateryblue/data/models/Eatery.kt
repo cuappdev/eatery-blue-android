@@ -152,7 +152,6 @@ data class Eatery(
             it.description.equals(mealDescription, ignoreCase = true) &&
                     (it.startTime?.toLocalDate()?.isEqual(targetDate) == true)
         }
-        Log.d("ans", ans.toString())
         return ans
     }
 
@@ -200,7 +199,7 @@ data class Eatery(
     fun getSelectedDayMeal(meal: MealFilter, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())
-        Log.d(name, events?.filter { currentDay.dayOfYear == it.startTime?.dayOfYear }.toString())
+//        Log.d(name, events?.filter { currentDay.dayOfYear == it.startTime?.dayOfYear }.toString())
         return events?.filter { event ->
             currentDay.dayOfYear == event.startTime?.dayOfYear && meal.text.contains(event.description)
         }
@@ -296,7 +295,7 @@ data class Eatery(
             val dayOfWeek = event.startTime?.dayOfWeek
             val openTime = event.startTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
             val closeTime = event.endTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
-            Log.d("event", event.toString())
+//            Log.d("event", event.toString())
 
             val timeString = "$openTime - $closeTime"
 

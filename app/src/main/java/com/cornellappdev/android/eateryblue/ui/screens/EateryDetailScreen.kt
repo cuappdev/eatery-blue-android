@@ -2,7 +2,6 @@ package com.cornellappdev.android.eateryblue.ui.screens
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -201,7 +200,6 @@ fun EateryDetailScreen(
                                     )
                                     weekDayIndex = dayIndex
                                     mealType = mealTypeIndex
-//                                    Log.d("haha","$dayIndex" + mealDescription)
                                 },
                                 onResetClick = {
                                     weekDayIndex = 0

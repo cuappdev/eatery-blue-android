@@ -107,11 +107,20 @@ class EateryDetailViewModel @Inject constructor(
     // TODO: Make function to allow user to select an event. When they do that, emit that event down
     //  _userSelectedMeal.
 
-    //note, meal swipes or based on event
+    /**
+     * changes the value of _userSelectedMeal based on eatery, dayIndex, and mealDescription
+     *
+     * @param eatery the current eatery that eatery detail is displaying
+     * @param dayIndex the index of the selected day, today is 0, tomorrow is 1, and so on
+     * @param mealDescription, e.g. "lunch", "dinner", etc
+     */
     fun selectEvent(eatery: Eatery, dayIndex: Int, mealDescription: String) {
         _userSelectedMeal.value = eatery.getSelectedEvent(dayIndex, mealDescription)
     }
 
+    /**
+     * resets the value of _userSelectedMeal to null
+     */
     fun resetSelectedEvent(){
         _userSelectedMeal.value = null
     }

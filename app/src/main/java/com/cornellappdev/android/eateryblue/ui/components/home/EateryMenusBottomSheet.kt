@@ -1,12 +1,10 @@
 package com.cornellappdev.android.eateryblue.ui.components.home
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -62,8 +60,6 @@ fun EateryMenusBottomSheet(
     val zoneId: ZoneId? = ZoneId.of("America/New_York")
     val today = LocalDate.now(zoneId)
     val currentDay by remember { mutableStateOf(today) }
-//    Log.d("current day", currentDay.dayOfWeek.value.toString())
-//    Log.d("current day2", currentDay.dayOfMonth.toString())
     val dayWeek: Int = currentDay.dayOfWeek.value
     val dayNum: Int = currentDay.dayOfMonth
     val dayNames = mutableListOf<String>()
@@ -75,7 +71,6 @@ fun EateryMenusBottomSheet(
         dayWeeks.add(currentDay.plusDays(i.toLong()).dayOfWeek.value)
         days.add(currentDay.plusDays(i.toLong()).dayOfMonth)
     }
-//    Log.d("list for cal", dayWeeks.toList().toString())
     dayWeeks.forEach {
         var dayName = ""
         when (it) {
@@ -93,7 +88,6 @@ fun EateryMenusBottomSheet(
     var currSelectedDay by remember { mutableStateOf(selectedDay) }
 
     val closedDays: List<DayOfWeek> = eatery.getClosedDays()
-    Log.d("closed days", closedDays.toString())
     val closedDaysStrings: List<String> = closedDays.map { dayOfWeek ->
         when (dayOfWeek.value) {
             1 -> "Mon"
