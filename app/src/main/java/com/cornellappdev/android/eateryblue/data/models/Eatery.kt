@@ -80,7 +80,7 @@ data class Eatery(
     }
 
 
-    fun getTodaysEvents(): List<Event> {
+    private fun getTodaysEvents(): List<Event> {
         val currentTime = LocalDateTime.now()
         if (events.isNullOrEmpty())
             return listOf()
@@ -145,10 +145,15 @@ data class Eatery(
      * @param dayIndex, the index of the selected day, today is 0, tomorrow is 1, and so on
      * @param mealDescription, e.g. "lunch", "dinner", etc
      */
-    fun getSelectedEvent(dayIndex: Int, mealDescription : String) : Event?{
-        //todo
-        val todayEvents = getTodaysEvents()
-        return todayEvents.find { true }
+    fun getSelectedEvent(dayIndex: Int, mealDescription: String): Event? {
+        val targetDate = LocalDate.now().plusDays(dayIndex.toLong())
+
+        val ans = events?.find {
+            it.description.equals(mealDescription, ignoreCase = true) &&
+                    (it.startTime?.toLocalDate()?.isEqual(targetDate) == true)
+        }
+        Log.d("ans", ans.toString())
+        return ans
     }
 
     /**
@@ -291,7 +296,7 @@ data class Eatery(
             val dayOfWeek = event.startTime?.dayOfWeek
             val openTime = event.startTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
             val closeTime = event.endTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
-//            Log.d("event", event.toString())
+            Log.d("event", event.toString())
 
             val timeString = "$openTime - $closeTime"
 

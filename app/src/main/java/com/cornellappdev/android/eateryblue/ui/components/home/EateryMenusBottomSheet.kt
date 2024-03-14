@@ -53,7 +53,8 @@ import java.time.ZoneId
 @Composable
 fun EateryMenusBottomSheet(
     onDismiss: () -> Unit,
-    eatery: Eatery
+    eatery: Eatery,
+    onShowMenuClick : (Int,String) -> Unit
 ) {
     val zoneId: ZoneId? = ZoneId.of("America/New_York")
     val today = LocalDate.now(zoneId)
@@ -215,6 +216,7 @@ fun EateryMenusBottomSheet(
                 Button(
                     onClick = {
                         selectedDay = currSelectedDay
+                        onShowMenuClick(currSelectedDay,selectedMealType)
                         onDismiss()
                     },
                     modifier = Modifier

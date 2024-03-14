@@ -2,6 +2,7 @@ package com.cornellappdev.android.eateryblue.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -186,7 +187,11 @@ fun EateryDetailScreen(
                                         modalBottomSheetState.hide()
                                     }
                                 },
-                                eatery = eatery
+                                eatery = eatery,
+                                onShowMenuClick = {dayIndex,mealDescription ->
+                                    eateryDetailViewModel.selectEvent(eatery,dayIndex,mealDescription)
+                                    Log.d("haha","$dayIndex" + mealDescription)
+                                }
                             )
                         }
 
