@@ -184,7 +184,7 @@ fun EateryDetailScreen(
                         }
 
                         BottomSheetContent.MENUS -> {
-                            EateryMenusBottomSheet(
+                            EateryMenusBottomSheet (
                                 weekDayIndex = weekDayIndex,
                                 mealType = mealType,
                                 onDismiss = {
@@ -193,12 +193,8 @@ fun EateryDetailScreen(
                                     }
                                 },
                                 eatery = eatery,
-                                onShowMenuClick = { dayIndex, mealDescription, mealTypeIndex ->
-                                    eateryDetailViewModel.selectEvent(
-                                        eatery,
-                                        dayIndex,
-                                        mealDescription
-                                    )
+                                onShowMenuClick = {dayIndex,mealDescription,mealTypeIndex ->
+                                    eateryDetailViewModel.selectEvent(eatery,dayIndex,mealDescription)
                                     weekDayIndex = dayIndex
                                     mealType = mealTypeIndex
 //                                    Log.d("haha","$dayIndex" + mealDescription)
@@ -360,7 +356,7 @@ fun EateryDetailScreen(
                                         color = Color.White
                                     )
                                 }
-                            }
+                        }
                             Button(
                                 onClick = {
                                     val mapIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -371,7 +367,7 @@ fun EateryDetailScreen(
                                     context.startActivity(mapIntent)
                                 },
                                 shape = RoundedCornerShape(100),
-                                modifier = if (eatery.paymentAcceptsMealSwipes == false) Modifier else Modifier
+                                modifier = if(eatery.paymentAcceptsMealSwipes == false) Modifier else Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 15.dp),
                                 colors = ButtonDefaults.buttonColors(
@@ -520,8 +516,7 @@ fun EateryDetailScreen(
                                 sheetContent = BottomSheetContent.MENUS
                                 coroutineScope.launch {
                                     modalBottomSheetState.show()
-                                }
-                            })
+                                }})
                         }
 
 
@@ -668,7 +663,7 @@ fun AlertsSection(eatery: Eatery) {
 @Composable
 fun EateryMenuWidget(
     event: Event,
-    hoursOnClick: () -> Unit
+    hoursOnClick : () -> Unit
 ) {
     rememberCoroutineScope()
 

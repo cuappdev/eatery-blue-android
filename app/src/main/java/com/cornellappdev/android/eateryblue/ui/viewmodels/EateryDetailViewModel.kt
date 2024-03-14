@@ -76,11 +76,11 @@ class EateryDetailViewModel @Inject constructor(
         //  is tied to [eatery] and constantly emits its current meal.
         //  You'll probably want to use your [eatery.getCurrentDisplayedEvent()] from before.
         _curMeal = eateryFlow.map { eateryApiResponse ->
-            when (eateryApiResponse) {
+            when(eateryApiResponse){
                 is EateryApiResponse.Success -> eateryApiResponse.data.getCurrentDisplayedEvent()
-                is EateryApiResponse.Pending -> null
-                is EateryApiResponse.Error -> null
-            }
+                is EateryApiResponse.Pending ->null
+                is EateryApiResponse.Error ->null
+        }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
         _userSelectedMeal = MutableStateFlow(null)
@@ -108,7 +108,7 @@ class EateryDetailViewModel @Inject constructor(
     //  _userSelectedMeal.
 
     //note, meal swipes or based on event
-    fun selectEvent(eatery: Eatery, dayIndex: Int, mealDescription: String) {
-        _userSelectedMeal.value = eatery.getSelectedEvent(dayIndex, mealDescription)
+    fun selectEvent(eatery: Eatery, dayIndex : Int, mealDescription : String){
+        _userSelectedMeal.value = eatery.getSelectedEvent(dayIndex,mealDescription)
     }
 }

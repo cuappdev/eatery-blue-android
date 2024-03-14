@@ -135,8 +135,7 @@ data class Eatery(
         val currentEvent = todayEvents.find { event ->
             (event.startTime?.isBefore(now) ?: true) && (event.endTime?.isAfter(now) ?: true)
         }
-        return currentEvent ?: todayEvents.find { it.startTime?.isAfter(now) ?: true }
-        ?: todayEvents.last()
+        return currentEvent ?: todayEvents.find { it.startTime?.isAfter(now) ?: true } ?: todayEvents.last()
     }
 
 
@@ -176,12 +175,8 @@ data class Eatery(
                 val description = event.description
                 val startTime = event.startTime
                 val endTime = event.endTime
-                if (description != null && startTime != null && endTime != null && !uniqueMeals.containsKey(
-                        description
-                    )
-                ) {
-                    val durationString =
-                        "${startTime.format(timeFormatter)} - ${endTime.format(timeFormatter)}"
+                if (description != null && startTime != null && endTime != null && !uniqueMeals.containsKey(description)) {
+                    val durationString = "${startTime.format(timeFormatter)} - ${endTime.format(timeFormatter)}"
                     uniqueMeals[description] = durationString
                 }
             }
@@ -294,7 +289,7 @@ data class Eatery(
      *
      * e.g. For Oken, {Monday -> ["11:00 AM - 2:30 PM", "4:30 PM - 9:00 PM"], Sunday -> "Closed"}
      */
-    private fun operatingHours(): Map<DayOfWeek, MutableList<String>> {
+    private fun operatingHours() : Map<DayOfWeek, MutableList<String>>{
         var dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
 
         events?.forEach { event ->
