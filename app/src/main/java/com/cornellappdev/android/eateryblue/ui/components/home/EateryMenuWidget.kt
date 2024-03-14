@@ -83,87 +83,87 @@ fun EateryMenuWidget(
             )
         }
     }
+    if(event.menu != null && event.menu.size > 0){
+        Column(modifier = Modifier.padding(vertical = 12.dp)) {
+            SearchBar(searchText = filterText,
+                onSearchTextChange = { filterText = it },
+                placeholderText = "Search the menu...",
+                modifier = Modifier.padding(horizontal = 16.dp),
+                onCancelClicked = {
+                    filterText = ""
+                })
+            Spacer(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(GrayZero, CircleShape)
+            )
 
-    Column(modifier = Modifier.padding(vertical = 12.dp)) {
-        SearchBar(searchText = filterText,
-            onSearchTextChange = { filterText = it },
-            placeholderText = "Search the menu...",
-            modifier = Modifier.padding(horizontal = 16.dp),
-            onCancelClicked = {
-                filterText = ""
-            })
+            event.menu?.forEachIndexed { categoryIndex, category ->
+                val filteredItems =
+                    category.items?.filter {
+                        it.name?.contains(filterText, true)
+                            ?: false
+                    }
+                if (filteredItems.isNullOrEmpty())
+                    return@forEachIndexed
+                Text(
+                    text = category.category ?: "Category",
+                    style = EateryBlueTypography.h5,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                )
+                filteredItems.forEachIndexed { index, menuItem ->
+                    Column(
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 16.dp,
+                            )
+                            .fillMaxWidth()
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
+                        ) {
+                            Text(
+                                text = menuItem.name ?: "Item Name",
+                                style = EateryBlueTypography.button,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            if (category.items.lastIndex != index) {
+                                Spacer(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(GrayZero, CircleShape)
+                                )
+                            }
+                        }
+
+                    }
+                }
+                if (categoryIndex != event.menu!!.lastIndex) {
+                    Divider(
+                        color = GrayZero,
+                        modifier = Modifier
+                            .height(10.dp)
+                    )
+                }
+            }
+        }
+
         Spacer(
             modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth()
                 .height(1.dp)
                 .background(GrayZero, CircleShape)
         )
-
-        event.menu?.forEachIndexed { categoryIndex, category ->
-            val filteredItems =
-                category.items?.filter {
-                    it.name?.contains(filterText, true)
-                        ?: false
-                }
-            if (filteredItems.isNullOrEmpty())
-                return@forEachIndexed
-            Text(
-                text = category.category ?: "Category",
-                style = EateryBlueTypography.h5,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-            )
-            filteredItems.forEachIndexed { index, menuItem ->
-                Column(
-                    modifier = Modifier
-                        .padding(
-                            horizontal = 16.dp,
-                        )
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
-                    ) {
-                        Text(
-                            text = menuItem.name ?: "Item Name",
-                            style = EateryBlueTypography.button,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    Row(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        if (category.items.lastIndex != index) {
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(GrayZero, CircleShape)
-                            )
-                        }
-                    }
-
-                }
-            }
-            if (categoryIndex != event.menu!!.lastIndex) {
-                Divider(
-                    color = GrayZero,
-                    modifier = Modifier
-                        .height(10.dp)
-                )
-            }
-        }
     }
-
-    Spacer(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(GrayZero, CircleShape)
-    )
-
     //todo this composable is never referenced, get rid of this??
 //    @Composable
 //    fun ReportButtonEateryDetails() {
