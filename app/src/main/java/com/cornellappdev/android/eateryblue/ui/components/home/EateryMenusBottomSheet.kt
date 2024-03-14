@@ -52,11 +52,11 @@ import java.time.ZoneId
  */
 @Composable
 fun EateryMenusBottomSheet(
-    weekDayIndex : Int,
-    mealType : Int,
+    weekDayIndex: Int,
+    mealType: Int,
     onDismiss: () -> Unit,
     eatery: Eatery,
-    onShowMenuClick : (Int,String,Int) -> Unit,
+    onShowMenuClick: (Int, String, Int) -> Unit,
 //    onResetClick: (Int) -> Unit
 ) {
     val zoneId: ZoneId? = ZoneId.of("America/New_York")
@@ -92,7 +92,7 @@ fun EateryMenusBottomSheet(
     var selectedDay by remember { mutableStateOf(weekDayIndex) }
     var currSelectedDay by remember { mutableStateOf(selectedDay) }
 
-    val closedDays :List<DayOfWeek> = eatery.getClosedDays()
+    val closedDays: List<DayOfWeek> = eatery.getClosedDays()
     Log.d("closed days", closedDays.toString())
     val closedDaysStrings: List<String> = closedDays.map { dayOfWeek ->
         when (dayOfWeek.value) {
@@ -108,7 +108,7 @@ fun EateryMenusBottomSheet(
     }
 
     val selectedDayOfWeek = DayOfWeek.of(dayWeeks[currSelectedDay])
-    val mealTypes : List<Pair<String, String>>?= eatery.getTypeMeal(selectedDayOfWeek)
+    val mealTypes: List<Pair<String, String>>? = eatery.getTypeMeal(selectedDayOfWeek)
     var selectedMealType by remember {
         mutableStateOf(mealTypes?.get(mealType)?.first ?: "")
     }
@@ -158,10 +158,10 @@ fun EateryMenusBottomSheet(
                 currSelectedDay = currSelectedDay,
                 selectedDay = selectedDay,
                 days = days,
-                onClick = {
-                            i -> currSelectedDay = i
-                            selectedMealType = mealTypes?.firstOrNull()?.first ?: ""
-                          },
+                onClick = { i ->
+                    currSelectedDay = i
+                    selectedMealType = mealTypes?.firstOrNull()?.first ?: ""
+                },
                 modifier = Modifier.padding(bottom = 12.dp),
                 closedDays = closedDaysStrings
             )
@@ -169,14 +169,29 @@ fun EateryMenusBottomSheet(
 //            Spacer(modifier = Modifier.height(12.dp))
 
             //display of possible meal descriptions (none for cafes)
-            Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp).fillMaxWidth()) {
+            Column(modifier = Modifier
+                .padding(top = 12.dp, bottom = 12.dp)
+                .fillMaxWidth()) {
                 if (mealTypes != null && mealTypes.size > 1) {
                     mealTypes?.forEach { (description, duration) ->
                         if (description != null && duration != null) {
-                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = description, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                                    Text(text = duration, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                                    Text(
+                                        text = description,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Black
+                                    )
+                                    Text(
+                                        text = duration,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Gray
+                                    )
                                 }
                                 IconButton(onClick = { selectedMealType = description }) {
                                     if (selectedMealType == description) {
@@ -222,7 +237,10 @@ fun EateryMenusBottomSheet(
                     onClick = {
                         selectedDay = currSelectedDay
                         if (mealTypes != null) {
-                            onShowMenuClick(currSelectedDay, selectedMealType, mealTypes.indexOfFirst { it.first == selectedMealType })
+                            onShowMenuClick(
+                                currSelectedDay,
+                                selectedMealType,
+                                mealTypes.indexOfFirst { it.first == selectedMealType })
                         }
                         onDismiss()
                     },

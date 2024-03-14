@@ -219,13 +219,13 @@ fun UpcomingMenuScreen(
                         var today by remember { mutableStateOf(weekDayIndex) }
                         Box(
                             modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                        ){
+                        ) {
                             CalendarWeekSelector(
                                 dayNames = dayNames,
                                 currSelectedDay = selectedDay,
                                 selectedDay = today,
                                 days = days,
-                                onClick = {i -> selectedDay = i },
+                                onClick = { i -> selectedDay = i },
                                 closedDays = null
                             )
                         }
