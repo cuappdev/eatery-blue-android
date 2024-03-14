@@ -152,13 +152,31 @@ data class Eatery(
     }
 
     /**
-     * @returns the list of mealDescription of one eatery on one day based on chronological order
-     * e.g. for Oken on Mondays, it would return ["Lunch","Dinner"]
-     *
-     * note, for cafes, it would just return ["Open"], for louies, it returns ["General"]
+     * @returns the association list of mealDescription of one eatery on one day based
+     * on chronological order and the duration of that particular meal
+     * e.g. for Oken on Mondays, it would return
+     * [("Lunch", some string duration),("Dinner", some string duration)]
+     * note, for cafes, it would just return [("Open",some string duration)],
+     * for louies, it returns [("General",some string duration)]
+     * Note, string duration are in the format "11:00 AM - 2:30 PM"
      */
-    fun getTypeMeal(currSelectedDay : DayOfWeek) : List<String?>? {
-        return events?.filter { it.startTime?.dayOfWeek  == currSelectedDay}?.groupBy { it.description }?.keys?.toList() ?: null
+    fun getTypeMeal(currSelectedDay: DayOfWeek): List<Pair<String, String>>? {
+        val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
+
+        val uniqueMeals = LinkedHashMap<String, String>()
+
+        events?.filter { it.startTime?.dayOfWeek == currSelectedDay }
+            ?.forEach { event ->
+                val description = event.description
+                val startTime = event.startTime
+                val endTime = event.endTime
+                if (description != null && startTime != null && endTime != null && !uniqueMeals.containsKey(description)) {
+                    val durationString = "${startTime.format(timeFormatter)} - ${endTime.format(timeFormatter)}"
+                    uniqueMeals[description] = durationString
+                }
+            }
+
+        return uniqueMeals.toList()
     }
 
     /**

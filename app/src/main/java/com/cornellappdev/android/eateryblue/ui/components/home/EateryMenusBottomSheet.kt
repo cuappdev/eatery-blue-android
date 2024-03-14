@@ -2,8 +2,11 @@ package com.cornellappdev.android.eateryblue.ui.components.home
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,6 +21,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +40,7 @@ import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -99,6 +104,12 @@ fun EateryMenusBottomSheet(
         }
     }
 
+    val selectedDayOfWeek = DayOfWeek.of(dayWeeks[currSelectedDay])
+    val mealTypes : List<Pair<String, String>>?= eatery.getTypeMeal(selectedDayOfWeek)
+    var selectedMealType by remember {
+        mutableStateOf(mealTypes?.firstOrNull()?.first ?: "")
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
@@ -149,20 +160,52 @@ fun EateryMenusBottomSheet(
                 closedDays = closedDaysStrings
             )
 
+//            Spacer(modifier = Modifier.height(12.dp))
+
             //display of possible meal descriptions (none for cafes)
-            Column {
-                val selectedDayOfWeek = DayOfWeek.of(dayWeeks[currSelectedDay])
-                val mealTypes : List<String?>?= eatery.getTypeMeal(selectedDayOfWeek)
+            Column(modifier = Modifier.padding(top = 12.dp, bottom = 12.dp).fillMaxWidth()) {
                 if (mealTypes != null && mealTypes.size > 1) {
-                    mealTypes?.forEach { description ->
-                        if (description != null) {
-                            Row(Modifier.padding(8.dp)) {
-                                Text(text = description)
+                    mealTypes?.forEach { (description, duration) ->
+                        if (description != null && duration != null) {
+                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(text = description, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                                    Text(text = duration, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.Gray)
+                                }
+                                IconButton(onClick = { selectedMealType = description }) {
+                                    if (selectedMealType == description) {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .background(Color.Black, CircleShape)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "Selected",
+                                                tint = Color.White
+                                            )
+                                        }
+                                    } else {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier
+                                                .size(24.dp)
+                                                .background(Color.White, CircleShape)
+                                                .border(2.dp, Color.Black, CircleShape)
+                                        ) {
+                                        }
+                                    }
+                                }
+
                             }
                         }
                     }
                 }
             }
+
+
+//            Spacer(modifier = Modifier.height(12.dp))
 
             // Show menu and reset menu buttons
             Column(
