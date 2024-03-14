@@ -121,6 +121,9 @@ fun EateryDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
 
+    var weekDayIndex by remember { mutableStateOf(0) }
+    var mealType by remember { mutableStateOf(0) }
+
     when (val eateryApiResponse = eateryDetailViewModel.eateryFlow.collectAsState().value) {
         is EateryApiResponse.Pending -> {
             EateryDetailLoadingScreen(shimmer)
@@ -182,16 +185,21 @@ fun EateryDetailScreen(
 
                         BottomSheetContent.MENUS -> {
                             EateryMenusBottomSheet (
+                                weekDayIndex = weekDayIndex,
+                                mealType = mealType,
                                 onDismiss = {
                                     coroutineScope.launch {
                                         modalBottomSheetState.hide()
                                     }
                                 },
                                 eatery = eatery,
-                                onShowMenuClick = {dayIndex,mealDescription ->
+                                onShowMenuClick = {dayIndex,mealDescription,mealTypeIndex ->
                                     eateryDetailViewModel.selectEvent(eatery,dayIndex,mealDescription)
-                                    Log.d("haha","$dayIndex" + mealDescription)
-                                }
+                                    weekDayIndex = dayIndex
+                                    mealType = mealTypeIndex
+//                                    Log.d("haha","$dayIndex" + mealDescription)
+                                },
+//                                onResetClick = {}
                             )
                         }
 

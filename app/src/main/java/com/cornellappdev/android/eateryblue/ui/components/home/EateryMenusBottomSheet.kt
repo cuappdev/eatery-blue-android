@@ -52,15 +52,18 @@ import java.time.ZoneId
  */
 @Composable
 fun EateryMenusBottomSheet(
+    weekDayIndex : Int,
+    mealType : Int,
     onDismiss: () -> Unit,
     eatery: Eatery,
-    onShowMenuClick : (Int,String) -> Unit
+    onShowMenuClick : (Int,String,Int) -> Unit,
+//    onResetClick: (Int) -> Unit
 ) {
     val zoneId: ZoneId? = ZoneId.of("America/New_York")
     val today = LocalDate.now(zoneId)
     val currentDay by remember { mutableStateOf(today) }
-    Log.d("current day", currentDay.dayOfWeek.value.toString())
-    Log.d("current day2", currentDay.dayOfMonth.toString())
+//    Log.d("current day", currentDay.dayOfWeek.value.toString())
+//    Log.d("current day2", currentDay.dayOfMonth.toString())
     val dayWeek: Int = currentDay.dayOfWeek.value
     val dayNum: Int = currentDay.dayOfMonth
     val dayNames = mutableListOf<String>()
@@ -86,7 +89,6 @@ fun EateryMenusBottomSheet(
         }
         dayNames.add(dayName)
     }
-    val weekDayIndex = 0
     var selectedDay by remember { mutableStateOf(weekDayIndex) }
     var currSelectedDay by remember { mutableStateOf(selectedDay) }
 
@@ -108,7 +110,7 @@ fun EateryMenusBottomSheet(
     val selectedDayOfWeek = DayOfWeek.of(dayWeeks[currSelectedDay])
     val mealTypes : List<Pair<String, String>>?= eatery.getTypeMeal(selectedDayOfWeek)
     var selectedMealType by remember {
-        mutableStateOf(mealTypes?.firstOrNull()?.first ?: "")
+        mutableStateOf(mealTypes?.get(mealType)?.first ?: "")
     }
 
     Card(
@@ -156,7 +158,10 @@ fun EateryMenusBottomSheet(
                 currSelectedDay = currSelectedDay,
                 selectedDay = selectedDay,
                 days = days,
-                onClick = {i -> currSelectedDay = i },
+                onClick = {
+                            i -> currSelectedDay = i
+                            selectedMealType = mealTypes?.firstOrNull()?.first ?: ""
+                          },
                 modifier = Modifier.padding(bottom = 12.dp),
                 closedDays = closedDaysStrings
             )
@@ -216,7 +221,9 @@ fun EateryMenusBottomSheet(
                 Button(
                     onClick = {
                         selectedDay = currSelectedDay
-                        onShowMenuClick(currSelectedDay,selectedMealType)
+                        if (mealTypes != null) {
+                            onShowMenuClick(currSelectedDay, selectedMealType, mealTypes.indexOfFirst { it.first == selectedMealType })
+                        }
                         onDismiss()
                     },
                     modifier = Modifier
