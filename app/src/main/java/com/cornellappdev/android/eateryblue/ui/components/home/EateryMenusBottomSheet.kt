@@ -57,7 +57,7 @@ fun EateryMenusBottomSheet(
     onDismiss: () -> Unit,
     eatery: Eatery,
     onShowMenuClick: (Int, String, Int) -> Unit,
-//    onResetClick: (Int) -> Unit
+    onResetClick: () -> Unit
 ) {
     val zoneId: ZoneId? = ZoneId.of("America/New_York")
     val today = LocalDate.now(zoneId)
@@ -163,7 +163,8 @@ fun EateryMenusBottomSheet(
                     selectedMealType = mealTypes?.firstOrNull()?.first ?: ""
                 },
                 modifier = Modifier.padding(bottom = 12.dp),
-                closedDays = closedDaysStrings
+                closedDays = closedDaysStrings,
+                eateryDetail = true
             )
 
 //            Spacer(modifier = Modifier.height(12.dp))
@@ -266,7 +267,11 @@ fun EateryMenusBottomSheet(
                         fontWeight = FontWeight(600),
                         color = Color(0xFF050505)
                     ),
-                    onClick = { selectedDay = weekDayIndex })
+                    onClick = {
+                        selectedDay = weekDayIndex
+                        onResetClick()
+                        onDismiss()
+                    })
             }
 
         }

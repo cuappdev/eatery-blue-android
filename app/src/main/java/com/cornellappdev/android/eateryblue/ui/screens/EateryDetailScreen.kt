@@ -203,7 +203,11 @@ fun EateryDetailScreen(
                                     mealType = mealTypeIndex
 //                                    Log.d("haha","$dayIndex" + mealDescription)
                                 },
-//                                onResetClick = {}
+                                onResetClick = {
+                                    weekDayIndex = 0
+                                    mealType = 0
+                                    eateryDetailViewModel.resetSelectedEvent()
+                                }
                             )
                         }
 

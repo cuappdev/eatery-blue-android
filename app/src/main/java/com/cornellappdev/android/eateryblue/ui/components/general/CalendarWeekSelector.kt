@@ -40,7 +40,8 @@ fun CalendarWeekSelector(
     days: List<Int>,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    closedDays: List<String>?
+    closedDays: List<String>?,
+    eateryDetail : Boolean = false
 ) {
     Row(
         modifier = Modifier
@@ -70,19 +71,21 @@ fun CalendarWeekSelector(
                     modifier = Modifier
                         .padding(vertical = 8.dp)
                         .then(
-                            if (closedDays?.contains(dayNames[i]) == false) {
-                                Modifier.clickable(
+                            when {
+                                eateryDetail && closedDays?.contains(dayNames[i]) == true -> Modifier
+                                !eateryDetail || (eateryDetail && closedDays?.contains(dayNames[i]) == false) -> Modifier.clickable(
                                     indication = null,
                                     interactionSource = MutableInteractionSource()
                                 ) { onClick(i) }
-                            } else Modifier
+                                else -> Modifier
+                            }
                         )
                         .size(34.dp)
                 ) {
                     Surface(
                         modifier = Modifier.size(size = (34 * size).dp),
                         color = when {
-                            i == currSelectedDay && currSelectedDay == selectedDay -> EateryBlue
+                            i == currSelectedDay && currSelectedDay == 0 -> EateryBlue
                             i == currSelectedDay || i == selectedDay -> GrayFive
                             else -> Color.Transparent
                         },
@@ -93,7 +96,8 @@ fun CalendarWeekSelector(
                         text = days[i].toString(),
                         color = when {
                             closedDays?.contains(dayNames[i]) == true -> GrayThree
-                            i != currSelectedDay && i == selectedDay -> EateryBlue
+                            i != currSelectedDay && i == 0 -> EateryBlue
+                            i != currSelectedDay && i == selectedDay -> Color.Black
                             i == currSelectedDay || i == selectedDay -> Color.White
                             else -> Color.Black
                         },

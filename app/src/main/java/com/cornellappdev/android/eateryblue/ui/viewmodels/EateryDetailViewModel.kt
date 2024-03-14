@@ -111,4 +111,8 @@ class EateryDetailViewModel @Inject constructor(
     fun selectEvent(eatery: Eatery, dayIndex: Int, mealDescription: String) {
         _userSelectedMeal.value = eatery.getSelectedEvent(dayIndex, mealDescription)
     }
+
+    fun resetSelectedEvent(){
+        _userSelectedMeal.value = null
+    }
 }
