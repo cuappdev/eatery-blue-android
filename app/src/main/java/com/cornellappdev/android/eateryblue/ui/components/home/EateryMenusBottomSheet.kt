@@ -148,12 +148,18 @@ fun EateryMenusBottomSheet(
                 modifier = Modifier.padding(bottom = 12.dp),
                 closedDays = closedDaysStrings
             )
+
             //display of possible meal descriptions (none for cafes)
             Column {
-                eatery.getTypeMeal(currSelectedDay)?.forEach { description ->
-                    val displayText = description ?: "No description"
-                    Row(modifier = Modifier.padding(8.dp)) {
-                        Text(text = displayText)
+                val selectedDayOfWeek = DayOfWeek.of(dayWeeks[currSelectedDay])
+                val mealTypes : List<String?>?= eatery.getTypeMeal(selectedDayOfWeek)
+                if (mealTypes != null && mealTypes.size > 1) {
+                    mealTypes?.forEach { description ->
+                        if (description != null) {
+                            Row(Modifier.padding(8.dp)) {
+                                Text(text = description)
+                            }
+                        }
                     }
                 }
             }

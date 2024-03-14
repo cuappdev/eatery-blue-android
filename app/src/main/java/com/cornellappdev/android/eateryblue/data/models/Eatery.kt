@@ -123,6 +123,12 @@ data class Eatery(
         }
     }
 
+    /**
+     * Returns the event that should be displayed at the Ithaca local time
+     * If there is currently a meal going on, that is displayed
+     * If no meal is going on, the next meal is displayed
+     * If the last meal of the day has passed, display the last meal of the day
+     */
     fun getCurrentDisplayedEvent(): Event {
         val now = LocalDateTime.now()
         val todayEvents = getTodaysEvents()
@@ -147,14 +153,17 @@ data class Eatery(
 
     /**
      * @returns the list of mealDescription of one eatery on one day based on chronological order
-     * e.g. for Oken, it would return ["lunch","dinner"]
+     * e.g. for Oken on Mondays, it would return ["Lunch","Dinner"]
      *
-     * note, for cafes, it would just return ["open"]
+     * note, for cafes, it would just return ["Open"], for louies, it returns ["General"]
      */
-    fun getTypeMeal(currSelectedDay : Int) : List<String?>? {
-        return events?.groupBy { it.description }?.keys?.toList() ?: null
+    fun getTypeMeal(currSelectedDay : DayOfWeek) : List<String?>? {
+        return events?.filter { it.startTime?.dayOfWeek  == currSelectedDay}?.groupBy { it.description }?.keys?.toList() ?: null
     }
 
+    /**
+     * Returns the list of DayOfWeek that this eatery is closed
+     */
     fun getClosedDays(): List<DayOfWeek> {
         val dailyHours = operatingHours()
 
