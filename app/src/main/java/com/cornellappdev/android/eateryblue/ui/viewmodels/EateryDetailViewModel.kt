@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.log
 
 @HiltViewModel
 class EateryDetailViewModel @Inject constructor(
@@ -74,16 +76,22 @@ class EateryDetailViewModel @Inject constructor(
         //  is tied to [eatery] and constantly emits its current meal.
         //  You'll probably want to use your [eatery.getCurrentDisplayedEvent()] from before.
         _curMeal = eateryFlow.map { eateryApiResponse ->
-            null
+            when(eateryApiResponse){
+                is EateryApiResponse.Success -> eateryApiResponse.data.getCurrentDisplayedEvent()
+                is EateryApiResponse.Pending ->null
+                is EateryApiResponse.Error ->null
+        }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
         _userSelectedMeal = MutableStateFlow(null)
 
         mealToShow = _curMeal.combine(_userSelectedMeal) { curr, userSelected ->
-            curr
+
             // TODO: Implement the flow combine. (It's just emitting curr right now so it compiles)
             //  When userSelected is non null, emit that. Otherwise, default to emitting the current meal.
             //  This is the flow that we'll actually use to tell the screen which meal to show.
+//            Log.d("UserSelectionCheck",(userSelected == null).toString())
+            userSelected ?: curr
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     }
 
@@ -98,4 +106,9 @@ class EateryDetailViewModel @Inject constructor(
 
     // TODO: Make function to allow user to select an event. When they do that, emit that event down
     //  _userSelectedMeal.
+
+    //note, meal swipes or based on event
+    fun selectEvent(eatery: Eatery, dayIndex : Int, mealDescription : String){
+        _userSelectedMeal.value = eatery.getSelectedEvent(dayIndex,mealDescription)
+    }
 }

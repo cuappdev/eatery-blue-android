@@ -185,7 +185,8 @@ fun EateryDetailScreen(
                                     coroutineScope.launch {
                                         modalBottomSheetState.hide()
                                     }
-                                }
+                                },
+                                eatery = eatery
                             )
                         }
 

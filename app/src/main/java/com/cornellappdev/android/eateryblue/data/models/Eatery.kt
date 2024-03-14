@@ -155,6 +155,16 @@ data class Eatery(
         return events?.groupBy { it.description }?.keys?.toList() ?: null
     }
 
+    fun getClosedDays(): List<DayOfWeek> {
+        val dailyHours = operatingHours()
+
+        return dailyHours.filter { (_, times) ->
+            "Closed" in times
+        }.map { (day, _) ->
+            day
+        }
+    }
+
     fun getSelectedDayMeal(meal: MealFilter, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())

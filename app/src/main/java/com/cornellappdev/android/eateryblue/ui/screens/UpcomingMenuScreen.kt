@@ -225,7 +225,8 @@ fun UpcomingMenuScreen(
                                 currSelectedDay = selectedDay,
                                 selectedDay = today,
                                 days = days,
-                                onClick = {i -> selectedDay = i }
+                                onClick = {i -> selectedDay = i },
+                                closedDays = null
                             )
                         }
                     }

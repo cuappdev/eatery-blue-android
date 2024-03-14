@@ -37,6 +37,7 @@ import com.cornellappdev.android.eateryblue.ui.components.general.CalendarWeekSe
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -47,6 +48,7 @@ import java.time.ZoneId
 @Composable
 fun EateryMenusBottomSheet(
     onDismiss: () -> Unit,
+    eatery: Eatery
 ) {
     val zoneId: ZoneId? = ZoneId.of("America/New_York")
     val today = LocalDate.now(zoneId)
@@ -64,7 +66,7 @@ fun EateryMenusBottomSheet(
         dayWeeks.add(currentDay.plusDays(i.toLong()).dayOfWeek.value)
         days.add(currentDay.plusDays(i.toLong()).dayOfMonth)
     }
-    Log.d("list for cal", dayWeeks.toList().toString())
+//    Log.d("list for cal", dayWeeks.toList().toString())
     dayWeeks.forEach {
         var dayName = ""
         when (it) {
@@ -81,6 +83,22 @@ fun EateryMenusBottomSheet(
     val weekDayIndex = 0
     var selectedDay by remember { mutableStateOf(weekDayIndex) }
     var currSelectedDay by remember { mutableStateOf(selectedDay) }
+
+    val closedDays :List<DayOfWeek> = eatery.getClosedDays()
+    Log.d("closed days", closedDays.toString())
+    val closedDaysStrings: List<String> = closedDays.map { dayOfWeek ->
+        when (dayOfWeek.value) {
+            1 -> "Mon"
+            2 -> "Tue"
+            3 -> "Wed"
+            4 -> "Thu"
+            5 -> "Fri"
+            6 -> "Sat"
+            7 -> "Sun"
+            else -> "error"
+        }
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
@@ -127,8 +145,18 @@ fun EateryMenusBottomSheet(
                 selectedDay = selectedDay,
                 days = days,
                 onClick = {i -> currSelectedDay = i },
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
+                closedDays = closedDaysStrings
             )
+            //display of possible meal descriptions (none for cafes)
+            Column {
+                eatery.getTypeMeal(currSelectedDay)?.forEach { description ->
+                    val displayText = description ?: "No description"
+                    Row(modifier = Modifier.padding(8.dp)) {
+                        Text(text = displayText)
+                    }
+                }
+            }
 
             // Show menu and reset menu buttons
             Column(

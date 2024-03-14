@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eateryblue.ui.components.general
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
+import com.cornellappdev.android.eateryblue.ui.theme.GrayThree
 
 /**
  * Reusable UI component that displays today and the next six days
@@ -37,7 +39,8 @@ fun CalendarWeekSelector(
     selectedDay: Int,
     days: List<Int>,
     onClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    closedDays: List<String>?
 ) {
     Row(
         modifier = Modifier
@@ -45,6 +48,7 @@ fun CalendarWeekSelector(
             .then(modifier),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+//        Log.d("closed days", closedDays.toString())
         for (i in 0..6) {
             val size by animateFloatAsState(
                 targetValue = if (currSelectedDay == i) 1.0f else 0f,
@@ -65,16 +69,21 @@ fun CalendarWeekSelector(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .padding(vertical = 8.dp)
-                        .clickable(
-                            indication = null,
-                            interactionSource = MutableInteractionSource()
-                        ) { onClick(i) }
+                        .then(
+                            if (closedDays?.contains(dayNames[i]) == false) {
+                                Modifier.clickable(
+                                    indication = null,
+                                    interactionSource = MutableInteractionSource()
+                                ) { onClick(i) }
+                            } else Modifier
+                        )
                         .size(34.dp)
                 ) {
                     Surface(
                         modifier = Modifier.size(size = (34 * size).dp),
-                        color = when (i) {
-                            currSelectedDay -> if (currSelectedDay == selectedDay) EateryBlue else GrayFive
+                        color = when {
+                            i == currSelectedDay && currSelectedDay == selectedDay -> EateryBlue
+                            i == currSelectedDay || i == selectedDay -> GrayFive
                             else -> Color.Transparent
                         },
                         shape = CircleShape
@@ -82,10 +91,12 @@ fun CalendarWeekSelector(
 
                     Text(
                         text = days[i].toString(),
-                        color =
-                        if (i != currSelectedDay && i == selectedDay) EateryBlue
-                        else if ((i == currSelectedDay || i == selectedDay)) Color.White
-                        else Color.Black,
+                        color = when {
+                            closedDays?.contains(dayNames[i]) == true -> GrayThree
+                            i != currSelectedDay && i == selectedDay -> EateryBlue
+                            i == currSelectedDay || i == selectedDay -> Color.White
+                            else -> Color.Black
+                        },
                         style = EateryBlueTypography.h6,
                         fontWeight = FontWeight.Normal,
                         textAlign = TextAlign.Center,
