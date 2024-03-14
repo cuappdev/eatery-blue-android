@@ -164,9 +164,11 @@ fun EateryMenusBottomSheet(
 //            Spacer(modifier = Modifier.height(12.dp))
 
             //display of possible meal descriptions (none for cafes)
-            Column(modifier = Modifier
-                .padding(top = 12.dp, bottom = 12.dp)
-                .fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .padding(top = 12.dp, bottom = 12.dp)
+                    .fillMaxWidth()
+            ) {
                 if (mealTypes != null && mealTypes.size > 1) {
                     mealTypes?.forEach { (description, duration) ->
                         if (description != null && duration != null) {

@@ -41,7 +41,7 @@ fun CalendarWeekSelector(
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     closedDays: List<String>?,
-    eateryDetail : Boolean = false
+    eateryDetail: Boolean = false
 ) {
     Row(
         modifier = Modifier
@@ -77,6 +77,7 @@ fun CalendarWeekSelector(
                                     indication = null,
                                     interactionSource = MutableInteractionSource()
                                 ) { onClick(i) }
+
                                 else -> Modifier
                             }
                         )

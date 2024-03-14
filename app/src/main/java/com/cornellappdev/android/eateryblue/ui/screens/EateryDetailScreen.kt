@@ -78,10 +78,13 @@ import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
 import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
+import com.cornellappdev.android.eateryblue.ui.components.home.AlertsSection
 import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryHourBottomSheet
+import com.cornellappdev.android.eateryblue.ui.components.home.EateryMenuWidget
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryMenusBottomSheet
+import com.cornellappdev.android.eateryblue.ui.components.home.PaymentWidgets
 import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
@@ -100,8 +103,6 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiRespons
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -149,6 +150,7 @@ fun EateryDetailScreen(
             ModalBottomSheetLayout(
                 sheetState = modalBottomSheetState, sheetContent = {
                     when (sheetContent) {
+
                         BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
                             PaymentMethodsAvailable(selectedPaymentMethods = paymentMethods) {
                                 coroutineScope.launch {
@@ -294,8 +296,7 @@ fun EateryDetailScreen(
                                 contentDescription = null
                             )
                         }
-
-                        PaymentsWidget(
+                        PaymentWidgets(
                             eatery,
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
@@ -458,6 +459,8 @@ fun EateryDetailScreen(
                                     .fillMaxHeight(0.5f)
                                     .width(1.dp)
                             )
+                            //todo get rid of this?
+
                             //                            Column(
 //                                horizontalAlignment = Alignment.CenterHorizontally,
 //                                modifier = Modifier
@@ -588,244 +591,6 @@ fun EateryDetailScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun PaymentsWidget(eatery: Eatery, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Surface(
-        modifier = modifier.clickable {
-            onClick.invoke()
-        }, shape = CircleShape, color = Color.White
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(ButtonDefaults.IconSpacing)
-        ) {
-            if (eatery.paymentAcceptsMealSwipes == true) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_swipes),
-                    contentDescription = "Accepts Swipes",
-                    tint = EateryBlue
-                )
-            }
-            if (eatery.paymentAcceptsBrbs == true) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_brbs),
-                    contentDescription = "Accepts BRBs",
-                    tint = Red
-                )
-            }
-            if (eatery.paymentAcceptsCash == true) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_cash),
-                    contentDescription = "Accepts Cash",
-                    tint = Green
-                )
-            }
-        }
-    }
-}
-
-
-@Composable
-fun AlertsSection(eatery: Eatery) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 12.dp)
-    ) {
-
-        eatery.alerts?.forEach {
-            if (!it.description.isNullOrBlank() && it.startTime?.isBefore(LocalDateTime.now()) == true && it.endTime?.isAfter(
-                    LocalDateTime.now()
-                ) == true
-            ) Surface(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .wrapContentSize(),
-                shape = RoundedCornerShape(5.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(LightBlue)
-                ) {
-                    Icon(
-                        Icons.Default.Info, contentDescription = "Warning", tint = EateryBlue
-                    )
-                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                    Text(
-                        text = it.description,
-                        style = EateryBlueTypography.body2,
-                        color = EateryBlue,
-                        modifier = Modifier.padding(start = 5.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun EateryMenuWidget(
-    event: Event,
-    hoursOnClick: () -> Unit
-) {
-    rememberCoroutineScope()
-
-    var openUpcoming by remember { mutableStateOf(false) }
-    var filterText by remember { mutableStateOf("") }
-
-    Row(
-        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = event.description ?: "Full Menu",
-                style = EateryBlueTypography.h4,
-            )
-            if (event.startTime != null && event.endTime != null) {
-                Text(
-                    text = "${event.startTime.format(DateTimeFormatter.ofPattern("K:mm a"))} - ${
-                        event.endTime.format(
-                            DateTimeFormatter.ofPattern("K:mm a")
-                        )
-                    }", style = EateryBlueTypography.subtitle2, color = GrayFive
-                )
-            }
-
-        }
-        IconButton(
-            onClick = {
-                hoursOnClick()
-            },
-            modifier = Modifier
-                .padding(all = 8.dp)
-                .background(color = GrayZero, shape = CircleShape)
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
-                contentDescription = "Expand menu",
-                modifier = Modifier.size(26.dp)
-            )
-        }
-    }
-
-    if (true) {
-        Column(modifier = Modifier.padding(vertical = 12.dp)) {
-            SearchBar(searchText = filterText,
-                onSearchTextChange = { filterText = it },
-                placeholderText = "Search the menu...",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                onCancelClicked = {
-                    filterText = ""
-                })
-            Spacer(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(GrayZero, CircleShape)
-            )
-
-            event.menu?.forEachIndexed { categoryIndex, category ->
-                val filteredItems =
-                    category.items?.filter {
-                        it.name?.contains(filterText, true)
-//                            ?: it.description?.contains(
-//                            filterText,
-//                            true
-//                        )
-                            ?: false
-                    }
-                if (filteredItems.isNullOrEmpty())
-                    return@forEachIndexed
-                Text(
-                    text = category.category ?: "Category",
-                    style = EateryBlueTypography.h5,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                )
-                filteredItems.forEachIndexed { index, menuItem ->
-                    Column(
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 16.dp,
-                            )
-                            .fillMaxWidth()
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
-                        ) {
-                            Text(
-                                text = menuItem.name ?: "Item Name",
-                                style = EateryBlueTypography.button,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            if (category.items.lastIndex != index) {
-                                Spacer(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(1.dp)
-                                        .background(GrayZero, CircleShape)
-                                )
-                            }
-                        }
-
-                    }
-                }
-                if (categoryIndex != event.menu!!.lastIndex) {
-                    Divider(
-                        color = GrayZero,
-                        modifier = Modifier
-                            .height(10.dp)
-                    )
-                }
-            }
-        }
-
-        Spacer(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(GrayZero, CircleShape)
-        )
-
-    }
-
-    @Composable
-    fun ReportButtonEateryDetails() {
-        Surface(
-            shape = RoundedCornerShape(17.dp),
-            modifier = Modifier
-                .height(50.dp)
-                .padding(vertical = 8.dp),
-            color = GrayZero,
-            contentColor = Color.Black
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(ButtonDefaults.ContentPadding)
-            ) {
-                Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text(
-                    text = "Report an Issue",
-                    style = EateryBlueTypography.button,
-                    color = Color.Black,
-                )
-            }
-        }
-
     }
 }
 

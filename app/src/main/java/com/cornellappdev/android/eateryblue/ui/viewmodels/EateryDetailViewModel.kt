@@ -121,7 +121,7 @@ class EateryDetailViewModel @Inject constructor(
     /**
      * resets the value of _userSelectedMeal to null
      */
-    fun resetSelectedEvent(){
+    fun resetSelectedEvent() {
         _userSelectedMeal.value = null
     }
 }
