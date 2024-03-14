@@ -132,6 +132,29 @@ data class Eatery(
         return currentEvent ?: todayEvents.find { it.startTime?.isAfter(now) ?: true } ?: todayEvents.last()
     }
 
+
+    /**
+     * @returns the event that makes the day index and mealDescription
+     *
+     * @param dayIndex, the index of the selected day, today is 0, tomorrow is 1, and so on
+     * @param mealDescription, e.g. "lunch", "dinner", etc
+     */
+    fun getSelectedEvent(dayIndex: Int, mealDescription : String) : Event?{
+        //todo
+        val todayEvents = getTodaysEvents()
+        return todayEvents.find { true }
+    }
+
+    /**
+     * @returns the list of mealDescription of one eatery on one day based on chronological order
+     * e.g. for Oken, it would return ["lunch","dinner"]
+     *
+     * note, for cafes, it would just return ["open"]
+     */
+    fun getTypeMeal(currSelectedDay : Int) : List<String?>? {
+        return events?.groupBy { it.description }?.keys?.toList() ?: null
+    }
+
     fun getSelectedDayMeal(meal: MealFilter, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())
@@ -218,21 +241,20 @@ data class Eatery(
         )
     }
 
-    /**@Return a list of pairs (association list) representing the day(s) of a week
-     * and the corresponding times that a eatery is open
+    /**
+     * Private helper function that returns a map of the day of week that a eatery is open
+     * to the opening time(s) or closed status (these are strings)
      *
-     * this is computed by first mapping each dayOfWeek in each element of events to
-     * corresponding opening times, then a helper (groupedHoursFormatHelper) to group
-     * daysOfWeek with the same list of opening times into the association list of
-     * day(s) mapped to opening hours.
+     * e.g. For Oken, {Monday -> ["11:00 AM - 2:30 PM", "4:30 PM - 9:00 PM"], Sunday -> "Closed"}
      */
-    fun formatOperatingHours(): List<Pair<String, List<String>>> {
+    private fun operatingHours() : Map<DayOfWeek, MutableList<String>>{
         var dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
 
         events?.forEach { event ->
             val dayOfWeek = event.startTime?.dayOfWeek
             val openTime = event.startTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
             val closeTime = event.endTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
+//            Log.d("event", event.toString())
 
             val timeString = "$openTime - $closeTime"
 
@@ -244,6 +266,21 @@ data class Eatery(
         DayOfWeek.values().forEach { dayOfWeek ->
             dailyHours.computeIfAbsent(dayOfWeek) { mutableListOf("Closed") }
         }
+
+        return dailyHours
+    }
+
+    /**@Return a list of pairs (association list) representing the day(s) of a week
+     * and the corresponding times that a eatery is open
+     *
+     * this is computed by first mapping each dayOfWeek in each element of events to
+     * corresponding opening times (with helper operatingHours()),
+     * then a helper (groupedHoursFormatHelper) to group
+     * daysOfWeek with the same list of opening times into the association list of
+     * day(s) mapped to opening hours.
+     */
+    fun formatOperatingHours(): List<Pair<String, List<String>>> {
+        var dailyHours = operatingHours()
 
         val groupedHours = dailyHours.entries.groupBy({ it.value }, { it.key })
 
