@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,13 +34,10 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Schedule
@@ -56,35 +52,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
-import com.cornellappdev.android.eateryblue.data.models.Eatery
-import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
 import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
-import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
-import com.cornellappdev.android.eateryblue.ui.components.home.AlertsSection
+import com.cornellappdev.android.eateryblue.ui.components.details.AlertsSection
 import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
-import com.cornellappdev.android.eateryblue.ui.components.home.EateryHourBottomSheet
-import com.cornellappdev.android.eateryblue.ui.components.home.EateryMenuWidget
-import com.cornellappdev.android.eateryblue.ui.components.home.EateryMenusBottomSheet
-import com.cornellappdev.android.eateryblue.ui.components.home.PaymentWidgets
+import com.cornellappdev.android.eateryblue.ui.components.details.EateryHourBottomSheet
+import com.cornellappdev.android.eateryblue.ui.components.details.EateryMenuWidget
+import com.cornellappdev.android.eateryblue.ui.components.details.EateryMenusBottomSheet
+import com.cornellappdev.android.eateryblue.ui.components.details.PaymentWidgets
 import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
@@ -94,7 +84,6 @@ import com.cornellappdev.android.eateryblue.ui.theme.GrayOne
 import com.cornellappdev.android.eateryblue.ui.theme.GrayThree
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
-import com.cornellappdev.android.eateryblue.ui.theme.LightBlue
 import com.cornellappdev.android.eateryblue.ui.theme.Red
 import com.cornellappdev.android.eateryblue.ui.theme.Yellow
 import com.cornellappdev.android.eateryblue.ui.theme.colorInterp
@@ -592,13 +581,4 @@ fun EateryDetailScreen(
             }
         }
     }
-}
-
-/**
- * Details all the possible bottom sheets for EateryDetailScreen.
- *
- * All possible bottom sheets should be added here and switched to before expanding via modalBottomSheetState.
- */
-enum class BottomSheetContent {
-    PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME, REPORT, MENUS
 }

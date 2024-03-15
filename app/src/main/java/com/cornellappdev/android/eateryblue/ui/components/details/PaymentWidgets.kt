@@ -1,4 +1,4 @@
-package com.cornellappdev.android.eateryblue.ui.components.home
+package com.cornellappdev.android.eateryblue.ui.components.details
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

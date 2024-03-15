@@ -1,10 +1,12 @@
-package com.cornellappdev.android.eateryblue.ui.components.home
+package com.cornellappdev.android.eateryblue.ui.components.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,7 +40,6 @@ import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eateryblue.ui.theme.GrayFive
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -170,7 +171,7 @@ fun EateryMenusBottomSheet(
                     .fillMaxWidth()
             ) {
                 if (mealTypes != null && mealTypes.size > 1) {
-                    mealTypes?.forEach { (description, duration) ->
+                    mealTypes?.forEachIndexed { index, (description, duration) ->
                         if (description != null && duration != null) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -180,13 +181,14 @@ fun EateryMenusBottomSheet(
                                     Text(
                                         text = description,
                                         fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.Black
+                                        fontWeight = FontWeight(600),
+                                        color = Color.Black,
+                                        modifier = Modifier.padding(bottom = 2.dp)
                                     )
                                     Text(
                                         text = duration,
                                         fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight(600),
                                         color = Color.Gray
                                     )
                                 }
@@ -195,20 +197,21 @@ fun EateryMenusBottomSheet(
                                         Box(
                                             contentAlignment = Alignment.Center,
                                             modifier = Modifier
-                                                .size(24.dp)
+                                                .size(26.dp)
                                                 .background(Color.Black, CircleShape)
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Check,
                                                 contentDescription = "Selected",
-                                                tint = Color.White
+                                                tint = Color.White,
+                                                modifier = Modifier.fillMaxSize(0.7f)
                                             )
                                         }
                                     } else {
                                         Box(
                                             contentAlignment = Alignment.Center,
                                             modifier = Modifier
-                                                .size(24.dp)
+                                                .size(26.dp)
                                                 .background(Color.White, CircleShape)
                                                 .border(2.dp, Color.Black, CircleShape)
                                         ) {
@@ -216,6 +219,15 @@ fun EateryMenusBottomSheet(
                                     }
                                 }
 
+                            }
+                            if (mealTypes.lastIndex != index) {
+                                Spacer(
+                                    modifier = Modifier
+                                        .padding(top = 12.dp, bottom = 12.dp)
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(GrayZero, CircleShape)
+                                )
                             }
                         }
                     }

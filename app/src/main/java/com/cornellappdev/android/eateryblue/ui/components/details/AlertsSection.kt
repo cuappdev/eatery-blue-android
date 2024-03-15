@@ -1,4 +1,4 @@
-package com.cornellappdev.android.eateryblue.ui.components.home
+package com.cornellappdev.android.eateryblue.ui.components.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

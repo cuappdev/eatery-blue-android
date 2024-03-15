@@ -1,4 +1,4 @@
-package com.cornellappdev.android.eateryblue.ui.components.home
+package com.cornellappdev.android.eateryblue.ui.components.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -59,9 +59,9 @@ fun EateryMenuWidget(
             )
             if (event.startTime != null && event.endTime != null) {
                 Text(
-                    text = "${event.startTime.format(DateTimeFormatter.ofPattern("K:mm a"))} - ${
+                    text = "${event.startTime.format(DateTimeFormatter.ofPattern("h:mm a"))} - ${
                         event.endTime.format(
-                            DateTimeFormatter.ofPattern("K:mm a")
+                            DateTimeFormatter.ofPattern("h:mm a")
                         )
                     }", style = EateryBlueTypography.subtitle2, color = GrayFive
                 )
