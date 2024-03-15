@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -84,11 +85,11 @@ fun CalendarWeekSelector(
                         .size(34.dp)
                 ) {
                     Surface(
-                        modifier = Modifier.size(size = (34 * size).dp),
+                        modifier = Modifier.size(size = (34 * size).dp).alpha(size),
                         color = when {
                             i == currSelectedDay && currSelectedDay == 0 -> EateryBlue
                             i == currSelectedDay || i == selectedDay -> GrayFive
-                            else -> Color.Transparent
+                            else -> GrayFive
                         },
                         shape = CircleShape
                     ) {}
