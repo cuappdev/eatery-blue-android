@@ -2,8 +2,6 @@ package com.cornellappdev.android.eateryblue.ui.screens
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
-import android.view.Gravity
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -27,32 +25,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -60,39 +52,29 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.DialogWindowProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
-import com.cornellappdev.android.eateryblue.data.models.Eatery
-import com.cornellappdev.android.eateryblue.data.models.Event
 import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
-import com.cornellappdev.android.eateryblue.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
-import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
+import com.cornellappdev.android.eateryblue.ui.components.details.AlertsSection
 import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
-import com.cornellappdev.android.eateryblue.ui.components.home.EateryHourBottomSheet
-import com.cornellappdev.android.eateryblue.ui.components.home.EateryMenusBottomSheet
+import com.cornellappdev.android.eateryblue.ui.components.details.EateryHourBottomSheet
+import com.cornellappdev.android.eateryblue.ui.components.details.EateryMenuWidget
+import com.cornellappdev.android.eateryblue.ui.components.details.EateryMenusBottomSheet
+import com.cornellappdev.android.eateryblue.ui.components.details.PaymentWidgets
 import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
@@ -102,7 +84,6 @@ import com.cornellappdev.android.eateryblue.ui.theme.GrayOne
 import com.cornellappdev.android.eateryblue.ui.theme.GrayThree
 import com.cornellappdev.android.eateryblue.ui.theme.GrayZero
 import com.cornellappdev.android.eateryblue.ui.theme.Green
-import com.cornellappdev.android.eateryblue.ui.theme.LightBlue
 import com.cornellappdev.android.eateryblue.ui.theme.Red
 import com.cornellappdev.android.eateryblue.ui.theme.Yellow
 import com.cornellappdev.android.eateryblue.ui.theme.colorInterp
@@ -111,10 +92,6 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiRespons
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -133,7 +110,10 @@ fun EateryDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
 
-    when (val eateryApiResponse = eateryDetailViewModel.eatery.value) {
+    var weekDayIndex by remember { mutableStateOf(0) }
+    var mealType by remember { mutableStateOf(0) }
+
+    when (val eateryApiResponse = eateryDetailViewModel.eateryFlow.collectAsState().value) {
         is EateryApiResponse.Pending -> {
             EateryDetailLoadingScreen(shimmer)
         }
@@ -159,6 +139,7 @@ fun EateryDetailScreen(
             ModalBottomSheetLayout(
                 sheetState = modalBottomSheetState, sheetContent = {
                     when (sheetContent) {
+
                         BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
                             PaymentMethodsAvailable(selectedPaymentMethods = paymentMethods) {
                                 coroutineScope.launch {
@@ -193,11 +174,28 @@ fun EateryDetailScreen(
                         }
 
                         BottomSheetContent.MENUS -> {
-                            EateryMenusBottomSheet (
+                            EateryMenusBottomSheet(
+                                weekDayIndex = weekDayIndex,
+                                mealType = mealType,
                                 onDismiss = {
                                     coroutineScope.launch {
                                         modalBottomSheetState.hide()
                                     }
+                                },
+                                eatery = eatery,
+                                onShowMenuClick = { dayIndex, mealDescription, mealTypeIndex ->
+                                    eateryDetailViewModel.selectEvent(
+                                        eatery,
+                                        dayIndex,
+                                        mealDescription
+                                    )
+                                    weekDayIndex = dayIndex
+                                    mealType = mealTypeIndex
+                                },
+                                onResetClick = {
+                                    weekDayIndex = 0
+                                    mealType = 0
+                                    eateryDetailViewModel.resetSelectedEvent()
                                 }
                             )
                         }
@@ -287,8 +285,7 @@ fun EateryDetailScreen(
                                 contentDescription = null
                             )
                         }
-
-                        PaymentsWidget(
+                        PaymentWidgets(
                             eatery,
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
@@ -355,7 +352,7 @@ fun EateryDetailScreen(
                                         color = Color.White
                                     )
                                 }
-                        }
+                            }
                             Button(
                                 onClick = {
                                     val mapIntent = Intent(Intent.ACTION_VIEW).apply {
@@ -366,7 +363,9 @@ fun EateryDetailScreen(
                                     context.startActivity(mapIntent)
                                 },
                                 shape = RoundedCornerShape(100),
-                                modifier = if(eatery.paymentAcceptsMealSwipes == false) Modifier else Modifier.fillMaxWidth().padding(horizontal = 15.dp),
+                                modifier = if (eatery.paymentAcceptsMealSwipes == false) Modifier else Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 15.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     backgroundColor = GrayZero, contentColor = Color.Black
                                 )
@@ -449,6 +448,8 @@ fun EateryDetailScreen(
                                     .fillMaxHeight(0.5f)
                                     .width(1.dp)
                             )
+                            //todo get rid of this?
+
                             //                            Column(
 //                                horizontalAlignment = Alignment.CenterHorizontally,
 //                                modifier = Modifier
@@ -506,14 +507,15 @@ fun EateryDetailScreen(
                                 .background(GrayZero)
                         )
 
-                        val nextEvent: Event? = eatery.getCurrentEvent()
+                        val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
                         if (nextEvent != null) {
                             sheetContent = BottomSheetContent.HOURS
-                            EateryMenuWidget(event = nextEvent, hoursOnClick = {
+                            EateryMenuWidget(event = nextEvent!!, hoursOnClick = {
                                 sheetContent = BottomSheetContent.MENUS
                                 coroutineScope.launch {
                                     modalBottomSheetState.show()
-                                }})
+                                }
+                            })
                         }
 
 
@@ -579,353 +581,4 @@ fun EateryDetailScreen(
             }
         }
     }
-}
-
-@Composable
-fun PaymentsWidget(eatery: Eatery, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Surface(
-        modifier = modifier.clickable {
-            onClick.invoke()
-        }, shape = CircleShape, color = Color.White
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(ButtonDefaults.IconSpacing)
-        ) {
-            if (eatery.paymentAcceptsMealSwipes == true) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_swipes),
-                    contentDescription = "Accepts Swipes",
-                    tint = EateryBlue
-                )
-            }
-            if (eatery.paymentAcceptsBrbs == true) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_brbs),
-                    contentDescription = "Accepts BRBs",
-                    tint = Red
-                )
-            }
-            if (eatery.paymentAcceptsCash == true) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_cash),
-                    contentDescription = "Accepts Cash",
-                    tint = Green
-                )
-            }
-        }
-    }
-}
-
-
-@Composable
-fun AlertsSection(eatery: Eatery) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 12.dp)
-    ) {
-
-        eatery.alerts?.forEach {
-            if (!it.description.isNullOrBlank() && it.startTime?.isBefore(LocalDateTime.now()) == true && it.endTime?.isAfter(
-                    LocalDateTime.now()
-                ) == true
-            ) Surface(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .wrapContentSize(),
-                shape = RoundedCornerShape(5.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(LightBlue)
-                ) {
-                    Icon(
-                        Icons.Default.Info, contentDescription = "Warning", tint = EateryBlue
-                    )
-                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                    Text(
-                        text = it.description,
-                        style = EateryBlueTypography.body2,
-                        color = EateryBlue,
-                        modifier = Modifier.padding(start = 5.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun EateryMenuWidget(
-    event: Event,
-    hoursOnClick : () -> Unit
-) {
-    rememberCoroutineScope()
-
-    var openUpcoming by remember { mutableStateOf(false) }
-    var filterText by remember { mutableStateOf("") }
-
-    Row(
-        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = event.description ?: "Full Menu",
-                style = EateryBlueTypography.h4,
-            )
-            if (event.startTime != null && event.endTime != null) {
-                Text(
-                    text = "${event.startTime.format(DateTimeFormatter.ofPattern("K:mm a"))} - ${
-                        event.endTime.format(
-                            DateTimeFormatter.ofPattern("K:mm a")
-                        )
-                    }", style = EateryBlueTypography.subtitle2, color = GrayFive
-                )
-            }
-
-        }
-        IconButton(
-            onClick = {
-                hoursOnClick()
-            },
-            modifier = Modifier
-                .padding(all = 8.dp)
-                .background(color = GrayZero, shape = CircleShape)
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
-                contentDescription = "Expand menu",
-                modifier = Modifier.size(26.dp)
-            )
-        }
-    }
-
-    /** If the calendar icon is pressed a dialog pops up allowing the user to select through
-     * the upcoming meals at a specific dining hall */
-    if (openUpcoming) {
-        Dialog(
-            // Allow dialog box to span the entire page and make it disappear when openUpcoming is false
-            properties = DialogProperties(usePlatformDefaultWidth = false),
-            onDismissRequest = { openUpcoming = false }
-
-        ) {
-            // Get the dialog window and set it to the bottom using gravity
-            val dialogWindowProvider = LocalView.current.parent as DialogWindowProvider
-            dialogWindowProvider.window.setGravity(Gravity.BOTTOM)
-//            var currSelectedDay by remember { mutableStateOf(selectedDay) }
-            // Dialog Box
-//            Card(
-//                modifier = Modifier.fillMaxWidth(),
-//                shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-//            ) {
-//                Column(
-//                    modifier = Modifier.padding(
-//                        top = 15.dp, start = 15.dp, end = 15.dp
-//                    ),
-//                ) {
-//                    // Menus & X
-//                    Row(
-//                        modifier = Modifier.padding(bottom = 12.dp),
-//                        verticalAlignment = Alignment.CenterVertically
-//                    ) {
-//                        Column(
-//                            modifier = Modifier.weight(1f)
-//                        ) {
-//                            Text(
-//                                text = "Menus",
-//                                style = EateryBlueTypography.h4,
-//                            )
-//                        }
-//                        IconButton(
-//                            onClick = {
-//                                openUpcoming = false
-//                            },
-//                            modifier = Modifier
-//                                .padding(all = 8.dp)
-//                                .background(color = GrayZero, shape = CircleShape)
-//                        ) {
-//                            Icon(
-//                                imageVector = Icons.Default.Close,
-//                                contentDescription = "Close Upcoming",
-//                                modifier = Modifier.size(28.dp)
-//                            )
-//                        }
-//                    }
-//
-//                    // Upcoming Day selector
-//                   CalendarWeekSelector(
-//                       dayNames = dayNames,
-//                       currSelectedDay = currSelectedDay,
-//                       selectedDay = selectedDay,
-//                       days = days,
-//                       onClick = {i -> currSelectedDay = i }
-//                   )
-//
-//                    // Show menu and reset menu buttons
-//                    Column(
-//                        modifier = Modifier.padding(bottom = 12.dp),
-//                        horizontalAlignment = Alignment.CenterHorizontally
-//                    ) {
-//                        Button(
-//                            onClick = {
-//                                selectedDay = currSelectedDay
-//                                openUpcoming = false
-//                            },
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .height(48.dp),
-//                            shape = RoundedCornerShape(100),
-//                            colors = ButtonDefaults.buttonColors(
-//                                backgroundColor = EateryBlue, contentColor = Color.White
-//                            )
-//                        ) {
-//                            Text(
-//                                text = "Show menu",
-//                                style = EateryBlueTypography.h5,
-//                                color = Color.White
-//                            )
-//                        }
-//                        ClickableText(modifier = Modifier.padding(top = 12.dp),
-//                            text = AnnotatedString("Reset"),
-//                            style = TextStyle(
-//                                fontSize = 14.sp,
-//                                lineHeight = 17.5.sp,
-//                                fontWeight = FontWeight(600),
-//                                color = Color(0xFF050505)
-//                            ),
-//                            onClick = { selectedDay = weekDayIndex })
-//                    }
-//
-//                }
-//
-//            }
-        }
-    }
-
-    if (true) {
-        Column(modifier = Modifier.padding(vertical = 12.dp)) {
-            SearchBar(searchText = filterText,
-                onSearchTextChange = { filterText = it },
-                placeholderText = "Search the menu...",
-                modifier = Modifier.padding(horizontal = 16.dp),
-                onCancelClicked = {
-                    filterText = ""
-                })
-            Spacer(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 8.dp)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(GrayZero, CircleShape)
-            )
-
-            event.menu?.forEachIndexed { categoryIndex, category ->
-                val filteredItems =
-                    category.items?.filter {
-                        it.name?.contains(filterText, true)
-//                            ?: it.description?.contains(
-//                            filterText,
-//                            true
-//                        )
-                            ?: false
-                    }
-                if (filteredItems.isNullOrEmpty())
-                    return@forEachIndexed
-                Text(
-                    text = category.category ?: "Category",
-                    style = EateryBlueTypography.h5,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
-                )
-                filteredItems.forEachIndexed { index, menuItem ->
-                    Column(
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 16.dp,
-                            )
-                            .fillMaxWidth()
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
-                        ) {
-                            Text(
-                                text = menuItem.name ?: "Item Name",
-                                style = EateryBlueTypography.button,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            if (category.items.lastIndex != index) {
-                                Spacer(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(1.dp)
-                                        .background(GrayZero, CircleShape)
-                                )
-                            }
-                        }
-
-                    }
-                }
-                if (categoryIndex != event.menu!!.lastIndex) {
-                    Divider(
-                        color = GrayZero,
-                        modifier = Modifier
-                            .height(10.dp)
-                    )
-                }
-            }
-        }
-
-        Spacer(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(GrayZero, CircleShape)
-        )
-
-    }
-
-    @Composable
-    fun ReportButtonEateryDetails() {
-        Surface(
-            shape = RoundedCornerShape(17.dp),
-            modifier = Modifier
-                .height(50.dp)
-                .padding(vertical = 8.dp),
-            color = GrayZero,
-            contentColor = Color.Black
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(ButtonDefaults.ContentPadding)
-            ) {
-                Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
-                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text(
-                    text = "Report an Issue",
-                    style = EateryBlueTypography.button,
-                    color = Color.Black,
-                )
-            }
-        }
-
-    }
-}
-
-/**
- * Details all the possible bottom sheets for EateryDetailScreen.
- *
- * All possible bottom sheets should be added here and switched to before expanding via modalBottomSheetState.
- */
-enum class BottomSheetContent {
-    PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME, REPORT, MENUS
 }

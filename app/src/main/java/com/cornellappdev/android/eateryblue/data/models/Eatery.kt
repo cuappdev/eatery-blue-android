@@ -80,7 +80,7 @@ data class Eatery(
     }
 
 
-    fun getTodaysEvents(): List<Event> {
+    private fun getTodaysEvents(): List<Event> {
         val currentTime = LocalDateTime.now()
         if (events.isNullOrEmpty())
             return listOf()
@@ -123,10 +123,83 @@ data class Eatery(
         }
     }
 
+    /**
+     * Returns the event that should be displayed at the Ithaca local time
+     * If there is currently a meal going on, that is displayed
+     * If no meal is going on, the next meal is displayed
+     * If the last meal of the day has passed, display the last meal of the day
+     */
+    fun getCurrentDisplayedEvent(): Event {
+        val now = LocalDateTime.now()
+        val todayEvents = getTodaysEvents()
+        val currentEvent = todayEvents.find { event ->
+            (event.startTime?.isBefore(now) ?: true) && (event.endTime?.isAfter(now) ?: true)
+        }
+        return currentEvent ?: todayEvents.find { it.startTime?.isAfter(now) ?: true } ?: todayEvents.last()
+    }
+
+
+    /**
+     * @returns the event that makes the day index and mealDescription
+     *
+     * @param dayIndex, the index of the selected day, today is 0, tomorrow is 1, and so on
+     * @param mealDescription, e.g. "lunch", "dinner", etc
+     */
+    fun getSelectedEvent(dayIndex: Int, mealDescription: String): Event? {
+        val targetDate = LocalDate.now().plusDays(dayIndex.toLong())
+
+        val ans = events?.find {
+            it.description.equals(mealDescription, ignoreCase = true) &&
+                    (it.startTime?.toLocalDate()?.isEqual(targetDate) == true)
+        }
+        return ans
+    }
+
+    /**
+     * @returns the association list of mealDescription of one eatery on one day based
+     * on chronological order and the duration of that particular meal
+     * e.g. for Oken on Mondays, it would return
+     * [("Lunch", some string duration),("Dinner", some string duration)]
+     * note, for cafes, it would just return [("Open",some string duration)],
+     * for louies, it returns [("General",some string duration)]
+     * Note, string duration are in the format "11:00 AM - 2:30 PM"
+     */
+    fun getTypeMeal(currSelectedDay: DayOfWeek): List<Pair<String, String>>? {
+        val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
+
+        val uniqueMeals = LinkedHashMap<String, String>()
+
+        events?.filter { it.startTime?.dayOfWeek == currSelectedDay }
+            ?.forEach { event ->
+                val description = event.description
+                val startTime = event.startTime
+                val endTime = event.endTime
+                if (description != null && startTime != null && endTime != null && !uniqueMeals.containsKey(description)) {
+                    val durationString = "${startTime.format(timeFormatter)} - ${endTime.format(timeFormatter)}"
+                    uniqueMeals[description] = durationString
+                }
+            }
+
+        return uniqueMeals.toList()
+    }
+
+    /**
+     * Returns the list of DayOfWeek that this eatery is closed
+     */
+    fun getClosedDays(): List<DayOfWeek> {
+        val dailyHours = operatingHours()
+
+        return dailyHours.filter { (_, times) ->
+            "Closed" in times
+        }.map { (day, _) ->
+            day
+        }
+    }
+
     fun getSelectedDayMeal(meal: MealFilter, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())
-        Log.d(name, events?.filter { currentDay.dayOfYear == it.startTime?.dayOfYear }.toString())
+//        Log.d(name, events?.filter { currentDay.dayOfYear == it.startTime?.dayOfYear }.toString())
         return events?.filter { event ->
             currentDay.dayOfYear == event.startTime?.dayOfYear && meal.text.contains(event.description)
         }
@@ -209,21 +282,20 @@ data class Eatery(
         )
     }
 
-    /**@Return a list of pairs (association list) representing the day(s) of a week
-     * and the corresponding times that a eatery is open
+    /**
+     * Private helper function that returns a map of the day of week that a eatery is open
+     * to the opening time(s) or closed status (these are strings)
      *
-     * this is computed by first mapping each dayOfWeek in each element of events to
-     * corresponding opening times, then a helper (groupedHoursFormatHelper) to group
-     * daysOfWeek with the same list of opening times into the association list of
-     * day(s) mapped to opening hours.
+     * e.g. For Oken, {Monday -> ["11:00 AM - 2:30 PM", "4:30 PM - 9:00 PM"], Sunday -> "Closed"}
      */
-    fun formatOperatingHours(): List<Pair<String, List<String>>> {
+    private fun operatingHours() : Map<DayOfWeek, MutableList<String>>{
         var dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
 
         events?.forEach { event ->
             val dayOfWeek = event.startTime?.dayOfWeek
             val openTime = event.startTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
             val closeTime = event.endTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
+//            Log.d("event", event.toString())
 
             val timeString = "$openTime - $closeTime"
 
@@ -235,6 +307,21 @@ data class Eatery(
         DayOfWeek.values().forEach { dayOfWeek ->
             dailyHours.computeIfAbsent(dayOfWeek) { mutableListOf("Closed") }
         }
+
+        return dailyHours
+    }
+
+    /**@Return a list of pairs (association list) representing the day(s) of a week
+     * and the corresponding times that a eatery is open
+     *
+     * this is computed by first mapping each dayOfWeek in each element of events to
+     * corresponding opening times (with helper operatingHours()),
+     * then a helper (groupedHoursFormatHelper) to group
+     * daysOfWeek with the same list of opening times into the association list of
+     * day(s) mapped to opening hours.
+     */
+    fun formatOperatingHours(): List<Pair<String, List<String>>> {
+        var dailyHours = operatingHours()
 
         val groupedHours = dailyHours.entries.groupBy({ it.value }, { it.key })
 

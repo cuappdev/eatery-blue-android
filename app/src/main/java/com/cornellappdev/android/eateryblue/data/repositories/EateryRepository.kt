@@ -1,8 +1,5 @@
 package com.cornellappdev.android.eateryblue.data.repositories
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import com.cornellappdev.android.eateryblue.data.NetworkApi
 import com.cornellappdev.android.eateryblue.data.models.ApiResponse
 import com.cornellappdev.android.eateryblue.data.models.Eatery
@@ -86,7 +83,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     /**
      * A map from eatery ids to the states representing their API loading calls.
      */
-    private val eateryApiCache: MutableMap<Int, MutableState<EateryApiResponse<Eatery>>> =
+    private val eateryApiCache: MutableMap<Int, MutableStateFlow<EateryApiResponse<Eatery>>> =
         mutableMapOf()
 
     /**
@@ -97,7 +94,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     private fun pingEatery(eateryId: Int) {
         // If first time calling, make new state.
         if (eateryApiCache[eateryId] == null) {
-            eateryApiCache[eateryId] = mutableStateOf(EateryApiResponse.Pending)
+            eateryApiCache[eateryId] = MutableStateFlow(EateryApiResponse.Pending)
         }
 
         eateryApiCache[eateryId]!!.value = EateryApiResponse.Pending
@@ -113,12 +110,12 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     }
 
     /**
-     * Returns the [State] representing the API call for the specified eatery.
+     * Returns the [StateFlow] representing the API call for the specified eatery.
      * If ALL eateries are already loaded, then this simply instantly returns that.
      */
-    fun getEateryState(eateryId: Int): State<EateryApiResponse<Eatery>> {
+    fun getEateryFlow(eateryId: Int): StateFlow<EateryApiResponse<Eatery>> {
         if (eateryFlow.value is EateryApiResponse.Success) {
-            return mutableStateOf(
+            return MutableStateFlow(
                 EateryApiResponse.Success(
                     (eateryFlow.value as EateryApiResponse.Success<List<Eatery>>)
                         .data.find { it.id == eateryId }!!

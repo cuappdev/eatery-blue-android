@@ -168,6 +168,6 @@ class SearchViewModel @Inject constructor(
         userPreferencesRepository.addRecentSearch(eateryId ?: 0)
     }
 
-    fun openEatery(eateryId: Int) = eateryRepository.getEateryState(eateryId)
+    fun openEatery(eateryId: Int) = eateryRepository.getEateryFlow(eateryId)
 
 }
