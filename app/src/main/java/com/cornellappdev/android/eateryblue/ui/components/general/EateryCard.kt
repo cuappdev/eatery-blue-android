@@ -35,6 +35,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -62,6 +63,8 @@ import com.cornellappdev.android.eateryblue.ui.theme.Orange
 import com.cornellappdev.android.eateryblue.ui.theme.Yellow
 import com.cornellappdev.android.eateryblue.ui.theme.colorInterp
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
 
 //@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
 //@Composable
@@ -191,7 +194,9 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiRespons
 //    }
 //}
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class,
+    ExperimentalPermissionsApi::class
+)
 @Composable
 fun EateryCard(
     eatery: Eatery,
@@ -332,9 +337,11 @@ fun EateryCard(
                         contentDescription = null
                     )
                 }
-
+                val fineLocPermissionState = rememberPermissionState(permission = android.Manifest.permission.ACCESS_FINE_LOCATION)
                 EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact)
-                EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
+                key(fineLocPermissionState) {
+                    EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
+                }
             }
         }
     }
