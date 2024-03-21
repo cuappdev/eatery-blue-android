@@ -337,11 +337,8 @@ fun EateryCard(
                         contentDescription = null
                     )
                 }
-                val fineLocPermissionState = rememberPermissionState(permission = android.Manifest.permission.ACCESS_FINE_LOCATION)
                 EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact)
-                key(fineLocPermissionState) {
-                    EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
-                }
+                EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
             }
         }
     }

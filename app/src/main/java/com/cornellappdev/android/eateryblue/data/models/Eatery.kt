@@ -44,8 +44,10 @@ data class Eatery(
     fun getWalkTimes(): Int? {
         val currentLocation = LocationHandler.currentLocation
         val results = floatArrayOf(0f)
-        if (latitude == null || longitude == null || currentLocation == null)
+        Log.d("getWalkTimes", "$latitude + $longitude + $currentLocation")
+        if (latitude == null || longitude == null || currentLocation == null) {
             return null
+        }
         Location.distanceBetween(
             currentLocation.latitude,
             currentLocation.longitude,
