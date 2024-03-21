@@ -42,7 +42,7 @@ data class Eatery(
     @Json(name = "alerts") val alerts: List<Alert>? = null,
 ) {
     fun getWalkTimes(): Int? {
-        val currentLocation = LocationHandler.currentLocation
+        val currentLocation = LocationHandler.currentLocation.value
         val results = floatArrayOf(0f)
         Log.d("getWalkTimes", "$latitude + $longitude + $currentLocation")
         if (latitude == null || longitude == null || currentLocation == null) {
