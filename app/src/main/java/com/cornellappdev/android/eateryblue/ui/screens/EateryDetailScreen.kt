@@ -20,11 +20,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,6 +37,7 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
@@ -57,9 +61,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -72,9 +78,9 @@ import com.cornellappdev.android.eateryblue.ui.components.details.AlertsSection
 import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eateryblue.ui.components.details.EateryHourBottomSheet
-import com.cornellappdev.android.eateryblue.ui.components.details.EateryMenuWidget
 import com.cornellappdev.android.eateryblue.ui.components.details.EateryMenusBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.details.PaymentWidgets
+import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
 import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
@@ -92,6 +98,7 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiRespons
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -212,105 +219,112 @@ fun EateryDetailScreen(
                     if (eatery.paymentAcceptsBrbs == true) add(PaymentMethodsAvailable.BRB)
                     if (eatery.paymentAcceptsMealSwipes == true) add(PaymentMethodsAvailable.SWIPES)
                 }
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
+                LazyColumn(
+                    state = rememberLazyListState(),
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Box {
+                    item {
                         Box {
-                            Crossfade(
-                                targetState = bitmapState?.value,
-                                label = "imageFade",
-                                animationSpec = tween(250),
-                                modifier = Modifier.alpha(if (eatery.isClosed()) .53f else 1f)
-                            ) { apiResponse ->
-                                when (apiResponse) {
-                                    is EateryApiResponse.Success -> {
-                                        Image(
-                                            bitmap = apiResponse.data,
-                                            modifier = Modifier
-                                                .height(240.dp)
-                                                .fillMaxWidth(),
-                                            contentDescription = "",
-                                            contentScale = ContentScale.Crop
-                                        )
-                                    }
+                            Box {
+                                Crossfade(
+                                    targetState = bitmapState?.value,
+                                    label = "imageFade",
+                                    animationSpec = tween(250),
+                                    modifier = Modifier.alpha(if (eatery.isClosed()) .53f else 1f)
+                                ) { apiResponse ->
+                                    when (apiResponse) {
+                                        is EateryApiResponse.Success -> {
+                                            Image(
+                                                bitmap = apiResponse.data,
+                                                modifier = Modifier
+                                                    .height(240.dp)
+                                                    .fillMaxWidth(),
+                                                contentDescription = "",
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        }
 
-                                    is EateryApiResponse.Pending -> {
-                                        Image(
-                                            bitmap = ImageBitmap(width = 1, height = 1),
-                                            modifier = Modifier
-                                                .height(240.dp)
-                                                .fillMaxWidth()
-                                                .background(
-                                                    colorInterp(
-                                                        progress,
-                                                        GrayOne,
-                                                        GrayThree
-                                                    )
-                                                ),
-                                            contentDescription = "",
-                                            contentScale = ContentScale.Crop
-                                        )
-                                    }
+                                        is EateryApiResponse.Pending -> {
+                                            Image(
+                                                bitmap = ImageBitmap(width = 1, height = 1),
+                                                modifier = Modifier
+                                                    .height(240.dp)
+                                                    .fillMaxWidth()
+                                                    .background(
+                                                        colorInterp(
+                                                            progress,
+                                                            GrayOne,
+                                                            GrayThree
+                                                        )
+                                                    ),
+                                                contentDescription = "",
+                                                contentScale = ContentScale.Crop
+                                            )
+                                        }
 
-                                    else -> {
-                                        Image(
-                                            modifier = Modifier
-                                                .height(240.dp)
-                                                .fillMaxWidth(),
-                                            painter = painterResource(R.drawable.blank_eatery),
-                                            contentDescription = "Eatery Image",
-                                            contentScale = ContentScale.Crop,
-                                        )
+                                        else -> {
+                                            Image(
+                                                modifier = Modifier
+                                                    .height(240.dp)
+                                                    .fillMaxWidth(),
+                                                painter = painterResource(R.drawable.blank_eatery),
+                                                contentDescription = "Eatery Image",
+                                                contentScale = ContentScale.Crop,
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
 
-                        Button(
-                            onClick = { eateryDetailViewModel.toggleFavorite() },
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(top = 40.dp, end = 16.dp)
-                                .size(40.dp),
-                            contentPadding = PaddingValues(6.dp),
-                            shape = CircleShape,
-                            colors = ButtonDefaults.buttonColors(
-                                backgroundColor = Color.White,
-                            )
-                        ) {
-                            Icon(
-                                imageVector = if (eateryDetailViewModel.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                                tint = if (eateryDetailViewModel.isFavorite) Yellow else GrayFive,
-                                contentDescription = null
-                            )
-                        }
-                        PaymentWidgets(
-                            eatery,
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(16.dp)
-                                .height(40.dp)
-                        ) {
-                            sheetContent = BottomSheetContent.PAYMENT_METHODS_AVAILABLE
-                            coroutineScope.launch {
-                                modalBottomSheetState.show()
+                            Button(
+                                onClick = { eateryDetailViewModel.toggleFavorite() },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(top = 40.dp, end = 16.dp)
+                                    .size(40.dp),
+                                contentPadding = PaddingValues(6.dp),
+                                shape = CircleShape,
+                                colors = ButtonDefaults.buttonColors(
+                                    backgroundColor = Color.White,
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = if (eateryDetailViewModel.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                                    tint = if (eateryDetailViewModel.isFavorite) Yellow else GrayFive,
+                                    contentDescription = null
+                                )
+                            }
+                            PaymentWidgets(
+                                eatery,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(16.dp)
+                                    .height(40.dp)
+                            ) {
+                                sheetContent = BottomSheetContent.PAYMENT_METHODS_AVAILABLE
+                                coroutineScope.launch {
+                                    modalBottomSheetState.show()
+                                }
                             }
                         }
                     }
 
-                    Column(modifier = Modifier.background(Color.White)) {
+                    item {
                         Text(
                             text = eatery.name ?: "Loading...",
                             modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                             style = EateryBlueTypography.h3,
                         )
+                    }
+                    item {
                         Text(
                             text = "${eatery.location} ${if (!eatery.menuSummary.isNullOrBlank()) "· ${eatery.menuSummary}" else ""}",
                             modifier = Modifier.padding(start = 16.dp),
                             style = EateryBlueTypography.subtitle2,
                             color = GrayFive
                         )
+                    }
+                    item {
                         Row(
                             modifier = Modifier
                                 .padding(top = 12.dp)
@@ -383,7 +397,9 @@ fun EateryDetailScreen(
                                 )
                             }
                         }
+                    }
 
+                    item {
                         AlertsSection(eatery = eatery)
 
                         Row(
@@ -499,34 +515,210 @@ fun EateryDetailScreen(
 //
 //                            }
                         }
+                    }
 
+                    item {
                         Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(16.dp)
                                 .background(GrayZero)
                         )
+                    }
 
-                        val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
-                        if (nextEvent != null) {
-                            sheetContent = BottomSheetContent.HOURS
-                            EateryMenuWidget(event = nextEvent!!, hoursOnClick = {
-                                sheetContent = BottomSheetContent.MENUS
-                                coroutineScope.launch {
-                                    modalBottomSheetState.show()
+                    val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
+                    if (nextEvent != null) {
+                        sheetContent = BottomSheetContent.HOURS
+                        val hoursOnClick = {
+                            sheetContent = BottomSheetContent.MENUS
+                            coroutineScope.launch {
+                                modalBottomSheetState.show()
+                            }
+                        }
+                        rememberCoroutineScope()
+
+                        var filterText by remember { mutableStateOf("") }
+
+                        item {
+                            Row(
+                                modifier = Modifier.padding(
+                                    top = 16.dp,
+                                    bottom = 8.dp,
+                                    start = 16.dp,
+                                    end = 10.dp
+                                ),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text(
+                                        text = nextEvent!!.description ?: "Full Menu",
+                                        style = EateryBlueTypography.h4,
+                                    )
+                                    if (nextEvent!!.startTime != null && nextEvent!!.endTime != null) {
+                                        Text(
+                                            text = "${
+                                                nextEvent!!.startTime!!.format(
+                                                    DateTimeFormatter.ofPattern("h:mm a")
+                                                )
+                                            } - ${
+                                                nextEvent!!.endTime!!.format(
+                                                    DateTimeFormatter.ofPattern("h:mm a")
+                                                )
+                                            }",
+                                            style = EateryBlueTypography.subtitle2,
+                                            color = GrayFive
+                                        )
+                                    }
+
                                 }
-                            })
+                                IconButton(
+                                    onClick = {
+                                        hoursOnClick()
+                                    },
+                                    modifier = Modifier
+                                        .padding(all = 8.dp)
+                                        .background(color = GrayZero, shape = CircleShape)
+                                ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
+                                        contentDescription = "Expand menu",
+                                        modifier = Modifier.size(26.dp)
+                                    )
+                                }
+                            }
+                        }
+                        if (nextEvent!!.menu != null && nextEvent!!.menu!!.size > 0) {
+                            item {
+//                                        Column(modifier = Modifier.padding(vertical = 12.dp)) {
+                                SearchBar(searchText = filterText,
+                                    onSearchTextChange = { filterText = it },
+                                    placeholderText = "Search the menu...",
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    onCancelClicked = {
+                                        filterText = ""
+                                    })
+                                Spacer(
+                                    modifier = Modifier
+                                        .padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            top = 12.dp,
+                                            bottom = 8.dp
+                                        )
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(GrayZero, CircleShape)
+                                )
+                            }
+
+                            nextEvent!!.menu?.forEachIndexed { categoryIndex, category ->
+                                val filteredItems = category.items?.filter {
+                                    it.name?.contains(filterText, true) ?: false
+                                }
+                                if (!filteredItems.isNullOrEmpty()) {
+                                    item {
+                                        Text(
+                                            text = category.category ?: "Category",
+                                            style = EateryBlueTypography.h5,
+                                            modifier = Modifier.padding(
+                                                horizontal = 16.dp,
+                                                vertical = 12.dp
+                                            )
+                                        )
+                                    }
+
+                                    filteredItems.forEachIndexed { index, menuItem ->
+                                        item {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.padding(
+                                                    top = 12.dp,
+                                                    bottom = 12.dp,
+                                                    start = 16.dp,
+                                                    end = 16.dp
+                                                )
+                                            ) {
+                                                Text(
+                                                    text = menuItem.name ?: "Item Name",
+                                                    style = EateryBlueTypography.button,
+                                                    modifier = Modifier.weight(1f)
+                                                )
+                                            }
+
+                                            if (category.items.lastIndex != index) {
+                                                    Spacer(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(1.dp)
+                                                            .background(GrayZero, CircleShape)
+                                                    )
+                                            }
+                                        }
+                                    }
+
+                                    if (categoryIndex != nextEvent!!.menu!!.lastIndex) {
+                                        item {
+                                            Divider(
+                                                color = GrayZero,
+                                                modifier = Modifier.height(10.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+//                                        }
                         }
 
+                        item {
+                            Spacer(
+                                modifier = Modifier
+                                    .padding(horizontal = 16.dp)
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(GrayZero, CircleShape)
+                            )
+                        }
+                    }
+                    //todo this composable is never referenced, get rid of this??
+//    @Composable
+//    fun ReportButtonEateryDetails() {
+//        Surface(
+//            shape = RoundedCornerShape(17.dp),
+//            modifier = Modifier
+//                .height(50.dp)
+//                .padding(vertical = 8.dp),
+//            color = GrayZero,
+//            contentColor = Color.Black
+//        ) {
+//            Row(
+//                verticalAlignment = Alignment.CenterVertically,
+//                modifier = Modifier.padding(ButtonDefaults.ContentPadding)
+//            ) {
+//                Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+//                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+//                Text(
+//                    text = "Report an Issue",
+//                    style = EateryBlueTypography.button,
+//                    color = Color.Black,
+//                )
+//            }
+//        }
+//    }
 
+
+                    item {
                         Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(16.dp)
                                 .background(GrayZero)
                         )
+                    }
 
-                        // Report an issue button
+                    // Report an issue button
+                    item {
                         Column(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)) {
                             Text(
                                 text = "Make Eatery Better",
@@ -569,7 +761,9 @@ fun EateryDetailScreen(
                             Spacer(Modifier.height(8.dp))
 
                         }
+                    }
 
+                    item {
                         Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
