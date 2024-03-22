@@ -83,7 +83,7 @@ fun EateryMenuWidget(
             )
         }
     }
-    if(event.menu != null && event.menu.size > 0){
+    if (event.menu != null && event.menu.size > 0) {
         Column(modifier = Modifier.padding(vertical = 12.dp)) {
             SearchBar(searchText = filterText,
                 onSearchTextChange = { filterText = it },

@@ -35,7 +35,6 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -49,7 +48,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
@@ -64,7 +62,6 @@ import com.cornellappdev.android.eateryblue.ui.theme.Yellow
 import com.cornellappdev.android.eateryblue.ui.theme.colorInterp
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
 
 //@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
 //@Composable
@@ -194,7 +191,8 @@ import com.google.accompanist.permissions.rememberPermissionState
 //    }
 //}
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class,
+@OptIn(
+    ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class,
     ExperimentalPermissionsApi::class
 )
 @Composable

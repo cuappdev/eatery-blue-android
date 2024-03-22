@@ -113,7 +113,6 @@ fun HomeScreen(
 
     LaunchedEffect(notificationPermissionState.allPermissionsGranted) {
         LocationHandler.instantiate(context)
-        Log.d("Launched Effect","permission")
     }
 
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
