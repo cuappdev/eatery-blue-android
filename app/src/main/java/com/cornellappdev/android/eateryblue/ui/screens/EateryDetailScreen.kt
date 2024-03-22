@@ -67,14 +67,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
-import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eateryblue.ui.components.details.AlertsSection
-import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
-import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eateryblue.ui.components.details.EateryHourBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.details.EateryMenuWidget
 import com.cornellappdev.android.eateryblue.ui.components.details.EateryMenusBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.details.PaymentWidgets
+import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
+import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
+import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue

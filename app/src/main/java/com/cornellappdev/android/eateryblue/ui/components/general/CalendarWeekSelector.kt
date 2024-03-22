@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.components.general
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -85,7 +84,9 @@ fun CalendarWeekSelector(
                         .size(34.dp)
                 ) {
                     Surface(
-                        modifier = Modifier.size(size = (34 * size).dp).alpha(size),
+                        modifier = Modifier
+                            .size(size = (34 * size).dp)
+                            .alpha(size),
                         color = when {
                             i == currSelectedDay && currSelectedDay == 0 -> EateryBlue
                             i == currSelectedDay || i == selectedDay -> GrayFive

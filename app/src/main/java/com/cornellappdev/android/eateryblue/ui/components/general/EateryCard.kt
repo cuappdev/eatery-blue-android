@@ -48,7 +48,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.models.Eatery
 import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
@@ -62,6 +61,7 @@ import com.cornellappdev.android.eateryblue.ui.theme.Orange
 import com.cornellappdev.android.eateryblue.ui.theme.Yellow
 import com.cornellappdev.android.eateryblue.ui.theme.colorInterp
 import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiResponse
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 //@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
 //@Composable
@@ -191,7 +191,10 @@ import com.cornellappdev.android.eateryblue.ui.viewmodels.state.EateryApiRespons
 //    }
 //}
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(
+    ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class,
+    ExperimentalPermissionsApi::class
+)
 @Composable
 fun EateryCard(
     eatery: Eatery,
@@ -332,7 +335,6 @@ fun EateryCard(
                         contentDescription = null
                     )
                 }
-
                 EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact)
                 EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
             }

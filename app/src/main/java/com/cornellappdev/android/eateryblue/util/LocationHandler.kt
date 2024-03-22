@@ -4,13 +4,14 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 
 object LocationHandler {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    var currentLocation: Location? = null
+    var currentLocation = mutableStateOf<Location?>(null)
 
     fun instantiate(context: Context) {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -30,7 +31,7 @@ object LocationHandler {
         }
 
         fusedLocationClient.lastLocation.addOnSuccessListener {
-            currentLocation = it
+            currentLocation.value = it
         }
     }
 }
