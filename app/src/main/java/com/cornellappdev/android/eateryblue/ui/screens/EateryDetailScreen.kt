@@ -526,6 +526,7 @@ fun EateryDetailScreen(
                         )
                     }
 
+                    // starting from here, not sure what to do
                     val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
                     if (nextEvent != null) {
                         sheetContent = BottomSheetContent.HOURS
@@ -670,6 +671,8 @@ fun EateryDetailScreen(
                             }
 //                                        }
                         }
+
+                        // confused up until here (thanks justin)
 
                         item {
                             Spacer(
