@@ -117,7 +117,7 @@ fun EateryUpdateDialog() {
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 18.sp,
                         )
-                        Spacer(modifier = Modifier.height(15.dp))
+                        Spacer(modifier = Modifier.height(7.dp))
                         Button(
                             onClick = {
                                 val packageName =
@@ -148,11 +148,17 @@ fun EateryUpdateDialog() {
                                 fontWeight = FontWeight.Bold
                             )
                         }
+                        Text(
+                            text = "Thanks for using Eatery!",
+                            textAlign = TextAlign.Center,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
                         Icon(
                             painter = painterResource(id = R.drawable.ic_appdev),
                             contentDescription = null,
                             modifier = Modifier
-                                .padding(top = 16.dp)
+                                .padding(top = 8.dp)
                                 .size(32.dp),
                             tint = GrayTwo
                         )
