@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -631,38 +632,32 @@ fun EateryDetailScreen(
 
                                     // TODO: Using `forEachIndexed()` with just an `item` in it is kinda sus.
                                     //  Change this to use `itemsIndexed` instead.
-                                    filteredItems.forEachIndexed { index, menuItem ->
-                                        item {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                modifier = Modifier.padding(
-                                                    top = 12.dp,
-                                                    bottom = 12.dp,
-                                                    start = 16.dp,
-                                                    end = 16.dp
-                                                )
-                                            ) {
-                                                Text(
-                                                    text = menuItem.name ?: "Item Name",
-                                                    style = EateryBlueTypography.button,
-                                                    modifier = Modifier.weight(1f)
-                                                )
-                                            }
-
-                                            if (category.items.lastIndex != index) {
-                                                Spacer(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(1.dp)
-                                                        .background(GrayZero, CircleShape)
-                                                )
-                                            }
+                                    itemsIndexed(filteredItems) { index, menuItem ->
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.padding(
+                                                top = 12.dp,
+                                                bottom = 12.dp,
+                                                start = 16.dp,
+                                                end = 16.dp
+                                            )
+                                        ) {
+                                            Text(
+                                                text = menuItem.name ?: "Item Name",
+                                                style = EateryBlueTypography.button,
+                                                modifier = Modifier.weight(1f)
+                                            )
                                         }
-                                    }
 
-                                    // TODO: I think we can merge this with the above item.
-                                    if (categoryIndex != nextEvent!!.menu!!.lastIndex) {
-                                        item {
+                                        if (category.items.lastIndex != index) {
+                                            Spacer(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .height(1.dp)
+                                                    .background(GrayZero, CircleShape)
+                                            )
+                                        }
+                                        if (category.items.lastIndex == index && categoryIndex != nextEvent!!.menu!!.lastIndex) {
                                             Divider(
                                                 color = GrayZero,
                                                 modifier = Modifier.height(10.dp)
