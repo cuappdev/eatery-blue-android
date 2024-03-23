@@ -28,10 +28,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
@@ -73,14 +71,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eateryblue.R
 import com.cornellappdev.android.eateryblue.data.repositories.CoilRepository
-import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eateryblue.ui.components.details.AlertsSection
-import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
-import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eateryblue.ui.components.details.EateryHourBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.details.EateryMenusBottomSheet
 import com.cornellappdev.android.eateryblue.ui.components.details.PaymentWidgets
+import com.cornellappdev.android.eateryblue.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eateryblue.ui.components.general.SearchBar
+import com.cornellappdev.android.eateryblue.ui.components.home.BottomSheetContent
+import com.cornellappdev.android.eateryblue.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eateryblue.ui.components.settings.Issue
 import com.cornellappdev.android.eateryblue.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eateryblue.ui.theme.EateryBlue
@@ -119,6 +117,12 @@ fun EateryDetailScreen(
 
     var weekDayIndex by remember { mutableStateOf(0) }
     var mealType by remember { mutableStateOf(0) }
+
+    // The event/meal to display. May be null.
+    val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
+
+    // The filter text typed in.
+    val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
 
     when (val eateryApiResponse = eateryDetailViewModel.eateryFlow.collectAsState().value) {
         is EateryApiResponse.Pending -> {
@@ -526,8 +530,6 @@ fun EateryDetailScreen(
                         )
                     }
 
-                    // starting from here, not sure what to do
-                    val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
                     if (nextEvent != null) {
                         sheetContent = BottomSheetContent.HOURS
                         val hoursOnClick = {
@@ -536,9 +538,6 @@ fun EateryDetailScreen(
                                 modalBottomSheetState.show()
                             }
                         }
-                        rememberCoroutineScope()
-
-                        var filterText by remember { mutableStateOf("") }
 
                         item {
                             Row(
@@ -590,15 +589,15 @@ fun EateryDetailScreen(
                                 }
                             }
                         }
+
                         if (nextEvent!!.menu != null && nextEvent!!.menu!!.size > 0) {
                             item {
-//                                        Column(modifier = Modifier.padding(vertical = 12.dp)) {
                                 SearchBar(searchText = filterText,
-                                    onSearchTextChange = { filterText = it },
+                                    onSearchTextChange = { eateryDetailViewModel.setSearchQuery(it) },
                                     placeholderText = "Search the menu...",
                                     modifier = Modifier.padding(horizontal = 16.dp),
                                     onCancelClicked = {
-                                        filterText = ""
+                                        eateryDetailViewModel.setSearchQuery("")
                                     })
                                 Spacer(
                                     modifier = Modifier
@@ -630,6 +629,8 @@ fun EateryDetailScreen(
                                         )
                                     }
 
+                                    // TODO: Using `forEachIndexed()` with just an `item` in it is kinda sus.
+                                    //  Change this to use `itemsIndexed` instead.
                                     filteredItems.forEachIndexed { index, menuItem ->
                                         item {
                                             Row(
@@ -649,16 +650,17 @@ fun EateryDetailScreen(
                                             }
 
                                             if (category.items.lastIndex != index) {
-                                                    Spacer(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .height(1.dp)
-                                                            .background(GrayZero, CircleShape)
-                                                    )
+                                                Spacer(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(1.dp)
+                                                        .background(GrayZero, CircleShape)
+                                                )
                                             }
                                         }
                                     }
 
+                                    // TODO: I think we can merge this with the above item.
                                     if (categoryIndex != nextEvent!!.menu!!.lastIndex) {
                                         item {
                                             Divider(
@@ -669,47 +671,8 @@ fun EateryDetailScreen(
                                     }
                                 }
                             }
-//                                        }
-                        }
-
-                        // confused up until here (thanks justin)
-
-                        item {
-                            Spacer(
-                                modifier = Modifier
-                                    .padding(horizontal = 16.dp)
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(GrayZero, CircleShape)
-                            )
                         }
                     }
-                    //todo this composable is never referenced, get rid of this??
-//    @Composable
-//    fun ReportButtonEateryDetails() {
-//        Surface(
-//            shape = RoundedCornerShape(17.dp),
-//            modifier = Modifier
-//                .height(50.dp)
-//                .padding(vertical = 8.dp),
-//            color = GrayZero,
-//            contentColor = Color.Black
-//        ) {
-//            Row(
-//                verticalAlignment = Alignment.CenterVertically,
-//                modifier = Modifier.padding(ButtonDefaults.ContentPadding)
-//            ) {
-//                Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
-//                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-//                Text(
-//                    text = "Report an Issue",
-//                    style = EateryBlueTypography.button,
-//                    color = Color.Black,
-//                )
-//            }
-//        }
-//    }
-
 
                     item {
                         Spacer(

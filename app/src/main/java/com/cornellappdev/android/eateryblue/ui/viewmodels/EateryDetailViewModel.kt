@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eateryblue.ui.viewmodels
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -17,12 +16,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.log
 
 @HiltViewModel
 class EateryDetailViewModel @Inject constructor(
@@ -55,6 +54,13 @@ class EateryDetailViewModel @Inject constructor(
      * [eateryFlow] is emitting [EateryApiResponse.Success].
      */
     lateinit var mealToShow: StateFlow<Event?>
+
+    private val _searchQueryFlow: MutableStateFlow<String> = MutableStateFlow("")
+
+    /**
+     * A flow emitting which search query the user has typed in.
+     */
+    val searchQueryFlow = this._searchQueryFlow.asStateFlow()
 
     // TODO: This sux lol lets change it to a flow somehow, probably like lateinit
     var isFavorite by mutableStateOf(false)
@@ -123,5 +129,12 @@ class EateryDetailViewModel @Inject constructor(
      */
     fun resetSelectedEvent() {
         _userSelectedMeal.value = null
+    }
+
+    /**
+     * Sets the search query typed in by the user.
+     */
+    fun setSearchQuery(query: String) {
+        _searchQueryFlow.value = query
     }
 }
