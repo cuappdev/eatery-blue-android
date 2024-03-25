@@ -630,8 +630,6 @@ fun EateryDetailScreen(
                                         )
                                     }
 
-                                    // TODO: Using `forEachIndexed()` with just an `item` in it is kinda sus.
-                                    //  Change this to use `itemsIndexed` instead.
                                     itemsIndexed(filteredItems) { index, menuItem ->
                                         Row(
                                             verticalAlignment = Alignment.CenterVertically,
