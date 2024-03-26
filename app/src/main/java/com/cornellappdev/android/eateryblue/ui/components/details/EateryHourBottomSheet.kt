@@ -1,4 +1,4 @@
-package com.cornellappdev.android.eateryblue.ui.components.home
+package com.cornellappdev.android.eateryblue.ui.components.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -95,15 +95,15 @@ fun EateryHourBottomSheet(
         Text(
             modifier = Modifier.padding(top = 2.dp),
             text =
-                    if (openUntil == null) "Closed"
-                    else if(eatery.isClosingSoon()) "Closing at $openUntil"
-                    else ("Open until $openUntil"),
+            if (openUntil == null) "Closed"
+            else if (eatery.isClosingSoon()) "Closing at $openUntil"
+            else ("Open until $openUntil"),
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ),
             color = if (openUntil == null) Red
-                    else if(eatery.isClosingSoon()) Yellow
-                    else Green
+            else if (eatery.isClosingSoon()) Yellow
+            else Green
         )
 
         Spacer(modifier = Modifier.height(12.dp))
