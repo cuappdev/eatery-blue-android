@@ -1,5 +1,5 @@
 syntax = "proto3";
-option java_package = "com.cornellappdev.android.eateryblue";
+option java_package = "com.cornellappdev.android.eatery";
 option java_multiple_files = true;
 
 message UserPreferences {

@@ -16,11 +16,11 @@ def secretsProperties = new Properties()
 secretsProperties.load(new FileInputStream(secretsPropertiesFile))
 
 android {
-    namespace 'com.cornellappdev.android.eateryblue'
+    namespace 'com.cornellappdev.android.eatery'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.cornellappdev.android.eateryblue"
+        applicationId "com.cornellappdev.android.eatery"
         minSdk 28
         targetSdk 34
         versionCode 67
