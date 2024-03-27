@@ -22,11 +22,7 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideHttpClient(): OkHttpClient {
-        val logging = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-            override fun log(message: String) {
-                Log.d("NetworkRequest", message)
-            }
-        })
+        val logging = HttpLoggingInterceptor { message -> Log.d("NetworkRequest", message) }
         logging.level = (HttpLoggingInterceptor.Level.BODY)
 
         return OkHttpClient
