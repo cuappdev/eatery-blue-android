@@ -126,16 +126,19 @@ data class Eatery(
      * Returns the event that should be displayed at the Ithaca local time
      * If there is currently a meal going on, that is displayed
      * If no meal is going on, the next meal is displayed
-     * If the last meal of the day has passed, display the last meal of the day
+     * If the last meal of the day has passed, display the last meal of the day.
+     *
+     * If there are no events whatsoever in the day, null is returned. This should be the only case
+     * that returns null.
      */
-    fun getCurrentDisplayedEvent(): Event {
+    fun getCurrentDisplayedEvent(): Event? {
         val now = LocalDateTime.now()
         val todayEvents = getTodaysEvents()
         val currentEvent = todayEvents.find { event ->
             (event.startTime?.isBefore(now) ?: true) && (event.endTime?.isAfter(now) ?: true)
         }
         return currentEvent ?: todayEvents.find { it.startTime?.isAfter(now) ?: true }
-        ?: todayEvents.last()
+        ?: todayEvents.lastOrNull()
     }
 
 
