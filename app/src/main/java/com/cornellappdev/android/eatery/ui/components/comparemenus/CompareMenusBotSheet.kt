@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.comparemenus
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,10 +28,13 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -43,10 +47,15 @@ import kotlinx.coroutines.launch
 @Composable
 fun CompareMenusBotSheet(
     onDismiss: () -> Unit,
-    homeViewModel: HomeViewModel
-){
+    homeViewModel: HomeViewModel,
+    onCompareMenusClick: () -> Unit
+) {
     val filters = homeViewModel.CMFiltersFlow.collectAsState().value
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
+
+    val selectedEateries = remember {
+        mutableStateOf(setOf<Eatery>())
+    }
 
     Column(
         modifier = Modifier
@@ -54,13 +63,15 @@ fun CompareMenusBotSheet(
             .padding(top = 14.dp)
             .padding(16.dp),
         horizontalAlignment = Alignment.Start
-    ){
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(text = "Compare Menus",style = EateryBlueTypography.h4,
-                color = Color.Black)
+            Text(
+                text = "Compare Menus", style = EateryBlueTypography.h4,
+                color = Color.Black
+            )
             IconButton(
                 onClick = {
                     onDismiss()
@@ -101,29 +112,60 @@ fun CompareMenusBotSheet(
 
             is EateryApiResponse.Success -> {
                 val eateries = eateriesApiResponse.data
-                Box(modifier = Modifier
-                    .fillMaxHeight(0.4f)
-                    .fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight(0.4f)
+                        .fillMaxWidth()
+                ) {
                     LazyColumn {
                         items(eateries) { eatery ->
-                            Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically) {
-                                IconButton(onClick = {}, modifier = Modifier.align(Alignment.CenterVertically)) {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier
-                                            .size(26.dp)
-                                            .background(Color.Black, CircleShape)
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Check,
-                                            contentDescription = "Selected",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(24.dp)
-                                        )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        val currentSet = selectedEateries.value.toMutableSet()
+                                        if (currentSet.contains(eatery)) {
+                                            currentSet.remove(eatery)
+                                        } else {
+                                            currentSet.add(eatery)
+                                        }
+                                        selectedEateries.value = currentSet
+                                    },
+                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                ) {
+                                    if (selectedEateries.value.contains(eatery)) {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier
+                                                .size(26.dp)
+                                                .background(Color.Black, CircleShape)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = "Selected",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(24.dp)
+                                            )
+                                        }
+                                    } else {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier
+                                                .size(26.dp)
+                                                .background(Color.White, CircleShape)
+                                                .border(2.dp, Color.Black, CircleShape)
+                                        ) {
+                                        }
                                     }
                                 }
-                                eatery.name?.let { Text(text = it,style = EateryBlueTypography.body1,
-                                    color = Color.Black) }
+                                eatery.name?.let {
+                                    Text(
+                                        text = it, style = EateryBlueTypography.body1,
+                                        color = Color.Black
+                                    )
+                                }
                             }
                         }
                     }
@@ -135,6 +177,7 @@ fun CompareMenusBotSheet(
 
         Button(
             onClick = {
+                onCompareMenusClick()
             },
             modifier = Modifier
                 .fillMaxWidth(0.6f)
@@ -146,7 +189,8 @@ fun CompareMenusBotSheet(
             )
         ) {
             Text(
-                text = "a button",
+                text = if (selectedEateries.value.size < 2) "Select at least ${2 - selectedEateries.value.size} more"
+                        else "Compare ${selectedEateries.value.size} now",
                 style = EateryBlueTypography.h5,
                 color = Color.White
             )

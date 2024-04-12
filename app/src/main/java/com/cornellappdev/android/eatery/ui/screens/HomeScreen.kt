@@ -65,6 +65,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
@@ -104,7 +105,8 @@ fun HomeScreen(
     onSearchClick: () -> Unit,
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteClick: () -> Unit,
-    onNearestClick: () -> Unit
+    onNearestClick: () -> Unit,
+    onCompareMenusClick: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -294,7 +296,8 @@ fun HomeScreen(
                                     modalBottomSheetState.hide()
                                 }
                             },
-                            homeViewModel = homeViewModel
+                            homeViewModel = homeViewModel,
+                            onCompareMenusClick= onCompareMenusClick
                         )
                     }
                     else -> {}

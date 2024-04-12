@@ -29,6 +29,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.cornellappdev.android.eatery.ui.screens.AboutScreen
+import com.cornellappdev.android.eatery.ui.screens.CompareMenusScreen
 import com.cornellappdev.android.eatery.ui.screens.EateryDetailScreen
 import com.cornellappdev.android.eatery.ui.screens.FavoritesScreen
 import com.cornellappdev.android.eatery.ui.screens.FirstTimeShown
@@ -197,6 +198,8 @@ fun SetupNavHost(
                 navController.navigate(Routes.FAVORITES.route)
             }, onNearestClick = {
                 navController.navigate(Routes.NEAREST.route)
+            }, onCompareMenusClick = {
+                navController.navigate(Routes.COMPAREMENUS.route)
             }
             )
         }
@@ -418,6 +421,21 @@ fun SetupNavHost(
                 )
             }) {
             SupportScreen()
+        }
+        composable(
+            route = Routes.COMPAREMENUS.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
+            }) {
+            CompareMenusScreen()
         }
     }
 }
