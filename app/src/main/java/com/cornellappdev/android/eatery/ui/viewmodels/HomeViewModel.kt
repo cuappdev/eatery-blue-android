@@ -34,6 +34,10 @@ class HomeViewModel @Inject constructor(
      */
     val filtersFlow = _filtersFlow.asStateFlow()
 
+    //todo add specs
+    private val _CMFiltersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
+    val CMFiltersFlow = _CMFiltersFlow.asStateFlow()
+
     /**
      * A flow emitting all eateries with the appropriate filters applied.
      *
@@ -119,6 +123,18 @@ class HomeViewModel @Inject constructor(
         val newList = _filtersFlow.value.toMutableList()
         newList.remove(filter)
         _filtersFlow.value = newList
+    }
+
+    fun addFilterCM(filter: Filter) = viewModelScope.launch {
+        val newList = _CMFiltersFlow.value.toMutableList()
+        newList.add(filter)
+        _CMFiltersFlow.value = newList
+    }
+
+    fun removeFilterCM(filter: Filter) = viewModelScope.launch {
+        val newList = _CMFiltersFlow.value.toMutableList()
+        newList.remove(filter)
+        _CMFiltersFlow.value = newList
     }
 
     fun addPaymentMethodFilters(filters: List<Filter>) = viewModelScope.launch {

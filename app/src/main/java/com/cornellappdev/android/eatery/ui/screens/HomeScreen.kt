@@ -30,15 +30,18 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FabPosition
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -64,6 +67,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
+import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
@@ -71,6 +76,7 @@ import com.cornellappdev.android.eatery.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
 import com.cornellappdev.android.eatery.ui.components.general.PermissionRequestDialog
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
+import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -116,7 +122,8 @@ fun HomeScreen(
 
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
     )
     val coroutineScope = rememberCoroutineScope()
     val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -220,7 +227,43 @@ fun HomeScreen(
 //        }
 
 
-    Box(modifier = Modifier.background(Color.White)) {
+    val scaffoldState = rememberScaffoldState()
+
+    var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
+
+    var showFAB by remember {
+        mutableStateOf(true)
+    }
+
+    //todo this launched effect is a bit slow, there might be a better solution?
+    LaunchedEffect(modalBottomSheetState.currentValue) {
+       if(modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden){
+           showFAB = true
+       }
+    }
+
+    Scaffold(
+        scaffoldState = scaffoldState,
+        floatingActionButton = {
+            if(showFAB) {
+                CompareMenusFAB (
+                    onClick = {
+                        showFAB = false
+                        coroutineScope.launch {
+                        sheetContent = BottomSheetContent.COMPARE_MENUS
+                        modalBottomSheetState.show()
+                        }
+                    }
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End,
+        content = {paddingValues ->
+
+    Box(modifier = Modifier
+        .background(Color.White)
+        .padding(paddingValues)) {
+
         ModalBottomSheetLayout(
             sheetState = modalBottomSheetState,
             sheetShape = RoundedCornerShape(
@@ -231,14 +274,31 @@ fun HomeScreen(
             ),
             sheetElevation = 8.dp,
             sheetContent = {
-                PaymentMethodsBottomSheet(
-                    selectedFilters = selectedPaymentMethodFilters,
-                    hide = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.hide()
-                        }
+                when (sheetContent) {
+                    BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
+                        PaymentMethodsBottomSheet(
+                            selectedFilters = selectedPaymentMethodFilters,
+                            hide = {
+                                showFAB = true
+                                coroutineScope.launch {
+                                    modalBottomSheetState.hide()
+                                }
+                            }
+                        )
                     }
-                )
+                    BottomSheetContent.COMPARE_MENUS ->{
+                        CompareMenusBotSheet(
+                            onDismiss = {
+                                showFAB = true
+                                coroutineScope.launch {
+                                    modalBottomSheetState.hide()
+                                }
+                            },
+                            homeViewModel = homeViewModel
+                        )
+                    }
+                    else -> {}
+                }
             },
             content = { ->
                 val listState = rememberLazyListState()
@@ -689,6 +749,7 @@ fun HomeScreen(
             )
         }
     }
+})
 }
 
 /**
