@@ -39,6 +39,8 @@ import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.GrayFive
+import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
@@ -177,7 +179,12 @@ fun CompareMenusBotSheet(
 
         Button(
             onClick = {
-                onCompareMenusClick()
+                if (selectedEateries.value.size < 2){
+
+                }
+                else{
+                    onCompareMenusClick()
+                }
             },
             modifier = Modifier
                 .fillMaxWidth(0.6f)
@@ -185,7 +192,8 @@ fun CompareMenusBotSheet(
                 .align(Alignment.CenterHorizontally),
             shape = RoundedCornerShape(100),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = EateryBlue, contentColor = Color.White
+                backgroundColor = if (selectedEateries.value.size < 2) GrayTwo else EateryBlue,
+                contentColor = if (selectedEateries.value.size < 2) GrayZero else Color.White
             )
         ) {
             Text(
