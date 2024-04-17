@@ -241,6 +241,7 @@ fun HomeScreen(
     LaunchedEffect(modalBottomSheetState.currentValue) {
        if(modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden){
            showFAB = true
+           sheetContent = BottomSheetContent.PAYMENT_METHODS_AVAILABLE
        }
     }
 

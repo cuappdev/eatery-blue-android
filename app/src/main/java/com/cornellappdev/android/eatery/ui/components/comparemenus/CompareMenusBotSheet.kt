@@ -53,7 +53,7 @@ fun CompareMenusBotSheet(
     onCompareMenusClick: () -> Unit
 ) {
     val filters = homeViewModel.CMFiltersFlow.collectAsState().value
-    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
+    val eateriesApiResponse = homeViewModel.eateryFlowCM.collectAsState().value
 
     val selectedEateries = remember {
         mutableStateOf(setOf<Eatery>())

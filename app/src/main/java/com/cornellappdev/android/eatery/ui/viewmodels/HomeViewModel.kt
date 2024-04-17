@@ -38,6 +38,7 @@ class HomeViewModel @Inject constructor(
     private val _CMFiltersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
     val CMFiltersFlow = _CMFiltersFlow.asStateFlow()
 
+    //todo refactor eateryFlow and eateryFlowCM to avoid code duplication?
     /**
      * A flow emitting all eateries with the appropriate filters applied.
      *
@@ -106,6 +107,29 @@ class HomeViewModel @Inject constructor(
             }
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+
+    //todo add specs
+    val eateryFlowCM: StateFlow<EateryApiResponse<List<Eatery>>> =
+        combine(
+            eateryRepository.homeEateryFlow,
+            _CMFiltersFlow,
+            userPreferencesRepository.favoritesFlow
+        ) { apiResponse, filters, favorites ->
+            when (apiResponse) {
+                is EateryApiResponse.Error -> EateryApiResponse.Error
+                is EateryApiResponse.Pending -> EateryApiResponse.Pending
+                is EateryApiResponse.Success -> {
+                    EateryApiResponse.Success(
+                        apiResponse.data.filter {
+                            passesFilter(it, filters, favorites)
+                        }.sortedBy { eatery ->
+                            eatery.name
+                        }.sortedBy { eatery ->
+                            eatery.isClosed()
+                        })
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
 
     private var bigPopUp by mutableStateOf(false)
 
