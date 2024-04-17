@@ -198,8 +198,8 @@ fun SetupNavHost(
                 navController.navigate(Routes.FAVORITES.route)
             }, onNearestClick = {
                 navController.navigate(Routes.NEAREST.route)
-            }, onCompareMenusClick = {
-                navController.navigate(Routes.COMPAREMENUS.route)
+            }, onCompareMenusClick = {selectedEateries->
+                navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.id.toString() }}")
             }
             )
         }
@@ -423,19 +423,18 @@ fun SetupNavHost(
             SupportScreen()
         }
         composable(
-            route = Routes.COMPAREMENUS.route,
+            route = "comparemenus/{eateryIds}",
+            arguments = listOf(navArgument("eateryIds") { type = NavType.StringType }),
             enterTransition = {
-                fadeIn(
-                    initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 500)
-                )
+                fadeIn(animationSpec = tween(durationMillis = 500))
             },
             exitTransition = {
-                fadeOut(
-                    animationSpec = tween(durationMillis = 500)
-                )
-            }) {
-            CompareMenusScreen()
+                fadeOut(animationSpec = tween(durationMillis = 500))
+            }
+        ) { backStackEntry ->
+            backStackEntry.arguments?.getString("eateryIds")?.split(",")?.map { it.toInt() }?.let { eateryIds ->
+                CompareMenusScreen(eateryIds)
+            }
         }
     }
 }

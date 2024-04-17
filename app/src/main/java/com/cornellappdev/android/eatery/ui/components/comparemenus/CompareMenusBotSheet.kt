@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 fun CompareMenusBotSheet(
     onDismiss: () -> Unit,
     homeViewModel: HomeViewModel,
-    onCompareMenusClick: () -> Unit
+    onCompareMenusClick: (selectedEateries : Set<Eatery>) -> Unit
 ) {
     val filters = homeViewModel.CMFiltersFlow.collectAsState().value
     val eateriesApiResponse = homeViewModel.eateryFlowCM.collectAsState().value
@@ -183,7 +183,7 @@ fun CompareMenusBotSheet(
 
                 }
                 else{
-                    onCompareMenusClick()
+                    onCompareMenusClick(selectedEateries.value)
                 }
             },
             modifier = Modifier
