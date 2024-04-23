@@ -36,7 +36,7 @@ fun EateryDetailsStickyHeader(
     nextEvent: Event?,
     eatery: Eatery,
     filterText: String,
-    onItemClick: (Int) -> Unit // Callback function to handle item click
+    onItemClick: (Int) -> Unit
 ) {
     val targetPosition = remember { mutableStateOf(IntOffset.Zero) }
 
@@ -68,7 +68,7 @@ fun EateryDetailsStickyHeader(
                 }
             } ?: emptyList()
 
-            if (filteredItemsList.isNotEmpty()) {
+            if (!filteredItemsList.isNullOrEmpty()) {
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -83,7 +83,6 @@ fun EateryDetailsStickyHeader(
                     }
 
                     nextEvent?.menu?.forEachIndexed { index, category: MenuCategory ->
-                        if (!filteredItemsList.isNullOrEmpty()) {
                             item {
                                 MenuItem(
                                     category = category,
@@ -97,7 +96,6 @@ fun EateryDetailsStickyHeader(
                                         .width(10.dp)
                                 )
                             }
-                        }
                     }
 
                     item {

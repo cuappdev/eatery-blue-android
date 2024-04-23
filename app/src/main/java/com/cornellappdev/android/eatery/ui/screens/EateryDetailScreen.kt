@@ -762,7 +762,8 @@ fun EateryDetailScreen(
                         enter = fadeIn(animationSpec = tween(100)),
                         exit = fadeOut(animationSpec = tween(100))) {
                         EateryDetailsStickyHeader(nextEvent, eatery, filterText) { index ->
-                            coroutineScope.launch { listState.animateScrollToItem(index + 8) }
+                            println("Clicked item index: $index")
+                            coroutineScope.launch { listState.animateScrollToItem(index + 7) }
                         }
                     }
                 }
