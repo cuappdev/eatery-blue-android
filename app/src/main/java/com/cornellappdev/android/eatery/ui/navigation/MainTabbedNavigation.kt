@@ -425,15 +425,17 @@ fun SetupNavHost(
         composable(
             route = "comparemenus/{eateryIds}",
             arguments = listOf(navArgument("eateryIds") { type = NavType.StringType }),
-            enterTransition = {
-                fadeIn(animationSpec = tween(durationMillis = 500))
-            },
-            exitTransition = {
-                fadeOut(animationSpec = tween(durationMillis = 500))
-            }
+            enterTransition = { fadeIn(animationSpec = tween(durationMillis = 500)) },
+            exitTransition = { fadeOut(animationSpec = tween(durationMillis = 500)) }
         ) { backStackEntry ->
             backStackEntry.arguments?.getString("eateryIds")?.split(",")?.map { it.toInt() }?.let { eateryIds ->
-                CompareMenusScreen(eateryIds)
+                CompareMenusScreen(
+                    eateryIds = eateryIds,
+                    onEateryClick = {
+                        FirstTimeShown.firstTimeShown = false
+                        navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+                    }
+                )
             }
         }
     }

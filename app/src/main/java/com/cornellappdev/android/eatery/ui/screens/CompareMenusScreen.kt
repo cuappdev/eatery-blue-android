@@ -307,7 +307,7 @@ fun CompareMenusScreen(
                                                     Card(
                                                         shape = RoundedCornerShape(20.dp),
                                                         onClick = {
-
+                                                            onEateryClick(eateries[page])
                                                         },
                                                         backgroundColor = GrayZero,
                                                         modifier = Modifier
