@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import android.Manifest
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -34,6 +35,7 @@ import androidx.compose.material.FabPosition
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text

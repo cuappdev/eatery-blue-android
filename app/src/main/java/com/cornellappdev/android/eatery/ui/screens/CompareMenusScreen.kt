@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,6 +32,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -49,6 +51,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -134,12 +137,17 @@ fun CompareMenusScreen(
                     }
                 }
                 LaunchedEffect(scrollingFollowingPair) {
-                    val (scrollingState, followingState) = scrollingFollowingPair ?: return@LaunchedEffect
-                    snapshotFlow { scrollingState.currentPage + scrollingState.currentPageOffsetFraction}
+                    val (scrollingState, followingState) = scrollingFollowingPair
+                        ?: return@LaunchedEffect
+                    snapshotFlow { scrollingState.currentPage + scrollingState.currentPageOffsetFraction }
                         .collect { pagePart ->
                             val divideAndRemainder = BigDecimal.valueOf(pagePart.toDouble())
                                 .divideAndRemainder(BigDecimal.ONE)
-                            val pageOffsetFraction = if (divideAndRemainder[1].toFloat() > 0.5f) 0.5f else Math.max(-0.5f,divideAndRemainder[1].toFloat())
+                            val pageOffsetFraction =
+                                if (divideAndRemainder[1].toFloat() > 0.5f) 0.5f else Math.max(
+                                    -0.5f,
+                                    divideAndRemainder[1].toFloat()
+                                )
                             followingState.scrollToPage(
                                 divideAndRemainder[0].toInt(),
                                 pageOffsetFraction,
@@ -225,7 +233,8 @@ fun CompareMenusScreen(
                                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                             Text(
                                                 text = "Hours", style = TextStyle(
-                                                    fontWeight = FontWeight.SemiBold, fontSize = 16.sp
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    fontSize = 16.sp
                                                 ), color = GrayFive
                                             )
                                         }
@@ -261,7 +270,10 @@ fun CompareMenusScreen(
                                                         Text(
                                                             text = category.category ?: "Category",
                                                             style = EateryBlueTypography.h5,
-                                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                                                            modifier = Modifier.padding(
+                                                                horizontal = 16.dp,
+                                                                vertical = 12.dp
+                                                            )
                                                         )
                                                         category.items?.forEach { menuItem ->
                                                             Column {
@@ -275,9 +287,12 @@ fun CompareMenusScreen(
                                                                     )
                                                                 ) {
                                                                     Text(
-                                                                        text = menuItem.name ?: "Item Name",
+                                                                        text = menuItem.name
+                                                                            ?: "Item Name",
                                                                         style = EateryBlueTypography.button,
-                                                                        modifier = Modifier.weight(1f)
+                                                                        modifier = Modifier.weight(
+                                                                            1f
+                                                                        )
                                                                     )
                                                                 }
                                                                 if (menuItem != category.items.last()) {
@@ -302,7 +317,36 @@ fun CompareMenusScreen(
                                                     }
                                                 }
                                             }
-                                            item{
+                                            if (currentEvent!!.menu == null || currentEvent!!.menu?.isEmpty() == true) {
+                                                item {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .background(Color.White)
+                                                            .clip(shape = RoundedCornerShape(12.dp))
+                                                            .fillMaxWidth()
+                                                            .padding(top = 12.dp, bottom = 12.dp),
+                                                        horizontalArrangement = Arrangement.Center
+                                                    ) {
+                                                        Text(
+                                                            text = "Sorry, there is no menu available now.",
+                                                            color = Color.Black,
+                                                            style = EateryBlueTypography.h5,
+                                                            modifier = Modifier.padding(start = 8.dp),
+                                                            fontWeight = FontWeight(500),
+                                                        )
+                                                    }
+                                                    Divider(
+                                                        color = GrayZero,
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(10.dp)
+                                                    )
+                                                }
+                                            }
+                                            item {
+
+                                            }
+                                            item {
                                                 Column(modifier = Modifier.background(Color.White)) {
                                                     Card(
                                                         shape = RoundedCornerShape(20.dp),
@@ -355,18 +399,24 @@ fun CompareMenusScreen(
                             flingBehavior = PagerDefaults.flingBehavior(
                                 state = secondPagerState,
                                 //pager snap distance literally does nothing
-                                pagerSnapDistance = PagerSnapDistance.atMost(1)
-                            )
-                        ) {
-                            page ->
-                            Box(modifier = Modifier
-                                .padding(top = 8.dp)
-                                .clip(shape = RoundedCornerShape(12.dp))
-                                .background(Color.White)
-                                .fillMaxSize(0.9f)
-                                .wrapContentSize(Alignment.Center)
-                                ){
-                                eateries[page].name?.let { Text(text = it, style = EateryBlueTypography.body1) }
+                                pagerSnapDistance = PagerSnapDistance.atMost(1),
+                            ),
+                        ) { page ->
+                            Box(
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .clip(shape = RoundedCornerShape(8.dp))
+                                    .background(Color.White)
+                                    .fillMaxSize(0.9f)
+                                    .wrapContentSize(Alignment.Center)
+
+                            ) {
+                                eateries[page].name?.let {
+                                    Text(
+                                        text = it,
+                                        style = EateryBlueTypography.button
+                                    )
+                                }
                             }
                         }
                     }

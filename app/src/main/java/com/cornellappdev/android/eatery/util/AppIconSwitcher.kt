@@ -35,10 +35,10 @@ val iconMap = hashMapOf(
         "com.cornellappdev.android.eatery.MainActivityOrange",
         R.drawable.ic_orange_off
     ),
-    AppIcon.VALENTINES to Pair(
-        "com.cornellappdev.android.eatery.MainActivityValentines",
-        R.drawable.ic_valentines_off
-    )
+//    AppIcon.VALENTINES to Pair(
+//        "com.cornellappdev.android.eatery.MainActivityValentines",
+//        R.drawable.ic_valentines_off
+//    )
 )
 
 /**
