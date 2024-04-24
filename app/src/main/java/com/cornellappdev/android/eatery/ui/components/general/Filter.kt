@@ -8,7 +8,8 @@ enum class Filter(val text: String) {
     FAVORITES("Favorites"),
     BRB("BRBs"),
     CASH("Cash or credit"),
-    SWIPES("Meal swipes");
+    SWIPES("Meal swipes"),
+    SELECTED("Selected");
 
     companion object {
         val PAYMENT_METHODS = setOf(BRB, CASH, SWIPES)

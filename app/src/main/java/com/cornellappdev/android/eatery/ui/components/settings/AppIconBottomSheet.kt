@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.settings
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,7 +10,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -47,7 +51,11 @@ import com.cornellappdev.android.eatery.util.AppIcon
 import com.cornellappdev.android.eatery.util.changeIcon
 import com.cornellappdev.android.eatery.util.currentIcon
 import com.cornellappdev.android.eatery.util.iconMap
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 
+@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun AppIconBottomSheet(hide: () -> Unit) {
     val context = LocalContext.current
@@ -75,25 +83,49 @@ fun AppIconBottomSheet(hide: () -> Unit) {
                 Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
             }
         }
+        val pagerState = androidx.compose.foundation.pager.rememberPagerState()
+        androidx.compose.foundation.pager.HorizontalPager(pageCount = 2, state = pagerState, modifier = Modifier.offset(x = -8.dp)){
+            Column{
+                when(it){
+                    0 -> {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            AppIconButton(AppIcon.DEFAULT, selectedAppIcon, setSelectedAppIcon)
+                            AppIconButton(AppIcon.BLUE, selectedAppIcon, setSelectedAppIcon)
+                            AppIconButton(AppIcon.RED, selectedAppIcon, setSelectedAppIcon)
+                        }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            AppIconButton(AppIcon.DEFAULT, selectedAppIcon, setSelectedAppIcon)
-            AppIconButton(AppIcon.BLUE, selectedAppIcon, setSelectedAppIcon)
-            AppIconButton(AppIcon.RED, selectedAppIcon, setSelectedAppIcon)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            AppIconButton(AppIcon.GREEN, selectedAppIcon, setSelectedAppIcon)
+                            AppIconButton(AppIcon.YELLOW, selectedAppIcon, setSelectedAppIcon)
+                            AppIconButton(AppIcon.ORANGE, selectedAppIcon, setSelectedAppIcon)
+                        }
+                    }
+
+                    1-> {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            AppIconButton(AppIcon.VALENTINES, selectedAppIcon, setSelectedAppIcon)
+                            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                        }
+                    }
+                }
+            }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            AppIconButton(AppIcon.GREEN, selectedAppIcon, setSelectedAppIcon)
-            AppIconButton(AppIcon.YELLOW, selectedAppIcon, setSelectedAppIcon)
-            AppIconButton(AppIcon.ORANGE, selectedAppIcon, setSelectedAppIcon)
-        }
 
         Button(
             onClick =

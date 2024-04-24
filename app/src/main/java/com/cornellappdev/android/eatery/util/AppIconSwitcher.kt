@@ -7,7 +7,7 @@ import com.cornellappdev.android.eatery.R
 
 enum class AppIcon {
     //App Icon Sheet
-    DEFAULT, BLUE, RED, GREEN, YELLOW, ORANGE,
+    DEFAULT, BLUE, RED, GREEN, YELLOW, ORANGE, VALENTINES
 }
 
 val iconMap = hashMapOf(
@@ -34,6 +34,10 @@ val iconMap = hashMapOf(
     AppIcon.ORANGE to Pair(
         "com.cornellappdev.android.eatery.MainActivityOrange",
         R.drawable.ic_orange_off
+    ),
+    AppIcon.VALENTINES to Pair(
+        "com.cornellappdev.android.eatery.MainActivityValentines",
+        R.drawable.ic_valentines_off
     )
 )
 

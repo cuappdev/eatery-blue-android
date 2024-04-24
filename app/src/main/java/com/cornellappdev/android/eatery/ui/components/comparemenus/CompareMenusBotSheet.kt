@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.ui.components.general.CompareFilterRow
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -54,10 +55,8 @@ fun CompareMenusBotSheet(
 ) {
     val filters = homeViewModel.CMFiltersFlow.collectAsState().value
     val eateriesApiResponse = homeViewModel.eateryFlowCM.collectAsState().value
+    val selectedEateries = homeViewModel.CMSelectedFlow.collectAsState().value
 
-    val selectedEateries = remember {
-        mutableStateOf(setOf<Eatery>())
-    }
 
     Column(
         modifier = Modifier
@@ -90,7 +89,7 @@ fun CompareMenusBotSheet(
             }
         }
 
-        FilterRow(
+        CompareFilterRow(
             currentFiltersSelected = filters,
             onPaymentMethodsClicked = {},
             onFilterClicked = { filter ->
@@ -127,17 +126,15 @@ fun CompareMenusBotSheet(
                             ) {
                                 IconButton(
                                     onClick = {
-                                        val currentSet = selectedEateries.value.toMutableSet()
-                                        if (currentSet.contains(eatery)) {
-                                            currentSet.remove(eatery)
+                                        if (selectedEateries.contains(eatery)) {
+                                            homeViewModel.removeSelected(eatery)
                                         } else {
-                                            currentSet.add(eatery)
+                                            homeViewModel.addSelected(eatery)
                                         }
-                                        selectedEateries.value = currentSet
                                     },
                                     modifier = Modifier.align(Alignment.CenterVertically)
                                 ) {
-                                    if (selectedEateries.value.contains(eatery)) {
+                                    if (selectedEateries.contains(eatery)) {
                                         Box(
                                             contentAlignment = Alignment.Center,
                                             modifier = Modifier
@@ -179,26 +176,26 @@ fun CompareMenusBotSheet(
 
         Button(
             onClick = {
-                if (selectedEateries.value.size < 2){
+                if (selectedEateries.size < 2){
 
                 }
                 else{
-                    onCompareMenusClick(selectedEateries.value)
+                    onCompareMenusClick(selectedEateries.toSet())
                 }
             },
             modifier = Modifier
-                .fillMaxWidth(0.6f)
+                .fillMaxWidth()
                 .height(48.dp)
                 .align(Alignment.CenterHorizontally),
             shape = RoundedCornerShape(100),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = if (selectedEateries.value.size < 2) GrayTwo else EateryBlue,
-                contentColor = if (selectedEateries.value.size < 2) GrayZero else Color.White
+                backgroundColor = if (selectedEateries.size < 2) GrayTwo else EateryBlue,
+                contentColor = if (selectedEateries.size < 2) GrayZero else Color.White
             )
         ) {
             Text(
-                text = if (selectedEateries.value.size < 2) "Select at least ${2 - selectedEateries.value.size} more"
-                        else "Compare ${selectedEateries.value.size} now",
+                text = if (selectedEateries.size < 2) "Select at least ${2 - selectedEateries.size} more"
+                        else "Compare ${selectedEateries.size} now",
                 style = EateryBlueTypography.h5,
                 color = Color.White
             )

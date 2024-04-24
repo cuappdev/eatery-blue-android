@@ -38,6 +38,9 @@ class HomeViewModel @Inject constructor(
     private val _CMFiltersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
     val CMFiltersFlow = _CMFiltersFlow.asStateFlow()
 
+    private val _CMSelectedFlow: MutableStateFlow<List<Eatery>> = MutableStateFlow(listOf())
+    val CMSelectedFlow = _CMSelectedFlow.asStateFlow()
+
     //todo refactor eateryFlow and eateryFlowCM to avoid code duplication?
     /**
      * A flow emitting all eateries with the appropriate filters applied.
@@ -56,7 +59,7 @@ class HomeViewModel @Inject constructor(
                 is EateryApiResponse.Success -> {
                     EateryApiResponse.Success(
                         apiResponse.data.filter {
-                            passesFilter(it, filters, favorites)
+                            passesFilter(it, filters, favorites, null)
                         }.sortedBy { eatery ->
                             eatery.name
                         }.sortedBy { eatery ->
@@ -113,15 +116,16 @@ class HomeViewModel @Inject constructor(
         combine(
             eateryRepository.homeEateryFlow,
             _CMFiltersFlow,
-            userPreferencesRepository.favoritesFlow
-        ) { apiResponse, filters, favorites ->
+            userPreferencesRepository.favoritesFlow,
+            _CMSelectedFlow
+        ) { apiResponse, filters, favorites, selected ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> EateryApiResponse.Error
                 is EateryApiResponse.Pending -> EateryApiResponse.Pending
                 is EateryApiResponse.Success -> {
                     EateryApiResponse.Success(
                         apiResponse.data.filter {
-                            passesFilter(it, filters, favorites)
+                            passesFilter(it, filters, favorites, selected)
                         }.sortedBy { eatery ->
                             eatery.name
                         }.sortedBy { eatery ->
@@ -137,6 +141,17 @@ class HomeViewModel @Inject constructor(
         bigPopUp = bool
     }
 
+    fun addSelected(eatery : Eatery) = viewModelScope.launch{
+        val newList = _CMSelectedFlow.value.toMutableList()
+        newList.add(eatery)
+        _CMSelectedFlow.value = newList
+    }
+
+    fun removeSelected(eatery : Eatery) = viewModelScope.launch{
+        val newList = _CMSelectedFlow.value.toMutableList()
+        newList.remove(eatery)
+        _CMSelectedFlow.value = newList
+    }
     fun addFilter(filter: Filter) = viewModelScope.launch {
         val newList = _filtersFlow.value.toMutableList()
         newList.add(filter)
@@ -178,7 +193,8 @@ class HomeViewModel @Inject constructor(
     private fun passesFilter(
         eatery: Eatery,
         filters: List<Filter>,
-        favorites: Map<Int, Boolean>
+        favorites: Map<Int, Boolean>,
+        selected: List<Eatery>?
     ): Boolean {
         var passesFilter = true
         if (filters.contains(Filter.UNDER_10)) {
@@ -194,6 +210,10 @@ class HomeViewModel @Inject constructor(
             !filters.contains(Filter.NORTH) &&
                     !filters.contains(Filter.CENTRAL) &&
                     !filters.contains(Filter.WEST)
+
+        if (filters.contains(Filter.SELECTED)){
+            if(!(selected?.contains(eatery) ?: false)) return false
+        }
 
         // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
         // or one/multiple are selected and the eatery is located there.
