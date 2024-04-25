@@ -11,7 +11,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,7 +32,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -52,9 +50,7 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -104,11 +100,10 @@ import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel()
@@ -235,9 +230,16 @@ fun EateryDetailScreen(
                 }
 
                 val listState = rememberLazyListState()
-                val visibleItemIndex = remember(listState) { listState.firstVisibleItemIndex }
 
                 Box {
+                    val fullMenuList = mutableListOf<String>()
+                    nextEvent?.menu?.forEach { category ->
+                        category.category?.let { fullMenuList.add(it) }
+                        category.items?.forEach { item ->
+                            item.name?.let { fullMenuList.add(it) }
+                        }
+                    }
+
                     LazyColumn(
                         state = listState,
                         modifier = Modifier.fillMaxSize()
@@ -761,9 +763,10 @@ fun EateryDetailScreen(
                     AnimatedVisibility(visible = listState.firstVisibleItemIndex >= 1,
                         enter = fadeIn(animationSpec = tween(100)),
                         exit = fadeOut(animationSpec = tween(100))) {
-                        EateryDetailsStickyHeader(nextEvent, eatery, filterText) { index ->
-                            println("Clicked item index: $index")
-                            coroutineScope.launch { listState.animateScrollToItem(index + 7) }
+                        EateryDetailsStickyHeader(nextEvent, eatery, filterText, fullMenuList, listState, eateryDetailViewModel) { index ->
+                            // The first category title has an item index of 8
+                            // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)
+                            coroutineScope.launch { listState.animateScrollToItem(index + 5) }
                         }
                     }
                 }
