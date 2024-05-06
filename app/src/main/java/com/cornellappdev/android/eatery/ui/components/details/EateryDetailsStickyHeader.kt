@@ -248,6 +248,8 @@ fun highlightCategory(
     fullMenuList: MutableList<String>
 ): Boolean {
     val firstVisibleState = remember { derivedStateOf { listState.firstVisibleItemIndex } }
+    // Note: - 5 here assumes that there are 5 UI elements above the menu, which is true currently.
+    //  If that changes, this must be tweaked.
     val firstMenuItemIndex = firstVisibleState.value - 5
 
     if (firstMenuItemIndex >= 0 && firstMenuItemIndex < fullMenuList.size) {
