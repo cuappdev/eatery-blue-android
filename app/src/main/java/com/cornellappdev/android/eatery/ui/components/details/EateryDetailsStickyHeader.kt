@@ -1,5 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.details
 
+import android.util.Log
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -27,6 +30,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +52,7 @@ import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun EateryDetailsStickyHeader(
@@ -55,6 +64,27 @@ fun EateryDetailsStickyHeader(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
     onItemClick: (Int) -> Unit
 ) {
+    val rowState = rememberLazyListState()
+    val rowCoroutine = rememberCoroutineScope()
+    val selectedEvent = nextEvent?.menu?.find { category ->
+        highlightCategory(
+            category,
+            listState,
+            nextEvent,
+            fullMenuList
+        )
+    }
+    val selectedIndex: Int =
+        if (selectedEvent != null) nextEvent.menu.indexOf(selectedEvent) else -1
+
+    // Whenever the selected index changes, scroll to the new item.
+    LaunchedEffect(selectedIndex) {
+        if (selectedIndex != -1)
+            rowCoroutine.launch {
+                rowState.animateScrollToItem(selectedIndex)
+            }
+    }
+
     Column {
         Column(
             modifier = Modifier
@@ -62,7 +92,11 @@ fun EateryDetailsStickyHeader(
                 .background(Color.White)
                 .padding(top = 48.dp, bottom = 12.dp)
         ) {
-            Box(modifier = Modifier.fillMaxWidth().height(40.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+            ) {
                 Text(
                     modifier = Modifier
                         .height(24.dp)
@@ -90,7 +124,10 @@ fun EateryDetailsStickyHeader(
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = Color.White,
                     ),
-                    elevation = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 0.dp)
+                    elevation = ButtonDefaults.elevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp
+                    )
                 ) {
                     Icon(
                         imageVector = if (eateryDetailViewModel.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
@@ -108,12 +145,12 @@ fun EateryDetailsStickyHeader(
                 }
             } ?: emptyList()
 
-            if (!filteredItemsList.isNullOrEmpty()) {
-
+            if (filteredItemsList.isNotEmpty()) {
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(34.dp)
+                        .height(34.dp),
+                    state = rowState
                 ) {
                     item {
                         Spacer(
@@ -126,11 +163,15 @@ fun EateryDetailsStickyHeader(
                     nextEvent?.menu?.forEach { category ->
                         item {
                             val categoryIndex = fullMenuList.indexOf(category.category)
-                            CategoryItem(
+                            val isHighlighted = highlightCategory(
                                 category,
                                 listState,
                                 nextEvent,
                                 fullMenuList
+                            )
+                            CategoryItem(
+                                category.category ?: "Category",
+                                isHighlighted,
                             ) { onItemClick(categoryIndex) }
                         }
                         item {
@@ -163,20 +204,19 @@ fun EateryDetailsStickyHeader(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CategoryItem(
-    category: MenuCategory,
-    listState: LazyListState,
-    nextEvent: Event?,
-    fullMenuList: MutableList<String>,
+    name: String,
+    isHighlighted: Boolean,
     onItemClick: () -> Unit
 ) {
-    val isHighlighted = highlightCategory(
-        category,
-        listState,
-        nextEvent,
-        fullMenuList
+    val backgroundColor by animateColorAsState(
+        if (isHighlighted) Color.Black else Color.White,
+        label = "Background Color"
     )
-    val backgroundColor = if (isHighlighted) Color.Black else Color.White
-    val textColor = if (isHighlighted) Color.White else GrayFive
+    val textColor by animateColorAsState(
+        if (isHighlighted) Color.White else GrayFive,
+        label = "Text Color"
+    )
+
     Surface(
         modifier = Modifier.fillMaxHeight(),
         shape = RoundedCornerShape(100),
@@ -187,7 +227,7 @@ fun CategoryItem(
             modifier = Modifier
                 .height(180.dp)
                 .padding(vertical = 8.dp, horizontal = 10.dp),
-            text = category.category ?: "Category",
+            text = name,
             color = textColor,
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold,
@@ -197,26 +237,33 @@ fun CategoryItem(
     }
 }
 
+/**
+ * Returns true if the given menu category should be highlighted (i.e. it is scrolled to).
+ */
 @Composable
-fun highlightCategory(category: MenuCategory, listState: LazyListState, nextEvent: Event?, fullMenuList: MutableList<String>): Boolean {
-        val firstMenuItemIndex = listState.firstVisibleItemIndex - 5
+fun highlightCategory(
+    category: MenuCategory,
+    listState: LazyListState,
+    nextEvent: Event?,
+    fullMenuList: MutableList<String>
+): Boolean {
+    val firstVisibleState = remember { derivedStateOf { listState.firstVisibleItemIndex } }
+    val firstMenuItemIndex = firstVisibleState.value - 5
 
-        if (firstMenuItemIndex >= 0 && firstMenuItemIndex < fullMenuList.size) {
-            val item = fullMenuList[firstMenuItemIndex]
-            val isCategoryName = nextEvent?.menu?.any { category ->
-                category.category == item
-            } ?: false
+    if (firstMenuItemIndex >= 0 && firstMenuItemIndex < fullMenuList.size) {
+        val item = fullMenuList[firstMenuItemIndex]
+        val isCategoryName = nextEvent?.menu?.any { it.category == item } ?: false
 
-            if(isCategoryName) {
-                return category.category == item
-            } else {
-                for (i in firstMenuItemIndex - 1 downTo 0) {
-                    val previousItem = fullMenuList[i]
-                    if (nextEvent?.menu?.any { category -> category.category == previousItem } == true) {
-                        return category.category == previousItem
-                    }
+        if (isCategoryName) {
+            return category.category == item
+        } else {
+            for (i in firstMenuItemIndex - 1 downTo 0) {
+                val previousItem = fullMenuList[i]
+                if (nextEvent?.menu?.any { it.category == previousItem } == true) {
+                    return category.category == previousItem
                 }
             }
         }
+    }
     return false
 }
