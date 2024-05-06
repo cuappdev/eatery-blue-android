@@ -99,14 +99,14 @@ fun EateryDetailsStickyHeader(
             ) {
                 Text(
                     modifier = Modifier
-                        .height(24.dp)
+                        .height(26.dp)
                         .widthIn(0.dp, 280.dp)
                         .align(Alignment.Center),
                     textAlign = TextAlign.Center,
                     text = eatery.name ?: "Loading...",
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    color = GrayFive,
+                    color = Color.Black,
                     style = TextStyle(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 20.sp
@@ -137,7 +137,7 @@ fun EateryDetailsStickyHeader(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             val filteredItemsList = nextEvent?.menu?.mapNotNull { category ->
                 category.items?.filter {
