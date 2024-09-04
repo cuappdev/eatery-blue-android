@@ -58,6 +58,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -239,6 +240,11 @@ fun HomeScreen(
         mutableStateOf(true)
     }
 
+    val compareMenusScale by animateFloatAsState(
+        targetValue = if (showFAB) 1.0f else 0.0f,
+        label = "fab_scale"
+    )
+
     //todo this launched effect is a bit slow, there might be a better solution?
     LaunchedEffect(modalBottomSheetState.currentValue) {
        if(modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden){
@@ -250,16 +256,18 @@ fun HomeScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
-            if(showFAB) {
-                CompareMenusFAB (
-                    onClick = {
-                        showFAB = false
-                        coroutineScope.launch {
-                        sheetContent = BottomSheetContent.COMPARE_MENUS
-                        modalBottomSheetState.show()
-                        }
-                    }
-                )
+            CompareMenusFAB(
+                modifier = Modifier.scale(compareMenusScale),
+            ) {
+                if (!showFAB) {
+                    return@CompareMenusFAB
+                }
+
+                showFAB = false
+                coroutineScope.launch {
+                    sheetContent = BottomSheetContent.COMPARE_MENUS
+                    modalBottomSheetState.show()
+                }
             }
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -284,7 +292,6 @@ fun HomeScreen(
                         PaymentMethodsBottomSheet(
                             selectedFilters = selectedPaymentMethodFilters,
                             hide = {
-                                showFAB = true
                                 coroutineScope.launch {
                                     modalBottomSheetState.hide()
                                 }
@@ -294,7 +301,6 @@ fun HomeScreen(
                     BottomSheetContent.COMPARE_MENUS ->{
                         CompareMenusBotSheet(
                             onDismiss = {
-                                showFAB = true
                                 coroutineScope.launch {
                                     modalBottomSheetState.hide()
                                 }
