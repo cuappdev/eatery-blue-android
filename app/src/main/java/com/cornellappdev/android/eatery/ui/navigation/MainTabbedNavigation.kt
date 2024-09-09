@@ -193,9 +193,9 @@ fun SetupNavHost(
             }, onEateryClick = {
                 FirstTimeShown.firstTimeShown = false
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            }, onFavoriteClick = {
+            }, onFavoriteExpand = {
                 navController.navigate(Routes.FAVORITES.route)
-            }, onNearestClick = {
+            }, onNearestExpand = {
                 navController.navigate(Routes.NEAREST.route)
             }
             )
