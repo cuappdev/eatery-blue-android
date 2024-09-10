@@ -26,6 +26,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -91,13 +92,6 @@ fun HomeScreen(
     onNearestExpand: () -> Unit
 ) {
     val context = LocalContext.current
-    val onFavoriteClick: (Eatery, Boolean) -> Unit = { eatery, favorite ->
-        if (favorite) {
-            homeViewModel.addFavorite(eatery.id)
-        } else {
-            homeViewModel.removeFavorite(eatery.id)
-        }
-    }
 
     val notificationPermissionState =
         rememberMultiplePermissionsState(
@@ -116,25 +110,6 @@ fun HomeScreen(
         initialValue = ModalBottomSheetValue.Hidden
     )
     val coroutineScope = rememberCoroutineScope()
-    val shimmer = rememberShimmer(ShimmerBounds.View)
-
-    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
-    val filters = homeViewModel.filtersFlow.collectAsState().value
-    val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
-    val favorites = homeViewModel.favoriteEateries.collectAsState().value
-
-    // Code-ugly workaround to make favorites disappearing animation look good.
-    // lastFavorite will, whenever the favorites is deleted, persist the last favorite for a bit.
-    var lastFavorite: Eatery? by remember { mutableStateOf(null) }
-    if (favorites.isNotEmpty()) {
-        lastFavorite = favorites[0]
-    }
-    // A sneaky 6 dp tween.
-    val tweenHeight by animateFloatAsState(
-        targetValue = if (favorites.isEmpty()) 6f else 0f,
-        animationSpec = tween(600, delayMillis = 350),
-        label = "Sneaky tween"
-    )
 
     // Here a DisposableEffect is launched when the bottom sheet opens. 
     // When it disappears it's from the view hierarchy, which will cause
@@ -168,244 +143,17 @@ fun HomeScreen(
                     }
                 )
             },
-            content = { ->
-                val listState = rememberLazyListState()
-                val isFirstVisible =
-                    remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
-
-                // Whole page is meant to be scrollable, hence the use of a LazyColumn here.
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    stickyHeader {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(EateryBlue)
-                                .then(Modifier.statusBarsPadding())
-                                .padding(bottom = 7.dp),
-                        ) {
-                            AnimatedContent(
-                                targetState = isFirstVisible.value
-                            ) { isFirstVisible ->
-                                if (isFirstVisible) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = 12.dp)
-                                    ) {
-                                        Text(
-                                            modifier = Modifier.align(Alignment.Center),
-                                            textAlign = TextAlign.Center,
-                                            text = "Eatery",
-                                            color = Color.White,
-                                            style = TextStyle(
-                                                fontWeight = FontWeight.SemiBold,
-                                                fontSize = 20.sp
-                                            )
-                                        )
-
-                                        IconButton(
-                                            modifier = Modifier.align(Alignment.CenterEnd),
-                                            onClick = {
-                                                onSearchClick()
-                                            }
-                                        ) {
-                                            Icon(
-                                                Icons.Default.Search,
-                                                contentDescription = Icons.Default.Search.name,
-                                                tint = Color.White
-                                            )
-                                        }
-                                    }
-                                } else {
-                                    Column(
-                                        modifier = Modifier.padding(
-                                            start = 16.dp,
-                                            end = 16.dp,
-                                            top = 24.dp
-                                        )
-                                    ) {
-                                        AnimatedVisibility(
-                                            visible = eateriesApiResponse is EateryApiResponse.Success
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.ic_eaterylogo),
-                                                contentDescription = null,
-                                                tint = Color.White
-                                            )
-                                        }
-                                        Text(
-                                            text = "Eatery",
-                                            color = Color.White,
-                                            style = EateryBlueTypography.h2
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    when (eateriesApiResponse) {
-                        is EateryApiResponse.Pending -> {
-                            items(MainLoadingItem.mainItems) { item ->
-                                CreateMainLoadingItem(item, shimmer)
-                            }
-                        }
-
-                        is EateryApiResponse.Error -> {
-                            // TODO Add No Internet/Oopsie display
-                        }
-
-                        is EateryApiResponse.Success -> {
-                            val eateries = eateriesApiResponse.data
-
-                            item {
-                                SearchBar(
-                                    searchText = "",
-                                    onSearchTextChange = { },
-                                    placeholderText = "Search for grub...",
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp)
-                                        .padding(top = 12.dp, bottom = 6.dp)
-                                        .clickable {
-                                            onSearchClick()
-                                        },
-                                    onCancelClicked = {},
-                                    enabled = false
-                                )
-
-                                FilterRow(
-                                    currentFiltersSelected = filters,
-                                    onPaymentMethodsClicked = {
-                                        coroutineScope.launch {
-                                            modalBottomSheetState.show()
-                                        }
-                                    },
-                                    onFilterClicked = { filter ->
-                                        if (filters.contains(filter)) {
-                                            homeViewModel.removeFilter(filter)
-                                        } else {
-                                            homeViewModel.addFilter(filter)
-                                        }
-                                    })
-                            }
-
-                            if (filters.isNotEmpty()) {
-                                // Eateries found; display new screen. O/W, reset filter screen.
-                                if (eateries.isNotEmpty()) {
-                                    items(eateries) { eatery ->
-                                        Box(
-                                            Modifier.padding(
-                                                horizontal = 16.dp,
-                                                vertical = 12.dp
-                                            )
-                                        ) {
-                                            EateryCard(
-                                                eatery = eatery,
-                                                isFavorite = favorites.any { favoriteEatery ->
-                                                    favoriteEatery.id == eatery.id
-                                                },
-                                                onFavoriteClick = {
-                                                    if (it) {
-                                                        homeViewModel.addFavorite(eatery.id)
-                                                    } else {
-                                                        homeViewModel.removeFavorite(eatery.id)
-                                                    }
-                                                }) {
-                                                onEateryClick(it)
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    item {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillParentMaxHeight(0.7f)
-                                                .fillMaxWidth()
-                                        ) {
-                                            NoEateryFound(modifier = Modifier.align(Alignment.Center)) {
-                                                homeViewModel.resetFilters()
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                item {
-                                    Spacer(modifier = Modifier.height(6.dp))
-
-                                    // If should show "fake" last favorite persisting for a bit.
-                                    val showFake = favorites.isEmpty() && lastFavorite != null
-
-                                    EateryHomeSection(
-                                        title = "Favorites",
-                                        eateries = favorites,
-                                        overflowEatery = if (showFake) lastFavorite else null,
-                                        onEateryClick = onEateryClick,
-                                        onFavoriteClick = onFavoriteClick,
-                                        onExpandClick = onFavoriteExpand,
-                                        favoritesDecider = { true }
-                                    )
-                                }
-
-                                item {
-                                    // Sneaky spacer to make padding work right for favorites.
-                                    Spacer(modifier = Modifier.height(tweenHeight.dp))
-
-                                    EateryHomeSection(
-                                        title = "Nearest to You",
-                                        eateries = nearestEateries,
-                                        onEateryClick = onEateryClick,
-                                        onFavoriteClick = onFavoriteClick,
-                                        onExpandClick = onNearestExpand,
-                                        favoritesDecider = { favorites.contains(it) }
-                                    )
-                                }
-
-                                item {
-                                    Text(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(start = 16.dp, bottom = 12.dp),
-                                        text = "All Eateries",
-                                        style = EateryBlueTypography.h4,
-                                    )
-                                }
-
-                                itemsIndexed(
-                                    eateries
-                                ) { index, eatery ->
-                                    Box(
-                                        Modifier.padding(
-                                            start = 16.dp,
-                                            end = 16.dp,
-                                            // Handles the padding between items
-                                            top = if (index != 0) 12.dp else 0.dp
-                                        )
-                                    ) {
-                                        EateryCard(
-                                            eatery = eatery,
-                                            isFavorite = favorites.any { favoriteEatery ->
-                                                favoriteEatery.id == eatery.id
-                                            },
-                                            onFavoriteClick = {
-                                                if (it) {
-                                                    homeViewModel.addFavorite(eatery.id)
-                                                } else {
-                                                    homeViewModel.removeFavorite(eatery.id)
-                                                }
-                                            }) {
-                                            onEateryClick(it)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            })
+            content = {
+                HomeScrollableMainContent(
+                    onSearchClick = onSearchClick,
+                    onEateryClick = onEateryClick,
+                    onFavoriteExpand = onFavoriteExpand,
+                    onNearestExpand = onNearestExpand,
+                    homeViewModel = homeViewModel,
+                    modalBottomSheetState = modalBottomSheetState
+                )
+            }
+        )
 
         if (FirstTimeShown.firstTimeShown) {
             PermissionRequestDialog(
@@ -415,6 +163,281 @@ fun HomeScreen(
                     homeViewModel.setNotificationFlowCompleted(it)
                 }
             )
+        }
+    }
+}
+
+@OptIn(
+    ExperimentalFoundationApi::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalMaterialApi::class,
+)
+@Composable
+private fun HomeScrollableMainContent(
+    onSearchClick: () -> Unit,
+    onEateryClick: (eatery: Eatery) -> Unit,
+    onFavoriteExpand: () -> Unit,
+    onNearestExpand: () -> Unit,
+    homeViewModel: HomeViewModel,
+    modalBottomSheetState: ModalBottomSheetState,
+) {
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val isFirstVisible =
+        remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
+
+    val onFavoriteClick: (Eatery, Boolean) -> Unit = { eatery, favorite ->
+        if (favorite) {
+            homeViewModel.addFavorite(eatery.id)
+        } else {
+            homeViewModel.removeFavorite(eatery.id)
+        }
+    }
+
+    val favorites = homeViewModel.favoriteEateries.collectAsState().value
+    val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
+    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
+    val filters = homeViewModel.filtersFlow.collectAsState().value
+    val shimmer = rememberShimmer(ShimmerBounds.View)
+
+    // Code-ugly workaround to make favorites disappearing animation look good.
+    // lastFavorite will, whenever the favorites is deleted, persist the last favorite for a bit.
+    var lastFavorite: Eatery? by remember { mutableStateOf(null) }
+    if (favorites.isNotEmpty()) {
+        lastFavorite = favorites[0]
+    }
+
+    // A sneaky 6 dp tween.
+    val tweenHeight by animateFloatAsState(
+        targetValue = if (favorites.isEmpty()) 6f else 0f,
+        animationSpec = tween(600, delayMillis = 350),
+        label = "Sneaky tween"
+    )
+
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        stickyHeader {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(EateryBlue)
+                    .then(Modifier.statusBarsPadding())
+                    .padding(bottom = 7.dp),
+            ) {
+                AnimatedContent(
+                    targetState = isFirstVisible.value
+                ) { isFirstVisible ->
+                    if (isFirstVisible) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp)
+                        ) {
+                            Text(
+                                modifier = Modifier.align(Alignment.Center),
+                                textAlign = TextAlign.Center,
+                                text = "Eatery",
+                                color = Color.White,
+                                style = TextStyle(
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 20.sp
+                                )
+                            )
+
+                            IconButton(
+                                modifier = Modifier.align(Alignment.CenterEnd),
+                                onClick = {
+                                    onSearchClick()
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Default.Search,
+                                    contentDescription = Icons.Default.Search.name,
+                                    tint = Color.White
+                                )
+                            }
+                        }
+                    } else {
+                        Column(
+                            modifier = Modifier.padding(
+                                start = 16.dp,
+                                end = 16.dp,
+                                top = 24.dp
+                            )
+                        ) {
+                            AnimatedVisibility(
+                                visible = eateriesApiResponse is EateryApiResponse.Success
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_eaterylogo),
+                                    contentDescription = null,
+                                    tint = Color.White
+                                )
+                            }
+                            Text(
+                                text = "Eatery",
+                                color = Color.White,
+                                style = EateryBlueTypography.h2
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        when (eateriesApiResponse) {
+            is EateryApiResponse.Pending -> {
+                items(MainLoadingItem.mainItems) { item ->
+                    CreateMainLoadingItem(item, shimmer)
+                }
+            }
+
+            is EateryApiResponse.Error -> {
+                // TODO Add No Internet/Oopsie display
+            }
+
+            is EateryApiResponse.Success -> {
+                val eateries = eateriesApiResponse.data
+
+                item {
+                    SearchBar(
+                        searchText = "",
+                        onSearchTextChange = { },
+                        placeholderText = "Search for grub...",
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 12.dp, bottom = 6.dp)
+                            .clickable {
+                                onSearchClick()
+                            },
+                        onCancelClicked = {},
+                        enabled = false
+                    )
+
+                    FilterRow(
+                        currentFiltersSelected = filters,
+                        onPaymentMethodsClicked = {
+                            coroutineScope.launch {
+                                modalBottomSheetState.show()
+                            }
+                        },
+                        onFilterClicked = { filter ->
+                            if (filters.contains(filter)) {
+                                homeViewModel.removeFilter(filter)
+                            } else {
+                                homeViewModel.addFilter(filter)
+                            }
+                        }
+                    )
+                }
+
+                if (filters.isNotEmpty()) {
+                    // Eateries found; display new screen. O/W, reset filter screen.
+                    if (eateries.isNotEmpty()) {
+                        items(eateries) { eatery ->
+                            Box(
+                                Modifier.padding(
+                                    horizontal = 16.dp,
+                                    vertical = 12.dp
+                                )
+                            ) {
+                                EateryCard(
+                                    eatery = eatery,
+                                    isFavorite = favorites.any { favoriteEatery ->
+                                        favoriteEatery.id == eatery.id
+                                    },
+                                    onFavoriteClick = {
+                                        onFavoriteClick(eatery, it)
+                                    }
+                                ) {
+                                    onEateryClick(it)
+                                }
+                            }
+                        }
+                    } else {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillParentMaxHeight(0.7f)
+                                    .fillMaxWidth()
+                            ) {
+                                NoEateryFound(modifier = Modifier.align(Alignment.Center)) {
+                                    homeViewModel.resetFilters()
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    item {
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        // If should show "fake" last favorite persisting for a bit.
+                        val showFake = favorites.isEmpty() && lastFavorite != null
+
+                        EateryHomeSection(
+                            title = "Favorites",
+                            eateries = favorites,
+                            overflowEatery = if (showFake) lastFavorite else null,
+                            onEateryClick = onEateryClick,
+                            onFavoriteClick = onFavoriteClick,
+                            onExpandClick = onFavoriteExpand,
+                            favoritesDecider = { true }
+                        )
+                    }
+
+                    item {
+                        // Sneaky spacer to make padding work right for favorites.
+                        Spacer(modifier = Modifier.height(tweenHeight.dp))
+
+                        EateryHomeSection(
+                            title = "Nearest to You",
+                            eateries = nearestEateries,
+                            onEateryClick = onEateryClick,
+                            onFavoriteClick = onFavoriteClick,
+                            onExpandClick = onNearestExpand,
+                            favoritesDecider = { favorites.contains(it) }
+                        )
+                    }
+
+                    item {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, bottom = 12.dp),
+                            text = "All Eateries",
+                            style = EateryBlueTypography.h4,
+                        )
+                    }
+
+                    itemsIndexed(
+                        eateries
+                    ) { index, eatery ->
+                        Box(
+                            Modifier.padding(
+                                start = 16.dp,
+                                end = 16.dp,
+                                // Handles the padding between items
+                                top = if (index != 0) 12.dp else 0.dp
+                            )
+                        ) {
+                            EateryCard(
+                                eatery = eatery,
+                                isFavorite = favorites.any { favoriteEatery ->
+                                    favoriteEatery.id == eatery.id
+                                },
+                                onFavoriteClick = {
+                                    onFavoriteClick(eatery, it)
+                                }
+                            ) {
+                                onEateryClick(it)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
