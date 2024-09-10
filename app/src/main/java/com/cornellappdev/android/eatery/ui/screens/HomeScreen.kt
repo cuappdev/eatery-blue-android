@@ -309,7 +309,7 @@ private fun HomeScrollableMainContent(
                             onEateryClick = onEateryClick,
                             onFavoriteClick = onFavoriteClick,
                             onExpandClick = onFavoriteExpand,
-                            favoritesDecider = { true }
+                            favoritesDecider = { !showFake }
                         )
                     }
 
