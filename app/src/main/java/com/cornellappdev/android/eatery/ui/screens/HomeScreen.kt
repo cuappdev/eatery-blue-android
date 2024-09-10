@@ -79,8 +79,8 @@ import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
 
 @OptIn(
-    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class, ExperimentalPermissionsApi::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalPermissionsApi::class,
 )
 @Composable
 fun HomeScreen(
@@ -169,7 +169,6 @@ fun HomeScreen(
 
 @OptIn(
     ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class,
     ExperimentalMaterialApi::class,
 )
 @Composable
@@ -220,72 +219,11 @@ private fun HomeScrollableMainContent(
             .fillMaxSize()
     ) {
         stickyHeader {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(EateryBlue)
-                    .then(Modifier.statusBarsPadding())
-                    .padding(bottom = 7.dp),
-            ) {
-                AnimatedContent(
-                    targetState = isFirstVisible.value
-                ) { isFirstVisible ->
-                    if (isFirstVisible) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 12.dp)
-                        ) {
-                            Text(
-                                modifier = Modifier.align(Alignment.Center),
-                                textAlign = TextAlign.Center,
-                                text = "Eatery",
-                                color = Color.White,
-                                style = TextStyle(
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 20.sp
-                                )
-                            )
-
-                            IconButton(
-                                modifier = Modifier.align(Alignment.CenterEnd),
-                                onClick = {
-                                    onSearchClick()
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Default.Search,
-                                    contentDescription = Icons.Default.Search.name,
-                                    tint = Color.White
-                                )
-                            }
-                        }
-                    } else {
-                        Column(
-                            modifier = Modifier.padding(
-                                start = 16.dp,
-                                end = 16.dp,
-                                top = 24.dp
-                            )
-                        ) {
-                            AnimatedVisibility(
-                                visible = eateriesApiResponse is EateryApiResponse.Success
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_eaterylogo),
-                                    contentDescription = null,
-                                    tint = Color.White
-                                )
-                            }
-                            Text(
-                                text = "Eatery",
-                                color = Color.White,
-                                style = EateryBlueTypography.h2
-                            )
-                        }
-                    }
-                }
-            }
+            HomeStickyHeader(
+                collapsed = isFirstVisible.value,
+                loaded = eateriesApiResponse is EateryApiResponse.Success,
+                onSearchClick = onSearchClick
+            )
         }
 
         when (eateriesApiResponse) {
@@ -296,39 +234,26 @@ private fun HomeScrollableMainContent(
             }
 
             is EateryApiResponse.Error -> {
-                // TODO Add No Internet/Oopsie display
+                // TODO: Add No Internet State
             }
 
             is EateryApiResponse.Success -> {
                 val eateries = eateriesApiResponse.data
 
                 item {
-                    SearchBar(
-                        searchText = "",
-                        onSearchTextChange = { },
-                        placeholderText = "Search for grub...",
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(top = 12.dp, bottom = 6.dp)
-                            .clickable {
-                                onSearchClick()
-                            },
-                        onCancelClicked = {},
-                        enabled = false
-                    )
-
-                    FilterRow(
-                        currentFiltersSelected = filters,
-                        onPaymentMethodsClicked = {
-                            coroutineScope.launch {
-                                modalBottomSheetState.show()
-                            }
-                        },
+                    HomeMainHeader(
+                        onSearchClick = onSearchClick,
+                        filters = filters,
                         onFilterClicked = { filter ->
                             if (filters.contains(filter)) {
                                 homeViewModel.removeFilter(filter)
                             } else {
                                 homeViewModel.addFilter(filter)
+                            }
+                        },
+                        onPaymentMethodsClicked = {
+                            coroutineScope.launch {
+                                modalBottomSheetState.show()
                             }
                         }
                     )
@@ -440,6 +365,109 @@ private fun HomeScrollableMainContent(
             }
         }
     }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun HomeStickyHeader(
+    collapsed: Boolean,
+    loaded: Boolean,
+    onSearchClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(EateryBlue)
+            .then(Modifier.statusBarsPadding())
+            .padding(bottom = 7.dp),
+    ) {
+        AnimatedContent(
+            targetState = collapsed
+        ) { collapsed ->
+            if (collapsed) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        textAlign = TextAlign.Center,
+                        text = "Eatery",
+                        color = Color.White,
+                        style = TextStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp
+                        )
+                    )
+
+                    IconButton(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        onClick = {
+                            onSearchClick()
+                        }
+                    ) {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = Icons.Default.Search.name,
+                            tint = Color.White
+                        )
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 24.dp
+                    )
+                ) {
+                    AnimatedVisibility(
+                        visible = loaded,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_eaterylogo),
+                            contentDescription = null,
+                            tint = Color.White
+                        )
+                    }
+                    Text(
+                        text = "Eatery",
+                        color = Color.White,
+                        style = EateryBlueTypography.h2
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeMainHeader(
+    onSearchClick: () -> Unit,
+    filters: List<Filter>,
+    onFilterClicked: (Filter) -> Unit,
+    onPaymentMethodsClicked: () -> Unit,
+) {
+    SearchBar(
+        searchText = "",
+        onSearchTextChange = { },
+        placeholderText = "Search for grub...",
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .padding(top = 12.dp, bottom = 6.dp)
+            .clickable {
+                onSearchClick()
+            },
+        onCancelClicked = {},
+        enabled = false
+    )
+
+    FilterRow(
+        currentFiltersSelected = filters,
+        onPaymentMethodsClicked = onPaymentMethodsClicked,
+        onFilterClicked = onFilterClicked,
+    )
 }
 
 /**
