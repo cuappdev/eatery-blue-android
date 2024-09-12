@@ -92,6 +92,10 @@ fun HomeScreen(
     onNearestExpand: () -> Unit
 ) {
     val context = LocalContext.current
+    val favorites = homeViewModel.favoriteEateries.collectAsState().value
+    val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
+    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
+    val filters = homeViewModel.filtersFlow.collectAsState().value
 
     val notificationPermissionState =
         rememberMultiplePermissionsState(
@@ -149,8 +153,28 @@ fun HomeScreen(
                     onEateryClick = onEateryClick,
                     onFavoriteExpand = onFavoriteExpand,
                     onNearestExpand = onNearestExpand,
-                    homeViewModel = homeViewModel,
-                    modalBottomSheetState = modalBottomSheetState
+                    modalBottomSheetState = modalBottomSheetState,
+                    eateriesApiResponse = eateriesApiResponse,
+                    favorites = favorites,
+                    nearestEateries = nearestEateries,
+                    filters = filters,
+                    onFavoriteClick = { eatery, favorite ->
+                        if (favorite) {
+                            homeViewModel.addFavorite(eatery.id)
+                        } else {
+                            homeViewModel.removeFavorite(eatery.id)
+                        }
+                    },
+                    onFilterClicked = { filter ->
+                        if (filters.contains(filter)) {
+                            homeViewModel.removeFilter(filter)
+                        } else {
+                            homeViewModel.addFilter(filter)
+                        }
+                    },
+                    onResetFilters = {
+                        homeViewModel.resetFilters()
+                    }
                 )
             }
         )
@@ -176,27 +200,21 @@ private fun HomeScrollableMainContent(
     onSearchClick: () -> Unit,
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteExpand: () -> Unit,
+    onFavoriteClick: (Eatery, Boolean) -> Unit,
+    onFilterClicked: (Filter) -> Unit,
+    onResetFilters: () -> Unit,
     onNearestExpand: () -> Unit,
-    homeViewModel: HomeViewModel,
     modalBottomSheetState: ModalBottomSheetState,
+    eateriesApiResponse: EateryApiResponse<List<Eatery>>,
+    nearestEateries: List<Eatery>,
+    favorites: List<Eatery>,
+    filters: List<Filter>,
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val isFirstVisible =
         remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
 
-    val onFavoriteClick: (Eatery, Boolean) -> Unit = { eatery, favorite ->
-        if (favorite) {
-            homeViewModel.addFavorite(eatery.id)
-        } else {
-            homeViewModel.removeFavorite(eatery.id)
-        }
-    }
-
-    val favorites = homeViewModel.favoriteEateries.collectAsState().value
-    val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
-    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
-    val filters = homeViewModel.filtersFlow.collectAsState().value
     val shimmer = rememberShimmer(ShimmerBounds.View)
 
     // Code-ugly workaround to make favorites disappearing animation look good.
@@ -244,13 +262,7 @@ private fun HomeScrollableMainContent(
                     HomeMainHeader(
                         onSearchClick = onSearchClick,
                         filters = filters,
-                        onFilterClicked = { filter ->
-                            if (filters.contains(filter)) {
-                                homeViewModel.removeFilter(filter)
-                            } else {
-                                homeViewModel.addFilter(filter)
-                            }
-                        },
+                        onFilterClicked = onFilterClicked,
                         onPaymentMethodsClicked = {
                             coroutineScope.launch {
                                 modalBottomSheetState.show()
@@ -290,7 +302,7 @@ private fun HomeScrollableMainContent(
                                     .fillMaxWidth()
                             ) {
                                 NoEateryFound(modifier = Modifier.align(Alignment.Center)) {
-                                    homeViewModel.resetFilters()
+                                    onResetFilters()
                                 }
                             }
                         }
