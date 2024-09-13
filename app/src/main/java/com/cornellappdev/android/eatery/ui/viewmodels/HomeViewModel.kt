@@ -103,7 +103,7 @@ class HomeViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
-    private var bigPopUp by mutableStateOf(false)
+    var bigPopUp by mutableStateOf(false)
 
     fun setPopUp(bool: Boolean) {
         bigPopUp = bool
