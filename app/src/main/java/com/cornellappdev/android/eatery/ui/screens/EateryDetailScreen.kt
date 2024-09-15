@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
@@ -39,7 +40,6 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
@@ -50,6 +50,7 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -63,11 +64,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -76,6 +75,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
 import com.cornellappdev.android.eatery.ui.components.details.AlertsSection
+import com.cornellappdev.android.eatery.ui.components.details.CalendarButton
 import com.cornellappdev.android.eatery.ui.components.details.EateryDetailsStickyHeader
 import com.cornellappdev.android.eatery.ui.components.details.EateryHourBottomSheet
 import com.cornellappdev.android.eatery.ui.components.details.EateryMenusBottomSheet
@@ -98,6 +98,8 @@ import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
+import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
@@ -120,8 +122,14 @@ fun EateryDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
 
+    /**
+     * The amount of days offset from the current weekday
+     */
     var weekDayIndex by remember { mutableStateOf(0) }
     var mealType by remember { mutableStateOf(0) }
+    LaunchedEffect(weekDayIndex) {
+        Log.d("TAG", "EateryDetailScreen: weekday index: $weekDayIndex")
+    }
 
     // The event/meal to display. May be null.
     val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
@@ -571,7 +579,8 @@ fun EateryDetailScreen(
                                         modifier = Modifier.weight(1f)
                                     ) {
                                         Text(
-                                            text = nextEvent!!.description ?: "Full Menu",
+                                            text = weekDayIndex.fromOffsetToDayOfWeek()
+                                                .toReadableFullName(),
                                             style = EateryBlueTypography.h4,
                                         )
                                         if (nextEvent!!.startTime != null && nextEvent!!.endTime != null) {
@@ -589,22 +598,8 @@ fun EateryDetailScreen(
                                                 color = GrayFive
                                             )
                                         }
-
                                     }
-                                    IconButton(
-                                        onClick = {
-                                            hoursOnClick()
-                                        },
-                                        modifier = Modifier
-                                            .padding(all = 8.dp)
-                                            .background(color = GrayZero, shape = CircleShape)
-                                    ) {
-                                        Icon(
-                                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
-                                            contentDescription = "Expand menu",
-                                            modifier = Modifier.size(26.dp)
-                                        )
-                                    }
+                                    CalendarButton(onClick = { hoursOnClick() })
                                 }
                             }
 
@@ -760,10 +755,19 @@ fun EateryDetailScreen(
                             )
                         }
                     }
-                    AnimatedVisibility(visible = listState.firstVisibleItemIndex >= 1,
+                    AnimatedVisibility(
+                        visible = listState.firstVisibleItemIndex >= 1,
                         enter = fadeIn(animationSpec = tween(100)),
-                        exit = fadeOut(animationSpec = tween(100))) {
-                        EateryDetailsStickyHeader(nextEvent, eatery, filterText, fullMenuList, listState, eateryDetailViewModel) { index ->
+                        exit = fadeOut(animationSpec = tween(100))
+                    ) {
+                        EateryDetailsStickyHeader(
+                            nextEvent,
+                            eatery,
+                            filterText,
+                            fullMenuList,
+                            listState,
+                            eateryDetailViewModel
+                        ) { index ->
                             // The first category title has an item index of 8
                             // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)
                             coroutineScope.launch { listState.animateScrollToItem(index + 5) }

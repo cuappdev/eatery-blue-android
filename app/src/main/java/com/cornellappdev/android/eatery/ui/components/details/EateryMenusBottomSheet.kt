@@ -41,6 +41,7 @@ import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelect
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.util.toReadableShortName
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
@@ -90,16 +91,7 @@ fun EateryMenusBottomSheet(
 
     val closedDays: List<DayOfWeek> = eatery.getClosedDays()
     val closedDaysStrings: List<String> = closedDays.map { dayOfWeek ->
-        when (dayOfWeek.value) {
-            1 -> "Mon"
-            2 -> "Tue"
-            3 -> "Wed"
-            4 -> "Thu"
-            5 -> "Fri"
-            6 -> "Sat"
-            7 -> "Sun"
-            else -> "error"
-        }
+        dayOfWeek.toReadableShortName()
     }
 
     val selectedDayOfWeek = DayOfWeek.of(dayWeeks[currSelectedDay])
