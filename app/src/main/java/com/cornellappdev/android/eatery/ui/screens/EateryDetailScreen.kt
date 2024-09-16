@@ -42,6 +42,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Report
@@ -628,6 +629,10 @@ fun EateryDetailScreen(
                                             .height(1.dp)
                                             .background(GrayZero, CircleShape)
                                     )
+                                }
+
+                                item {
+
                                 }
 
                                 nextEvent!!.menu?.forEachIndexed { categoryIndex, category ->
