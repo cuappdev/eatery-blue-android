@@ -31,17 +31,18 @@ fun EateryMealTabs(selectedMealIndex: Int, onSelectMeal: (String) -> Unit, meals
                 onClick = {
                     onSelectMeal(meal)
                 },
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
             ) {
                 Text(
-                    meal, style = EateryBlueTypography.button.copy(
+                    meal,
+                    style = EateryBlueTypography.button.copy(
                         color =
                         if (index == selectedMealIndex) {
                             Color.Black
                         } else {
                             GrayThree
                         }
-                    )
+                    ),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
                 )
             }
         }

@@ -42,7 +42,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Report
@@ -79,6 +78,7 @@ import com.cornellappdev.android.eatery.ui.components.details.AlertsSection
 import com.cornellappdev.android.eatery.ui.components.details.CalendarButton
 import com.cornellappdev.android.eatery.ui.components.details.EateryDetailsStickyHeader
 import com.cornellappdev.android.eatery.ui.components.details.EateryHourBottomSheet
+import com.cornellappdev.android.eatery.ui.components.details.EateryMealTabs
 import com.cornellappdev.android.eatery.ui.components.details.EateryMenusBottomSheet
 import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
@@ -632,7 +632,11 @@ fun EateryDetailScreen(
                                 }
 
                                 item {
-
+                                    EateryMealTabs(
+                                        meals = listOf("Breakfast", "Lunch", "Dinner"),
+                                        onSelectMeal = {},
+                                        selectedMealIndex = 0
+                                    )
                                 }
 
                                 nextEvent!!.menu?.forEachIndexed { categoryIndex, category ->
