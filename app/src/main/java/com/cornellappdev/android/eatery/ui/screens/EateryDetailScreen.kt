@@ -127,13 +127,14 @@ fun EateryDetailScreen(
      * The amount of days offset from the current weekday
      */
     var weekDayIndex by remember { mutableStateOf(0) }
-    var mealType by remember { mutableStateOf(0) }
     LaunchedEffect(weekDayIndex) {
         Log.d("TAG", "EateryDetailScreen: weekday index: $weekDayIndex")
     }
 
     // The event/meal to display. May be null.
     val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
+    var mealType by remember { mutableStateOf(0) }
+
 
     // The filter text typed in.
     val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
@@ -557,7 +558,7 @@ fun EateryDetailScreen(
                             )
                         }
 
-                        if (nextEvent != null) {
+                        nextEvent?.let { nextEvent ->
                             sheetContent = BottomSheetContent.HOURS
                             val hoursOnClick = {
                                 sheetContent = BottomSheetContent.MENUS
@@ -584,14 +585,14 @@ fun EateryDetailScreen(
                                                 .toReadableFullName(),
                                             style = EateryBlueTypography.h4,
                                         )
-                                        if (nextEvent!!.startTime != null && nextEvent!!.endTime != null) {
+                                        if (nextEvent.startTime != null && nextEvent.endTime != null) {
                                             Text(
                                                 text = "${
-                                                    nextEvent!!.startTime!!.format(
+                                                    nextEvent.startTime.format(
                                                         DateTimeFormatter.ofPattern("h:mm a")
                                                     )
                                                 } - ${
-                                                    nextEvent!!.endTime!!.format(
+                                                    nextEvent.endTime.format(
                                                         DateTimeFormatter.ofPattern("h:mm a")
                                                     )
                                                 }",
@@ -604,7 +605,7 @@ fun EateryDetailScreen(
                                 }
                             }
 
-                            if (nextEvent!!.menu != null && nextEvent!!.menu!!.size > 0) {
+                            nextEvent.menu?.takeIf { it.size > 0 }?.let { menu ->
                                 item {
                                     SearchBar(searchText = filterText,
                                         onSearchTextChange = {
@@ -630,16 +631,28 @@ fun EateryDetailScreen(
                                             .background(GrayZero, CircleShape)
                                     )
                                 }
+                                eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
+                                    .takeIf { it?.size?.let { s -> s > 1 } == true }
+                                    ?.let { mealTypes ->
+                                        item {
+                                            EateryMealTabs(
+                                                meals = mealTypes.map { it.first },
+                                                onSelectMeal = { selectedMeal ->
+                                                    eateryDetailViewModel.selectEvent(
+                                                        eatery,
+                                                        weekDayIndex,
+                                                        selectedMeal
+                                                    )
+                                                    mealType =
+                                                        mealTypes.indexOfFirst { it.first == selectedMeal }
+                                                },
+                                                selectedMealIndex = mealType
+                                            )
+                                        }
+                                    }
 
-                                item {
-                                    EateryMealTabs(
-                                        meals = listOf("Breakfast", "Lunch", "Dinner"),
-                                        onSelectMeal = {},
-                                        selectedMealIndex = 0
-                                    )
-                                }
 
-                                nextEvent!!.menu?.forEachIndexed { categoryIndex, category ->
+                                menu.forEachIndexed { categoryIndex, category ->
                                     val filteredItems = category.items?.filter {
                                         it.name?.contains(filterText, true) ?: false
                                     }
@@ -680,7 +693,7 @@ fun EateryDetailScreen(
                                                         .background(GrayZero, CircleShape)
                                                 )
                                             }
-                                            if (category.items.lastIndex == index && categoryIndex != nextEvent!!.menu!!.lastIndex) {
+                                            if (category.items.lastIndex == index && categoryIndex != nextEvent.menu.lastIndex) {
                                                 Divider(
                                                     color = GrayZero,
                                                     modifier = Modifier.height(10.dp)
@@ -690,7 +703,10 @@ fun EateryDetailScreen(
                                     }
                                 }
                             }
+
                         }
+
+
 
                         item {
                             Spacer(

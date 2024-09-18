@@ -159,7 +159,7 @@ data class Eatery(
     }
 
     /**
-     * @returns the association list of mealDescription of one eatery on one day based
+     * @return the association list of mealDescription of one eatery on one day based
      * on chronological order and the duration of that particular meal
      * e.g. for Oken on Mondays, it would return
      * [("Lunch", some string duration),("Dinner", some string duration)]
