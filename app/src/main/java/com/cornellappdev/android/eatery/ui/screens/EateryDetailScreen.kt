@@ -133,6 +133,9 @@ fun EateryDetailScreen(
 
     // The event/meal to display. May be null.
     val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
+    // TODO we are storing state for the currently displayed meal in the ViewModel and the View,
+    //  we should really be only storing this in the ViewModel and hoist the state out of the View
+    //  This should make implementing menu switching much better
     var mealType by remember { mutableStateOf(0) }
 
 
@@ -165,7 +168,6 @@ fun EateryDetailScreen(
             ModalBottomSheetLayout(
                 sheetState = modalBottomSheetState, sheetContent = {
                     when (sheetContent) {
-
                         BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
                             PaymentMethodsAvailable(selectedPaymentMethods = paymentMethods) {
                                 coroutineScope.launch {
