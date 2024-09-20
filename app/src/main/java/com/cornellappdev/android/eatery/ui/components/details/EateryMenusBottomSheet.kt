@@ -163,7 +163,7 @@ fun EateryMenusBottomSheet(
                     .fillMaxWidth()
             ) {
                 if (mealTypes != null && mealTypes.size > 1) {
-                    mealTypes?.forEachIndexed { index, (description, duration) ->
+                    mealTypes.forEachIndexed { index, (description, duration) ->
                         if (description != null && duration != null) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),

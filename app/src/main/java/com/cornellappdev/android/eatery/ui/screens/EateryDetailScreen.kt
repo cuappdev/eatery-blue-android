@@ -52,6 +52,7 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -133,11 +134,10 @@ fun EateryDetailScreen(
 
     // The event/meal to display. May be null.
     val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
+
     // TODO we are storing state for the currently displayed meal in the ViewModel and the View,
     //  we should really be only storing this in the ViewModel and hoist the state out of the View
     //  This should make implementing menu switching much better
-    var mealType by remember { mutableStateOf(0) }
-
 
     // The filter text typed in.
     val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
@@ -164,6 +164,12 @@ fun EateryDetailScreen(
                     repeatMode = RepeatMode.Reverse
                 )
             )
+            val mealTypeIndex = remember {
+                derivedStateOf {
+                    eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
+                        ?.indexOfFirst { it.first == nextEvent?.description } ?: 0
+                }
+            }
 
             ModalBottomSheetLayout(
                 sheetState = modalBottomSheetState, sheetContent = {
@@ -204,27 +210,25 @@ fun EateryDetailScreen(
                         BottomSheetContent.MENUS -> {
                             EateryMenusBottomSheet(
                                 weekDayIndex = weekDayIndex,
-                                mealType = mealType,
                                 onDismiss = {
                                     coroutineScope.launch {
                                         modalBottomSheetState.hide()
                                     }
                                 },
                                 eatery = eatery,
-                                onShowMenuClick = { dayIndex, mealDescription, mealTypeIndex ->
+                                onShowMenuClick = { dayIndex, mealDescription, _ ->
                                     eateryDetailViewModel.selectEvent(
                                         eatery,
                                         dayIndex,
                                         mealDescription
                                     )
                                     weekDayIndex = dayIndex
-                                    mealType = mealTypeIndex
                                 },
                                 onResetClick = {
                                     weekDayIndex = 0
-                                    mealType = 0
                                     eateryDetailViewModel.resetSelectedEvent()
-                                }
+                                },
+                                mealType = mealTypeIndex.value
                             )
                         }
 
@@ -645,10 +649,8 @@ fun EateryDetailScreen(
                                                         weekDayIndex,
                                                         selectedMeal
                                                     )
-                                                    mealType =
-                                                        mealTypes.indexOfFirst { it.first == selectedMeal }
                                                 },
-                                                selectedMealIndex = mealType
+                                                selectedMealIndex = mealTypeIndex.value
                                             )
                                         }
                                     }
