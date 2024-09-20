@@ -19,8 +19,6 @@ fun DayOfWeek.toReadableShortName(): String = when (this) {
 
 /**
  * Given an int offset from the current day of the week, return the day of the week in offset days
+ * Example: If day of the week is Monday, and the offset is 1, it would return Tuesday
  */
 fun Int.fromOffsetToDayOfWeek(): DayOfWeek = LocalDate.now().plusDays(this.toLong()).dayOfWeek
-
-val readableDayOfWeek
-    get() = LocalDate.now().dayOfWeek.name.lowercase().replaceFirstChar { c -> c.uppercase() }
