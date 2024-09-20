@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
@@ -50,7 +49,6 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -128,16 +126,9 @@ fun EateryDetailScreen(
      * The amount of days offset from the current weekday
      */
     var weekDayIndex by remember { mutableStateOf(0) }
-    LaunchedEffect(weekDayIndex) {
-        Log.d("TAG", "EateryDetailScreen: weekday index: $weekDayIndex")
-    }
 
     // The event/meal to display. May be null.
     val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
-
-    // TODO we are storing state for the currently displayed meal in the ViewModel and the View,
-    //  we should really be only storing this in the ViewModel and hoist the state out of the View
-    //  This should make implementing menu switching much better
 
     // The filter text typed in.
     val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
