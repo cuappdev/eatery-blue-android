@@ -236,6 +236,8 @@ fun HomeScreen(
 
     var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
 
+
+    //todo derived state here?
     var showFAB by remember {
         mutableStateOf(true)
     }

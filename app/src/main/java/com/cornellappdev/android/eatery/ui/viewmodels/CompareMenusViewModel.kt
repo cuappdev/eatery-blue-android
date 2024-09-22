@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//todo write this viewmodel LOL
+//todo write this viewmodel
 @HiltViewModel
 class CompareMenusViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,

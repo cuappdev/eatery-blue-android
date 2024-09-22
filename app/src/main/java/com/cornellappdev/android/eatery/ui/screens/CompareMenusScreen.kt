@@ -1,7 +1,15 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,25 +26,33 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Report
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,10 +66,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,18 +82,25 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.ui.components.details.AlertsSection
+import com.cornellappdev.android.eatery.ui.components.details.EateryDetailsStickyHeader
 import com.cornellappdev.android.eatery.ui.components.details.EateryHourBottomSheet
+import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
+import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
+import com.cornellappdev.android.eatery.ui.theme.GrayOne
+import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.theme.Yellow
+import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import kotlinx.coroutines.launch
@@ -100,7 +128,6 @@ fun CompareMenusScreen(
     var sheetContent by remember { mutableStateOf(BottomSheetContent.HOURS) }
 
     val issue by remember { mutableStateOf<Issue?>(null) }
-
     Column {
         Row(
             modifier = Modifier
@@ -197,76 +224,111 @@ fun CompareMenusScreen(
                                 pagerSnapDistance = PagerSnapDistance.atMost(1)
                             )
                         ) { page ->
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                Row(
-                                    modifier = Modifier
-                                        .height(IntrinsicSize.Min)
-                                        .fillMaxWidth()
-                                        .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
-                                        .border(
-                                            1.dp, GrayZero, RoundedCornerShape(8.dp)
-                                        ),
-                                    horizontalArrangement = Arrangement.SpaceEvenly,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier
-                                            .padding(vertical = 12.dp)
-                                            .weight(1f, true)
-                                            .clickable {
-                                                sheetContent = BottomSheetContent.HOURS
-                                                coroutineScope.launch {
-                                                    modalBottomSheetState.show()
-                                                }
-                                            }
-                                    ) {
-                                        Row(
-                                            modifier = Modifier,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Schedule,
-                                                contentDescription = "Hours Icon",
-                                                tint = GrayFive
-                                            )
-                                            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                                            Text(
-                                                text = "Hours", style = TextStyle(
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    fontSize = 16.sp
-                                                ), color = GrayFive
-                                            )
-                                        }
-                                        val openUntil = eateries[page].getOpenUntil()
-                                        Text(
-                                            modifier = Modifier.padding(top = 2.dp),
-                                            text =
-                                            if (openUntil == null) "Closed"
-                                            else if (eateries[page].isClosingSoon()) "Closing at $openUntil"
-                                            else ("Open until $openUntil"),
-                                            style = TextStyle(
-                                                fontWeight = FontWeight.SemiBold, fontSize = 16.sp
-                                            ),
-                                            color = if (openUntil == null) Red
-                                            else if (eateries[page].isClosingSoon()) Yellow
-                                            else Green
-                                        )
+                            val listState = rememberLazyListState()
+                            Box {
+                                val currentEvent by remember { mutableStateOf(eateries[page].getCurrentDisplayedEvent()) }
+                                val fullMenuList = mutableListOf<String>()
+                                currentEvent?.menu?.forEach { category ->
+                                    category.category?.let { fullMenuList.add(it) }
+                                    category.items?.forEach { item ->
+                                        item.name?.let { fullMenuList.add(it) }
                                     }
                                 }
-                                val currentEvent by remember { mutableStateOf(eateries[page].getCurrentDisplayedEvent()) }
-                                if (currentEvent != null) {
-                                    Box(
+                                Column(modifier = Modifier.fillMaxSize()) {
+                                    Row(
                                         modifier = Modifier
-                                            .background(GrayZero)
-                                            .padding(start = 8.dp, end = 8.dp, top = 20.dp)
+                                            .height(IntrinsicSize.Min)
                                             .fillMaxWidth()
-                                            .fillMaxHeight()
+                                            .padding(
+                                                start = 16.dp,
+                                                end = 16.dp,
+                                                bottom = 12.dp
+                                            )
+                                            .border(
+                                                1.dp, GrayZero, RoundedCornerShape(8.dp)
+                                            ),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        LazyColumn {
-                                            currentEvent!!.menu?.forEach { category ->
-                                                item {
-                                                    Column(modifier = Modifier.background(Color.White)) {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .padding(vertical = 12.dp)
+                                                .weight(1f, true)
+                                                .clickable {
+                                                    sheetContent = BottomSheetContent.HOURS
+                                                    coroutineScope.launch {
+                                                        modalBottomSheetState.show()
+                                                    }
+                                                }
+                                        ) {
+                                            Row(
+                                                modifier = Modifier,
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Outlined.Schedule,
+                                                    contentDescription = "Hours Icon",
+                                                    tint = GrayFive
+                                                )
+                                                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                                                Text(
+                                                    text = "Hours", style = TextStyle(
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        fontSize = 16.sp
+                                                    ), color = GrayFive
+                                                )
+                                            }
+                                            val openUntil = eateries[page].getOpenUntil()
+                                            Text(
+                                                modifier = Modifier.padding(top = 2.dp),
+                                                text =
+                                                if (openUntil == null) "Closed"
+                                                else if (eateries[page].isClosingSoon()) "Closing at $openUntil"
+                                                else ("Open until $openUntil"),
+                                                style = TextStyle(
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    fontSize = 16.sp
+                                                ),
+                                                color = if (openUntil == null) Red
+                                                else if (eateries[page].isClosingSoon()) Yellow
+                                                else Green
+                                            )
+
+                                        }
+                                    }
+
+                                    EateryDetailsStickyHeader(
+                                        currentEvent,
+                                        eateries[page],
+                                        "",
+                                        fullMenuList,
+                                        listState,
+                                        0
+                                    ) { index ->
+                                        coroutineScope.launch {
+                                            listState.animateScrollToItem(index)
+                                        }
+                                    }
+
+                                    if (currentEvent != null) {
+                                        Box(
+                                            modifier = Modifier
+                                                .background(GrayZero)
+                                                .padding(
+                                                    start = 8.dp,
+                                                    end = 8.dp,
+                                                    top = 20.dp
+                                                )
+                                                .fillMaxWidth()
+                                                .fillMaxHeight()
+                                        ) {
+                                            LazyColumn(
+                                                state = listState,
+                                                modifier = Modifier.fillMaxSize()
+                                            ) {
+                                                currentEvent!!.menu?.forEach { category ->
+                                                    item {
                                                         Text(
                                                             text = category.category ?: "Category",
                                                             style = EateryBlueTypography.h5,
@@ -275,38 +337,59 @@ fun CompareMenusScreen(
                                                                 vertical = 12.dp
                                                             )
                                                         )
-                                                        category.items?.forEach { menuItem ->
-                                                            Column {
-                                                                Row(
-                                                                    verticalAlignment = Alignment.CenterVertically,
-                                                                    modifier = Modifier.padding(
-                                                                        top = 12.dp,
-                                                                        bottom = 12.dp,
-                                                                        start = 16.dp,
-                                                                        end = 16.dp
+                                                    }
+
+                                                    itemsIndexed(category.items ?: emptyList()) { index, menuItem ->
+                                                        Row(
+                                                            verticalAlignment = Alignment.CenterVertically,
+                                                            modifier = Modifier.padding(
+                                                                top = 12.dp,
+                                                                bottom = 12.dp,
+                                                                start = 16.dp,
+                                                                end = 16.dp
+                                                            )
+                                                        ) {
+                                                            Text(
+                                                                text = menuItem.name ?: "Item Name",
+                                                                style = EateryBlueTypography.button,
+                                                                modifier = Modifier.weight(1f)
+                                                            )
+                                                        }
+
+                                                        if (category.items?.lastIndex != index) {
+                                                            Spacer(
+                                                                modifier = Modifier
+                                                                    .fillMaxWidth()
+                                                                    .height(1.dp)
+                                                                    .background(GrayZero, CircleShape)
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                                if (currentEvent!!.menu == null || currentEvent!!.menu?.isEmpty() == true) {
+                                                    item {
+                                                        Row(
+                                                            modifier = Modifier
+                                                                .background(Color.White)
+                                                                .clip(
+                                                                    shape = RoundedCornerShape(
+                                                                        12.dp
                                                                     )
-                                                                ) {
-                                                                    Text(
-                                                                        text = menuItem.name
-                                                                            ?: "Item Name",
-                                                                        style = EateryBlueTypography.button,
-                                                                        modifier = Modifier.weight(
-                                                                            1f
-                                                                        )
-                                                                    )
-                                                                }
-                                                                if (menuItem != category.items.last()) {
-                                                                    Spacer(
-                                                                        modifier = Modifier
-                                                                            .fillMaxWidth()
-                                                                            .height(1.dp)
-                                                                            .background(
-                                                                                GrayZero,
-                                                                                CircleShape
-                                                                            )
-                                                                    )
-                                                                }
-                                                            }
+                                                                )
+                                                                .fillMaxWidth()
+                                                                .padding(
+                                                                    top = 12.dp,
+                                                                    bottom = 12.dp
+                                                                ),
+                                                            horizontalArrangement = Arrangement.Center
+                                                        ) {
+                                                            Text(
+                                                                text = "Sorry, there is no menu available now.",
+                                                                color = Color.Black,
+                                                                style = EateryBlueTypography.h5,
+                                                                modifier = Modifier.padding(start = 8.dp),
+                                                                fontWeight = FontWeight(500),
+                                                            )
                                                         }
                                                         Divider(
                                                             color = GrayZero,
@@ -316,73 +399,67 @@ fun CompareMenusScreen(
                                                         )
                                                     }
                                                 }
-                                            }
-                                            if (currentEvent!!.menu == null || currentEvent!!.menu?.isEmpty() == true) {
                                                 item {
-                                                    Row(
-                                                        modifier = Modifier
-                                                            .background(Color.White)
-                                                            .clip(shape = RoundedCornerShape(12.dp))
-                                                            .fillMaxWidth()
-                                                            .padding(top = 12.dp, bottom = 12.dp),
-                                                        horizontalArrangement = Arrangement.Center
-                                                    ) {
-                                                        Text(
-                                                            text = "Sorry, there is no menu available now.",
-                                                            color = Color.Black,
-                                                            style = EateryBlueTypography.h5,
-                                                            modifier = Modifier.padding(start = 8.dp),
-                                                            fontWeight = FontWeight(500),
-                                                        )
-                                                    }
-                                                    Divider(
-                                                        color = GrayZero,
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .height(10.dp)
-                                                    )
-                                                }
-                                            }
-                                            item {
-
-                                            }
-                                            item {
-                                                Column(modifier = Modifier.background(Color.White)) {
-                                                    Card(
-                                                        shape = RoundedCornerShape(20.dp),
-                                                        onClick = {
-                                                            onEateryClick(eateries[page])
-                                                        },
-                                                        backgroundColor = GrayZero,
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .padding(top = 8.dp, bottom = 8.dp)
-                                                    ) {
-                                                        Row(
-                                                            modifier = Modifier.padding(
-                                                                end = 12.dp,
-                                                                top = 10.dp,
-                                                                bottom = 10.dp
-                                                            ),
-                                                            horizontalArrangement = Arrangement.Center
+                                                    Column(modifier = Modifier.background(Color.White)) {
+                                                        Card(
+                                                            shape = RoundedCornerShape(20.dp),
+                                                            onClick = {
+                                                                onEateryClick(eateries[page])
+                                                            },
+                                                            backgroundColor = GrayZero,
+                                                            modifier = Modifier
+                                                                .fillMaxWidth()
+                                                                .padding(
+                                                                    top = 8.dp,
+                                                                    bottom = 8.dp
+                                                                )
                                                         ) {
-                                                            Icon(
-                                                                painter = painterResource(R.drawable.ic_eatery),
-                                                                contentDescription = null,
-                                                                tint = Color.Black
-                                                            )
-                                                            Text(
-                                                                text = "View Eatery Details",
-                                                                color = Color.Black,
-                                                                modifier = Modifier.padding(start = 8.dp),
-                                                                fontWeight = FontWeight.Bold
-                                                            )
+                                                            Row(
+                                                                modifier = Modifier.padding(
+                                                                    end = 12.dp,
+                                                                    top = 10.dp,
+                                                                    bottom = 10.dp
+                                                                ),
+                                                                horizontalArrangement = Arrangement.Center
+                                                            ) {
+                                                                Icon(
+                                                                    painter = painterResource(R.drawable.ic_eatery),
+                                                                    contentDescription = null,
+                                                                    tint = Color.Black
+                                                                )
+                                                                Text(
+                                                                    text = "View Eatery Details",
+                                                                    color = Color.Black,
+                                                                    modifier = Modifier.padding(
+                                                                        start = 8.dp
+                                                                    ),
+                                                                    fontWeight = FontWeight.Bold
+                                                                )
+
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
+
                                     }
+
+                                }
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+//                                        AnimatedVisibility(
+//                                            visible = listState.firstVisibleItemIndex >= 1,
+//                                            enter = fadeIn(animationSpec = tween(100)),
+//                                            exit = fadeOut(animationSpec = tween(100)),
+//                                            modifier = Modifier
+//                                                .fillMaxWidth()
+//                                                .background(Color.White)
+//                                                .padding(top = 48.dp, bottom = 12.dp)
+//                                        ) {
+//
+//                                        }
                                 }
 
                             }
@@ -426,4 +503,6 @@ fun CompareMenusScreen(
             else -> {}
         }
     }
+
+
 }

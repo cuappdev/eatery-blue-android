@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -70,10 +71,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
 import com.cornellappdev.android.eatery.ui.components.details.AlertsSection
 import com.cornellappdev.android.eatery.ui.components.details.EateryDetailsStickyHeader
@@ -760,17 +764,76 @@ fun EateryDetailScreen(
                             )
                         }
                     }
+
+
+
                     AnimatedVisibility(visible = listState.firstVisibleItemIndex >= 1,
                         enter = fadeIn(animationSpec = tween(100)),
                         exit = fadeOut(animationSpec = tween(100))) {
-                        EateryDetailsStickyHeader(nextEvent, eatery, filterText, fullMenuList, listState, eateryDetailViewModel) { index ->
-                            // The first category title has an item index of 8
-                            // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)
-                            coroutineScope.launch { listState.animateScrollToItem(index + 5) }
+                        Column (modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.White)
+                            .padding(top = 48.dp, bottom = 12.dp)){
+                            EateryHeader(eatery = eatery, eateryDetailViewModel = eateryDetailViewModel)
+                            EateryDetailsStickyHeader(nextEvent, eatery, filterText, fullMenuList, listState,5) { index ->
+                                // The first category title has an item index of 8
+                                // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)
+                                coroutineScope.launch { listState.animateScrollToItem(index + 5) }
+                            }
                         }
+
                     }
                 }
             }
         }
     }
 }
+
+@Composable
+fun EateryHeader(eatery: Eatery, eateryDetailViewModel: EateryDetailViewModel) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+    ) {
+        Text(
+            modifier = Modifier
+                .height(26.dp)
+                .widthIn(0.dp, 280.dp)
+                .align(Alignment.Center),
+            textAlign = TextAlign.Center,
+            text = eatery.name ?: "Loading...",
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = Color.Black,
+            style = TextStyle(
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 20.sp
+            )
+        )
+
+        Button(
+            onClick = { eateryDetailViewModel.toggleFavorite() },
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = 16.dp)
+                .size(40.dp),
+            contentPadding = PaddingValues(6.dp),
+            shape = CircleShape,
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color.White,
+            ),
+            elevation = ButtonDefaults.elevation(
+                defaultElevation = 0.dp,
+                pressedElevation = 0.dp
+            )
+        ) {
+            Icon(
+                imageVector = if (eateryDetailViewModel.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                tint = if (eateryDetailViewModel.isFavorite) Yellow else GrayFive,
+                contentDescription = null
+            )
+        }
+    }
+}
+
