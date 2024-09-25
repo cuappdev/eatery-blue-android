@@ -630,15 +630,16 @@ fun EateryDetailScreen(
                                 }
                                 eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
                                     .takeIf { it?.size?.let { s -> s > 1 } == true }
+                                    ?.map { it.first }
                                     ?.let { mealTypes ->
                                         item {
                                             EateryMealTabs(
-                                                meals = mealTypes.map { it.first },
+                                                meals = mealTypes,
                                                 onSelectMeal = { selectedMeal ->
                                                     eateryDetailViewModel.selectEvent(
                                                         eatery,
                                                         weekDayIndex,
-                                                        selectedMeal
+                                                        mealTypes[selectedMeal]
                                                     )
                                                 },
                                                 selectedMealIndex = mealTypeIndex.value

@@ -46,6 +46,6 @@ fun CalendarButton(onClick: () -> Unit) {
 
 @Preview
 @Composable
-fun CalendarButtonPreview() = EateryPreview {
+private fun CalendarButtonPreview() = EateryPreview {
     CalendarButton { }
 }

@@ -17,7 +17,7 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 
 
 @Composable
-fun EateryMealTabs(selectedMealIndex: Int, onSelectMeal: (String) -> Unit, meals: List<String>) {
+fun EateryMealTabs(selectedMealIndex: Int, onSelectMeal: (Int) -> Unit, meals: List<String>) {
     TabRow(selectedTabIndex = selectedMealIndex, indicator = { tabPositions ->
         TabRowDefaults.Indicator(
             Modifier.tabIndicatorOffset(tabPositions[selectedMealIndex]),
@@ -29,7 +29,7 @@ fun EateryMealTabs(selectedMealIndex: Int, onSelectMeal: (String) -> Unit, meals
             Tab(
                 selected = index == selectedMealIndex,
                 onClick = {
-                    onSelectMeal(meal)
+                    onSelectMeal(index)
                 },
             ) {
                 Text(
