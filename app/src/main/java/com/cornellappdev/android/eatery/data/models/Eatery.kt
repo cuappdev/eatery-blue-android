@@ -159,7 +159,7 @@ data class Eatery(
     }
 
     /**
-     * @returns the association list of mealDescription of one eatery on one day based
+     * @return the association list of mealDescription of one eatery on one day based
      * on chronological order and the duration of that particular meal
      * e.g. for Oken on Mondays, it would return
      * [("Lunch", some string duration),("Dinner", some string duration)]
@@ -461,6 +461,9 @@ data class WaitTimeData(
 @JsonClass(generateAdapter = true)
 data class Event(
     @Json(name = "id") val id: Int? = null,
+    /**
+     * Descriptions tend to be "Lunch", "Dinner", etc..
+     */
     @Json(name = "event_description") val description: String? = null,
     @Json(name = "start") val startTime: LocalDateTime? = null,
     @Json(name = "end") val endTime: LocalDateTime? = null,
