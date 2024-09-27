@@ -114,7 +114,6 @@ fun CompareMenusScreen(
     compareMenusViewModel: CompareMenusViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit,
 ) {
-    //todo i think this is bad practice? check how to do this via saved state handles
     compareMenusViewModel.openEatery(eateryIds)
 
     val eateriesApiResponse by compareMenusViewModel.eateryFlow.collectAsState()
@@ -325,7 +324,7 @@ fun CompareMenusScreen(
                                         ) {
                                             LazyColumn(
                                                 state = listState,
-                                                modifier = Modifier.fillMaxSize()
+                                                modifier = Modifier.fillMaxSize().background(Color.White)
                                             ) {
                                                 currentEvent!!.menu?.forEach { category ->
                                                     item {
@@ -362,6 +361,12 @@ fun CompareMenusScreen(
                                                                     .fillMaxWidth()
                                                                     .height(1.dp)
                                                                     .background(GrayZero, CircleShape)
+                                                            )
+                                                        }
+                                                        if (category.items?.lastIndex  == index) {
+                                                            Divider(
+                                                                color = GrayZero,
+                                                                modifier = Modifier.height(10.dp)
                                                             )
                                                         }
                                                     }

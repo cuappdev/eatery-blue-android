@@ -44,6 +44,7 @@ import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
+import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -53,7 +54,8 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 @Composable
 fun NavigationSetup(hasOnboarded: Boolean) {
     val navController = rememberAnimatedNavController()
-    val showBottomBar = rememberSaveable { mutableStateOf(false) }
+    val showBottomBar = rememberSaveable { mutableStateOf(false)
+    }
 
     // Subscribe to navBackStackEntry, required to get current route
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -150,7 +152,7 @@ fun SetupNavHost(
     hasOnboarded: Boolean,
     navController: NavHostController,
     showBottomBar: MutableState<Boolean>,
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
@@ -234,7 +236,11 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            EateryDetailScreen()
+            EateryDetailScreen(
+                onCompareMenusClick = {selectedEateries->
+                    navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.id.toString() }}")
+                }
+            )
         }
         composable(
             route = Routes.SEARCH.route,

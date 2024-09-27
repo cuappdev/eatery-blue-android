@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,14 +28,19 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.CompareFilterRow
+import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -44,20 +48,24 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusBotViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun CompareMenusBotSheet(
     onDismiss: () -> Unit,
-    homeViewModel: HomeViewModel,
-    onCompareMenusClick: (selectedEateries : Set<Eatery>) -> Unit
+    onCompareMenusClick: (selectedEateries : List<Eatery>) -> Unit,
+    compareMenusBotViewModel: CompareMenusBotViewModel = hiltViewModel()
 ) {
-    val filters = homeViewModel.CMFiltersFlow.collectAsState().value
-    val eateriesApiResponse = homeViewModel.eateryFlowCM.collectAsState().value
-    val selectedEateries = homeViewModel.CMSelectedFlow.collectAsState().value
-
+    val compareMenusUIState by compareMenusBotViewModel.compareMenusUiState.collectAsState()
+    val filters = compareMenusUIState.filters
+    val selectedEateries = compareMenusUIState.selected
+    val eateries = compareMenusUIState.eateries
 
     Column(
         modifier = Modifier
@@ -76,6 +84,7 @@ fun CompareMenusBotSheet(
             )
             IconButton(
                 onClick = {
+                    compareMenusBotViewModel.resetSelected()
                     onDismiss()
                 },
                 modifier = Modifier
@@ -95,27 +104,17 @@ fun CompareMenusBotSheet(
             onPaymentMethodsClicked = {},
             onFilterClicked = { filter ->
                 if (filters.contains(filter)) {
-                    homeViewModel.removeFilterCM(filter)
+                    compareMenusBotViewModel.removeFilterCM(filter)
                 } else {
-                    homeViewModel.addFilterCM(filter)
+                    compareMenusBotViewModel.addFilterCM(filter)
                 }
             })
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        when (eateriesApiResponse) {
-            is EateryApiResponse.Pending -> {
-
-            }
-
-            is EateryApiResponse.Error -> {
-                // TODO Add No Internet/Oopsie display
-            }
-
-            is EateryApiResponse.Success -> {
-                val eateries = eateriesApiResponse.data
                 Box(
                     modifier = Modifier
+                        .background(Color.White)
                         .fillMaxHeight(0.4f)
                         .fillMaxWidth()
                 ) {
@@ -124,9 +123,9 @@ fun CompareMenusBotSheet(
                             Row(
                                 modifier = Modifier.fillMaxWidth().clickable {
                                     if (selectedEateries.contains(eatery)) {
-                                        homeViewModel.removeSelected(eatery)
+                                        compareMenusBotViewModel.removeSelected(eatery)
                                     } else {
-                                        homeViewModel.addSelected(eatery)
+                                        compareMenusBotViewModel.addSelected(eatery)
                                     }
                                 },
                                 verticalAlignment = Alignment.CenterVertically,
@@ -135,9 +134,9 @@ fun CompareMenusBotSheet(
                                 IconButton(
                                     onClick = {
                                         if (selectedEateries.contains(eatery)) {
-                                            homeViewModel.removeSelected(eatery)
+                                            compareMenusBotViewModel.removeSelected(eatery)
                                         } else {
-                                            homeViewModel.addSelected(eatery)
+                                            compareMenusBotViewModel.addSelected(eatery)
                                         }
                                     },
                                     modifier = Modifier.align(Alignment.CenterVertically)
@@ -174,21 +173,24 @@ fun CompareMenusBotSheet(
                                     )
                                 }
                             }
-                        }
-                    }
+
+
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-
+        val coroutineScope = rememberCoroutineScope()
         Button(
             onClick = {
                 if (selectedEateries.size < 2){
 
                 }
                 else{
-                    onCompareMenusClick(selectedEateries.toSet())
+                    coroutineScope.launch {
+                        delay(100)
+                        onCompareMenusClick(compareMenusUIState.selected)
+                    }
                 }
             },
             modifier = Modifier

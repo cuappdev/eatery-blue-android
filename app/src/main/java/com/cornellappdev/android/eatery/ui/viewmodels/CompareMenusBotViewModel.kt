@@ -1,13 +1,13 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
@@ -17,47 +17,33 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
-
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class CompareMenusBotViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository
+    private val eateryRepository: EateryRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
-    private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
-
-    /**
-     * A flow of filters applied to the screen.
-     */
-    val filtersFlow = _filtersFlow.asStateFlow()
 
     private val _compareMenusUiState = MutableStateFlow(CompareMenusUIState())
     val compareMenusUiState: StateFlow<CompareMenusUIState> = _compareMenusUiState.asStateFlow()
 
-    /**
-     * A flow emitting all eateries with the appropriate filters applied.
-     *
-     * Sorted (by descending priority): Open/Closed, Alphabetically
-     */
     val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
         combine(
             eateryRepository.homeEateryFlow,
-            _filtersFlow,
             userPreferencesRepository.favoritesFlow
-        ) { apiResponse, filters, favorites ->
+        ) { apiResponse, favorites ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> EateryApiResponse.Error
                 is EateryApiResponse.Pending -> EateryApiResponse.Pending
                 is EateryApiResponse.Success -> {
                     EateryApiResponse.Success(
-                        apiResponse.data.filter {
-                            passesFilter(it, filters, favorites, null)
-                        }.sortedBy { eatery ->
+                        apiResponse.data.sortedBy { eatery ->
                             eatery.name
                         }.sortedBy { eatery ->
                             eatery.isClosed()
@@ -66,66 +52,25 @@ class HomeViewModel @Inject constructor(
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
 
-
-    /**
-     * A flow emitting all the eateries the user has favorited.
-     */
-    val favoriteEateries =
-        combine(
-            eateryRepository.homeEateryFlow,
-            userPreferencesRepository.favoritesFlow
-        ) { apiResponse, favorites ->
-            when (apiResponse) {
-                is EateryApiResponse.Error -> listOf()
-                is EateryApiResponse.Pending -> listOf()
-                is EateryApiResponse.Success -> {
-                    apiResponse.data.filter {
-                        favorites[it.id] == true
+    init {
+        viewModelScope.launch {
+            eateryFlow.collect { apiResponse ->
+                when (apiResponse) {
+                    is EateryApiResponse.Success -> {
+                        _compareMenusUiState.update { currentState ->
+                            currentState.copy(
+                                eateries = apiResponse.data,
+                                allEateries = apiResponse.data
+                            )
+                        }
                     }
-                        .sortedBy { it.name }
-                        .sortedBy { it.isClosed() }
+                    is EateryApiResponse.Error -> {
+                    }
+                    is EateryApiResponse.Pending -> {
+                    }
                 }
             }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
-
-    /**
-     * A [StateFlow] that emits the 6 nearest eateries based on location.
-     *
-     * Sorted (by descending priority): Open/Closed, Walk Time
-     *
-     * TODO: Walk times may not be updating automatically; may have to change location to use state.
-     */
-
-    val nearestEateries: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
-        when (apiResponse) {
-            is EateryApiResponse.Error -> listOf()
-            is EateryApiResponse.Pending -> listOf()
-            is EateryApiResponse.Success -> {
-                apiResponse.data.sortedBy { it.getWalkTimes() }.sortedBy { it.isClosed() }
-                    .let { nearestSorted ->
-                        if (nearestSorted.size < 6) nearestSorted
-                        else nearestSorted.slice(0..5)
-                    }
-            }
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
-
-    private var bigPopUp by mutableStateOf(false)
-
-    fun setPopUp(bool: Boolean) {
-        bigPopUp = bool
-    }
-
-    fun addFilter(filter: Filter) = viewModelScope.launch {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.add(filter)
-        _filtersFlow.value = newList
-    }
-
-    fun removeFilter(filter: Filter) = viewModelScope.launch {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.remove(filter)
-        _filtersFlow.value = newList
     }
 
     fun addSelected(eatery : Eatery) = viewModelScope.launch{
@@ -140,6 +85,14 @@ class HomeViewModel @Inject constructor(
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 selected = currentState.selected.filter { it != eatery }
+            )
+        }
+    }
+
+    fun resetSelected()  = viewModelScope.launch{
+        _compareMenusUiState.update { currentState ->
+            currentState.copy(
+                selected = listOf()
             )
         }
     }
@@ -176,20 +129,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun addPaymentMethodFilters(filters: List<Filter>) = viewModelScope.launch {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.removeAll(Filter.PAYMENT_METHODS)
-        newList.addAll(filters)
-        _filtersFlow.value = newList
-    }
-
-    fun resetFilters() = viewModelScope.launch {
-        _filtersFlow.value = listOf()
-    }
-
-    /**
-     * Determines if the eatery passes the filter inspection based on what's currently selected.
-     */
     private fun passesFilter(
         eatery: Eatery,
         filters: List<Filter>,
@@ -235,21 +174,9 @@ class HomeViewModel @Inject constructor(
                         (filters.contains(Filter.CASH) && eatery.paymentAcceptsCash == true)))
     }
 
-    fun addFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, true)
+    fun sendReport(issue: String, report: String, eateryid: Int?) = viewModelScope.launch {
+        userRepository.sendReport(issue, report, eateryid)
     }
 
-    fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, false)
-    }
 
-    fun getNotificationFlowCompleted() = runBlocking {
-        return@runBlocking userPreferencesRepository.getNotificationFlowCompleted()
-    }
-
-    fun setNotificationFlowCompleted(value: Boolean) = viewModelScope.launch {
-        userPreferencesRepository.setNotificationFlowCompleted(value)
-    }
 }

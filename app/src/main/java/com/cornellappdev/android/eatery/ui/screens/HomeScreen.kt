@@ -83,9 +83,11 @@ import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
+import com.cornellappdev.android.eatery.ui.navigation.Routes
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.LocationHandler
@@ -109,7 +111,7 @@ fun HomeScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteClick: () -> Unit,
     onNearestClick: () -> Unit,
-    onCompareMenusClick: (selectedEateries : Set<Eatery>) -> Unit
+    onCompareMenusClick: (selectedEateries : List<Eatery>) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -162,6 +164,7 @@ fun HomeScreen(
             }
         }
     }
+
 
     // This is the announcements framework. Replace image or popup with necessary materials. Do NOT delete unused imports.
 //    Box(
@@ -236,10 +239,15 @@ fun HomeScreen(
 
     var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
 
-
-    //todo derived state here?
     var showFAB by remember {
         mutableStateOf(true)
+    }
+
+    LaunchedEffect(modalBottomSheetState.currentValue) {
+        if(modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden){
+            showFAB = true
+            sheetContent = BottomSheetContent.PAYMENT_METHODS_AVAILABLE
+        }
     }
 
     val compareMenusScale by animateFloatAsState(
@@ -247,13 +255,13 @@ fun HomeScreen(
         label = "fab_scale"
     )
 
-    //todo this launched effect is a bit slow, there might be a better solution?
-    LaunchedEffect(modalBottomSheetState.currentValue) {
-       if(modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden){
-           showFAB = true
-           sheetContent = BottomSheetContent.PAYMENT_METHODS_AVAILABLE
-       }
-    }
+//    //todo this launched effect is a bit slow, there might be a better solution?
+//    LaunchedEffect(modalBottomSheetState.currentValue) {
+//       if(modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden){
+//           showFAB = true
+////           sheetContent = BottomSheetContent.PAYMENT_METHODS_AVAILABLE
+//       }
+//    }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -307,8 +315,12 @@ fun HomeScreen(
                                     modalBottomSheetState.hide()
                                 }
                             },
-                            homeViewModel = homeViewModel,
-                            onCompareMenusClick= onCompareMenusClick
+                            onCompareMenusClick= { selectedEateries ->
+                                coroutineScope.launch {
+                                    modalBottomSheetState.hide()
+                                }
+                                onCompareMenusClick(selectedEateries)
+                            }
                         )
                     }
                     else -> {}
