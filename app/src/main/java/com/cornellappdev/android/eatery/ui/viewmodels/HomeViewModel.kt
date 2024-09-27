@@ -128,7 +128,7 @@ class HomeViewModel @Inject constructor(
         _filtersFlow.value = newList
     }
 
-    fun addSelected(eatery : Eatery) = viewModelScope.launch{
+    fun addSelected(eatery: Eatery) = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 selected = currentState.selected + listOf(eatery)
@@ -136,7 +136,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun removeSelected(eatery : Eatery) = viewModelScope.launch{
+    fun removeSelected(eatery: Eatery) = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 selected = currentState.selected.filter { it != eatery }
@@ -169,7 +169,12 @@ class HomeViewModel @Inject constructor(
             _compareMenusUiState.update { currentState ->
                 currentState.copy(
                     eateries = allEateries.filter { eatery ->
-                        passesFilter(eatery, selectedFilters, userPreferencesRepository.favoritesFlow.value, currentState.selected)
+                        passesFilter(
+                            eatery,
+                            selectedFilters,
+                            userPreferencesRepository.favoritesFlow.value,
+                            currentState.selected
+                        )
                     }
                 )
             }
@@ -211,8 +216,8 @@ class HomeViewModel @Inject constructor(
                     !filters.contains(Filter.CENTRAL) &&
                     !filters.contains(Filter.WEST)
 
-        if (filters.contains(Filter.SELECTED)){
-            if(!(selected?.contains(eatery) ?: false)) return false
+        if (filters.contains(Filter.SELECTED)) {
+            if (!(selected?.contains(eatery) ?: false)) return false
         }
 
         // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)

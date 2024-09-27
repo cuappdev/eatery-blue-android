@@ -23,30 +23,35 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class CompareMenusViewModel @Inject constructor(
     private val eateryRepository: EateryRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    lateinit var eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>>
+    lateinit var eateryFlow: StateFlow<List<Eatery>>
+    lateinit var eventFlow: StateFlow<List<Event?>>
 
     fun openEatery(eateryIds: List<Int>) {
-        eateryFlow =
-            eateryRepository.eateryFlow.map { apiResponse ->
-                when (apiResponse) {
-                    is EateryApiResponse.Success -> {
-                        EateryApiResponse.Success(apiResponse.data.filter {eateryIds.contains(it.id)})
-                    }
-                    else -> apiResponse
+        eateryFlow = eateryRepository.eateryFlow.map { apiResponse ->
+            when (apiResponse) {
+                is EateryApiResponse.Success -> {
+                    apiResponse.data.filter { eateryIds.contains(it.id) }
                 }
-            }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
+
+                else -> emptyList()
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+        eventFlow = eateryFlow.map { eateries ->
+            eateries.map { eatery ->
+                eatery.getCurrentDisplayedEvent()
+            }
+        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     }
 
-
-    fun sendReport(issue: String, report: String, eateryid: Int?) = viewModelScope.launch {
-        userRepository.sendReport(issue, report, eateryid)
+    fun sendReport(issue: String, report: String, eateryId: Int?) = viewModelScope.launch {
+        userRepository.sendReport(issue, report, eateryId)
     }
-
-
 }

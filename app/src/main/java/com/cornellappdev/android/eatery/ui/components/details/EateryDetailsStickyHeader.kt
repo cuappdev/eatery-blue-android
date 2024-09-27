@@ -150,6 +150,7 @@ fun EateryDetailsStickyHeader(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(6.dp))
         }
 
         Divider(

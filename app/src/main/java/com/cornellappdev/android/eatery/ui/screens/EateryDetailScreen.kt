@@ -122,7 +122,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
-    onCompareMenusClick: (selectedEateries : List<Eatery>) -> Unit
+    onCompareMenusClick: (selectedEateries: List<Eatery>) -> Unit
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val context = LocalContext.current
@@ -155,7 +155,7 @@ fun EateryDetailScreen(
     )
 
     LaunchedEffect(modalBottomSheetState.currentValue) {
-        if(modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden){
+        if (modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden) {
             showFAB = true
             sheetContent = BottomSheetContent.PAYMENT_METHODS_AVAILABLE
         }
@@ -183,10 +183,13 @@ fun EateryDetailScreen(
         },
         floatingActionButtonPosition = FabPosition.End,
         content = { paddingValues ->
-            Box(modifier = Modifier
-                .background(Color.White)
-                .padding(paddingValues)) {
-                when (val eateryApiResponse = eateryDetailViewModel.eateryFlow.collectAsState().value) {
+            Box(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(paddingValues)
+            ) {
+                when (val eateryApiResponse =
+                    eateryDetailViewModel.eateryFlow.collectAsState().value) {
                     is EateryApiResponse.Pending -> {
                         EateryDetailLoadingScreen(shimmer)
                     }
@@ -198,7 +201,12 @@ fun EateryDetailScreen(
                     is EateryApiResponse.Success -> {
                         val eatery = eateryApiResponse.data
                         val bitmapState =
-                            eatery.imageUrl?.let { CoilRepository.getUrlState(it, LocalContext.current) }
+                            eatery.imageUrl?.let {
+                                CoilRepository.getUrlState(
+                                    it,
+                                    LocalContext.current
+                                )
+                            }
                         val infiniteTransition = rememberInfiniteTransition()
                         val progress by infiniteTransition.animateFloat(
                             initialValue = 0f,
@@ -226,7 +234,11 @@ fun EateryDetailScreen(
                                             ReportBottomSheet(issue = issue,
                                                 eateryid = it,
                                                 sendReport = { issue, report, eateryid ->
-                                                    eateryDetailViewModel.sendReport(issue, report, eateryid)
+                                                    eateryDetailViewModel.sendReport(
+                                                        issue,
+                                                        report,
+                                                        eateryid
+                                                    )
                                                 }) {
                                                 coroutineScope.launch {
                                                     modalBottomSheetState.hide()
@@ -273,14 +285,14 @@ fun EateryDetailScreen(
                                         )
                                     }
 
-                                    BottomSheetContent.COMPARE_MENUS ->{
+                                    BottomSheetContent.COMPARE_MENUS -> {
                                         CompareMenusBotSheet(
                                             onDismiss = {
                                                 coroutineScope.launch {
                                                     modalBottomSheetState.hide()
                                                 }
                                             },
-                                            onCompareMenusClick= { selectedEateries ->
+                                            onCompareMenusClick = { selectedEateries ->
                                                 coroutineScope.launch {
                                                     modalBottomSheetState.hide()
                                                 }
@@ -292,14 +304,19 @@ fun EateryDetailScreen(
                                     else -> {}
                                 }
                             }, sheetShape = RoundedCornerShape(
-                                bottomStart = 0.dp, bottomEnd = 0.dp, topStart = 12.dp, topEnd = 12.dp
+                                bottomStart = 0.dp,
+                                bottomEnd = 0.dp,
+                                topStart = 12.dp,
+                                topEnd = 12.dp
                             ), sheetElevation = 8.dp
                         ) {
 
                             paymentMethods.apply {
                                 if (eatery.paymentAcceptsCash == true) add(PaymentMethodsAvailable.CASH)
                                 if (eatery.paymentAcceptsBrbs == true) add(PaymentMethodsAvailable.BRB)
-                                if (eatery.paymentAcceptsMealSwipes == true) add(PaymentMethodsAvailable.SWIPES)
+                                if (eatery.paymentAcceptsMealSwipes == true) add(
+                                    PaymentMethodsAvailable.SWIPES
+                                )
                             }
 
                             val listState = rememberLazyListState()
@@ -340,7 +357,10 @@ fun EateryDetailScreen(
 
                                                         is EateryApiResponse.Pending -> {
                                                             Image(
-                                                                bitmap = ImageBitmap(width = 1, height = 1),
+                                                                bitmap = ImageBitmap(
+                                                                    width = 1,
+                                                                    height = 1
+                                                                ),
                                                                 modifier = Modifier
                                                                     .height(240.dp)
                                                                     .fillMaxWidth()
@@ -395,7 +415,8 @@ fun EateryDetailScreen(
                                                     .padding(16.dp)
                                                     .height(40.dp)
                                             ) {
-                                                sheetContent = BottomSheetContent.PAYMENT_METHODS_AVAILABLE
+                                                sheetContent =
+                                                    BottomSheetContent.PAYMENT_METHODS_AVAILABLE
                                                 coroutineScope.launch {
                                                     modalBottomSheetState.show()
                                                 }
@@ -429,7 +450,9 @@ fun EateryDetailScreen(
                                                 Button(
                                                     onClick = {
                                                         val getAppIntent =
-                                                            context.packageManager.getLaunchIntentForPackage("com.cbord.get")
+                                                            context.packageManager.getLaunchIntentForPackage(
+                                                                "com.cbord.get"
+                                                            )
                                                         if (getAppIntent != null) {
                                                             getAppIntent.addCategory(Intent.CATEGORY_LAUNCHER)
                                                             context.startActivity(getAppIntent)
@@ -446,7 +469,8 @@ fun EateryDetailScreen(
                                                     },
                                                     shape = RoundedCornerShape(100),
                                                     colors = ButtonDefaults.buttonColors(
-                                                        backgroundColor = EateryBlue, contentColor = Color.White
+                                                        backgroundColor = EateryBlue,
+                                                        contentColor = Color.White
                                                     )
                                                 ) {
                                                     Icon(
@@ -464,11 +488,12 @@ fun EateryDetailScreen(
                                             }
                                             Button(
                                                 onClick = {
-                                                    val mapIntent = Intent(Intent.ACTION_VIEW).apply {
-                                                        data =
-                                                            Uri.parse("google.navigation:q=${eatery.latitude},${eatery.longitude}&mode=w")
-                                                        setPackage("com.google.android.apps.maps")
-                                                    }
+                                                    val mapIntent =
+                                                        Intent(Intent.ACTION_VIEW).apply {
+                                                            data =
+                                                                Uri.parse("google.navigation:q=${eatery.latitude},${eatery.longitude}&mode=w")
+                                                            setPackage("com.google.android.apps.maps")
+                                                        }
                                                     context.startActivity(mapIntent)
                                                 },
                                                 shape = RoundedCornerShape(100),
@@ -476,7 +501,8 @@ fun EateryDetailScreen(
                                                     .fillMaxWidth()
                                                     .padding(horizontal = 15.dp),
                                                 colors = ButtonDefaults.buttonColors(
-                                                    backgroundColor = GrayZero, contentColor = Color.Black
+                                                    backgroundColor = GrayZero,
+                                                    contentColor = Color.Black
                                                 )
                                             ) {
                                                 Icon(
@@ -532,7 +558,8 @@ fun EateryDetailScreen(
                                                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                                     Text(
                                                         text = "Hours", style = TextStyle(
-                                                            fontWeight = FontWeight.SemiBold, fontSize = 16.sp
+                                                            fontWeight = FontWeight.SemiBold,
+                                                            fontSize = 16.sp
                                                         ), color = GrayFive
                                                     )
                                                 }
@@ -544,7 +571,8 @@ fun EateryDetailScreen(
                                                     else if (eatery.isClosingSoon()) "Closing at $openUntil"
                                                     else ("Open until $openUntil"),
                                                     style = TextStyle(
-                                                        fontWeight = FontWeight.SemiBold, fontSize = 16.sp
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        fontSize = 16.sp
                                                     ),
                                                     color = if (openUntil == null) Red
                                                     else if (eatery.isClosingSoon()) Yellow
@@ -643,7 +671,8 @@ fun EateryDetailScreen(
                                                     modifier = Modifier.weight(1f)
                                                 ) {
                                                     Text(
-                                                        text = nextEvent!!.description ?: "Full Menu",
+                                                        text = nextEvent!!.description
+                                                            ?: "Full Menu",
                                                         style = EateryBlueTypography.h4,
                                                     )
                                                     if (nextEvent!!.startTime != null && nextEvent!!.endTime != null) {
@@ -669,7 +698,10 @@ fun EateryDetailScreen(
                                                     },
                                                     modifier = Modifier
                                                         .padding(all = 8.dp)
-                                                        .background(color = GrayZero, shape = CircleShape)
+                                                        .background(
+                                                            color = GrayZero,
+                                                            shape = CircleShape
+                                                        )
                                                 ) {
                                                     Icon(
                                                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
@@ -745,7 +777,10 @@ fun EateryDetailScreen(
                                                                 modifier = Modifier
                                                                     .fillMaxWidth()
                                                                     .height(1.dp)
-                                                                    .background(GrayZero, CircleShape)
+                                                                    .background(
+                                                                        GrayZero,
+                                                                        CircleShape
+                                                                    )
                                                             )
                                                         }
                                                         if (category.items.lastIndex == index && categoryIndex != nextEvent!!.menu!!.lastIndex) {
@@ -835,18 +870,36 @@ fun EateryDetailScreen(
 
 
 
-                                AnimatedVisibility(visible = listState.firstVisibleItemIndex >= 1,
+                                AnimatedVisibility(
+                                    visible = listState.firstVisibleItemIndex >= 1,
                                     enter = fadeIn(animationSpec = tween(100)),
-                                    exit = fadeOut(animationSpec = tween(100))) {
-                                    Column (modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(Color.White)
-                                        .padding(top = 48.dp, bottom = 12.dp)){
-                                        EateryHeader(eatery = eatery, eateryDetailViewModel = eateryDetailViewModel)
-                                        EateryDetailsStickyHeader(nextEvent, eatery, filterText, fullMenuList, listState,5) { index ->
+                                    exit = fadeOut(animationSpec = tween(100))
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(Color.White)
+                                            .padding(top = 48.dp, bottom = 12.dp)
+                                    ) {
+                                        EateryHeader(
+                                            eatery = eatery,
+                                            eateryDetailViewModel = eateryDetailViewModel
+                                        )
+                                        EateryDetailsStickyHeader(
+                                            nextEvent,
+                                            eatery,
+                                            filterText,
+                                            fullMenuList,
+                                            listState,
+                                            5
+                                        ) { index ->
                                             // The first category title has an item index of 8
                                             // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)
-                                            coroutineScope.launch { listState.animateScrollToItem(index + 5) }
+                                            coroutineScope.launch {
+                                                listState.animateScrollToItem(
+                                                    index + 5
+                                                )
+                                            }
                                         }
                                     }
 
@@ -858,7 +911,6 @@ fun EateryDetailScreen(
             }
 
         })
-
 
 
 }
