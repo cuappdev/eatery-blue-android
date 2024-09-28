@@ -226,46 +226,55 @@ fun CompareMenusScreen(
                     modalBottomSheetState,
                     onEateryClick
                 )
-                HorizontalPager(
-                    pageCount = eateries.size,
-                    state = secondPagerState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(GrayZero),
-                    contentPadding = PaddingValues(horizontal = 100.dp),
-                    pageSpacing = 2.dp,
-                    verticalAlignment = Alignment.CenterVertically,
-                    flingBehavior = PagerDefaults.flingBehavior(
-                        state = secondPagerState,
-                        //pager snap distance literally does nothing
-                        pagerSnapDistance = PagerSnapDistance.atMost(1),
-                    ),
-                ) { page ->
-                    Box(
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .clip(shape = RoundedCornerShape(8.dp))
-                            .background(Color.White)
-                            .fillMaxSize(0.9f)
-                            .wrapContentSize(Alignment.Center)
-
-                    ) {
-                        eateries[page].name?.let {
-                            Text(
-                                text = it,
-                                style = EateryBlueTypography.button,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
-                }
+                TitlePager(eateries, secondPagerState)
             }
 
         }
     }
 
 
+}
+
+@Composable
+@OptIn(ExperimentalFoundationApi::class)
+private fun TitlePager(
+    eateries: List<Eatery>,
+    secondPagerState: PagerState
+) {
+    HorizontalPager(
+        pageCount = eateries.size,
+        state = secondPagerState,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(GrayZero),
+        contentPadding = PaddingValues(horizontal = 100.dp),
+        pageSpacing = 2.dp,
+        verticalAlignment = Alignment.CenterVertically,
+        flingBehavior = PagerDefaults.flingBehavior(
+            state = secondPagerState,
+            //pager snap distance literally does nothing
+            pagerSnapDistance = PagerSnapDistance.atMost(1),
+        ),
+    ) { page ->
+        Box(
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .clip(shape = RoundedCornerShape(8.dp))
+                .background(Color.White)
+                .fillMaxSize(0.9f)
+                .wrapContentSize(Alignment.Center)
+
+        ) {
+            eateries[page].name?.let {
+                Text(
+                    text = it,
+                    style = EateryBlueTypography.button,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
 }
 
 @Composable
