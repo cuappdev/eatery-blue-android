@@ -59,7 +59,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CompareMenusBotSheet(
     onDismiss: () -> Unit,
-    onCompareMenusClick: (selectedEateriesIds : List<Int>) -> Unit,
+    onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
     compareMenusBotViewModel: CompareMenusBotViewModel = hiltViewModel()
 ) {
     val compareMenusUIState by compareMenusBotViewModel.compareMenusUiState.collectAsState()
@@ -112,23 +112,22 @@ fun CompareMenusBotSheet(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-                Box(
-                    modifier = Modifier
-                        .background(Color.White)
-                        .fillMaxHeight(0.4f)
-                        .fillMaxWidth()
-                ) {
-                    SelectableEateriesList(eateries, selectedEateries, compareMenusBotViewModel)
+        Box(
+            modifier = Modifier
+                .background(Color.White)
+                .fillMaxHeight(0.4f)
+                .fillMaxWidth()
+        ) {
+            SelectableEateriesList(eateries, selectedEateries, compareMenusBotViewModel)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
         val coroutineScope = rememberCoroutineScope()
         Button(
             onClick = {
-                if (selectedEateries.size < 2){
+                if (selectedEateries.size < 2) {
 
-                }
-                else{
+                } else {
                     coroutineScope.launch {
                         delay(100)
                         onCompareMenusClick(compareMenusUIState.selected.mapNotNull { it.id })
@@ -147,7 +146,7 @@ fun CompareMenusBotSheet(
         ) {
             Text(
                 text = if (selectedEateries.size < 2) "Select at least ${2 - selectedEateries.size} more"
-                        else "Compare ${selectedEateries.size} now",
+                else "Compare ${selectedEateries.size} now",
                 style = EateryBlueTypography.h5,
                 color = Color.White
             )

@@ -84,9 +84,13 @@ fun AppIconBottomSheet(hide: () -> Unit) {
             }
         }
         val pagerState = androidx.compose.foundation.pager.rememberPagerState()
-        androidx.compose.foundation.pager.HorizontalPager(pageCount = 2, state = pagerState, modifier = Modifier.offset(x = -8.dp)){
-            Column{
-                when(it){
+        androidx.compose.foundation.pager.HorizontalPager(
+            pageCount = 2,
+            state = pagerState,
+            modifier = Modifier.offset(x = -8.dp)
+        ) {
+            Column {
+                when (it) {
                     0 -> {
                         Row(
                             modifier = Modifier
@@ -108,14 +112,14 @@ fun AppIconBottomSheet(hide: () -> Unit) {
                         }
                     }
 
-                    1-> {
+                    1 -> {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center
                         ) {
                             AppIconButton(AppIcon.VALENTINES, selectedAppIcon, setSelectedAppIcon)
-                            }
+                        }
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center

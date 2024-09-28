@@ -61,10 +61,10 @@ fun EateryDetailsStickyHeader(
     filterText: String,
     fullMenuList: MutableList<String>,
     listState: LazyListState,
-    startIndex : Int,
+    startIndex: Int,
     onItemClick: (Int) -> Unit,
 
-) {
+    ) {
     val rowState = rememberLazyListState()
     val rowCoroutine = rememberCoroutineScope()
     val selectedEvent = nextEvent?.menu?.find { category ->

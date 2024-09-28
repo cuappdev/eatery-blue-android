@@ -108,7 +108,7 @@ fun HomeScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteClick: () -> Unit,
     onNearestClick: () -> Unit,
-    onCompareMenusClick: (selectedEateriesIds : List<Int>) -> Unit,
+    onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
 ) {
     val context = LocalContext.current
 

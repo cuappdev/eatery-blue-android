@@ -40,7 +40,11 @@ class CompareMenusBotViewModel @Inject constructor(
 
                             currentState.copy(
                                 allEateries = allEateries,
-                                eateries = filterEateries(allEateries, currentState.filters, currentState.selected)
+                                eateries = filterEateries(
+                                    allEateries,
+                                    currentState.filters,
+                                    currentState.selected
+                                )
                             )
                         }
                     }
@@ -59,7 +63,11 @@ class CompareMenusBotViewModel @Inject constructor(
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 selected = currentState.selected + listOf(eatery),
-                eateries = filterEateries(currentState.allEateries, currentState.filters, currentState.selected + listOf(eatery))
+                eateries = filterEateries(
+                    currentState.allEateries,
+                    currentState.filters,
+                    currentState.selected + listOf(eatery)
+                )
             )
         }
     }
@@ -68,7 +76,10 @@ class CompareMenusBotViewModel @Inject constructor(
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 selected = currentState.selected.filter { it != eatery },
-                eateries = filterEateries(currentState.allEateries, currentState.filters, currentState.selected.filter { it != eatery })
+                eateries = filterEateries(
+                    currentState.allEateries,
+                    currentState.filters,
+                    currentState.selected.filter { it != eatery })
             )
         }
     }
@@ -86,7 +97,11 @@ class CompareMenusBotViewModel @Inject constructor(
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 filters = currentState.filters + listOf(filter),
-                eateries = filterEateries(currentState.allEateries, currentState.filters + listOf(filter), currentState.selected)
+                eateries = filterEateries(
+                    currentState.allEateries,
+                    currentState.filters + listOf(filter),
+                    currentState.selected
+                )
             )
         }
     }
@@ -95,7 +110,11 @@ class CompareMenusBotViewModel @Inject constructor(
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 filters = currentState.filters.filter { it != filter },
-                eateries = filterEateries(currentState.allEateries, currentState.filters.filter { it != filter }, currentState.selected)
+                eateries = filterEateries(
+                    currentState.allEateries,
+                    currentState.filters.filter { it != filter },
+                    currentState.selected
+                )
             )
         }
     }

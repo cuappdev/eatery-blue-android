@@ -54,7 +54,8 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 @Composable
 fun NavigationSetup(hasOnboarded: Boolean) {
     val navController = rememberAnimatedNavController()
-    val showBottomBar = rememberSaveable { mutableStateOf(false)
+    val showBottomBar = rememberSaveable {
+        mutableStateOf(false)
     }
 
     // Subscribe to navBackStackEntry, required to get current route
@@ -200,7 +201,7 @@ fun SetupNavHost(
                 navController.navigate(Routes.FAVORITES.route)
             }, onNearestClick = {
                 navController.navigate(Routes.NEAREST.route)
-            }, onCompareMenusClick = {selectedEateries->
+            }, onCompareMenusClick = { selectedEateries ->
                 navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
             }
             )
@@ -237,7 +238,7 @@ fun SetupNavHost(
                 )
             }) {
             EateryDetailScreen(
-                onCompareMenusClick = {selectedEateriesIds->
+                onCompareMenusClick = { selectedEateriesIds ->
                     navController.navigate("comparemenus/${selectedEateriesIds.joinToString(",") { it.toString() }}")
                 }
             )
@@ -434,15 +435,16 @@ fun SetupNavHost(
             enterTransition = { fadeIn(animationSpec = tween(durationMillis = 500)) },
             exitTransition = { fadeOut(animationSpec = tween(durationMillis = 500)) }
         ) { backStackEntry ->
-            backStackEntry.arguments?.getString("eateryIds")?.split(",")?.map { it.toInt() }?.let { eateryIds ->
-                CompareMenusScreen(
-                    eateryIds = eateryIds,
-                    onEateryClick = {
-                        FirstTimeShown.firstTimeShown = false
-                        navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-                    }
-                )
-            }
+            backStackEntry.arguments?.getString("eateryIds")?.split(",")?.map { it.toInt() }
+                ?.let { eateryIds ->
+                    CompareMenusScreen(
+                        eateryIds = eateryIds,
+                        onEateryClick = {
+                            FirstTimeShown.firstTimeShown = false
+                            navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+                        }
+                    )
+                }
         }
     }
 }
