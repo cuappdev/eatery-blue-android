@@ -1,10 +1,8 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
@@ -13,13 +11,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,36 +24,23 @@ class CompareMenusBotViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _compareMenusUiState = MutableStateFlow(CompareMenusUIState())
-    val compareMenusUiState: StateFlow<CompareMenusUIState> = _compareMenusUiState.asStateFlow()
-
-    val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
-        combine(
-            eateryRepository.homeEateryFlow,
-            userPreferencesRepository.favoritesFlow
-        ) { apiResponse, favorites ->
-            when (apiResponse) {
-                is EateryApiResponse.Error -> EateryApiResponse.Error
-                is EateryApiResponse.Pending -> EateryApiResponse.Pending
-                is EateryApiResponse.Success -> {
-                    EateryApiResponse.Success(
-                        apiResponse.data.sortedBy { eatery ->
-                            eatery.name
-                        }.sortedBy { eatery ->
-                            eatery.isClosed()
-                        })
-                }
-            }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
+    val compareMenusUiState = _compareMenusUiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            eateryFlow.collect { apiResponse ->
+            eateryRepository.homeEateryFlow.collect { apiResponse ->
                 when (apiResponse) {
                     is EateryApiResponse.Success -> {
                         _compareMenusUiState.update { currentState ->
+                            val allEateries = apiResponse.data.sortedBy { eatery ->
+                                eatery.name
+                            }.sortedBy { eatery ->
+                                eatery.isClosed()
+                            }
+
                             currentState.copy(
-                                eateries = apiResponse.data,
-                                allEateries = apiResponse.data
+                                allEateries = allEateries,
+                                eateries = filterEateries(allEateries, currentState.filters, currentState.selected)
                             )
                         }
                     }
@@ -79,7 +58,8 @@ class CompareMenusBotViewModel @Inject constructor(
     fun addSelected(eatery: Eatery) = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
-                selected = currentState.selected + listOf(eatery)
+                selected = currentState.selected + listOf(eatery),
+                eateries = filterEateries(currentState.allEateries, currentState.filters, currentState.selected + listOf(eatery))
             )
         }
     }
@@ -87,7 +67,8 @@ class CompareMenusBotViewModel @Inject constructor(
     fun removeSelected(eatery: Eatery) = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
-                selected = currentState.selected.filter { it != eatery }
+                selected = currentState.selected.filter { it != eatery },
+                eateries = filterEateries(currentState.allEateries, currentState.filters, currentState.selected.filter { it != eatery })
             )
         }
     }
@@ -95,7 +76,8 @@ class CompareMenusBotViewModel @Inject constructor(
     fun resetSelected() = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
-                selected = listOf()
+                selected = listOf(),
+                eateries = filterEateries(currentState.allEateries, currentState.filters, listOf())
             )
         }
     }
@@ -103,37 +85,28 @@ class CompareMenusBotViewModel @Inject constructor(
     fun addFilterCM(filter: Filter) = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
-                filters = currentState.filters + listOf(filter)
+                filters = currentState.filters + listOf(filter),
+                eateries = filterEateries(currentState.allEateries, currentState.filters + listOf(filter), currentState.selected)
             )
         }
-        updateFilteredEateries()
     }
 
     fun removeFilterCM(filter: Filter) = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
-                filters = currentState.filters.filter { it != filter }
+                filters = currentState.filters.filter { it != filter },
+                eateries = filterEateries(currentState.allEateries, currentState.filters.filter { it != filter }, currentState.selected)
             )
         }
-        updateFilteredEateries()
     }
 
-    fun updateFilteredEateries() {
-        val allEateries = _compareMenusUiState.value.allEateries
-        val selectedFilters = _compareMenusUiState.value.filters
-        viewModelScope.launch {
-            _compareMenusUiState.update { currentState ->
-                currentState.copy(
-                    eateries = allEateries.filter { eatery ->
-                        passesFilter(
-                            eatery,
-                            selectedFilters,
-                            userPreferencesRepository.favoritesFlow.value,
-                            currentState.selected
-                        )
-                    }
-                )
-            }
+    private fun filterEateries(
+        allEateries: List<Eatery>,
+        filters: List<Filter>,
+        selected: List<Eatery>
+    ): List<Eatery> {
+        return allEateries.filter { eatery ->
+            passesFilter(eatery, filters, userPreferencesRepository.favoritesFlow.value, selected)
         }
     }
 

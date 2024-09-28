@@ -24,7 +24,7 @@ fun CompareMenusFAB(
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_compare_menus),
-            "Floating action button.",
+            "Compare Menus Floating Action Button",
             tint = Color.White
         )
     }
