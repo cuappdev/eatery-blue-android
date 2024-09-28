@@ -36,9 +36,6 @@ class HomeViewModel @Inject constructor(
      */
     val filtersFlow = _filtersFlow.asStateFlow()
 
-    private val _compareMenusUiState = MutableStateFlow(CompareMenusUIState())
-    val compareMenusUiState: StateFlow<CompareMenusUIState> = _compareMenusUiState.asStateFlow()
-
     /**
      * A flow emitting all eateries with the appropriate filters applied.
      *
@@ -126,59 +123,6 @@ class HomeViewModel @Inject constructor(
         val newList = _filtersFlow.value.toMutableList()
         newList.remove(filter)
         _filtersFlow.value = newList
-    }
-
-    fun addSelected(eatery: Eatery) = viewModelScope.launch {
-        _compareMenusUiState.update { currentState ->
-            currentState.copy(
-                selected = currentState.selected + listOf(eatery)
-            )
-        }
-    }
-
-    fun removeSelected(eatery: Eatery) = viewModelScope.launch {
-        _compareMenusUiState.update { currentState ->
-            currentState.copy(
-                selected = currentState.selected.filter { it != eatery }
-            )
-        }
-    }
-
-    fun addFilterCM(filter: Filter) = viewModelScope.launch {
-        _compareMenusUiState.update { currentState ->
-            currentState.copy(
-                filters = currentState.filters + listOf(filter)
-            )
-        }
-        updateFilteredEateries()
-    }
-
-    fun removeFilterCM(filter: Filter) = viewModelScope.launch {
-        _compareMenusUiState.update { currentState ->
-            currentState.copy(
-                filters = currentState.filters.filter { it != filter }
-            )
-        }
-        updateFilteredEateries()
-    }
-
-    fun updateFilteredEateries() {
-        val allEateries = _compareMenusUiState.value.allEateries
-        val selectedFilters = _compareMenusUiState.value.filters
-        viewModelScope.launch {
-            _compareMenusUiState.update { currentState ->
-                currentState.copy(
-                    eateries = allEateries.filter { eatery ->
-                        passesFilter(
-                            eatery,
-                            selectedFilters,
-                            userPreferencesRepository.favoritesFlow.value,
-                            currentState.selected
-                        )
-                    }
-                )
-            }
-        }
     }
 
     fun addPaymentMethodFilters(filters: List<Filter>) = viewModelScope.launch {
