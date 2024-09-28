@@ -59,7 +59,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun CompareMenusBotSheet(
     onDismiss: () -> Unit,
-    onCompareMenusClick: (selectedEateries : List<Eatery>) -> Unit,
+    onCompareMenusClick: (selectedEateriesIds : List<Int>) -> Unit,
     compareMenusBotViewModel: CompareMenusBotViewModel = hiltViewModel()
 ) {
     val compareMenusUIState by compareMenusBotViewModel.compareMenusUiState.collectAsState()
@@ -118,65 +118,7 @@ fun CompareMenusBotSheet(
                         .fillMaxHeight(0.4f)
                         .fillMaxWidth()
                 ) {
-                    LazyColumn {
-                        items(eateries) { eatery ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth().clickable {
-                                    if (selectedEateries.contains(eatery)) {
-                                        compareMenusBotViewModel.removeSelected(eatery)
-                                    } else {
-                                        compareMenusBotViewModel.addSelected(eatery)
-                                    }
-                                },
-                                verticalAlignment = Alignment.CenterVertically,
-
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        if (selectedEateries.contains(eatery)) {
-                                            compareMenusBotViewModel.removeSelected(eatery)
-                                        } else {
-                                            compareMenusBotViewModel.addSelected(eatery)
-                                        }
-                                    },
-                                    modifier = Modifier.align(Alignment.CenterVertically)
-                                ) {
-                                    if (selectedEateries.contains(eatery)) {
-                                        Box(
-                                            contentAlignment = Alignment.Center,
-                                            modifier = Modifier
-                                                .size(26.dp)
-                                                .background(Color.Black, CircleShape)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Check,
-                                                contentDescription = "Selected",
-                                                tint = Color.White,
-                                                modifier = Modifier.size(24.dp)
-                                            )
-                                        }
-                                    } else {
-                                        Box(
-                                            contentAlignment = Alignment.Center,
-                                            modifier = Modifier
-                                                .size(26.dp)
-                                                .background(Color.White, CircleShape)
-                                                .border(2.dp, Color.Black, CircleShape)
-                                        ) {
-                                        }
-                                    }
-                                }
-                                eatery.name?.let {
-                                    Text(
-                                        text = it, style = EateryBlueTypography.body1,
-                                        color = Color.Black
-                                    )
-                                }
-                            }
-
-
-                }
-            }
+                    SelectableEateriesList(eateries, selectedEateries, compareMenusBotViewModel)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -189,7 +131,7 @@ fun CompareMenusBotSheet(
                 else{
                     coroutineScope.launch {
                         delay(100)
-                        onCompareMenusClick(compareMenusUIState.selected)
+                        onCompareMenusClick(compareMenusUIState.selected.mapNotNull { it.id })
                     }
                 }
             },
@@ -209,6 +151,75 @@ fun CompareMenusBotSheet(
                 style = EateryBlueTypography.h5,
                 color = Color.White
             )
+        }
+    }
+}
+
+@Composable
+private fun SelectableEateriesList(
+    eateries: List<Eatery>,
+    selectedEateries: List<Eatery>,
+    compareMenusBotViewModel: CompareMenusBotViewModel
+) {
+    LazyColumn {
+        items(eateries) { eatery ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        if (selectedEateries.contains(eatery)) {
+                            compareMenusBotViewModel.removeSelected(eatery)
+                        } else {
+                            compareMenusBotViewModel.addSelected(eatery)
+                        }
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+
+                ) {
+                IconButton(
+                    onClick = {
+                        if (selectedEateries.contains(eatery)) {
+                            compareMenusBotViewModel.removeSelected(eatery)
+                        } else {
+                            compareMenusBotViewModel.addSelected(eatery)
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                ) {
+                    if (selectedEateries.contains(eatery)) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(26.dp)
+                                .background(Color.Black, CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = "Selected",
+                                tint = Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    } else {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(26.dp)
+                                .background(Color.White, CircleShape)
+                                .border(2.dp, Color.Black, CircleShape)
+                        ) {
+                        }
+                    }
+                }
+                eatery.name?.let {
+                    Text(
+                        text = it, style = EateryBlueTypography.body1,
+                        color = Color.Black
+                    )
+                }
+            }
+
+
         }
     }
 }

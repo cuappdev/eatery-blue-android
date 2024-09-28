@@ -201,7 +201,7 @@ fun SetupNavHost(
             }, onNearestClick = {
                 navController.navigate(Routes.NEAREST.route)
             }, onCompareMenusClick = {selectedEateries->
-                navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.id.toString() }}")
+                navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
             }
             )
         }
@@ -237,8 +237,8 @@ fun SetupNavHost(
                 )
             }) {
             EateryDetailScreen(
-                onCompareMenusClick = {selectedEateries->
-                    navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.id.toString() }}")
+                onCompareMenusClick = {selectedEateriesIds->
+                    navController.navigate("comparemenus/${selectedEateriesIds.joinToString(",") { it.toString() }}")
                 }
             )
         }

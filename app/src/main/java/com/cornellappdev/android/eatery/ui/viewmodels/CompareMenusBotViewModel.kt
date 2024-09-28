@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 @HiltViewModel
 class CompareMenusBotViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -64,8 +65,10 @@ class CompareMenusBotViewModel @Inject constructor(
                             )
                         }
                     }
+
                     is EateryApiResponse.Error -> {
                     }
+
                     is EateryApiResponse.Pending -> {
                     }
                 }
@@ -73,7 +76,7 @@ class CompareMenusBotViewModel @Inject constructor(
         }
     }
 
-    fun addSelected(eatery : Eatery) = viewModelScope.launch{
+    fun addSelected(eatery: Eatery) = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 selected = currentState.selected + listOf(eatery)
@@ -81,7 +84,7 @@ class CompareMenusBotViewModel @Inject constructor(
         }
     }
 
-    fun removeSelected(eatery : Eatery) = viewModelScope.launch{
+    fun removeSelected(eatery: Eatery) = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 selected = currentState.selected.filter { it != eatery }
@@ -89,7 +92,7 @@ class CompareMenusBotViewModel @Inject constructor(
         }
     }
 
-    fun resetSelected()  = viewModelScope.launch{
+    fun resetSelected() = viewModelScope.launch {
         _compareMenusUiState.update { currentState ->
             currentState.copy(
                 selected = listOf()
@@ -122,7 +125,12 @@ class CompareMenusBotViewModel @Inject constructor(
             _compareMenusUiState.update { currentState ->
                 currentState.copy(
                     eateries = allEateries.filter { eatery ->
-                        passesFilter(eatery, selectedFilters, userPreferencesRepository.favoritesFlow.value, currentState.selected)
+                        passesFilter(
+                            eatery,
+                            selectedFilters,
+                            userPreferencesRepository.favoritesFlow.value,
+                            currentState.selected
+                        )
                     }
                 )
             }
@@ -150,8 +158,8 @@ class CompareMenusBotViewModel @Inject constructor(
                     !filters.contains(Filter.CENTRAL) &&
                     !filters.contains(Filter.WEST)
 
-        if (filters.contains(Filter.SELECTED)){
-            if(!(selected?.contains(eatery) ?: false)) return false
+        if (filters.contains(Filter.SELECTED)) {
+            if (!(selected?.contains(eatery) ?: false)) return false
         }
 
         // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)

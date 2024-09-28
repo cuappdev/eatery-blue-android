@@ -108,7 +108,7 @@ fun HomeScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteClick: () -> Unit,
     onNearestClick: () -> Unit,
-    onCompareMenusClick: (selectedEateries: List<Eatery>) -> Unit
+    onCompareMenusClick: (selectedEateriesIds : List<Int>) -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -306,11 +306,11 @@ fun HomeScreen(
                                             modalBottomSheetState.hide()
                                         }
                                     },
-                                    onCompareMenusClick = { selectedEateries ->
+                                    onCompareMenusClick = { selectedEateriesIds ->
                                         coroutineScope.launch {
                                             modalBottomSheetState.hide()
                                         }
-                                        onCompareMenusClick(selectedEateries)
+                                        onCompareMenusClick(selectedEateriesIds)
                                     }
                                 )
                             }

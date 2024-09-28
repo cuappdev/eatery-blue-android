@@ -122,7 +122,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
-    onCompareMenusClick: (selectedEateries: List<Eatery>) -> Unit
+    onCompareMenusClick: (selectedEateriesIds : List<Int>) -> Unit,
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val context = LocalContext.current
@@ -292,11 +292,11 @@ fun EateryDetailScreen(
                                                     modalBottomSheetState.hide()
                                                 }
                                             },
-                                            onCompareMenusClick = { selectedEateries ->
+                                            onCompareMenusClick = { selectedEateriesIds ->
                                                 coroutineScope.launch {
                                                     modalBottomSheetState.hide()
                                                 }
-                                                onCompareMenusClick(selectedEateries)
+                                                onCompareMenusClick(selectedEateriesIds)
                                             }
                                         )
                                     }
