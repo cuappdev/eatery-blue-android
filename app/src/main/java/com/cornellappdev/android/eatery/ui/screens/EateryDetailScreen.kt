@@ -42,7 +42,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
@@ -57,6 +56,7 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -70,11 +70,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -89,8 +87,10 @@ import com.cornellappdev.android.eatery.data.repositories.CoilRepository
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
 import com.cornellappdev.android.eatery.ui.components.details.AlertsSection
+import com.cornellappdev.android.eatery.ui.components.details.CalendarButton
 import com.cornellappdev.android.eatery.ui.components.details.EateryDetailsStickyHeader
 import com.cornellappdev.android.eatery.ui.components.details.EateryHourBottomSheet
+import com.cornellappdev.android.eatery.ui.components.details.EateryMealTabs
 import com.cornellappdev.android.eatery.ui.components.details.EateryMenusBottomSheet
 import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
@@ -113,6 +113,8 @@ import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
+import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
@@ -136,8 +138,10 @@ fun EateryDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
 
+    /**
+     * The amount of days offset from the current weekday
+     */
     var weekDayIndex by remember { mutableStateOf(0) }
-    var mealType by remember { mutableStateOf(0) }
 
     // The event/meal to display. May be null.
     val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
@@ -216,6 +220,12 @@ fun EateryDetailScreen(
                                 repeatMode = RepeatMode.Reverse
                             )
                         )
+            val mealTypeIndex = remember {
+                derivedStateOf {
+                    eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
+                        ?.indexOfFirst { it.first == nextEvent?.description } ?: 0
+                }
+            }
 
                         ModalBottomSheetLayout(
                             sheetState = modalBottomSheetState, sheetContent = {
@@ -258,32 +268,29 @@ fun EateryDetailScreen(
                                         })
                                     }
 
-                                    BottomSheetContent.MENUS -> {
-                                        EateryMenusBottomSheet(
-                                            weekDayIndex = weekDayIndex,
-                                            mealType = mealType,
-                                            onDismiss = {
-                                                coroutineScope.launch {
-                                                    modalBottomSheetState.hide()
-                                                }
-                                            },
-                                            eatery = eatery,
-                                            onShowMenuClick = { dayIndex, mealDescription, mealTypeIndex ->
-                                                eateryDetailViewModel.selectEvent(
-                                                    eatery,
-                                                    dayIndex,
-                                                    mealDescription
-                                                )
-                                                weekDayIndex = dayIndex
-                                                mealType = mealTypeIndex
-                                            },
-                                            onResetClick = {
-                                                weekDayIndex = 0
-                                                mealType = 0
-                                                eateryDetailViewModel.resetSelectedEvent()
-                                            }
-                                        )
+                        BottomSheetContent.MENUS -> {
+                            EateryMenusBottomSheet(
+                                weekDayIndex = weekDayIndex,
+                                onDismiss = {
+                                    coroutineScope.launch {
+                                        modalBottomSheetState.hide()
                                     }
+                                },
+                                eatery = eatery,
+                                onShowMenuClick = { dayIndex, mealDescription, _ ->
+                                    eateryDetailViewModel.selectEvent(
+                                        eatery,
+                                        dayIndex,
+                                        mealDescription
+                                    )
+                                    weekDayIndex = dayIndex
+                                },
+                                onResetClick = {
+                                    weekDayIndex = 0
+                                    eateryDetailViewModel.resetSelectedEvent()
+                                },
+                            )
+                        }
 
                                     BottomSheetContent.COMPARE_MENUS -> {
                                         CompareMenusBotSheet(
@@ -649,7 +656,7 @@ fun EateryDetailScreen(
                                         )
                                     }
 
-                                    if (nextEvent != null) {
+                                    nextEvent?.let { nextEvent ->
                                         val hoursOnClick = {
                                             sheetContent = BottomSheetContent.MENUS
                                             coroutineScope.launch {
@@ -671,18 +678,18 @@ fun EateryDetailScreen(
                                                     modifier = Modifier.weight(1f)
                                                 ) {
                                                     Text(
-                                                        text = nextEvent!!.description
-                                                            ?: "Full Menu",
+                                                        text = weekDayIndex.fromOffsetToDayOfWeek()
+                                                .toReadableFullName(),
                                                         style = EateryBlueTypography.h4,
                                                     )
-                                                    if (nextEvent!!.startTime != null && nextEvent!!.endTime != null) {
+                                                    if (nextEvent.startTime != null && nextEvent.endTime != null) {
                                                         Text(
                                                             text = "${
-                                                                nextEvent!!.startTime!!.format(
+                                                                nextEvent.startTime.format(
                                                                     DateTimeFormatter.ofPattern("h:mm a")
                                                                 )
                                                             } - ${
-                                                                nextEvent!!.endTime!!.format(
+                                                                nextEvent.endTime.format(
                                                                     DateTimeFormatter.ofPattern("h:mm a")
                                                                 )
                                                             }",
@@ -690,29 +697,15 @@ fun EateryDetailScreen(
                                                             color = GrayFive
                                                         )
                                                     }
-
-                                                }
-                                                IconButton(
+}
+                                                CalendarButton(
                                                     onClick = {
-                                                        hoursOnClick()
-                                                    },
-                                                    modifier = Modifier
-                                                        .padding(all = 8.dp)
-                                                        .background(
-                                                            color = GrayZero,
-                                                            shape = CircleShape
-                                                        )
-                                                ) {
-                                                    Icon(
-                                                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
-                                                        contentDescription = "Expand menu",
-                                                        modifier = Modifier.size(26.dp)
-                                                    )
-                                                }
-                                            }
+                                                        hoursOnClick()})
+                                                    }
+
                                         }
 
-                                        if (nextEvent!!.menu != null && nextEvent!!.menu!!.size > 0) {
+                                        nextEvent.menu?.takeIf { it.size > 0 }?.let { menu ->
                                             item {
                                                 SearchBar(searchText = filterText,
                                                     onSearchTextChange = {
@@ -737,9 +730,26 @@ fun EateryDetailScreen(
                                                         .height(1.dp)
                                                         .background(GrayZero, CircleShape)
                                                 )
-                                            }
+                                            }eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
+                                    .takeIf { it?.size?.let { s -> s > 1 } == true }
+                                    ?.map { it.first }
+                                    ?.let { mealTypes ->
+                                        item {
+                                            EateryMealTabs(
+                                                meals = mealTypes,
+                                                onSelectMeal = { selectedMeal ->
+                                                    eateryDetailViewModel.selectEvent(
+                                                        eatery,
+                                                        weekDayIndex,
+                                                        mealTypes[selectedMeal]
+                                                    )
+                                                },
+                                                selectedMealIndex = mealTypeIndex.value
+                                            )
+                                        }
+                                    }
 
-                                            nextEvent!!.menu?.forEachIndexed { categoryIndex, category ->
+                                            menu.forEachIndexed { categoryIndex, category ->
                                                 val filteredItems = category.items?.filter {
                                                     it.name?.contains(filterText, true) ?: false
                                                 }
@@ -783,7 +793,7 @@ fun EateryDetailScreen(
                                                                     )
                                                             )
                                                         }
-                                                        if (category.items.lastIndex == index && categoryIndex != nextEvent!!.menu!!.lastIndex) {
+                                                        if (category.items.lastIndex == index && categoryIndex != nextEvent.menu.lastIndex) {
                                                             Divider(
                                                                 color = GrayZero,
                                                                 modifier = Modifier.height(10.dp)
