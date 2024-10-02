@@ -136,9 +136,12 @@ class CompareMenusBotViewModel @Inject constructor(
         selected: List<Eatery>?
     ): Boolean {
         var passesFilter = true
+
         if (filters.contains(Filter.UNDER_10)) {
             val walkTimes = eatery.getWalkTimes()
-            passesFilter = walkTimes != null && walkTimes <= 10
+            if(walkTimes == null || walkTimes > 10){
+                passesFilter = false
+            }
         }
 
         if (filters.contains(Filter.FAVORITES)) {

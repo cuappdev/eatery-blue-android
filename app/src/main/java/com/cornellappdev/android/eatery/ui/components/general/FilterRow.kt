@@ -114,7 +114,8 @@ fun FilterRow(
 fun CompareFilterRow(
     currentFiltersSelected: List<Filter>,
     onPaymentMethodsClicked: () -> Unit,
-    onFilterClicked: (Filter) -> Unit
+    onFilterClicked: (Filter) -> Unit,
+    showPaymentFilter : Boolean = true
 ) {
     val paymentMethodFilters = currentFiltersSelected.filter { filter ->
         filter in setOf(Filter.BRB, Filter.CASH, Filter.SWIPES)
@@ -179,13 +180,15 @@ fun CompareFilterRow(
             )
         }
 
-        item {
-            FilterButton(
-                onFilterClicked = onPaymentMethodsClicked,
-                selected = paymentMethodFilters.isNotEmpty(),
-                text = paymentMethodFilterText,
-                icon = Icons.Default.ExpandMore
-            )
+        if(showPaymentFilter) {
+            item {
+                FilterButton(
+                    onFilterClicked = onPaymentMethodsClicked,
+                    selected = paymentMethodFilters.isNotEmpty(),
+                    text = paymentMethodFilterText,
+                    icon = Icons.Default.ExpandMore
+                )
+            }
         }
 
         item {

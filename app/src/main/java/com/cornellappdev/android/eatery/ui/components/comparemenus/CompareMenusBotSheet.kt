@@ -108,7 +108,9 @@ fun CompareMenusBotSheet(
                 } else {
                     compareMenusBotViewModel.addFilterCM(filter)
                 }
-            })
+            },
+            showPaymentFilter = false
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
