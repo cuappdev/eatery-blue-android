@@ -1,15 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,8 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -38,22 +27,17 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Report
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,15 +51,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -85,31 +64,21 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
-import com.cornellappdev.android.eatery.ui.components.details.AlertsSection
 import com.cornellappdev.android.eatery.ui.components.details.EateryDetailsStickyHeader
 import com.cornellappdev.android.eatery.ui.components.details.EateryHourBottomSheet
-import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
-import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
-import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.theme.Yellow
-import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -518,22 +487,22 @@ private fun TitlePager(
             pagerSnapDistance = PagerSnapDistance.atMost(1),
         ),
     ) { page ->
-        Box(
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .clip(shape = RoundedCornerShape(8.dp))
-                .background(Color.White)
-                .fillMaxSize(0.9f)
-                .wrapContentSize(Alignment.Center)
-
-        ) {
-            eateries[page].name?.let {
-                Text(
-                    text = it,
-                    style = EateryBlueTypography.button,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+        Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
+            Box(
+                modifier = Modifier
+                    .shadow(2.dp, shape = RoundedCornerShape(8.dp))
+                    .clip(shape = RoundedCornerShape(8.dp))
+                    .background(Color.White)
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
+            ) {
+                eateries[page].name?.let {
+                    Text(
+                        text = it,
+                        style = EateryBlueTypography.button,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }

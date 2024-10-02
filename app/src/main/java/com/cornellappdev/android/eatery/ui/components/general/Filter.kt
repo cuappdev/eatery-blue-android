@@ -1,5 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
+import com.cornellappdev.android.eatery.data.models.Eatery
+
 enum class Filter(val text: String) {
     UNDER_10("Under 10 min"),
     NORTH("North"),
@@ -16,6 +18,50 @@ enum class Filter(val text: String) {
         val LOCATIONS = setOf(NORTH, WEST, CENTRAL)
     }
 }
+
+fun Filter.passesFilter(
+    eatery: Eatery,
+    favorites: Map<Int, Boolean>,
+    selected: List<Eatery>
+): Boolean =
+    when (this) {
+        Filter.UNDER_10 -> {
+            eatery.getWalkTimes()?.let { it <= 10 } ?: false
+        }
+
+        Filter.NORTH -> {
+            eatery.campusArea == "North"
+        }
+
+        Filter.WEST -> {
+            eatery.campusArea == "West"
+        }
+
+        Filter.CENTRAL -> {
+            eatery.campusArea == "Central"
+        }
+
+        Filter.FAVORITES -> {
+            favorites[eatery.id] == true
+        }
+
+        Filter.BRB -> {
+            eatery.paymentAcceptsBrbs == true
+        }
+
+        Filter.CASH -> {
+            eatery.paymentAcceptsCash == true
+        }
+
+        Filter.SWIPES -> {
+            eatery.paymentAcceptsMealSwipes == true
+        }
+
+        Filter.SELECTED -> {
+            eatery in selected
+        }
+    }
+
 
 /**
  * MealFilter enum class which contains enums representing a meal time
