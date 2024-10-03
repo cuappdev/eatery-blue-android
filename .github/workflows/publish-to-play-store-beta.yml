@@ -21,6 +21,10 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Create secrets.properties
+        run: |
+          echo "${{ secrets.SECRETS_PROPERTIES }}" > secrets.properties
+
       - name: Build with Gradle
         id: build
         run: ./gradlew build
