@@ -61,9 +61,10 @@ fun EateryDetailsStickyHeader(
     filterText: String,
     fullMenuList: MutableList<String>,
     listState: LazyListState,
-    eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
-    onItemClick: (Int) -> Unit
-) {
+    startIndex: Int,
+    onItemClick: (Int) -> Unit,
+
+    ) {
     val rowState = rememberLazyListState()
     val rowCoroutine = rememberCoroutineScope()
     val selectedEvent = nextEvent?.menu?.find { category ->
@@ -71,7 +72,8 @@ fun EateryDetailsStickyHeader(
             category,
             listState,
             nextEvent,
-            fullMenuList
+            fullMenuList,
+            startIndex
         )
     }
     val selectedIndex: Int =
@@ -90,52 +92,7 @@ fun EateryDetailsStickyHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(Color.White)
-                .padding(top = 48.dp, bottom = 12.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp)
-            ) {
-                Text(
-                    modifier = Modifier
-                        .height(26.dp)
-                        .widthIn(0.dp, 280.dp)
-                        .align(Alignment.Center),
-                    textAlign = TextAlign.Center,
-                    text = eatery.name ?: "Loading...",
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color.Black,
-                    style = TextStyle(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp
-                    )
-                )
-
-                Button(
-                    onClick = { eateryDetailViewModel.toggleFavorite() },
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 16.dp)
-                        .size(40.dp),
-                    contentPadding = PaddingValues(6.dp),
-                    shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color.White,
-                    ),
-                    elevation = ButtonDefaults.elevation(
-                        defaultElevation = 0.dp,
-                        pressedElevation = 0.dp
-                    )
-                ) {
-                    Icon(
-                        imageVector = if (eateryDetailViewModel.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                        tint = if (eateryDetailViewModel.isFavorite) Yellow else GrayFive,
-                        contentDescription = null
-                    )
-                }
-            }
 
             Spacer(modifier = Modifier.height(6.dp))
 
@@ -167,7 +124,8 @@ fun EateryDetailsStickyHeader(
                                 category,
                                 listState,
                                 nextEvent,
-                                fullMenuList
+                                fullMenuList,
+                                startIndex
                             )
                             CategoryItem(
                                 category.category ?: "Category",
@@ -192,6 +150,7 @@ fun EateryDetailsStickyHeader(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(6.dp))
         }
 
         Divider(
@@ -245,12 +204,13 @@ fun highlightCategory(
     category: MenuCategory,
     listState: LazyListState,
     nextEvent: Event?,
-    fullMenuList: MutableList<String>
+    fullMenuList: MutableList<String>,
+    startIndex: Int
 ): Boolean {
     val firstVisibleState = remember { derivedStateOf { listState.firstVisibleItemIndex } }
     // Note: - 5 here assumes that there are 5 UI elements above the menu, which is true currently.
     //  If that changes, this must be tweaked.
-    val firstMenuItemIndex = firstVisibleState.value - 5
+    val firstMenuItemIndex = firstVisibleState.value - startIndex
 
     if (firstMenuItemIndex >= 0 && firstMenuItemIndex < fullMenuList.size) {
         val item = fullMenuList[firstMenuItemIndex]
