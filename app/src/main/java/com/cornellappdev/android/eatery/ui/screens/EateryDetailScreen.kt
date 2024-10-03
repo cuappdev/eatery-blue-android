@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
@@ -44,7 +45,6 @@ import androidx.compose.material.FabPosition
 import androidx.compose.material.Icon
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Report
@@ -66,7 +66,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -75,12 +74,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.compose.material.Scaffold
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
@@ -99,7 +99,6 @@ import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
-import com.cornellappdev.android.eatery.ui.navigation.Routes
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
@@ -110,7 +109,6 @@ import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
-import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
@@ -119,6 +117,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -138,13 +137,16 @@ fun EateryDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
 
+
     /**
      * The amount of days offset from the current weekday
      */
     var weekDayIndex by remember { mutableStateOf(0) }
 
+
     // The event/meal to display. May be null.
     val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
+
 
     // The filter text typed in.
     val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
@@ -161,7 +163,6 @@ fun EateryDetailScreen(
     LaunchedEffect(modalBottomSheetState.currentValue) {
         if (modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden) {
             showFAB = true
-            sheetContent = BottomSheetContent.PAYMENT_METHODS_AVAILABLE
         }
     }
 
@@ -179,7 +180,6 @@ fun EateryDetailScreen(
 
                 showFAB = false
                 coroutineScope.launch {
-                    println("Launching Compare Menus Bottom Sheet")
                     sheetContent = BottomSheetContent.COMPARE_MENUS
                     modalBottomSheetState.show()
                 }
@@ -198,9 +198,11 @@ fun EateryDetailScreen(
                         EateryDetailLoadingScreen(shimmer)
                     }
 
+
                     is EateryApiResponse.Error -> {
                         Text(text = "ERROR")
                     }
+
 
                     is EateryApiResponse.Success -> {
                         val eatery = eateryApiResponse.data
@@ -220,17 +222,17 @@ fun EateryDetailScreen(
                                 repeatMode = RepeatMode.Reverse
                             )
                         )
-            val mealTypeIndex = remember {
-                derivedStateOf {
-                    eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
-                        ?.indexOfFirst { it.first == nextEvent?.description } ?: 0
-                }
-            }
+                        val mealTypeIndex = remember {
+                            derivedStateOf {
+                                eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
+                                    ?.indexOfFirst { it.first == nextEvent?.description } ?: 0
+                            }
+                        }
+
 
                         ModalBottomSheetLayout(
                             sheetState = modalBottomSheetState, sheetContent = {
                                 when (sheetContent) {
-
                                     BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
                                         PaymentMethodsAvailable(selectedPaymentMethods = paymentMethods) {
                                             coroutineScope.launch {
@@ -238,6 +240,7 @@ fun EateryDetailScreen(
                                             }
                                         }
                                     }
+
 
                                     BottomSheetContent.REPORT -> {
                                         eatery.id?.let {
@@ -257,6 +260,7 @@ fun EateryDetailScreen(
                                         }
                                     }
 
+
                                     BottomSheetContent.HOURS -> {
                                         EateryHourBottomSheet(onDismiss = {
                                             coroutineScope.launch {
@@ -265,32 +269,35 @@ fun EateryDetailScreen(
                                         }, eatery = eatery, onReportIssue = {
                                             sheetContent = BottomSheetContent.REPORT
 
+
                                         })
                                     }
 
-                        BottomSheetContent.MENUS -> {
-                            EateryMenusBottomSheet(
-                                weekDayIndex = weekDayIndex,
-                                onDismiss = {
-                                    coroutineScope.launch {
-                                        modalBottomSheetState.hide()
+
+                                    BottomSheetContent.MENUS -> {
+                                        EateryMenusBottomSheet(
+                                            weekDayIndex = weekDayIndex,
+                                            onDismiss = {
+                                                coroutineScope.launch {
+                                                    modalBottomSheetState.hide()
+                                                }
+                                            },
+                                            eatery = eatery,
+                                            onShowMenuClick = { dayIndex, mealDescription, _ ->
+                                                eateryDetailViewModel.selectEvent(
+                                                    eatery,
+                                                    dayIndex,
+                                                    mealDescription
+                                                )
+                                                weekDayIndex = dayIndex
+                                            },
+                                            onResetClick = {
+                                                weekDayIndex = 0
+                                                eateryDetailViewModel.resetSelectedEvent()
+                                            },
+                                            mealType = mealTypeIndex.value
+                                        )
                                     }
-                                },
-                                eatery = eatery,
-                                onShowMenuClick = { dayIndex, mealDescription, _ ->
-                                    eateryDetailViewModel.selectEvent(
-                                        eatery,
-                                        dayIndex,
-                                        mealDescription
-                                    )
-                                    weekDayIndex = dayIndex
-                                },
-                                onResetClick = {
-                                    weekDayIndex = 0
-                                    eateryDetailViewModel.resetSelectedEvent()
-                                },
-                            )
-                        }
 
                                     BottomSheetContent.COMPARE_MENUS -> {
                                         CompareMenusBotSheet(
@@ -308,6 +315,7 @@ fun EateryDetailScreen(
                                         )
                                     }
 
+
                                     else -> {}
                                 }
                             }, sheetShape = RoundedCornerShape(
@@ -318,6 +326,7 @@ fun EateryDetailScreen(
                             ), sheetElevation = 8.dp
                         ) {
 
+
                             paymentMethods.apply {
                                 if (eatery.paymentAcceptsCash == true) add(PaymentMethodsAvailable.CASH)
                                 if (eatery.paymentAcceptsBrbs == true) add(PaymentMethodsAvailable.BRB)
@@ -326,7 +335,9 @@ fun EateryDetailScreen(
                                 )
                             }
 
+
                             val listState = rememberLazyListState()
+
 
                             Box {
                                 val fullMenuList = mutableListOf<String>()
@@ -336,6 +347,7 @@ fun EateryDetailScreen(
                                         item.name?.let { fullMenuList.add(it) }
                                     }
                                 }
+
 
                                 LazyColumn(
                                     state = listState,
@@ -362,6 +374,7 @@ fun EateryDetailScreen(
                                                             )
                                                         }
 
+
                                                         is EateryApiResponse.Pending -> {
                                                             Image(
                                                                 bitmap = ImageBitmap(
@@ -383,6 +396,7 @@ fun EateryDetailScreen(
                                                             )
                                                         }
 
+
                                                         else -> {
                                                             Image(
                                                                 modifier = Modifier
@@ -396,6 +410,7 @@ fun EateryDetailScreen(
                                                     }
                                                 }
                                             }
+
 
                                             Button(
                                                 onClick = { eateryDetailViewModel.toggleFavorite() },
@@ -430,6 +445,7 @@ fun EateryDetailScreen(
                                             }
                                         }
                                     }
+
 
                                     item {
                                         Text(
@@ -527,8 +543,10 @@ fun EateryDetailScreen(
                                         }
                                     }
 
+
                                     item {
                                         AlertsSection(eatery = eatery)
+
 
                                         Row(
                                             modifier = Modifier
@@ -587,6 +605,7 @@ fun EateryDetailScreen(
                                                 )
                                             }
 
+
                                             Divider(
                                                 color = GrayZero,
                                                 modifier = Modifier
@@ -595,6 +614,7 @@ fun EateryDetailScreen(
                                                     .width(1.dp)
                                             )
                                             //todo get rid of this?
+
 
                                             //                            Column(
 //                                horizontalAlignment = Alignment.CenterHorizontally,
@@ -647,6 +667,7 @@ fun EateryDetailScreen(
                                         }
                                     }
 
+
                                     item {
                                         Spacer(
                                             modifier = Modifier
@@ -656,6 +677,7 @@ fun EateryDetailScreen(
                                         )
                                     }
 
+
                                     nextEvent?.let { nextEvent ->
                                         val hoursOnClick = {
                                             sheetContent = BottomSheetContent.MENUS
@@ -663,6 +685,7 @@ fun EateryDetailScreen(
                                                 modalBottomSheetState.show()
                                             }
                                         }
+
 
                                         item {
                                             Row(
@@ -679,7 +702,7 @@ fun EateryDetailScreen(
                                                 ) {
                                                     Text(
                                                         text = weekDayIndex.fromOffsetToDayOfWeek()
-                                                .toReadableFullName(),
+                                                            .toReadableFullName(),
                                                         style = EateryBlueTypography.h4,
                                                     )
                                                     if (nextEvent.startTime != null && nextEvent.endTime != null) {
@@ -697,13 +720,11 @@ fun EateryDetailScreen(
                                                             color = GrayFive
                                                         )
                                                     }
-}
-                                                CalendarButton(
-                                                    onClick = {
-                                                        hoursOnClick()})
-                                                    }
-
+                                                }
+                                                CalendarButton(onClick = { hoursOnClick() })
+                                            }
                                         }
+
 
                                         nextEvent.menu?.takeIf { it.size > 0 }?.let { menu ->
                                             item {
@@ -730,24 +751,28 @@ fun EateryDetailScreen(
                                                         .height(1.dp)
                                                         .background(GrayZero, CircleShape)
                                                 )
-                                            }eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
-                                    .takeIf { it?.size?.let { s -> s > 1 } == true }
-                                    ?.map { it.first }
-                                    ?.let { mealTypes ->
-                                        item {
-                                            EateryMealTabs(
-                                                meals = mealTypes,
-                                                onSelectMeal = { selectedMeal ->
-                                                    eateryDetailViewModel.selectEvent(
-                                                        eatery,
-                                                        weekDayIndex,
-                                                        mealTypes[selectedMeal]
-                                                    )
-                                                },
-                                                selectedMealIndex = mealTypeIndex.value
-                                            )
-                                        }
-                                    }
+                                            }
+                                            eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
+                                                .takeIf { it?.size?.let { s -> s > 1 } == true }
+                                                ?.map { it.first }
+                                                ?.let { mealTypes ->
+                                                    item {
+                                                        EateryMealTabs(
+                                                            meals = mealTypes,
+                                                            onSelectMeal = { selectedMeal ->
+                                                                eateryDetailViewModel.selectEvent(
+                                                                    eatery,
+                                                                    weekDayIndex,
+                                                                    mealTypes[selectedMeal]
+                                                                )
+                                                            },
+                                                            selectedMealIndex = mealTypeIndex.value
+                                                        )
+                                                    }
+                                                }
+
+
+
 
                                             menu.forEachIndexed { categoryIndex, category ->
                                                 val filteredItems = category.items?.filter {
@@ -765,6 +790,7 @@ fun EateryDetailScreen(
                                                         )
                                                     }
 
+
                                                     itemsIndexed(filteredItems) { index, menuItem ->
                                                         Row(
                                                             verticalAlignment = Alignment.CenterVertically,
@@ -781,6 +807,7 @@ fun EateryDetailScreen(
                                                                 modifier = Modifier.weight(1f)
                                                             )
                                                         }
+
 
                                                         if (category.items.lastIndex != index) {
                                                             Spacer(
@@ -803,7 +830,14 @@ fun EateryDetailScreen(
                                                 }
                                             }
                                         }
+
+
                                     }
+
+
+
+
+
 
                                     item {
                                         Spacer(
@@ -813,6 +847,7 @@ fun EateryDetailScreen(
                                                 .background(GrayZero)
                                         )
                                     }
+
 
                                     // Report an issue button
                                     item {
@@ -833,6 +868,7 @@ fun EateryDetailScreen(
                                                 modifier = Modifier.padding(bottom = 5.dp),
                                                 color = GrayFive
                                             )
+
 
                                             Spacer(Modifier.height(8.dp))
                                             //reporting button
@@ -863,10 +899,13 @@ fun EateryDetailScreen(
                                                 )
                                             }
 
+
                                             Spacer(Modifier.height(8.dp))
+
 
                                         }
                                     }
+
 
                                     item {
                                         Spacer(
@@ -877,9 +916,6 @@ fun EateryDetailScreen(
                                         )
                                     }
                                 }
-
-
-
                                 AnimatedVisibility(
                                     visible = listState.firstVisibleItemIndex >= 1,
                                     enter = fadeIn(animationSpec = tween(100)),
@@ -912,17 +948,13 @@ fun EateryDetailScreen(
                                             }
                                         }
                                     }
-
                                 }
                             }
                         }
                     }
                 }
             }
-
         })
-
-
 }
 
 @Composable
@@ -972,4 +1004,3 @@ fun EateryHeader(eatery: Eatery, eateryDetailViewModel: EateryDetailViewModel) {
         }
     }
 }
-
