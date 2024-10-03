@@ -23,7 +23,7 @@ android {
         applicationId "com.cornellappdev.android.eatery"
         minSdk 28
         targetSdk 34
-        versionCode 69
+        versionCode 70
         versionName "blue-1.0.1-crashfix"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
