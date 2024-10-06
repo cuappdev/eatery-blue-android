@@ -103,6 +103,20 @@ class HomeViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
+    /**A [StateFlow] that emits a list of all eateries sorted by nearest proximity
+     *
+     * Sorted (by descending priority): Open/Closed, Walk Time
+     * */
+    val nearestEateriesSort: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
+        when (apiResponse) {
+            is EateryApiResponse.Error -> listOf()
+            is EateryApiResponse.Pending -> listOf()
+            is EateryApiResponse.Success -> {
+                apiResponse.data.sortedBy { it.getWalkTimes() }.sortedBy { it.isClosed() }
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+
     var bigPopUp by mutableStateOf(false)
 
     fun setPopUp(bool: Boolean) {

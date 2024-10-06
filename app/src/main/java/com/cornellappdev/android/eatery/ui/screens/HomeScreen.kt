@@ -93,7 +93,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
-    val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
+    val nearestEateries = homeViewModel.nearestEateriesSort.collectAsState().value
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
 
@@ -336,7 +336,7 @@ private fun HomeScrollableMainContent(
                     }
 
                     itemsIndexed(
-                        eateries
+                        nearestEateries
                     ) { index, eatery ->
                         Box(
                             Modifier.padding(
