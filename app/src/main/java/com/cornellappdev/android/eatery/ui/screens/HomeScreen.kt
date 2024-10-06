@@ -326,20 +326,6 @@ private fun HomeScrollableMainContent(
                     }
 
                     item {
-                        // Sneaky spacer to make padding work right for favorites.
-                        Spacer(modifier = Modifier.height(tweenHeight.dp))
-
-                        EateryHomeSection(
-                            title = "Nearest to You",
-                            eateries = nearestEateries,
-                            onEateryClick = onEateryClick,
-                            onFavoriteClick = onFavoriteClick,
-                            onExpandClick = onNearestExpand,
-                            favoritesDecider = { favorites.contains(it) }
-                        )
-                    }
-
-                    item {
                         Text(
                             modifier = Modifier
                                 .fillMaxWidth()
