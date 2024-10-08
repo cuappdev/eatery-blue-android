@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -97,6 +96,7 @@ import com.cornellappdev.android.eatery.ui.components.details.EateryMenusBottomS
 import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
+import com.cornellappdev.android.eatery.ui.components.general.menuItems
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
@@ -732,69 +732,16 @@ fun EateryDetailScreen(
                                             }
                                         }
 
-                                    nextEvent.menu?.forEachIndexed { categoryIndex, category ->
-                                        val filteredItems = category.items?.filter {
-                                            it.name?.contains(filterText, true) ?: false
-                                        }
-                                        if (!filteredItems.isNullOrEmpty()) {
-                                            item {
-                                                Text(
-                                                    text = category.category ?: "Category",
-                                                    style = EateryBlueTypography.h5,
-                                                    modifier = Modifier.padding(
-                                                        horizontal = 16.dp,
-                                                        vertical = 12.dp
-                                                    )
-                                                )
+                                    menuItems(nextEvent.menu?.map {
+                                        it.copy(
+                                            items = it.items?.filter { menuItem ->
+                                                menuItem.name?.contains(filterText, true) ?: false
                                             }
-
-
-                                            itemsIndexed(filteredItems) { index, menuItem ->
-                                                Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    modifier = Modifier.padding(
-                                                        top = 12.dp,
-                                                        bottom = 12.dp,
-                                                        start = 16.dp,
-                                                        end = 16.dp
-                                                    )
-                                                ) {
-                                                    Text(
-                                                        text = menuItem.name ?: "Item Name",
-                                                        style = EateryBlueTypography.button,
-                                                        modifier = Modifier.weight(1f)
-                                                    )
-                                                }
-
-
-                                                if (category.items.lastIndex != index) {
-                                                    Spacer(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .height(1.dp)
-                                                            .background(
-                                                                GrayZero,
-                                                                CircleShape
-                                                            )
-                                                    )
-                                                }
-                                                if (category.items.lastIndex == index && categoryIndex != nextEvent.menu.lastIndex) {
-                                                    Divider(
-                                                        color = GrayZero,
-                                                        modifier = Modifier.height(10.dp)
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-
-
+                                        )
+                                    } ?: emptyList(), onFavoriteClick = {
+                                        TODO()
+                                    })
                                 }
-
-
-
-
-
 
                                 item {
                                     Spacer(

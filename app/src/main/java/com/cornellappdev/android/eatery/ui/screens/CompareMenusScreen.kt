@@ -18,17 +18,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -54,18 +51,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.ui.components.details.EateryDetailsStickyHeader
 import com.cornellappdev.android.eatery.ui.components.details.EateryHourBottomSheet
+import com.cornellappdev.android.eatery.ui.components.general.menuItems
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
@@ -332,129 +328,9 @@ private fun MenuPager(
                                 .fillMaxSize()
                                 .background(Color.White)
                         ) {
-                            currentEvent!!.menu?.forEach { category ->
-                                item {
-                                    Text(
-                                        text = category.category ?: "Category",
-                                        style = EateryBlueTypography.h5,
-                                        modifier = Modifier.padding(
-                                            horizontal = 16.dp,
-                                            vertical = 12.dp
-                                        )
-                                    )
-                                }
-
-                                itemsIndexed(
-                                    category.items ?: emptyList()
-                                ) { index, menuItem ->
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(
-                                            top = 12.dp,
-                                            bottom = 12.dp,
-                                            start = 16.dp,
-                                            end = 16.dp
-                                        )
-                                    ) {
-                                        Text(
-                                            text = menuItem.name ?: "Item Name",
-                                            style = EateryBlueTypography.button,
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                    }
-
-                                    if (category.items?.lastIndex != index) {
-                                        Spacer(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(1.dp)
-                                                .background(GrayZero, CircleShape)
-                                        )
-                                    }
-                                    if (category.items?.lastIndex == index) {
-                                        Divider(
-                                            color = GrayZero,
-                                            modifier = Modifier.height(10.dp)
-                                        )
-                                    }
-                                }
-                            }
-                            if (currentEvent!!.menu == null || currentEvent!!.menu?.isEmpty() == true) {
-                                item {
-                                    Row(
-                                        modifier = Modifier
-                                            .background(Color.White)
-                                            .clip(
-                                                shape = RoundedCornerShape(
-                                                    12.dp
-                                                )
-                                            )
-                                            .fillMaxWidth()
-                                            .padding(
-                                                top = 12.dp,
-                                                bottom = 12.dp
-                                            ),
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        Text(
-                                            text = "Sorry, there is no menu available now.",
-                                            color = Color.Black,
-                                            style = EateryBlueTypography.h5,
-                                            modifier = Modifier.padding(start = 8.dp),
-                                            fontWeight = FontWeight(500),
-                                        )
-                                    }
-                                    Divider(
-                                        color = GrayZero,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(10.dp)
-                                    )
-                                }
-                            }
-                            item {
-                                Column(modifier = Modifier.background(Color.White)) {
-                                    Card(
-                                        shape = RoundedCornerShape(20.dp),
-                                        onClick = {
-                                            onEateryClick(eateries[page])
-                                        },
-                                        backgroundColor = GrayZero,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                top = 12.dp,
-                                                bottom = 12.dp,
-                                                start = 12.dp,
-                                                end = 12.dp
-                                            )
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(
-                                                end = 12.dp,
-                                                top = 10.dp,
-                                                bottom = 10.dp
-                                            ),
-                                            horizontalArrangement = Arrangement.Center
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(R.drawable.ic_eatery),
-                                                contentDescription = null,
-                                                tint = Color.Black
-                                            )
-                                            Text(
-                                                text = "View Eatery Details",
-                                                color = Color.Black,
-                                                modifier = Modifier.padding(
-                                                    start = 8.dp,
-                                                ),
-                                                fontWeight = FontWeight.Bold,
-                                            )
-
-                                        }
-                                    }
-                                }
-                            }
+                            menuItems(
+                                currentEvent.menu?.toList() ?: emptyList(),
+                                onFavoriteClick = { TODO() })
                         }
                     }
 
