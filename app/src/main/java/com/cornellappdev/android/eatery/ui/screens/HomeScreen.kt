@@ -103,7 +103,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
-    val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
+    val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
 
@@ -227,32 +227,31 @@ fun HomeScreen(
                             onSearchClick = onSearchClick,
                             onEateryClick = onEateryClick,
                             onFavoriteExpand = onFavoriteExpand,
-                            onNearestExpand = onNearestExpand,
                             modalBottomSheetState = modalBottomSheetState,
-                            eateriesApiResponse = eateriesApiResponse,
-                            favorites = favorites,
-                            nearestEateries = nearestEateries,
-                            filters = filters,
-                            onFavoriteClick = { eatery, favorite ->
-                                if (favorite) {
-                                    homeViewModel.addFavorite(eatery.id)
-                                } else {
-                                    homeViewModel.removeFavorite(eatery.id)
-                                }
-                            },
-                            onFilterClicked = { filter ->
-                                if (filters.contains(filter)) {
-                                    homeViewModel.removeFilter(filter)
-                                } else {
-                                    homeViewModel.addFilter(filter)
-                                }
-                            },
-                            onResetFilters = {
-                                homeViewModel.resetFilters()
-                            }
-                        )
+                    eateriesApiResponse = eateriesApiResponse,
+                    favorites = favorites,
+                    nearestEateries = nearestEateries,
+                    filters = filters,
+                    onFavoriteClick = { eatery, favorite ->
+                        if (favorite) {
+                            homeViewModel.addFavorite(eatery.id)
+                        } else {
+                            homeViewModel.removeFavorite(eatery.id)
+                        }
+                    },
+                    onFilterClicked = { filter ->
+                        if (filters.contains(filter)) {
+                            homeViewModel.removeFilter(filter)
+                        } else {
+                            homeViewModel.addFilter(filter)
+                        }
+                    },
+                    onResetFilters = {
+                        homeViewModel.resetFilters()
                     }
                 )
+            }
+        )
 
 
                 if (FirstTimeShown.firstTimeShown) {
@@ -281,7 +280,6 @@ private fun HomeScrollableMainContent(
     onFavoriteClick: (Eatery, Boolean) -> Unit,
     onFilterClicked: (Filter) -> Unit,
     onResetFilters: () -> Unit,
-    onNearestExpand: () -> Unit,
     modalBottomSheetState: ModalBottomSheetState,
     eateriesApiResponse: EateryApiResponse<List<Eatery>>,
     nearestEateries: List<Eatery>,
@@ -414,23 +412,6 @@ private fun HomeScrollableMainContent(
                         )
                     }
 
-
-                    item {
-                        // Sneaky spacer to make padding work right for favorites.
-                        Spacer(modifier = Modifier.height(tweenHeight.dp))
-
-
-                        EateryHomeSection(
-                            title = "Nearest to You",
-                            eateries = nearestEateries,
-                            onEateryClick = onEateryClick,
-                            onFavoriteClick = onFavoriteClick,
-                            onExpandClick = onNearestExpand,
-                            favoritesDecider = { favorites.contains(it) }
-                        )
-                    }
-
-
                     item {
                         Text(
                             modifier = Modifier
@@ -443,7 +424,7 @@ private fun HomeScrollableMainContent(
 
 
                     itemsIndexed(
-                        eateries
+                        nearestEateries
                     ) { index, eatery ->
                         Box(
                             Modifier.padding(
