@@ -253,5 +253,5 @@ fun show() {
  * All possible bottom sheets should be added here and switched to before expanding via modalBottomSheetState.
  */
 enum class BottomSheetContent {
-    PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME, REPORT, ACCOUNT_TYPE, MENUS
+    PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME, REPORT, ACCOUNT_TYPE, MENUS, COMPARE_MENUS
 }

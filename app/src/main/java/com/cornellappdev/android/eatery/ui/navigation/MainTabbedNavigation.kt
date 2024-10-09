@@ -29,6 +29,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.cornellappdev.android.eatery.ui.screens.AboutScreen
+import com.cornellappdev.android.eatery.ui.screens.CompareMenusScreen
 import com.cornellappdev.android.eatery.ui.screens.EateryDetailScreen
 import com.cornellappdev.android.eatery.ui.screens.FavoritesScreen
 import com.cornellappdev.android.eatery.ui.screens.FirstTimeShown
@@ -43,6 +44,7 @@ import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
+import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -52,7 +54,9 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 @Composable
 fun NavigationSetup(hasOnboarded: Boolean) {
     val navController = rememberAnimatedNavController()
-    val showBottomBar = rememberSaveable { mutableStateOf(false) }
+    val showBottomBar = rememberSaveable {
+        mutableStateOf(false)
+    }
 
     // Subscribe to navBackStackEntry, required to get current route
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -149,7 +153,7 @@ fun SetupNavHost(
     hasOnboarded: Boolean,
     navController: NavHostController,
     showBottomBar: MutableState<Boolean>,
-    loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
@@ -197,6 +201,8 @@ fun SetupNavHost(
                 navController.navigate(Routes.FAVORITES.route)
             }, onNearestExpand = {
                 navController.navigate(Routes.NEAREST.route)
+            }, onCompareMenusClick = { selectedEateries ->
+                navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
             }
             )
         }
@@ -231,7 +237,11 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            EateryDetailScreen()
+            EateryDetailScreen(
+                onCompareMenusClick = { selectedEateriesIds ->
+                    navController.navigate("comparemenus/${selectedEateriesIds.joinToString(",") { it.toString() }}")
+                }
+            )
         }
         composable(
             route = Routes.SEARCH.route,
@@ -418,6 +428,23 @@ fun SetupNavHost(
                 )
             }) {
             SupportScreen()
+        }
+        composable(
+            route = "comparemenus/{eateryIds}",
+            arguments = listOf(navArgument("eateryIds") { type = NavType.StringType }),
+            enterTransition = { fadeIn(animationSpec = tween(durationMillis = 500)) },
+            exitTransition = { fadeOut(animationSpec = tween(durationMillis = 500)) }
+        ) { backStackEntry ->
+            backStackEntry.arguments?.getString("eateryIds")?.split(",")?.map { it.toInt() }
+                ?.let { eateryIds ->
+                    CompareMenusScreen(
+                        eateryIds = eateryIds,
+                        onEateryClick = {
+                            FirstTimeShown.firstTimeShown = false
+                            navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+                        }
+                    )
+                }
         }
     }
 }

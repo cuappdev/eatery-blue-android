@@ -121,6 +121,103 @@ fun FilterRow(
     }
 }
 
+@Composable
+fun CompareFilterRow(
+    currentFiltersSelected: List<Filter>,
+    onPaymentMethodsClicked: () -> Unit,
+    onFilterClicked: (Filter) -> Unit,
+    showPaymentFilter : Boolean = true
+) {
+    val paymentMethodFilters = currentFiltersSelected.filter { filter ->
+        filter in setOf(Filter.BRB, Filter.CASH, Filter.SWIPES)
+    }
+
+    val paymentMethodFilterText: String =
+        if (paymentMethodFilters.isEmpty()) "Payment Methods" else paymentMethodFilters.joinToString {
+            it.text
+        }
+
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        item {
+            Spacer(modifier = Modifier.width(10.dp))
+        }
+
+        item {
+            FilterButton(
+                onFilterClicked = {
+                    onFilterClicked(Filter.SELECTED)
+                },
+                selected = currentFiltersSelected.contains(Filter.SELECTED),
+                text = Filter.SELECTED.text
+            )
+        }
+        item {
+            FilterButton(
+                onFilterClicked = {
+                    onFilterClicked(Filter.NORTH)
+                },
+                selected = currentFiltersSelected.contains(Filter.NORTH),
+                text = Filter.NORTH.text
+            )
+        }
+
+        item {
+            FilterButton(
+                onFilterClicked = {
+                    onFilterClicked(Filter.WEST)
+                },
+                selected = currentFiltersSelected.contains(Filter.WEST),
+                text = Filter.WEST.text
+            )
+        }
+
+        item {
+            FilterButton(
+                onFilterClicked = {
+                    onFilterClicked(Filter.CENTRAL)
+                },
+                selected = currentFiltersSelected.contains(Filter.CENTRAL),
+                text = Filter.CENTRAL.text
+            )
+        }
+
+        item {
+            FilterButton(
+                onFilterClicked = {
+                    onFilterClicked(Filter.UNDER_10)
+                },
+                selected = currentFiltersSelected.contains(Filter.UNDER_10),
+                text = Filter.UNDER_10.text
+            )
+        }
+
+        if(showPaymentFilter) {
+            item {
+                FilterButton(
+                    onFilterClicked = onPaymentMethodsClicked,
+                    selected = paymentMethodFilters.isNotEmpty(),
+                    text = paymentMethodFilterText,
+                    icon = Icons.Default.ExpandMore
+                )
+            }
+        }
+
+        item {
+            FilterButton(
+                onFilterClicked = {
+                    onFilterClicked(Filter.FAVORITES)
+                },
+                selected = currentFiltersSelected.contains(Filter.FAVORITES),
+                text = Filter.FAVORITES.text
+            )
+        }
+
+        item {
+            Spacer(Modifier.width(16.dp))
+        }
+    }
+}
+
 /**
  * One filter button.
  */

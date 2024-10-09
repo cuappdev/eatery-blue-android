@@ -9,6 +9,7 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
+import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -51,7 +53,7 @@ class HomeViewModel @Inject constructor(
                 is EateryApiResponse.Success -> {
                     EateryApiResponse.Success(
                         apiResponse.data.filter {
-                            passesFilter(it, filters, favorites)
+                            passesFilter(it, filters, favorites, null)
                         }.sortedBy { eatery ->
                             eatery.name
                         }.sortedBy { eatery ->
@@ -60,6 +62,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
+
 
     /**
      * A flow emitting all the eateries the user has favorited.
@@ -89,6 +92,7 @@ class HomeViewModel @Inject constructor(
      *
      * TODO: Walk times may not be updating automatically; may have to change location to use state.
      */
+
     val nearestEateries: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
         when (apiResponse) {
             is EateryApiResponse.Error -> listOf()
@@ -152,7 +156,8 @@ class HomeViewModel @Inject constructor(
     private fun passesFilter(
         eatery: Eatery,
         filters: List<Filter>,
-        favorites: Map<Int, Boolean>
+        favorites: Map<Int, Boolean>,
+        selected: List<Eatery>?
     ): Boolean {
         var passesFilter = true
         if (filters.contains(Filter.UNDER_10)) {
@@ -168,6 +173,10 @@ class HomeViewModel @Inject constructor(
             !filters.contains(Filter.NORTH) &&
                     !filters.contains(Filter.CENTRAL) &&
                     !filters.contains(Filter.WEST)
+
+        if (filters.contains(Filter.SELECTED)) {
+            if (!(selected?.contains(eatery) ?: false)) return false
+        }
 
         // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
         // or one/multiple are selected and the eatery is located there.

@@ -88,5 +88,6 @@ enum class Routes(override var route: String) : NavUnit {
     NEAREST("nearest"),
     LEGAL("legal"),
     PRIVACY("privacy"),
-    SUPPORT("support")
+    SUPPORT("support"),
+    COMPAREMENUS("compare_menus")
 }
