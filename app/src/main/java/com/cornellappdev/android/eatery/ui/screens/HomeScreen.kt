@@ -93,7 +93,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
-    val nearestEateries = homeViewModel.nearestEateriesSort.collectAsState().value
+    val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
 
@@ -152,7 +152,6 @@ fun HomeScreen(
                     onSearchClick = onSearchClick,
                     onEateryClick = onEateryClick,
                     onFavoriteExpand = onFavoriteExpand,
-                    onNearestExpand = onNearestExpand,
                     modalBottomSheetState = modalBottomSheetState,
                     eateriesApiResponse = eateriesApiResponse,
                     favorites = favorites,
@@ -203,7 +202,6 @@ private fun HomeScrollableMainContent(
     onFavoriteClick: (Eatery, Boolean) -> Unit,
     onFilterClicked: (Filter) -> Unit,
     onResetFilters: () -> Unit,
-    onNearestExpand: () -> Unit,
     modalBottomSheetState: ModalBottomSheetState,
     eateriesApiResponse: EateryApiResponse<List<Eatery>>,
     nearestEateries: List<Eatery>,

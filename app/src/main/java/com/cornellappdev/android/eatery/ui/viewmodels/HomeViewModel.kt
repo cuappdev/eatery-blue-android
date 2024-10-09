@@ -107,7 +107,7 @@ class HomeViewModel @Inject constructor(
      *
      * Sorted (by descending priority): Open/Closed, Walk Time
      * */
-    val nearestEateriesSort: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
+    val eateriesByDistance: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
         when (apiResponse) {
             is EateryApiResponse.Error -> listOf()
             is EateryApiResponse.Pending -> listOf()
