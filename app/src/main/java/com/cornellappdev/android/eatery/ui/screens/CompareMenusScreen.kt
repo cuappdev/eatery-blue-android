@@ -329,7 +329,7 @@ private fun MenuPager(
                                 .background(Color.White)
                         ) {
                             menuItems(
-                                currentEvent.menu?.toList() ?: emptyList(),
+                                /*currentEvent.menu?.toList() ?: */TODO(),
                                 onFavoriteClick = { TODO() })
                         }
                     }

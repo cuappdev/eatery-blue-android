@@ -732,13 +732,13 @@ fun EateryDetailScreen(
                                             }
                                         }
 
-                                    menuItems(nextEvent.menu?.map {
+                                    menuItems(TODO()/*nextEvent.menu?.map {
                                         it.copy(
                                             items = it.items?.filter { menuItem ->
                                                 menuItem.name?.contains(filterText, true) ?: false
                                             }
                                         )
-                                    } ?: emptyList(), onFavoriteClick = {
+                                    } ?: emptyList()*/, onFavoriteClick = {
                                         TODO()
                                     })
                                 }

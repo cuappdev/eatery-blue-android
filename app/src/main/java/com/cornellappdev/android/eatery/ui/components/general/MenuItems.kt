@@ -1,6 +1,8 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,19 +12,37 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.data.models.MenuCategory
+import com.cornellappdev.android.eatery.data.models.MenuItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 
-fun LazyListScope.menuItems(items: List<MenuCategory>, onFavoriteClick: () -> Unit) {
+data class MenuCategoryViewState(
+    val category: String,
+    val items: List<MenuItemViewState>
+)
+
+data class MenuItemViewState(
+    val isFavorite: Boolean,
+    val item: MenuItem,
+)
+
+typealias ItemName = String
+
+fun LazyListScope.menuItems(
+    items: List<MenuCategoryViewState>,
+    onFavoriteClick: (ItemName) -> Unit,
+) {
     items.forEach { category ->
         item {
             Text(
-                text = category.category ?: "Category",
+                text = category.category,
                 style = EateryBlueTypography.h5,
                 modifier = Modifier.padding(
                     horizontal = 16.dp,
@@ -31,7 +51,8 @@ fun LazyListScope.menuItems(items: List<MenuCategory>, onFavoriteClick: () -> Un
             )
         }
 
-        itemsIndexed(category.items ?: emptyList()) { index, menuItem ->
+        itemsIndexed(category.items) { index, menuItem ->
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(
@@ -39,16 +60,26 @@ fun LazyListScope.menuItems(items: List<MenuCategory>, onFavoriteClick: () -> Un
                     bottom = 12.dp,
                     start = 16.dp,
                     end = 16.dp
-                )
+                ),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = menuItem.name ?: "Item Name",
+                    text = menuItem.item.name ?: "Item Name",
                     style = EateryBlueTypography.button,
                     modifier = Modifier.weight(1f)
                 )
+                Icon(
+                    modifier = Modifier.clickable {
+                        menuItem.item.name?.let {
+                            onFavoriteClick(it)
+                        }
+                    },
+                    imageVector = Icons.Outlined.Star,
+                    contentDescription = null
+                )
             }
 
-            if (category.items?.lastIndex != index) {
+            if (category.items.lastIndex != index) {
                 Spacer(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -56,7 +87,7 @@ fun LazyListScope.menuItems(items: List<MenuCategory>, onFavoriteClick: () -> Un
                         .background(GrayZero, CircleShape)
                 )
             }
-            if (category.items?.lastIndex == index) {
+            if (category.items.lastIndex == index) {
                 Divider(
                     color = GrayZero,
                     modifier = Modifier.height(10.dp)

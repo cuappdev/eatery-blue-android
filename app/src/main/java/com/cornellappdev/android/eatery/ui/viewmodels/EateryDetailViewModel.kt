@@ -11,6 +11,7 @@ import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
+import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,8 +21,27 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+
+sealed class EateryDetailViewState {
+    object Loading : EateryDetailViewState()
+
+    data class Loaded(
+        val mealToShow: MealViewState
+    ) : EateryDetailViewState()
+
+    data class Error(val message: String) : EateryDetailViewState()
+}
+
+
+data class MealViewState(
+    val startTime: Int,
+    val endTime: Int,
+    val menu: List<MenuCategoryViewState>
+)
 
 @HiltViewModel
 class EateryDetailViewModel @Inject constructor(
@@ -31,6 +51,11 @@ class EateryDetailViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
     private val eateryId: Int = checkNotNull(savedStateHandle["eateryId"])
+
+    private val _eateryDetailsViewState =
+        MutableStateFlow<EateryDetailViewState>(EateryDetailViewState.Loading)
+    val eateryDetailViewState = _eateryDetailsViewState.asStateFlow()
+
 
     /**
      * A flow emitting the loading status of the current eatery.
@@ -67,14 +92,35 @@ class EateryDetailViewModel @Inject constructor(
         private set
 
     init {
-        openEatery(eateryId)
+        openEatery()
     }
 
     /**
      * Initializes the eatery detail view model to the given eatery id. Initializes [eateryFlow] and
      * any other relevant flows originating from it.
      */
-    private fun openEatery(eateryId: Int) {
+    private fun openEatery() {
+
+        combine(
+            userPreferencesRepository.favoritesFlow,
+            userPreferencesRepository.favoriteItemsFlow,
+            eateryFlow
+        ) { favoriteEateries, favoriteItems, eatery ->
+            when (eatery) {
+                EateryApiResponse.Error -> _eateryDetailsViewState.update {
+                    EateryDetailViewState.Error("TODO")
+                }
+
+                EateryApiResponse.Pending -> _eateryDetailsViewState.update {
+                    EateryDetailViewState.Loading
+                }
+                is EateryApiResponse.Success -> _eateryDetailsViewState.update {
+                    EateryDetailViewState.Loaded(
+                        mealToShow =
+                    )
+                }
+            }
+        }
         eateryFlow = eateryRepository.getEateryFlow(eateryId)
         isFavorite = userPreferencesRepository.favoritesFlow.value[eateryId] == true
 
@@ -96,7 +142,6 @@ class EateryDetailViewModel @Inject constructor(
             // TODO: Implement the flow combine. (It's just emitting curr right now so it compiles)
             //  When userSelected is non null, emit that. Otherwise, default to emitting the current meal.
             //  This is the flow that we'll actually use to tell the screen which meal to show.
-//            Log.d("UserSelectionCheck",(userSelected == null).toString())
             userSelected ?: curr
         }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     }
