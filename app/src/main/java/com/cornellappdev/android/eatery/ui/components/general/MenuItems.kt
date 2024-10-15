@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.android.eatery.data.models.MenuCategory
 import com.cornellappdev.android.eatery.data.models.MenuItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
@@ -28,10 +29,15 @@ data class MenuCategoryViewState(
     val items: List<MenuItemViewState>
 )
 
+fun MenuCategoryViewState.toMenuCategory() =
+    MenuCategory(category = category, items = items.map { it.toMenuItem() })
+
 data class MenuItemViewState(
     val isFavorite: Boolean,
     val item: MenuItem,
 )
+
+fun MenuItemViewState.toMenuItem() = item
 
 typealias ItemName = String
 

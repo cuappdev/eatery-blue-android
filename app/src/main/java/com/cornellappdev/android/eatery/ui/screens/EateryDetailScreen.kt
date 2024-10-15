@@ -112,7 +112,9 @@ import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.toEvent
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds
@@ -139,17 +141,13 @@ fun EateryDetailScreen(
     val paymentMethods = remember { mutableStateListOf<PaymentMethodsAvailable>() }
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
+    val viewState = eateryDetailViewModel.eateryDetailViewState.collectAsState().value
 
 
     /**
      * The amount of days offset from the current weekday
      */
     var weekDayIndex by remember { mutableStateOf(0) }
-
-
-    // The event/meal to display. May be null.
-    val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
-
 
     // The filter text typed in.
     val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
@@ -195,20 +193,14 @@ fun EateryDetailScreen(
                 .background(Color.White)
                 .padding(paddingValues)
         ) {
-            when (val eateryApiResponse =
-                eateryDetailViewModel.eateryFlow.collectAsState().value) {
-                is EateryApiResponse.Pending -> {
-                    EateryDetailLoadingScreen(shimmer)
+            when (viewState) {
+                is EateryDetailViewState.Error -> {
+                    // TODO we should have an error state for this screen lol
+                    Text("Cannot load Eatery Details")
                 }
 
-
-                is EateryApiResponse.Error -> {
-                    Text(text = "ERROR")
-                }
-
-
-                is EateryApiResponse.Success -> {
-                    val eatery = eateryApiResponse.data
+                is EateryDetailViewState.Loaded -> {
+                    val eatery = viewState.eatery
                     val bitmapState =
                         eatery.imageUrl?.let {
                             CoilRepository.getUrlState(
@@ -216,6 +208,7 @@ fun EateryDetailScreen(
                                 LocalContext.current
                             )
                         }
+                    val nextEvent = viewState.mealToShow
                     val infiniteTransition = rememberInfiniteTransition()
                     val progress by infiniteTransition.animateFloat(
                         initialValue = 0f,
@@ -343,13 +336,10 @@ fun EateryDetailScreen(
 
 
                         Box {
-                            val fullMenuList = mutableListOf<String>()
-                            nextEvent?.menu?.forEach { category ->
-                                category.category?.let { fullMenuList.add(it) }
-                                category.items?.forEach { item ->
-                                    item.name?.let { fullMenuList.add(it) }
-                                }
-                            }
+                            val fullMenuList: MutableList<String> =
+                                nextEvent.menu.flatMap { category ->
+                                    listOf(category.category) + category.items.mapNotNull { it.item.name }
+                                }.toMutableList()
 
 
                             LazyColumn(
@@ -428,8 +418,8 @@ fun EateryDetailScreen(
                                             )
                                         ) {
                                             Icon(
-                                                imageVector = if (eateryDetailViewModel.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                                                tint = if (eateryDetailViewModel.isFavorite) Yellow else GrayFive,
+                                                imageVector = if (viewState.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                                                tint = if (viewState.isFavorite) Yellow else GrayFive,
                                                 contentDescription = null
                                             )
                                         }
@@ -680,68 +670,69 @@ fun EateryDetailScreen(
                                     )
                                 }
 
-                                nextEvent?.let { nextEvent ->
-                                    menuHeadingItem(weekDayIndex, nextEvent, hoursOnClick = {
+                                menuHeadingItem(
+                                    weekDayIndex,
+                                    nextEvent.toEvent(),
+                                    hoursOnClick = {
                                         sheetContent = BottomSheetContent.MENUS
                                         coroutineScope.launch {
                                             modalBottomSheetState.show()
                                         }
                                     })
 
-                                    item {
-                                        SearchBar(searchText = filterText,
-                                            onSearchTextChange = {
-                                                eateryDetailViewModel.setSearchQuery(
-                                                    it
-                                                )
-                                            },
-                                            placeholderText = "Search the menu...",
-                                            modifier = Modifier.padding(horizontal = 16.dp),
-                                            onCancelClicked = {
-                                                eateryDetailViewModel.setSearchQuery("")
-                                            })
-                                        Spacer(
-                                            modifier = Modifier
-                                                .padding(
-                                                    start = 16.dp,
-                                                    end = 16.dp,
-                                                    top = 12.dp,
-                                                    bottom = 8.dp
-                                                )
-                                                .fillMaxWidth()
-                                                .height(1.dp)
-                                                .background(GrayZero, CircleShape)
-                                        )
-                                    }
-                                    eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
-                                        .takeIf { it?.size?.let { s -> s > 1 } == true }
-                                        ?.map { it.first }
-                                        ?.let { mealTypes ->
-                                            item {
-                                                EateryMealTabs(
-                                                    meals = mealTypes,
-                                                    onSelectMeal = { selectedMeal ->
-                                                        eateryDetailViewModel.selectEvent(
-                                                            eatery,
-                                                            weekDayIndex,
-                                                            mealTypes[selectedMeal]
-                                                        )
-                                                    },
-                                                    selectedMealIndex = mealTypeIndex.value
-                                                )
-                                            }
-                                        }
-
-                                    menuItems(TODO()/*nextEvent.menu?.map {
-                                        it.copy(
-                                            items = it.items?.filter { menuItem ->
-                                                menuItem.name?.contains(filterText, true) ?: false
-                                            }
-                                        )
-                                    } ?: emptyList()*/, onFavoriteClick = {
-                                        TODO()
-                                    })
+                                item {
+                                    SearchBar(searchText = filterText,
+                                        onSearchTextChange = {
+                                            eateryDetailViewModel.setSearchQuery(
+                                                it
+                                            )
+                                        },
+                                        placeholderText = "Search the menu...",
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        onCancelClicked = {
+                                            eateryDetailViewModel.setSearchQuery("")
+                                        })
+                                    Spacer(
+                                        modifier = Modifier
+                                            .padding(
+                                                start = 16.dp,
+                                                end = 16.dp,
+                                                top = 12.dp,
+                                                bottom = 8.dp
+                                            )
+                                            .fillMaxWidth()
+                                            .height(1.dp)
+                                            .background(GrayZero, CircleShape)
+                                    )
                                 }
+                                eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
+                                    .takeIf { it?.size?.let { s -> s > 1 } == true }
+                                    ?.map { it.first }
+                                    ?.let { mealTypes ->
+                                        item {
+                                            EateryMealTabs(
+                                                meals = mealTypes,
+                                                onSelectMeal = { selectedMeal ->
+                                                    eateryDetailViewModel.selectEvent(
+                                                        eatery,
+                                                        weekDayIndex,
+                                                        mealTypes[selectedMeal]
+                                                    )
+                                                },
+                                                selectedMealIndex = mealTypeIndex.value
+                                            )
+                                        }
+                                    }
+
+                                menuItems(nextEvent.menu.map {
+                                    it.copy(
+                                        items = it.items.filter { menuItem ->
+                                            menuItem.item.name?.contains(filterText, true) ?: false
+                                        }
+                                    )
+                                }, onFavoriteClick = {
+                                    TODO()
+                                })
 
                                 item {
                                     Spacer(
@@ -833,10 +824,11 @@ fun EateryDetailScreen(
                                 ) {
                                     EateryHeader(
                                         eatery = eatery,
-                                        eateryDetailViewModel = eateryDetailViewModel
+                                        isFavorite = viewState.isFavorite,
+                                        onFavoriteClick = eateryDetailViewModel::toggleFavorite
                                     )
                                     EateryDetailsStickyHeader(
-                                        nextEvent,
+                                        nextEvent.toEvent(),
                                         eatery,
                                         filterText,
                                         fullMenuList,
@@ -855,6 +847,10 @@ fun EateryDetailScreen(
                             }
                         }
                     }
+                }
+
+                EateryDetailViewState.Loading -> {
+                    EateryDetailLoadingScreen(shimmer)
                 }
             }
         }
@@ -906,7 +902,7 @@ private fun LazyListScope.menuHeadingItem(
 }
 
 @Composable
-fun EateryHeader(eatery: Eatery, eateryDetailViewModel: EateryDetailViewModel) {
+fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -929,7 +925,7 @@ fun EateryHeader(eatery: Eatery, eateryDetailViewModel: EateryDetailViewModel) {
         )
 
         Button(
-            onClick = { eateryDetailViewModel.toggleFavorite() },
+            onClick = onFavoriteClick,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 16.dp)
@@ -945,8 +941,8 @@ fun EateryHeader(eatery: Eatery, eateryDetailViewModel: EateryDetailViewModel) {
             )
         ) {
             Icon(
-                imageVector = if (eateryDetailViewModel.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                tint = if (eateryDetailViewModel.isFavorite) Yellow else GrayFive,
+                imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                tint = if (isFavorite) Yellow else GrayFive,
                 contentDescription = null
             )
         }
