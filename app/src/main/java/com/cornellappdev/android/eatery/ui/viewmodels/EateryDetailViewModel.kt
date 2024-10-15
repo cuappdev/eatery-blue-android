@@ -13,6 +13,7 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewSt
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.components.general.toMenuCategory
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,7 +34,11 @@ sealed class EateryDetailViewState {
         val mealToShow: MealViewState,
         val eatery: Eatery,
         val isFavorite: Boolean,
-    ) : EateryDetailViewState()
+        val weekdayIndex: Int,
+    ) : EateryDetailViewState() {
+        val mealTypeIndex: Int = eatery.getTypeMeal(weekdayIndex.fromOffsetToDayOfWeek())
+            ?.indexOfFirst { it.first == mealToShow.description } ?: 0
+    }
 
     data class Error(val message: String) : EateryDetailViewState()
 }
@@ -42,7 +47,7 @@ sealed class EateryDetailViewState {
 data class MealViewState(
     val startTime: LocalDateTime?,
     val endTime: LocalDateTime?,
-    val menu: List<MenuCategoryViewState>,
+    val menu: List<MenuCategoryViewState>?,
     val description: String?,
 )
 
@@ -51,7 +56,7 @@ fun MealViewState.toEvent(): Event =
         description = description,
         startTime = startTime,
         endTime = endTime,
-        menu = menu.map { it.toMenuCategory() }.toMutableList()
+        menu = menu?.map { it.toMenuCategory() }?.toMutableList()
     )
 
 @HiltViewModel
@@ -127,11 +132,12 @@ class EateryDetailViewModel @Inject constructor(
                                         )
                                     } ?: emptyList()
                                 )
-                            } ?: emptyList(),
+                            },
                             description = currentMeal?.description
                         ),
                         isFavorite = favoriteEateries[eateryId] == true,
                         eatery = eatery.data,
+                        weekdayIndex = (it as? EateryDetailViewState.Loaded)?.weekdayIndex ?: 0
                     )
                 }
             }
@@ -152,6 +158,19 @@ class EateryDetailViewModel @Inject constructor(
 
     fun sendReport(issue: String, report: String, eateryId: Int?) = viewModelScope.launch {
         userRepository.sendReport(issue, report, eateryId)
+    }
+
+    fun setSelectedWeekdayIndex(weekdayIndex: Int) {
+        _eateryDetailsViewState.update {
+            when (it) {
+                is EateryDetailViewState.Loaded -> it.copy(
+                    weekdayIndex = weekdayIndex
+                )
+
+                is EateryDetailViewState.Error -> it
+                EateryDetailViewState.Loading -> it
+            }
+        }
     }
 
     /**

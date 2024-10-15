@@ -57,7 +57,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -147,7 +146,6 @@ fun EateryDetailScreen(
     /**
      * The amount of days offset from the current weekday
      */
-    var weekDayIndex by remember { mutableStateOf(0) }
 
     // The filter text typed in.
     val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
@@ -218,12 +216,6 @@ fun EateryDetailScreen(
                             repeatMode = RepeatMode.Reverse
                         )
                     )
-                    val mealTypeIndex = remember {
-                        derivedStateOf {
-                            eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
-                                ?.indexOfFirst { it.first == nextEvent?.description } ?: 0
-                        }
-                    }
 
 
                     ModalBottomSheetLayout(
@@ -272,7 +264,7 @@ fun EateryDetailScreen(
 
                                 BottomSheetContent.MENUS -> {
                                     EateryMenusBottomSheet(
-                                        weekDayIndex = weekDayIndex,
+                                        weekDayIndex = viewState.weekdayIndex,
                                         onDismiss = {
                                             coroutineScope.launch {
                                                 modalBottomSheetState.hide()
@@ -285,13 +277,13 @@ fun EateryDetailScreen(
                                                 dayIndex,
                                                 mealDescription
                                             )
-                                            weekDayIndex = dayIndex
+                                            eateryDetailViewModel.setSelectedWeekdayIndex(dayIndex)
                                         },
                                         onResetClick = {
-                                            weekDayIndex = 0
+                                            eateryDetailViewModel.setSelectedWeekdayIndex(0)
                                             eateryDetailViewModel.resetSelectedEvent()
                                         },
-                                        mealType = mealTypeIndex.value
+                                        mealType = viewState.mealTypeIndex
                                     )
                                 }
 
@@ -337,9 +329,9 @@ fun EateryDetailScreen(
 
                         Box {
                             val fullMenuList: MutableList<String> =
-                                nextEvent.menu.flatMap { category ->
+                                nextEvent.menu?.flatMap { category ->
                                     listOf(category.category) + category.items.mapNotNull { it.item.name }
-                                }.toMutableList()
+                                }?.toMutableList() ?: emptyList<String>().toMutableList()
 
 
                             LazyColumn(
@@ -669,78 +661,79 @@ fun EateryDetailScreen(
                                             .background(GrayZero)
                                     )
                                 }
-
-                                menuHeadingItem(
-                                    weekDayIndex,
-                                    nextEvent.toEvent(),
-                                    hoursOnClick = {
-                                        sheetContent = BottomSheetContent.MENUS
-                                        coroutineScope.launch {
-                                            modalBottomSheetState.show()
+                                nextEvent.menu?.let {
+                                    menuHeadingItem(
+                                        viewState.weekdayIndex,
+                                        nextEvent.toEvent(),
+                                        hoursOnClick = {
+                                            sheetContent = BottomSheetContent.MENUS
+                                            coroutineScope.launch {
+                                                modalBottomSheetState.show()
+                                            }
+                                        })
+                                    item {
+                                        SearchBar(searchText = filterText,
+                                            onSearchTextChange = {
+                                                eateryDetailViewModel.setSearchQuery(
+                                                    it
+                                                )
+                                            },
+                                            placeholderText = "Search the menu...",
+                                            modifier = Modifier.padding(horizontal = 16.dp),
+                                            onCancelClicked = {
+                                                eateryDetailViewModel.setSearchQuery("")
+                                            })
+                                        Spacer(
+                                            modifier = Modifier
+                                                .padding(
+                                                    start = 16.dp,
+                                                    end = 16.dp,
+                                                    top = 12.dp,
+                                                    bottom = 8.dp
+                                                )
+                                                .fillMaxWidth()
+                                                .height(1.dp)
+                                                .background(GrayZero, CircleShape)
+                                        )
+                                    }
+                                    eatery.getTypeMeal(viewState.weekdayIndex.fromOffsetToDayOfWeek())
+                                        .takeIf { it?.size?.let { s -> s > 1 } == true }
+                                        ?.map { it.first }
+                                        ?.let { mealTypes ->
+                                            item {
+                                                EateryMealTabs(
+                                                    meals = mealTypes,
+                                                    onSelectMeal = { selectedMeal ->
+                                                        eateryDetailViewModel.selectEvent(
+                                                            eatery,
+                                                            viewState.weekdayIndex,
+                                                            mealTypes[selectedMeal]
+                                                        )
+                                                    },
+                                                    selectedMealIndex = viewState.mealTypeIndex
+                                                )
+                                            }
                                         }
+
+                                    menuItems(nextEvent.menu.map {
+                                        it.copy(
+                                            items = it.items.filter { menuItem ->
+                                                menuItem.item.name?.contains(filterText, true)
+                                                    ?: false
+                                            }
+                                        )
+                                    }, onFavoriteClick = {
+                                        TODO()
                                     })
 
-                                item {
-                                    SearchBar(searchText = filterText,
-                                        onSearchTextChange = {
-                                            eateryDetailViewModel.setSearchQuery(
-                                                it
-                                            )
-                                        },
-                                        placeholderText = "Search the menu...",
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        onCancelClicked = {
-                                            eateryDetailViewModel.setSearchQuery("")
-                                        })
-                                    Spacer(
-                                        modifier = Modifier
-                                            .padding(
-                                                start = 16.dp,
-                                                end = 16.dp,
-                                                top = 12.dp,
-                                                bottom = 8.dp
-                                            )
-                                            .fillMaxWidth()
-                                            .height(1.dp)
-                                            .background(GrayZero, CircleShape)
-                                    )
-                                }
-                                eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
-                                    .takeIf { it?.size?.let { s -> s > 1 } == true }
-                                    ?.map { it.first }
-                                    ?.let { mealTypes ->
-                                        item {
-                                            EateryMealTabs(
-                                                meals = mealTypes,
-                                                onSelectMeal = { selectedMeal ->
-                                                    eateryDetailViewModel.selectEvent(
-                                                        eatery,
-                                                        weekDayIndex,
-                                                        mealTypes[selectedMeal]
-                                                    )
-                                                },
-                                                selectedMealIndex = mealTypeIndex.value
-                                            )
-                                        }
+                                    item {
+                                        Spacer(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(16.dp)
+                                                .background(GrayZero)
+                                        )
                                     }
-
-                                menuItems(nextEvent.menu.map {
-                                    it.copy(
-                                        items = it.items.filter { menuItem ->
-                                            menuItem.item.name?.contains(filterText, true) ?: false
-                                        }
-                                    )
-                                }, onFavoriteClick = {
-                                    TODO()
-                                })
-
-                                item {
-                                    Spacer(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(16.dp)
-                                            .background(GrayZero)
-                                    )
                                 }
 
 
