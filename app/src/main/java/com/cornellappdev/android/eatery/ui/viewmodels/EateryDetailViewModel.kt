@@ -12,17 +12,16 @@ import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
+import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 
@@ -38,8 +37,8 @@ sealed class EateryDetailViewState {
 
 
 data class MealViewState(
-    val startTime: Int,
-    val endTime: Int,
+    val startTime: LocalDateTime?,
+    val endTime: LocalDateTime?,
     val menu: List<MenuCategoryViewState>
 )
 
@@ -72,7 +71,7 @@ class EateryDetailViewModel @Inject constructor(
      * A flow emitting the meal that the user has expressly selected, or null if the user hasn't
      * yet selected anything, in which case we should refer to [_curMeal].
      */
-    private lateinit var _userSelectedMeal: MutableStateFlow<Event?>
+    private val userSelectedMeal = MutableStateFlow<Event?>(null)
 
     /**
      * A flow emitting the meal to show to the user. You can assume this will not be null if
@@ -100,12 +99,12 @@ class EateryDetailViewModel @Inject constructor(
      * any other relevant flows originating from it.
      */
     private fun openEatery() {
-
         combine(
             userPreferencesRepository.favoritesFlow,
             userPreferencesRepository.favoriteItemsFlow,
-            eateryFlow
-        ) { favoriteEateries, favoriteItems, eatery ->
+            eateryFlow,
+            userSelectedMeal
+        ) { favoriteEateries, favoriteItems, eatery, userSelectedMeal ->
             when (eatery) {
                 EateryApiResponse.Error -> _eateryDetailsViewState.update {
                     EateryDetailViewState.Error("TODO")
@@ -114,36 +113,33 @@ class EateryDetailViewModel @Inject constructor(
                 EateryApiResponse.Pending -> _eateryDetailsViewState.update {
                     EateryDetailViewState.Loading
                 }
+
                 is EateryApiResponse.Success -> _eateryDetailsViewState.update {
+                    val currentMeal = userSelectedMeal ?: eatery.data.getCurrentDisplayedEvent()
+                    ?: return@update EateryDetailViewState.Error("Meal not found")
+
                     EateryDetailViewState.Loaded(
-                        mealToShow =
+                        mealToShow = MealViewState(
+                            currentMeal.startTime,
+                            currentMeal.endTime,
+                            currentMeal.menu?.map {
+                                MenuCategoryViewState(
+                                    it.category ?: "",
+                                    it.items?.map { menuItem ->
+                                        MenuItemViewState(
+                                            item = menuItem,
+                                            isFavorite = favoriteItems[menuItem.name] ?: false
+                                        )
+                                    } ?: emptyList()
+                                )
+                            } ?: emptyList()
+                        )
                     )
                 }
             }
         }
         eateryFlow = eateryRepository.getEateryFlow(eateryId)
         isFavorite = userPreferencesRepository.favoritesFlow.value[eateryId] == true
-
-        // TODO: Initialize [_curMeal] as a map from [eatery]. This will become a flow that
-        //  is tied to [eatery] and constantly emits its current meal.
-        //  You'll probably want to use your [eatery.getCurrentDisplayedEvent()] from before.
-        _curMeal = eateryFlow.map { eateryApiResponse ->
-            when (eateryApiResponse) {
-                is EateryApiResponse.Success -> eateryApiResponse.data.getCurrentDisplayedEvent()
-                is EateryApiResponse.Pending -> null
-                is EateryApiResponse.Error -> null
-            }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
-
-        _userSelectedMeal = MutableStateFlow(null)
-
-        mealToShow = _curMeal.combine(_userSelectedMeal) { curr, userSelected ->
-
-            // TODO: Implement the flow combine. (It's just emitting curr right now so it compiles)
-            //  When userSelected is non null, emit that. Otherwise, default to emitting the current meal.
-            //  This is the flow that we'll actually use to tell the screen which meal to show.
-            userSelected ?: curr
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
     }
 
     fun toggleFavorite() {
@@ -166,14 +162,14 @@ class EateryDetailViewModel @Inject constructor(
      * @param mealDescription, e.g. "lunch", "dinner", etc
      */
     fun selectEvent(eatery: Eatery, dayIndex: Int, mealDescription: String) {
-        _userSelectedMeal.value = eatery.getSelectedEvent(dayIndex, mealDescription)
+        userSelectedMeal.value = eatery.getSelectedEvent(dayIndex, mealDescription)
     }
 
     /**
      * resets the value of _userSelectedMeal to null
      */
     fun resetSelectedEvent() {
-        _userSelectedMeal.value = null
+        userSelectedMeal.value = null
     }
 
     /**
