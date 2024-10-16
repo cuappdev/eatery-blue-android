@@ -180,7 +180,11 @@ fun HomeScreen(
         floatingActionButtonPosition = FabPosition.End,
         content = { paddingValues ->
 
-            Box(modifier = Modifier.background(Color.White).padding(paddingValues)) {
+            Box(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(paddingValues)
+            ) {
                 ModalBottomSheetLayout(
                     sheetState = modalBottomSheetState,
                     sheetShape = RoundedCornerShape(
@@ -228,31 +232,30 @@ fun HomeScreen(
                             onEateryClick = onEateryClick,
                             onFavoriteExpand = onFavoriteExpand,
                             modalBottomSheetState = modalBottomSheetState,
-                    eateriesApiResponse = eateriesApiResponse,
-                    favorites = favorites,
-                    nearestEateries = nearestEateries,
-                    filters = filters,
-                    onFavoriteClick = { eatery, favorite ->
-                        if (favorite) {
-                            homeViewModel.addFavorite(eatery.id)
-                        } else {
-                            homeViewModel.removeFavorite(eatery.id)
-                        }
-                    },
-                    onFilterClicked = { filter ->
-                        if (filters.contains(filter)) {
-                            homeViewModel.removeFilter(filter)
-                        } else {
-                            homeViewModel.addFilter(filter)
-                        }
-                    },
-                    onResetFilters = {
-                        homeViewModel.resetFilters()
+                            eateriesApiResponse = eateriesApiResponse,
+                            favorites = favorites,
+                            nearestEateries = nearestEateries,
+                            filters = filters,
+                            onFavoriteClick = { eatery, favorite ->
+                                if (favorite) {
+                                    homeViewModel.addFavorite(eatery.id)
+                                } else {
+                                    homeViewModel.removeFavorite(eatery.id)
+                                }
+                            },
+                            onFilterClicked = { filter ->
+                                if (filters.contains(filter)) {
+                                    homeViewModel.removeFilter(filter)
+                                } else {
+                                    homeViewModel.addFilter(filter)
+                                }
+                            },
+                            onResetFilters = {
+                                homeViewModel.resetFilters()
+                            }
+                        )
                     }
                 )
-            }
-        )
-
 
                 if (FirstTimeShown.firstTimeShown) {
                     PermissionRequestDialog(
