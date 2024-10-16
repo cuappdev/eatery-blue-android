@@ -122,13 +122,13 @@ class EateryDetailViewModel @Inject constructor(
                         mealToShow = MealViewState(
                             currentMeal?.startTime,
                             currentMeal?.endTime,
-                            currentMeal?.menu?.map {
+                            currentMeal?.menu?.map { menu ->
                                 MenuCategoryViewState(
-                                    it.category ?: "",
-                                    it.items?.map { menuItem ->
+                                    menu.category ?: "",
+                                    menu.items?.map { menuItem ->
                                         MenuItemViewState(
                                             item = menuItem,
-                                            isFavorite = favoriteItems[menuItem.name] ?: false
+                                            isFavorite = favoriteItems[menuItem.name] == true
                                         )
                                     } ?: emptyList()
                                 )
