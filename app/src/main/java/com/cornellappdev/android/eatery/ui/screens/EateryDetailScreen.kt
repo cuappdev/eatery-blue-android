@@ -723,7 +723,7 @@ fun EateryDetailScreen(
                                             }
                                         )
                                     }, onFavoriteClick = {
-                                        TODO()
+                                        eateryDetailViewModel.toggleFavoriteMenuItem(it)
                                     })
 
                                     item {

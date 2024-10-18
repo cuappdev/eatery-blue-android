@@ -16,6 +16,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -80,7 +81,11 @@ fun LazyListScope.menuItems(
                             onFavoriteClick(it)
                         }
                     },
-                    imageVector = Icons.Outlined.Star,
+                    imageVector = if (menuItem.isFavorite) {
+                        Icons.Outlined.Star
+                    } else {
+                        Icons.Outlined.StarOutline
+                    },
                     contentDescription = null
                 )
             }

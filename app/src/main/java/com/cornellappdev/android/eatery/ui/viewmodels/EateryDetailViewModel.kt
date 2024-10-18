@@ -156,6 +156,10 @@ class EateryDetailViewModel @Inject constructor(
         }
     }
 
+    fun toggleFavoriteMenuItem(menuItem: String) {
+        userPreferencesRepository.toggleFavoriteMenuItem(menuItem)
+    }
+
     fun sendReport(issue: String, report: String, eateryId: Int?) = viewModelScope.launch {
         userRepository.sendReport(issue, report, eateryId)
     }

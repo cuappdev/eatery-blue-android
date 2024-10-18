@@ -69,6 +69,19 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+    fun toggleFavoriteMenuItem(menuItem: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            userPreferencesStore.updateData { currentPreferences ->
+                val isFavorite = currentPreferences.itemFavoritesMap[menuItem] == true
+                if (!isFavorite) {
+                    currentPreferences.toBuilder().putItemFavorites(menuItem, true).build()
+                } else {
+                    currentPreferences.toBuilder().removeItemFavorites(menuItem).build()
+                }
+            }
+        }
+    }
+
     suspend fun saveLoginInfo(username: String, password: String) {
         userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
