@@ -70,7 +70,7 @@ fun LazyListScope.menuItems(
                     style = EateryBlueTypography.button,
                     modifier = Modifier.weight(1f)
                 )
-                StarIcon(menuItem.isFavorite, onFavoriteClick = {
+                FavoriteButton(menuItem.isFavorite, onFavoriteClick = {
                     menuItem.item.name?.let {
                         onFavoriteClick(it)
                     }

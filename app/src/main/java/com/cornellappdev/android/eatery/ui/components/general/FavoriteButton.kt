@@ -15,7 +15,7 @@ import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.Yellow
 
 @Composable
-fun StarIcon(
+fun FavoriteButton(
     isFavorite: Boolean,
     onFavoriteClick: (Boolean) -> Unit
 ) {

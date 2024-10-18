@@ -315,7 +315,7 @@ fun EateryCard(
                             .weight(1f)
                             .padding(end = 30.dp)
                     )
-                    StarIcon(isFavorite, onFavoriteClick)
+                    FavoriteButton(isFavorite, onFavoriteClick)
                 }
                 EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact)
                 EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
