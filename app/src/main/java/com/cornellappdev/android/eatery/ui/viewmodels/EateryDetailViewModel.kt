@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -97,9 +95,6 @@ class EateryDetailViewModel @Inject constructor(
      * any other relevant flows originating from it.
      */
     private fun openEatery() {
-        eateryFlow.onEach {
-            Log.d("TAG", "openEatery: $it")
-        }.launchIn(viewModelScope)
         combine(
             userPreferencesRepository.favoritesFlow,
             userPreferencesRepository.favoriteItemsFlow,
