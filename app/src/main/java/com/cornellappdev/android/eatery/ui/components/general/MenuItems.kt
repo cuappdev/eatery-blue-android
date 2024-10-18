@@ -1,7 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,11 +11,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -75,19 +70,11 @@ fun LazyListScope.menuItems(
                     style = EateryBlueTypography.button,
                     modifier = Modifier.weight(1f)
                 )
-                Icon(
-                    modifier = Modifier.clickable {
-                        menuItem.item.name?.let {
-                            onFavoriteClick(it)
-                        }
-                    },
-                    imageVector = if (menuItem.isFavorite) {
-                        Icons.Outlined.Star
-                    } else {
-                        Icons.Outlined.StarOutline
-                    },
-                    contentDescription = null
-                )
+                StarIcon(menuItem.isFavorite, onFavoriteClick = {
+                    menuItem.item.name?.let {
+                        onFavoriteClick(it)
+                    }
+                })
             }
 
             if (category.items.lastIndex != index) {
