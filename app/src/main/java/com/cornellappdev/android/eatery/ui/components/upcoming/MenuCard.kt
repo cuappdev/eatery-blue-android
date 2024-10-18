@@ -54,7 +54,6 @@ import java.time.format.DateTimeFormatter
  * Represents the card for each eatery that is shown in the list
  * in the upcoming menu screen
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MenuCard(
     eatery: Eatery,
@@ -174,7 +173,7 @@ fun MenuCard(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun EateryDetails(
+private fun EateryDetails(
     eatery: Eatery,
     meal: MealFilter,
     day: Int,
@@ -223,7 +222,7 @@ fun EateryDetails(
 }
 
 @Composable
-fun EateryEventMenu(event: Event) {
+private fun EateryEventMenu(event: Event) {
 
     Row(
         modifier = Modifier
@@ -238,7 +237,7 @@ fun EateryEventMenu(event: Event) {
                 Text(
                     text = category.category ?: "",
                     style = EateryBlueTypography.h5,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                 )
                 category.items!!.forEach { item ->
                     MenuItemDisplay(item = item)
@@ -249,7 +248,7 @@ fun EateryEventMenu(event: Event) {
 }
 
 @Composable
-fun MenuItemDisplay(item: MenuItem) {
+private fun MenuItemDisplay(item: MenuItem) {
     Text(
         text = item.name!!,
         style = EateryBlueTypography.caption,
