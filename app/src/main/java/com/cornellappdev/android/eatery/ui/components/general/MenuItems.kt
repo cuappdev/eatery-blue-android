@@ -23,17 +23,20 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 data class MenuCategoryViewState(
     val category: String,
     val items: List<MenuItemViewState>
-)
+) {
+    fun toMenuCategory() = MenuCategory(
+        category = category,
+        items = items.map { it.toMenuItem() }
+    )
+}
 
-fun MenuCategoryViewState.toMenuCategory() =
-    MenuCategory(category = category, items = items.map { it.toMenuItem() })
 
 data class MenuItemViewState(
     val isFavorite: Boolean,
     val item: MenuItem,
-)
-
-fun MenuItemViewState.toMenuItem() = item
+) {
+    fun toMenuItem() = item
+}
 
 typealias ItemName = String
 

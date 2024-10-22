@@ -17,12 +17,13 @@ import com.cornellappdev.android.eatery.ui.theme.Yellow
 @Composable
 fun FavoriteButton(
     isFavorite: Boolean,
-    onFavoriteClick: (Boolean) -> Unit
+    onFavoriteClick: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Icon(
         imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
         tint = if (isFavorite) Yellow else GrayFive,
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 3.dp)
             .clip(RoundedCornerShape(9.dp))
             .clickable(

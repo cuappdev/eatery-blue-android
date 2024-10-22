@@ -113,7 +113,6 @@ import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
-import com.cornellappdev.android.eatery.ui.viewmodels.toEvent
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds

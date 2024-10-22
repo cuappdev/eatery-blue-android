@@ -10,7 +10,6 @@ import com.cornellappdev.android.eatery.data.repositories.UserPreferencesReposit
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
-import com.cornellappdev.android.eatery.ui.components.general.toMenuCategory
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,15 +46,15 @@ data class MealViewState(
     val endTime: LocalDateTime?,
     val menu: List<MenuCategoryViewState>?,
     val description: String?,
-)
-
-fun MealViewState.toEvent(): Event =
-    Event(
+) {
+    fun toEvent() = Event(
         description = description,
         startTime = startTime,
         endTime = endTime,
         menu = menu?.map { it.toMenuCategory() }?.toMutableList()
     )
+}
+
 
 @HiltViewModel
 class EateryDetailViewModel @Inject constructor(
@@ -151,8 +150,13 @@ class EateryDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Asynchronously toggles the favorite status of a menu item by its name
+     */
     fun toggleFavoriteMenuItem(menuItem: String) {
-        userPreferencesRepository.toggleFavoriteMenuItem(menuItem)
+        viewModelScope.launch {
+            userPreferencesRepository.toggleFavoriteMenuItem(menuItem)
+        }
     }
 
     fun sendReport(issue: String, report: String, eateryId: Int?) = viewModelScope.launch {
