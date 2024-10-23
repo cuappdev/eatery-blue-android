@@ -36,6 +36,7 @@ import com.cornellappdev.android.eatery.ui.screens.FirstTimeShown
 import com.cornellappdev.android.eatery.ui.screens.HomeScreen
 import com.cornellappdev.android.eatery.ui.screens.LegalScreen
 import com.cornellappdev.android.eatery.ui.screens.NearestScreen
+import com.cornellappdev.android.eatery.ui.screens.NotificationsScreen
 import com.cornellappdev.android.eatery.ui.screens.OnboardingScreen
 import com.cornellappdev.android.eatery.ui.screens.PrivacyScreen
 import com.cornellappdev.android.eatery.ui.screens.ProfileScreen
@@ -71,6 +72,10 @@ fun NavigationSetup(hasOnboarded: Boolean) {
         }
 
         Routes.FAVORITES.route -> {
+            showBottomBar.value = true
+        }
+
+        Routes.NOTIFICATIONS.route -> {
             showBottomBar.value = true
         }
 
@@ -301,6 +306,7 @@ fun SetupNavHost(
                 destinations = hashMapOf(
                     Routes.ABOUT to { navController.navigate(Routes.ABOUT.route) },
                     Routes.FAVORITES to { navController.navigate(Routes.FAVORITES.route) },
+                    Routes.NOTIFICATIONS to { navController.navigate(Routes.NOTIFICATIONS.route) },
                     Routes.LEGAL to { navController.navigate(Routes.LEGAL.route) },
                     Routes.PRIVACY to { navController.navigate(Routes.PRIVACY.route) },
                     Routes.SUPPORT to { navController.navigate(Routes.SUPPORT.route) },
@@ -364,6 +370,22 @@ fun SetupNavHost(
             FavoritesScreen(onEateryClick = {
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
             })
+        }
+
+        composable(
+            route = Routes.NOTIFICATIONS.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
+            }) {
+            NotificationsScreen()
         }
 
         composable(

@@ -105,6 +105,30 @@ fun SettingsScreen(
                         destinations[Routes.ABOUT]?.invoke()
                     }
                 )
+                SettingsOption(
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_appicon_settings),
+                            contentDescription = null,
+                            tint = GrayFive,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    title = "App Icon",
+                    description = "Select the Eatery app icon for your phone",
+                    onClick = {
+                        coroutineScope.launch {
+                            modalBottomSheetState.show()
+                        }
+                    },
+                    trailingIcon = {
+                        Text(
+                            text = "Change",
+                            style = EateryBlueTypography.button,
+                            color = EateryBlue,
+                        )
+                    }
+                )
                 SettingsLineSeparator()
                 SettingsOption(
                     leadingIcon = {
@@ -132,26 +156,24 @@ fun SettingsScreen(
                 SettingsOption(
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_appicon_settings),
+                            painter = painterResource(id = R.drawable.ic_bell),
                             contentDescription = null,
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    title = "App Icon",
-                    description = "Select the Eatery app icon for your phone",
+                    title = "Notifications",
+                    description = "Manage item and promotional notifications",
                     onClick = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.show()
-                        }
+                        destinations[Routes.NOTIFICATIONS]?.invoke()
                     },
                     trailingIcon = {
-                        Text(
-                            text = "Change",
-                            style = EateryBlueTypography.button,
-                            color = EateryBlue,
+                        Icon(
+                            imageVector = Icons.Outlined.ChevronRight,
+                            contentDescription = null,
+                            tint = EateryBlue,
                         )
-                    }
+                    },
                 )
                 SettingsLineSeparator()
                 SettingsOption(

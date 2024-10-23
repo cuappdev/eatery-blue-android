@@ -85,6 +85,7 @@ enum class Routes(override var route: String) : NavUnit {
     ACCOUNT("account"),
     ABOUT("about"),
     FAVORITES("favorites"),
+    NOTIFICATIONS("favorites"),
     NEAREST("nearest"),
     LEGAL("legal"),
     PRIVACY("privacy"),
