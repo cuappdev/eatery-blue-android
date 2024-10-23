@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,12 +62,17 @@ import kotlinx.coroutines.launch
 fun CompareMenusBotSheet(
     onDismiss: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
-    compareMenusBotViewModel: CompareMenusBotViewModel = hiltViewModel()
+    compareMenusBotViewModel: CompareMenusBotViewModel = hiltViewModel(),
+    firstEatery: Eatery? = null
 ) {
     val compareMenusUIState by compareMenusBotViewModel.compareMenusUiState.collectAsState()
     val filters = compareMenusUIState.filters
     val selectedEateries = compareMenusUIState.selected
     val eateries = compareMenusUIState.eateries
+
+    LaunchedEffect(firstEatery) {
+        compareMenusBotViewModel.initializedFirstEatery(firstEatery)
+    }
 
     Column(
         modifier = Modifier
@@ -75,7 +82,8 @@ fun CompareMenusBotSheet(
         horizontalAlignment = Alignment.Start
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
@@ -98,21 +106,26 @@ fun CompareMenusBotSheet(
                 )
             }
         }
+    }
 
-        CompareFilterRow(
-            currentFiltersSelected = filters,
-            onPaymentMethodsClicked = {},
-            onFilterClicked = { filter ->
-                if (filters.contains(filter)) {
-                    compareMenusBotViewModel.removeFilterCM(filter)
-                } else {
-                    compareMenusBotViewModel.addFilterCM(filter)
-                }
-            },
-            showPaymentFilter = false
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
+    CompareFilterRow(
+        currentFiltersSelected = filters,
+        onPaymentMethodsClicked = {},
+        onFilterClicked = { filter ->
+            if (filters.contains(filter)) {
+                compareMenusBotViewModel.removeFilterCM(filter)
+            } else {
+                compareMenusBotViewModel.addFilterCM(filter)
+            }
+        },
+        showPaymentFilter = false
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp, 10.dp, 16.dp, 16.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
 
         Box(
             modifier = Modifier
