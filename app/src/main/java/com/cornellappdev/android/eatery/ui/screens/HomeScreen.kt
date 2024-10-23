@@ -103,7 +103,7 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
-    val nearestEateries = homeViewModel.nearestEateries.collectAsState().value
+    val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
 
@@ -180,7 +180,11 @@ fun HomeScreen(
         floatingActionButtonPosition = FabPosition.End,
         content = { paddingValues ->
 
-            Box(modifier = Modifier.background(Color.White).padding(paddingValues)) {
+            Box(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(paddingValues)
+            ) {
                 ModalBottomSheetLayout(
                     sheetState = modalBottomSheetState,
                     sheetShape = RoundedCornerShape(
@@ -227,7 +231,6 @@ fun HomeScreen(
                             onSearchClick = onSearchClick,
                             onEateryClick = onEateryClick,
                             onFavoriteExpand = onFavoriteExpand,
-                            onNearestExpand = onNearestExpand,
                             modalBottomSheetState = modalBottomSheetState,
                             eateriesApiResponse = eateriesApiResponse,
                             favorites = favorites,
@@ -253,7 +256,6 @@ fun HomeScreen(
                         )
                     }
                 )
-
 
                 if (FirstTimeShown.firstTimeShown) {
                     PermissionRequestDialog(
@@ -281,7 +283,6 @@ private fun HomeScrollableMainContent(
     onFavoriteClick: (Eatery, Boolean) -> Unit,
     onFilterClicked: (Filter) -> Unit,
     onResetFilters: () -> Unit,
-    onNearestExpand: () -> Unit,
     modalBottomSheetState: ModalBottomSheetState,
     eateriesApiResponse: EateryApiResponse<List<Eatery>>,
     nearestEateries: List<Eatery>,
@@ -303,14 +304,6 @@ private fun HomeScrollableMainContent(
     if (favorites.isNotEmpty()) {
         lastFavorite = favorites[0]
     }
-
-
-    // A sneaky 6 dp tween.
-    val tweenHeight by animateFloatAsState(
-        targetValue = if (favorites.isEmpty()) 6f else 0f,
-        animationSpec = tween(600, delayMillis = 350),
-        label = "Sneaky tween"
-    )
 
 
     LazyColumn(
@@ -414,23 +407,6 @@ private fun HomeScrollableMainContent(
                         )
                     }
 
-
-                    item {
-                        // Sneaky spacer to make padding work right for favorites.
-                        Spacer(modifier = Modifier.height(tweenHeight.dp))
-
-
-                        EateryHomeSection(
-                            title = "Nearest to You",
-                            eateries = nearestEateries,
-                            onEateryClick = onEateryClick,
-                            onFavoriteClick = onFavoriteClick,
-                            onExpandClick = onNearestExpand,
-                            favoritesDecider = { favorites.contains(it) }
-                        )
-                    }
-
-
                     item {
                         Text(
                             modifier = Modifier
@@ -443,7 +419,7 @@ private fun HomeScrollableMainContent(
 
 
                     itemsIndexed(
-                        eateries
+                        nearestEateries
                     ) { index, eatery ->
                         Box(
                             Modifier.padding(
