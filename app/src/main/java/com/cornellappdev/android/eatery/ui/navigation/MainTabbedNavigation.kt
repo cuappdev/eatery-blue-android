@@ -36,6 +36,7 @@ import com.cornellappdev.android.eatery.ui.screens.FirstTimeShown
 import com.cornellappdev.android.eatery.ui.screens.HomeScreen
 import com.cornellappdev.android.eatery.ui.screens.LegalScreen
 import com.cornellappdev.android.eatery.ui.screens.NearestScreen
+import com.cornellappdev.android.eatery.ui.screens.NotificationsHomeScreen
 import com.cornellappdev.android.eatery.ui.screens.NotificationsSettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.OnboardingScreen
 import com.cornellappdev.android.eatery.ui.screens.PrivacyScreen
@@ -75,6 +76,10 @@ fun NavigationSetup(hasOnboarded: Boolean) {
         }
 
         Routes.NOTIFICATIONS_SETTING.route -> {
+            showBottomBar.value = false
+        }
+
+        Routes.NOTIFICATIONS_HOME.route -> {
             showBottomBar.value = false
         }
 
@@ -207,7 +212,10 @@ fun SetupNavHost(
                 navController.navigate(Routes.NEAREST.route)
             }, onCompareMenusClick = { selectedEateries ->
                 navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
-            }
+            },
+                onNotificationsClick = {
+                    navController.navigate("notifications_home")
+                }
             )
         }
         composable(
@@ -306,6 +314,7 @@ fun SetupNavHost(
                     Routes.ABOUT to { navController.navigate(Routes.ABOUT.route) },
                     Routes.FAVORITES to { navController.navigate(Routes.FAVORITES.route) },
                     Routes.NOTIFICATIONS_SETTING to { navController.navigate(Routes.NOTIFICATIONS_SETTING.route) },
+                    Routes.NOTIFICATIONS_HOME to { navController.navigate(Routes.NOTIFICATIONS_HOME.route) },
                     Routes.LEGAL to { navController.navigate(Routes.LEGAL.route) },
                     Routes.PRIVACY to { navController.navigate(Routes.PRIVACY.route) },
                     Routes.SUPPORT to { navController.navigate(Routes.SUPPORT.route) },
@@ -385,6 +394,22 @@ fun SetupNavHost(
                 )
             }) {
             NotificationsSettingsScreen()
+        }
+
+        composable(
+            route = Routes.NOTIFICATIONS_HOME.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
+            }) {
+            NotificationsHomeScreen()
         }
 
         composable(

@@ -10,8 +10,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -100,6 +102,7 @@ fun HomeScreen(
     onFavoriteExpand: () -> Unit,
     onNearestExpand: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+    onNotificationsClick : () -> Unit
 ) {
     val context = LocalContext.current
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
@@ -249,7 +252,8 @@ fun HomeScreen(
                             },
                             onResetFilters = {
                                 homeViewModel.resetFilters()
-                            }
+                            },
+                            onNotificationsClick = onNotificationsClick
                         )
                     }
                 )
@@ -287,6 +291,7 @@ private fun HomeScrollableMainContent(
     nearestEateries: List<Eatery>,
     favorites: List<Eatery>,
     filters: List<Filter>,
+    onNotificationsClick: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -322,7 +327,8 @@ private fun HomeScrollableMainContent(
             HomeStickyHeader(
                 collapsed = isFirstVisible.value,
                 loaded = eateriesApiResponse is EateryApiResponse.Success,
-                onSearchClick = onSearchClick
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick
             )
         }
 
@@ -479,6 +485,7 @@ private fun HomeStickyHeader(
     collapsed: Boolean,
     loaded: Boolean,
     onSearchClick: () -> Unit,
+    onNotificationsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -538,11 +545,30 @@ private fun HomeStickyHeader(
                             tint = Color.White
                         )
                     }
-                    Text(
-                        text = "Eatery",
-                        color = Color.White,
-                        style = EateryBlueTypography.h2
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Eatery",
+                            color = Color.White,
+                            style = EateryBlueTypography.h2
+                        )
+                        Box(
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        ){
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_bell),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.clickable {
+                                    onNotificationsClick()
+                                }
+                            )
+                        }
+
+                    }
+
                 }
             }
         }
