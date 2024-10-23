@@ -65,24 +65,13 @@ class CompareMenusBotViewModel @Inject constructor(
                 is EateryApiResponse.Success -> {
                     _compareMenusUiState.update { currentState ->
                         currentState.copy(
-                            eateries = if (firstEatery != null) {
-                                (listOf(firstEatery!!) + (eateriesApiResponse.data.filter { eatery ->
-                                    eatery.name != firstEatery!!.name && filters.all { filter ->
-                                        filter.passesFilter(eatery, favorites, selected)
-                                    }
-                                }))
-                            } else {
-                                eateriesApiResponse.data.filter { eatery ->
-                                    filters.all { filter ->
-                                        filter.passesFilter(eatery, favorites, selected)
-                                    }
+                            eateries =
+                            (listOfNotNull(firstEatery) + eateriesApiResponse.data.filter { it.name != firstEatery?.name }).filter { eatery ->
+                                filters.all { filter ->
+                                    filter.passesFilter(eatery, favorites, selected)
                                 }
                             },
-                            allEateries = if (firstEatery != null) {
-                                listOf(firstEatery!!) + eateriesApiResponse.data.filter { it.name != firstEatery!!.name }
-                            } else {
-                                eateriesApiResponse.data
-                            },
+                            allEateries = listOfNotNull(firstEatery) + eateriesApiResponse.data.filter { it.name != firstEatery?.name },
                             selected = selected,
                             filters = filters,
                         )
