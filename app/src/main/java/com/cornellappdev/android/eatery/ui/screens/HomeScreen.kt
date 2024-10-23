@@ -306,14 +306,6 @@ private fun HomeScrollableMainContent(
     }
 
 
-    // A sneaky 6 dp tween.
-    val tweenHeight by animateFloatAsState(
-        targetValue = if (favorites.isEmpty()) 6f else 0f,
-        animationSpec = tween(600, delayMillis = 350),
-        label = "Sneaky tween"
-    )
-
-
     LazyColumn(
         state = listState,
         modifier = Modifier
