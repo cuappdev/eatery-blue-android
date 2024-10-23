@@ -36,7 +36,7 @@ import com.cornellappdev.android.eatery.ui.screens.FirstTimeShown
 import com.cornellappdev.android.eatery.ui.screens.HomeScreen
 import com.cornellappdev.android.eatery.ui.screens.LegalScreen
 import com.cornellappdev.android.eatery.ui.screens.NearestScreen
-import com.cornellappdev.android.eatery.ui.screens.NotificationsScreen
+import com.cornellappdev.android.eatery.ui.screens.NotificationsSettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.OnboardingScreen
 import com.cornellappdev.android.eatery.ui.screens.PrivacyScreen
 import com.cornellappdev.android.eatery.ui.screens.ProfileScreen
@@ -45,7 +45,6 @@ import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -75,8 +74,8 @@ fun NavigationSetup(hasOnboarded: Boolean) {
             showBottomBar.value = true
         }
 
-        Routes.NOTIFICATIONS.route -> {
-            showBottomBar.value = true
+        Routes.NOTIFICATIONS_SETTING.route -> {
+            showBottomBar.value = false
         }
 
         Routes.PRIVACY.route -> {
@@ -306,7 +305,7 @@ fun SetupNavHost(
                 destinations = hashMapOf(
                     Routes.ABOUT to { navController.navigate(Routes.ABOUT.route) },
                     Routes.FAVORITES to { navController.navigate(Routes.FAVORITES.route) },
-                    Routes.NOTIFICATIONS to { navController.navigate(Routes.NOTIFICATIONS.route) },
+                    Routes.NOTIFICATIONS_SETTING to { navController.navigate(Routes.NOTIFICATIONS_SETTING.route) },
                     Routes.LEGAL to { navController.navigate(Routes.LEGAL.route) },
                     Routes.PRIVACY to { navController.navigate(Routes.PRIVACY.route) },
                     Routes.SUPPORT to { navController.navigate(Routes.SUPPORT.route) },
@@ -373,7 +372,7 @@ fun SetupNavHost(
         }
 
         composable(
-            route = Routes.NOTIFICATIONS.route,
+            route = Routes.NOTIFICATIONS_SETTING.route,
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
@@ -385,7 +384,7 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            NotificationsScreen()
+            NotificationsSettingsScreen()
         }
 
         composable(

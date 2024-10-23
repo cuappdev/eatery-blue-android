@@ -165,7 +165,7 @@ fun SettingsScreen(
                     title = "Notifications",
                     description = "Manage item and promotional notifications",
                     onClick = {
-                        destinations[Routes.NOTIFICATIONS]?.invoke()
+                        destinations[Routes.NOTIFICATIONS_SETTING]?.invoke()
                     },
                     trailingIcon = {
                         Icon(
