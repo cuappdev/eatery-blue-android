@@ -78,19 +78,20 @@ fun FilterRow(
         item {
             FilterButton(
                 onFilterClicked = {
-                    onFilterClicked(Filter.UNDER_10)
+                    onFilterClicked(Filter.SWIPES)
                 },
-                selected = currentFiltersSelected.contains(Filter.UNDER_10),
-                text = Filter.UNDER_10.text
+                selected = currentFiltersSelected.contains(Filter.SWIPES),
+                text = Filter.SWIPES.text
             )
         }
 
         item {
             FilterButton(
-                onFilterClicked = onPaymentMethodsClicked,
-                selected = paymentMethodFilters.isNotEmpty(),
-                text = paymentMethodFilterText,
-                icon = Icons.Default.ExpandMore
+                onFilterClicked = {
+                    onFilterClicked(Filter.BRB)
+                },
+                selected = currentFiltersSelected.contains(Filter.BRB),
+                text = Filter.BRB.text
             )
         }
 
@@ -101,6 +102,16 @@ fun FilterRow(
                 },
                 selected = currentFiltersSelected.contains(Filter.FAVORITES),
                 text = Filter.FAVORITES.text
+            )
+        }
+
+        item {
+            FilterButton(
+                onFilterClicked = {
+                    onFilterClicked(Filter.UNDER_10)
+                },
+                selected = currentFiltersSelected.contains(Filter.UNDER_10),
+                text = Filter.UNDER_10.text
             )
         }
 
