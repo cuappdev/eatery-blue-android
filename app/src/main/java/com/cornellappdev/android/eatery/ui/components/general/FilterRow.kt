@@ -28,7 +28,6 @@ import com.cornellappdev.android.eatery.ui.theme.colorInterp
 @Composable
 fun FilterRow(
     currentFiltersSelected: List<Filter>,
-    onPaymentMethodsClicked: () -> Unit,
     onFilterClicked: (Filter) -> Unit
 ) {
     val paymentMethodFilters = currentFiltersSelected.filter { filter ->

@@ -363,6 +363,9 @@ fun SetupNavHost(
             }) {
             FavoritesScreen(onEateryClick = {
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+            },onSearchClick = {
+                FirstTimeShown.firstTimeShown = false
+                navController.navigate(Routes.SEARCH.route)
             })
         }
 

@@ -550,8 +550,7 @@ private fun HomeMainHeader(
 
     FilterRow(
         currentFiltersSelected = filters,
-        onPaymentMethodsClicked = onPaymentMethodsClicked,
-        onFilterClicked = onFilterClicked,
+        onFilterClicked = onFilterClicked
     )
 }
 

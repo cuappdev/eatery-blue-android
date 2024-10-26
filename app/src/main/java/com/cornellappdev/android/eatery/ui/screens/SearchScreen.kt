@@ -153,11 +153,6 @@ fun SearchScreen(
                         ) {
                             FilterRow(
                                 currentFiltersSelected = filters,
-                                onPaymentMethodsClicked = {
-                                    coroutineScope.launch {
-                                        modalBottomSheetState.show()
-                                    }
-                                },
                                 onFilterClicked = { filter ->
                                     if (filters.contains(filter)) {
                                         searchViewModel.removeFilter(filter)
