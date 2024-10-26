@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -48,8 +49,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.components.details.FavoritesToggleClicked
-import com.cornellappdev.android.eatery.ui.components.details.FavoritesToggleUnclicked
+import com.cornellappdev.android.eatery.ui.components.details.ActiveToggle
+import com.cornellappdev.android.eatery.ui.components.details.InactiveToggle
+import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -58,6 +60,7 @@ import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.ToggleViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -70,7 +73,8 @@ fun FavoritesScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    toggleViewModel: ToggleViewModel = hiltViewModel()
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val favoriteEateriesApiResponse = favoriteViewModel.favoriteEateries.collectAsState().value
@@ -80,6 +84,7 @@ fun FavoritesScreen(
         initialValue = ModalBottomSheetValue.Hidden,
         skipHalfExpanded = true
     )
+    val toggle = toggleViewModel.isToggled.collectAsState()
 
     Column(
         modifier = Modifier
@@ -89,10 +94,10 @@ fun FavoritesScreen(
         Row(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
-        ){
+        ) {
             IconButton(
                 onClick = { onBackClick() }
-            ){
+            ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_left_chevron),
                     contentDescription = "Back"
@@ -100,7 +105,7 @@ fun FavoritesScreen(
             }
             IconButton(
                 onClick = { onSearchClick() }
-            ){
+            ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
                     contentDescription = "Search",
@@ -178,8 +183,27 @@ fun FavoritesScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
 
                     ) {
-                        item{
-                            FavoritesHeader(
+                        item {
+                            Row(
+                                horizontalArrangement = (Arrangement.spacedBy(8.dp))
+                            ) {
+                                //toggle.value = true means that the active toggle should be the Eatery button
+                                if (toggle.value) {
+                                    ActiveToggle(onClick = { }, label = "Eateries")
+                                    InactiveToggle(
+                                        onClick = { toggleViewModel.toggle() },
+                                        label = "Items"
+                                    )
+                                } else {
+                                    InactiveToggle(
+                                        onClick = { toggleViewModel.toggle() },
+                                        label = "Eateries"
+                                    )
+                                    ActiveToggle(onClick = { }, label = "Items")
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            FilterHeader(
                                 filters = filters,
                                 onFilterClicked = { filter ->
                                     if (filters.contains(filter)) {
@@ -190,25 +214,27 @@ fun FavoritesScreen(
                                 }
                             )
                         }
-//                        items(
-//                            items = favoriteEateries,
-//                            key = { eatery ->
-//                                eatery.id!!
-//                            }) { eatery ->
-//                            EateryCard(
-//                                eatery = eatery,
-//                                isFavorite = true,
-//                                onFavoriteClick = {
-//                                    if (!it) {
-//                                        favoriteViewModel.removeFavorite(eatery.id)
-//                                    }
-//                                }) {
-//                                onEateryClick(it)
-//                            }
-//                        }
-
-                        items(10){
-                            FavoritesCard()
+                        if (toggle.value) {
+                            items(
+                                items = favoriteEateries,
+                                key = { eatery ->
+                                    eatery.id!!
+                                }) { eatery ->
+                                EateryCard(
+                                    eatery = eatery,
+                                    isFavorite = true,
+                                    onFavoriteClick = {
+                                        if (!it) {
+                                            favoriteViewModel.removeFavorite(eatery.id)
+                                        }
+                                    }) {
+                                    onEateryClick(it)
+                                }
+                            }
+                        } else {
+                            items(10) {
+                                FavoritesCard()
+                            }
                         }
 
                         item {
@@ -243,18 +269,10 @@ fun EateryBlob(
 }
 
 @Composable
-private fun FavoritesHeader(
+fun FilterHeader(
     filters: List<Filter>,
     onFilterClicked: (Filter) -> Unit
 ) {
-
-    Row(
-        horizontalArrangement = (Arrangement.spacedBy(8.dp))
-    ){
-        FavoritesToggleUnclicked({}, "Eateries")
-        FavoritesToggleClicked({}, "Items")
-    }
-    Spacer(modifier = Modifier.height(12.dp))
     FilterRow(
         currentFiltersSelected = filters,
         onFilterClicked = onFilterClicked,
@@ -263,7 +281,7 @@ private fun FavoritesHeader(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun FavoritesCard(){
+fun FavoritesCard() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -274,14 +292,18 @@ private fun FavoritesCard(){
         ),
         elevation = CardDefaults.cardElevation(8.dp),
         onClick = {}
-    ){
+    ) {
         Column(
-            Modifier.padding(12.dp).fillMaxWidth()
-        ){
+            Modifier
+                .padding(12.dp)
+                .fillMaxWidth()
+        ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, start =8.dp, end = 8.dp)
-            ){
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+            ) {
                 Text("Item Name", fontSize = 20.sp, style = EateryBlueTypography.button)
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_star_filled),
@@ -292,9 +314,16 @@ private fun FavoritesCard(){
             }
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp, start =8.dp, end = 8.dp)
-            ){
-                Text("Availability", fontSize = 12.sp, color = Color(0xFF63C774),style = EateryBlueTypography.button)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp, start = 8.dp, end = 8.dp)
+            ) {
+                Text(
+                    "Availability",
+                    fontSize = 12.sp,
+                    color = Color(0xFF63C774),
+                    style = EateryBlueTypography.button
+                )
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_down_chevron),
                     contentDescription = "expand",
@@ -302,15 +331,6 @@ private fun FavoritesCard(){
                         .size(20.dp)
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun ItemsScreen(){
-    LazyColumn{
-        items(10){
-            FavoritesCard()
         }
     }
 }

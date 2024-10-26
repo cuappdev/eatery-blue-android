@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,14 +24,19 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.viewmodels.ToggleViewModel
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
-fun FavoritesToggleClicked(onClick:() -> Unit, label: String) {
+fun ActiveToggle(
+    onClick: () -> Unit,
+    label: String
+) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(8))
@@ -49,8 +55,12 @@ fun FavoritesToggleClicked(onClick:() -> Unit, label: String) {
         )
     }
 }
+
 @Composable
-fun FavoritesToggleUnclicked(onClick: () -> Unit, label: String) {
+fun InactiveToggle(
+    onClick: () -> Unit,
+    label: String,
+) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(8))
@@ -73,6 +83,6 @@ fun FavoritesToggleUnclicked(onClick: () -> Unit, label: String) {
 @Preview
 @Composable
 private fun FavoritesTogglePreview() = EateryPreview {
-    FavoritesToggleUnclicked ({}, "Eateries" )
-    FavoritesToggleClicked ({}, "Items" )
+    ActiveToggle ({}, "Eateries" )
+    InactiveToggle ({}, "Items" )
 }
