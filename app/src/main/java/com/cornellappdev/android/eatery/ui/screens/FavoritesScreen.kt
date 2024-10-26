@@ -13,15 +13,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -65,6 +69,7 @@ fun FavoritesScreen(
     favoriteViewModel: FavoritesViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit,
     onSearchClick: () -> Unit,
+    onBackClick: () -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -85,26 +90,29 @@ fun FavoritesScreen(
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ){
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_left_chevron),
-                contentDescription = "Back",
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(2.dp)
-            )
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
-                contentDescription = "Search",
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(2.dp)
-            )
+            IconButton(
+                onClick = { onBackClick() }
+            ){
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_left_chevron),
+                    contentDescription = "Back"
+                )
+            }
+            IconButton(
+                onClick = { onSearchClick() }
+            ){
+                Icon(
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
+                    contentDescription = "Search",
+                )
+            }
+
         }
         Text(
             text = "Favorites",
             color = EateryBlue,
             style = EateryBlueTypography.h2,
-            modifier = Modifier.padding(top = 7.dp, start = 6.dp, end = 6.dp)
+            modifier = Modifier.padding(start = 6.dp, end = 6.dp)
         )
 
         Spacer(modifier = Modifier.height(12.dp))

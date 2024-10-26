@@ -366,7 +366,10 @@ fun SetupNavHost(
             },onSearchClick = {
                 FirstTimeShown.firstTimeShown = false
                 navController.navigate(Routes.SEARCH.route)
-            })
+            },
+                onBackClick = {
+                    navController.popBackStack()
+                })
         }
 
         composable(
