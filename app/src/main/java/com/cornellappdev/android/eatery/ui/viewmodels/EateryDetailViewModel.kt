@@ -34,7 +34,7 @@ sealed class EateryDetailViewState {
         val weekdayIndex: Int,
     ) : EateryDetailViewState() {
         val mealTypeIndex: Int = eatery.getTypeMeal(weekdayIndex.fromOffsetToDayOfWeek())
-            ?.indexOfFirst { it.first == mealToShow.description } ?: 0
+            ?.indexOfFirst { it.first == mealToShow.description }?.coerceAtLeast(0) ?: 0
     }
 
     data class Error(val message: String) : EateryDetailViewState()
