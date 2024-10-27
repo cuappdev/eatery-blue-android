@@ -298,7 +298,8 @@ fun EateryDetailScreen(
                                                 modalBottomSheetState.hide()
                                             }
                                             onCompareMenusClick(selectedEateriesIds)
-                                        }
+                                        },
+                                        firstEatery = eatery
                                     )
                                 }
 
