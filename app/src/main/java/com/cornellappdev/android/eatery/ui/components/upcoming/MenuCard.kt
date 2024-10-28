@@ -44,7 +44,7 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 
 
 data class MenuCardViewState(
-    val eateryId: String,
+    val eateryId: Int,
     val menu: List<MenuCategoryViewState>,
     val name: String,
     val eateryHours: EateryHours?,
@@ -68,7 +68,7 @@ data class EateryHours(
 @Composable
 fun MenuCard(
     menuCardViewState: MenuCardViewState,
-    selectEatery: (eateryId: String) -> Unit = {},
+    selectEatery: (eateryId: Int) -> Unit = {},
 ) = with(menuCardViewState) {
     var openDropdown by remember { mutableStateOf(false) }
     Card(
