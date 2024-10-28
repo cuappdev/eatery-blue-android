@@ -24,7 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,23 +31,35 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.data.models.Event
-import com.cornellappdev.android.eatery.data.models.MenuItem
-import com.cornellappdev.android.eatery.ui.components.general.MealFilter
+import com.cornellappdev.android.eatery.ui.components.general.FavoriteIcon
+import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
+import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Orange
-import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
-import java.time.format.DateTimeFormatter
 
+
+data class MenuCardViewState(
+    val eateryId: String,
+    val menu: List<MenuCategoryViewState>,
+    val name: String,
+    val eateryHours: EateryHours?,
+    val eateryStatus: EateryStatus?,
+)
+
+data class EateryStatus(
+    val statusText: String,
+    val statusColor: Color,
+)
+
+data class EateryHours(
+    val startTime: String,
+    val endTime: String,
+)
 
 /**
  * Represents the card for each eatery that is shown in the list
@@ -56,15 +67,10 @@ import java.time.format.DateTimeFormatter
  */
 @Composable
 fun MenuCard(
-    eatery: Eatery,
-    upcomingViewModel: UpcomingViewModel,
-    day: Int,
-    selectEatery: (eatery: Eatery) -> Unit = {},
-) {
+    menuCardViewState: MenuCardViewState,
+    selectEatery: (eateryId: String) -> Unit = {},
+) = with(menuCardViewState) {
     var openDropdown by remember { mutableStateOf(false) }
-    val mealFilter = upcomingViewModel.mealFilterFlow.collectAsState().value
-    val event = eatery.getSelectedDayMeal(mealFilter, day)
-
     Card(
         elevation = 5.dp,
         shape = RoundedCornerShape(10.dp),
@@ -76,7 +82,7 @@ fun MenuCard(
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = eatery.name ?: "",
+                    text = menuCardViewState.name,
                     style = EateryBlueTypography.h5,
                 )
                 Icon(
@@ -90,54 +96,24 @@ fun MenuCard(
                 )
 
                 Row(modifier = Modifier.padding(top = 24.dp)) {
-                    if (event!![0].startTime != null && event[0].endTime != null) {
-                        val closed = eatery.isClosed()
-                        val meal = eatery.getCurrentEvent()
-
-                        val mealName = meal?.description
-                        val differentMeal = !mealFilter.text.contains(meal?.description)
-
-                        val openText = when {
-                            closed -> "Closed"
-                            eatery.isClosingSoon() -> "Closing Soon"
-                            differentMeal -> "Open for $mealName"
-                            else -> "Open"
-                        }
-
-                        val openColor = when {
-                            closed -> Red
-                            eatery.isClosingSoon() -> Orange
-                            differentMeal -> Orange
-                            else -> Green
-                        }
-
-                        if (day == 0) {
-                            Text(
-                                text = openText,
-                                style = EateryBlueTypography.subtitle2,
-                                color = openColor
-                            )
-                            Text(
-                                text = " • ",
-                                style = EateryBlueTypography.subtitle2,
-                                color = GrayFive
-                            )
-                        }
+                    eateryStatus?.let {
+                        Text(
+                            text = it.statusText,
+                            style = EateryBlueTypography.subtitle2,
+                            color = it.statusColor
+                        )
+                        Text(
+                            text = " • ",
+                            style = EateryBlueTypography.subtitle2,
+                            color = GrayFive
+                        )
+                    }
+                    eateryHours?.let {
                         Text(
                             modifier = Modifier.padding(
                                 bottom = 8.dp
                             ),
-                            text = "${
-                                event[0].startTime?.format(
-                                    DateTimeFormatter.ofPattern(
-                                        "K:mm a"
-                                    )
-                                )
-                            } - ${
-                                event[0].endTime?.format(
-                                    DateTimeFormatter.ofPattern("K:mm a")
-                                )
-                            }",
+                            text = "${it.startTime} - ${it.endTime}",
                             style = EateryBlueTypography.subtitle2,
                             color = GrayFive
                         )
@@ -159,10 +135,8 @@ fun MenuCard(
                     )
                     Box(modifier = Modifier.padding(end = 12.dp)) {
                         EateryDetails(
-                            eatery = eatery,
-                            selectEatery = { selectEatery(eatery) },
-                            meal = mealFilter,
-                            day = day,
+                            selectEatery = { selectEatery(eateryId) },
+                            menu = menu,
                         )
                     }
                 }
@@ -174,20 +148,15 @@ fun MenuCard(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun EateryDetails(
-    eatery: Eatery,
-    meal: MealFilter,
-    day: Int,
-    selectEatery: (eatery: Eatery) -> Unit = {}
+    selectEatery: () -> Unit,
+    menu: List<MenuCategoryViewState>
 ) {
     Column {
-        eatery.getSelectedDayMeal(meal, day)!!.forEach { event ->
-            EateryEventMenu(event = event)
-        }
-
+        EateryEventMenu(menu)
         Card(
             shape = RoundedCornerShape(20.dp),
             onClick = {
-                selectEatery(eatery)
+                selectEatery()
             },
             backgroundColor = GrayZero,
             modifier = Modifier
@@ -214,7 +183,6 @@ private fun EateryDetails(
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold
                 )
-
             }
         }
     }
@@ -222,8 +190,7 @@ private fun EateryDetails(
 }
 
 @Composable
-private fun EateryEventMenu(event: Event) {
-
+private fun EateryEventMenu(menu: List<MenuCategoryViewState>) {
     Row(
         modifier = Modifier
             .padding(end = 16.dp)
@@ -233,13 +200,13 @@ private fun EateryEventMenu(event: Event) {
         Column(
             modifier = Modifier.weight(1f),
         ) {
-            event.menu!!.forEach { category ->
+            menu.forEach { category ->
                 Text(
-                    text = category.category ?: "",
+                    text = category.category,
                     style = EateryBlueTypography.h5,
                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                 )
-                category.items!!.forEach { item ->
+                category.items.forEach { item ->
                     MenuItemDisplay(item = item)
                 }
             }
@@ -248,10 +215,13 @@ private fun EateryEventMenu(event: Event) {
 }
 
 @Composable
-private fun MenuItemDisplay(item: MenuItem) {
-    Text(
-        text = item.name!!,
-        style = EateryBlueTypography.caption,
-        fontWeight = FontWeight.Normal
-    )
+private fun MenuItemDisplay(item: MenuItemViewState) {
+    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(
+            text = item.item.name ?: "Unknown",
+            style = EateryBlueTypography.caption,
+            fontWeight = FontWeight.Normal
+        )
+        FavoriteIcon(item.isFavorite)
+    }
 }

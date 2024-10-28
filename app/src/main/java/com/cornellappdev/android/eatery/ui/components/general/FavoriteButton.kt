@@ -20,9 +20,8 @@ fun FavoriteButton(
     onFavoriteClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Icon(
-        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-        tint = if (isFavorite) Yellow else GrayFive,
+    FavoriteIcon(
+        isFavorite = isFavorite,
         modifier = modifier
             .padding(top = 3.dp)
             .clip(RoundedCornerShape(9.dp))
@@ -30,7 +29,16 @@ fun FavoriteButton(
                 onClick = {
                     onFavoriteClick(!isFavorite)
                 }
-            ),
-        contentDescription = null
+            )
+    )
+}
+
+@Composable
+fun FavoriteIcon(isFavorite: Boolean, modifier: Modifier = Modifier) {
+    Icon(
+        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+        tint = if (isFavorite) Yellow else GrayFive,
+        modifier = modifier,
+        contentDescription = "favorite: $isFavorite"
     )
 }

@@ -44,7 +44,6 @@ import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -220,7 +219,7 @@ fun SetupNavHost(
                 )
             }) {
             UpcomingMenuScreen {
-                navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+                navController.navigate("${Routes.EATERY_DETAIL.route}/${it}")
             }
         }
         composable(

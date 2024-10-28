@@ -40,7 +40,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eatery.ui.components.general.FilterRowUpcoming
 import com.cornellappdev.android.eatery.ui.components.general.NoEateryFound
@@ -66,7 +65,7 @@ import java.time.ZoneId
 @Composable
 fun UpcomingMenuScreen(
     upcomingViewModel: UpcomingViewModel = hiltViewModel(),
-    onEateryClick: (eatery: Eatery) -> Unit
+    onEateryClick: (eateryId: String) -> Unit
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
         skipHalfExpanded = true,

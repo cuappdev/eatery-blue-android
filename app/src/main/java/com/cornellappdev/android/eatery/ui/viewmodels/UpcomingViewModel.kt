@@ -7,16 +7,20 @@ import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
+import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCardViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
+
+data class EateriesSection(
+    val header: String,
+    val menuCards: List<MenuCardViewState>,
+)
 
 @HiltViewModel
 class UpcomingViewModel @Inject constructor(
@@ -33,25 +37,41 @@ class UpcomingViewModel @Inject constructor(
      * A flow of filters applied to the screen.
      */
 
-    val mealFilterFlow = _mealFilterFlow.asStateFlow()
-    val locationFilterFlow = _locationFilterFlow.asStateFlow()
+    private val favoriteMenuItemsFlow = userPreferencesRepository.favoriteItemsFlow
 
     /**
      * A flow emitting all eateries with the appropriate filters applied.
      */
-    val eateryFlow =
-        eateryRepository.eateryFlow.combine(_locationFilterFlow) { apiResponse, filters ->
-            when (apiResponse) {
-                is EateryApiResponse.Error -> EateryApiResponse.Error
-                is EateryApiResponse.Pending -> EateryApiResponse.Pending
-                is EateryApiResponse.Success -> {
-                    EateryApiResponse.Success(
-                        apiResponse.data.filter {
-                            passesFilter(it, filters)
-                        })
-                }
+    val viewStateFlow: Flow<EateryApiResponse<List<EateriesSection>>> = combine(
+        eateryRepository.eateryFlow,
+        _locationFilterFlow,
+        favoriteMenuItemsFlow,
+    ) { eateryApiResponse, filters, favoritesMap ->
+
+        fun Eatery.toMenuCardViewState(): MenuCardViewState {
+            TODO()
+        }
+
+        when (eateryApiResponse) {
+            is EateryApiResponse.Error -> EateryApiResponse.Error
+            is EateryApiResponse.Pending -> EateryApiResponse.Pending
+            is EateryApiResponse.Success -> {
+                val data = eateryApiResponse.data
+
+                val eateriesByLocation = data.groupBy { it.campusArea ?: "Unknown" }
+                EateryApiResponse.Success(
+                    eateriesByLocation.keys.map { location ->
+                        EateriesSection(
+                            header = location,
+                            menuCards = eateriesByLocation[location]?.map {
+                                it.toMenuCardViewState()
+                            } ?: emptyList()
+                        )
+                    }
+                )
             }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
+        }
+    }
 
     fun addLocationFilter(filter: Filter) = viewModelScope.launch {
         addLocationFilters(filter)
