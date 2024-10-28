@@ -23,7 +23,7 @@ android {
         applicationId "com.cornellappdev.android.eatery"
         minSdk 28
         targetSdk 34
-        versionCode 72
+        versionCode 73
         versionName "1.2-compare-menus"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
