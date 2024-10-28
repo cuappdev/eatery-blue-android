@@ -228,7 +228,8 @@ fun EateryDetailScreen(
                     val mealTypeIndex = remember {
                         derivedStateOf {
                             eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
-                                ?.indexOfFirst { it.first == nextEvent?.description } ?: 0
+                                ?.indexOfFirst { it.first == nextEvent?.description }
+                                ?.coerceAtLeast(0) ?: 0
                         }
                     }
 
