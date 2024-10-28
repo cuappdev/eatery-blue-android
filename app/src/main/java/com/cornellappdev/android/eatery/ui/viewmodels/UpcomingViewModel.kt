@@ -160,21 +160,4 @@ class UpcomingViewModel @Inject constructor(
         return MealFilter.values()
             .find { it.endTimes >= LocalDateTime.now().hour + LocalDateTime.now().minute / 60f }
     }
-
-    private fun passesFilter(eatery: Eatery, filters: List<Filter>): Boolean {
-        val allDiningHalls = eatery.paymentAcceptsMealSwipes ?: false
-
-        val allLocationsValid =
-            !filters.contains(Filter.NORTH) &&
-                    !filters.contains(Filter.CENTRAL) &&
-                    !filters.contains(Filter.WEST)
-
-        // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
-        // or one/multiple are selected and the eatery is located there.
-        return allDiningHalls
-                &&
-                (allLocationsValid || ((filters.contains(Filter.NORTH) && eatery.campusArea == "North") ||
-                        (filters.contains(Filter.WEST) && eatery.campusArea == "West") ||
-                        (filters.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))
-    }
 }
