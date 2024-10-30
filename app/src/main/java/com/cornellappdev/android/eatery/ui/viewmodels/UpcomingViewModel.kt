@@ -28,6 +28,12 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+data class UpcomingMenusViewState(
+    val menus: EateryApiResponse<List<EateriesSection>>,
+    val mealFilter: MealFilter,
+    val selectedFilters: List<Filter>,
+)
+
 data class EateriesSection(
     val header: String,
     val menuCards: List<MenuCardViewState>,
@@ -46,7 +52,7 @@ class UpcomingViewModel @Inject constructor(
     /**
      * A flow emitting all eateries with the appropriate filters applied.
      */
-    val viewStateFlow: StateFlow<EateryApiResponse<List<EateriesSection>>> = combine(
+    val viewStateFlow: StateFlow<UpcomingMenusViewState> = combine(
         eateryRepository.eateryFlow,
         _locationFilterFlow,
         userPreferencesRepository.favoriteItemsFlow,
@@ -61,10 +67,10 @@ class UpcomingViewModel @Inject constructor(
                     currentEvent.endTime?.let { endTime ->
                         EateryHours(
                             startTime = startTime.format(
-                                DateTimeFormatter.ofPattern("TODO")
+                                DateTimeFormatter.ofPattern("hh:mm")
                             ),
                             endTime = startTime.format(
-                                DateTimeFormatter.ofPattern("TODO")
+                                DateTimeFormatter.ofPattern("hh:mm")
                             )
                         )
                     }
@@ -91,8 +97,23 @@ class UpcomingViewModel @Inject constructor(
         }
 
         when (eateryApiResponse) {
-            is EateryApiResponse.Error -> EateryApiResponse.Error
-            is EateryApiResponse.Pending -> EateryApiResponse.Pending
+            is EateryApiResponse.Error -> {
+                UpcomingMenusViewState(
+                    menus = EateryApiResponse.Error,
+                    mealFilter = mealFilter,
+                    selectedFilters = filters,
+                )
+            }
+
+            is EateryApiResponse.Pending -> {
+                UpcomingMenusViewState(
+                    menus = EateryApiResponse.Pending,
+                    mealFilter,
+                    filters,
+                )
+            }
+
+
             is EateryApiResponse.Success -> {
                 val data = eateryApiResponse.data.filter { eatery ->
                     filters.all {
@@ -105,19 +126,27 @@ class UpcomingViewModel @Inject constructor(
                 }
 
                 val eateriesByLocation = data.groupBy { it.campusArea ?: "Unknown" }
-                EateryApiResponse.Success(
-                    eateriesByLocation.keys.map { location ->
-                        EateriesSection(
-                            header = location,
-                            menuCards = eateriesByLocation[location]?.mapNotNull {
-                                it.toMenuCardViewState()
-                            } ?: emptyList()
-                        )
-                    }
+                UpcomingMenusViewState(
+                    menus = EateryApiResponse.Success(
+                        eateriesByLocation.keys.map { location ->
+                            EateriesSection(
+                                header = location,
+                                menuCards = eateriesByLocation[location]?.mapNotNull {
+                                    it.toMenuCardViewState()
+                                } ?: emptyList()
+                            )
+                        },
+                    ),
+                    mealFilter = mealFilter,
+                    selectedFilters = filters,
                 )
             }
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        UpcomingMenusViewState(EateryApiResponse.Pending, MealFilter.LATE_DINNER, emptyList())
+    )
 
     fun addLocationFilter(filter: Filter) = viewModelScope.launch {
         addLocationFilters(filter)
