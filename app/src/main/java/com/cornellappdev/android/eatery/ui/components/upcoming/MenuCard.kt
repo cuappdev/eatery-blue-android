@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
@@ -206,8 +207,10 @@ private fun EateryEventMenu(menu: List<MenuCategoryViewState>) {
                     style = EateryBlueTypography.h5,
                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                 )
-                category.items.forEach { item ->
-                    MenuItemDisplay(item = item)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    category.items.forEach { item ->
+                        MenuItemDisplay(item = item)
+                    }
                 }
             }
         }
@@ -216,12 +219,21 @@ private fun EateryEventMenu(menu: List<MenuCategoryViewState>) {
 
 @Composable
 private fun MenuItemDisplay(item: MenuItemViewState) {
-    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = item.item.name ?: "Unknown",
             style = EateryBlueTypography.caption,
             fontWeight = FontWeight.Normal
         )
-        FavoriteIcon(item.isFavorite)
+        if (item.isFavorite) {
+            FavoriteIcon(
+                true,
+                modifier = Modifier.requiredSize(18.dp)
+            )
+        }
     }
 }

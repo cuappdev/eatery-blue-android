@@ -29,9 +29,10 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 data class UpcomingMenusViewState(
-    val menus: EateryApiResponse<List<EateriesSection>>,
-    val mealFilter: MealFilter,
-    val selectedFilters: List<Filter>,
+    val menus: EateryApiResponse<List<EateriesSection>> = EateryApiResponse.Pending,
+    val mealFilter: MealFilter = MealFilter.LATE_DINNER,
+    val selectedFilters: List<Filter> = emptyList(),
+    val selectedDay: Int = 0,
 )
 
 data class EateriesSection(
@@ -45,8 +46,9 @@ class UpcomingViewModel @Inject constructor(
     eateryRepository: EateryRepository
 ) : ViewModel() {
 
-    private val _mealFilterFlow = MutableStateFlow(nextMeal() ?: MealFilter.LATE_DINNER)
-    private val _locationFilterFlow = MutableStateFlow(listOf<Filter>())
+    private val mealFilterFlow = MutableStateFlow(nextMeal() ?: MealFilter.LATE_DINNER)
+    private val selectedFiltersFlow = MutableStateFlow(listOf<Filter>())
+    private val selectedDayFlow = MutableStateFlow(0)
 
 
     /**
@@ -54,12 +56,11 @@ class UpcomingViewModel @Inject constructor(
      */
     val viewStateFlow: StateFlow<UpcomingMenusViewState> = combine(
         eateryRepository.eateryFlow,
-        _locationFilterFlow,
+        selectedFiltersFlow,
         userPreferencesRepository.favoriteItemsFlow,
-        userPreferencesRepository.favoritesFlow,
-        _mealFilterFlow
-    ) { eateryApiResponse, filters, favoriteItemsMap, favoriteEateriesMap, mealFilter ->
-
+        mealFilterFlow,
+        selectedDayFlow
+    ) { eateryApiResponse, filters, favoriteItemsMap, mealFilter, selectedDay ->
         fun Eatery.toMenuCardViewState(): MenuCardViewState? {
             val currentEvent = events?.find { it.description in mealFilter.text } ?: return null
             return MenuCardViewState(
@@ -119,7 +120,10 @@ class UpcomingViewModel @Inject constructor(
                     filters.all {
                         it.passesFilter(
                             eatery,
-                            favoriteEateriesMap,
+                            // On this screen we don't display favorite eateries differently
+                            //  so we just pass an empty map
+                            emptyMap(),
+                            // We also don't select Eateries on this screen
                             emptyList()
                         )
                     }
@@ -128,13 +132,16 @@ class UpcomingViewModel @Inject constructor(
                 val eateriesByLocation = data.groupBy { it.campusArea ?: "Unknown" }
                 UpcomingMenusViewState(
                     menus = EateryApiResponse.Success(
-                        eateriesByLocation.keys.map { location ->
-                            EateriesSection(
-                                header = location,
-                                menuCards = eateriesByLocation[location]?.mapNotNull {
-                                    it.toMenuCardViewState()
-                                } ?: emptyList()
-                            )
+                        eateriesByLocation.filter { it.value.isNotEmpty() }.keys.mapNotNull { location ->
+                            val menuCards = eateriesByLocation[location]?.mapNotNull {
+                                it.toMenuCardViewState()
+                            }?.takeIf { it.isNotEmpty() }
+                            menuCards?.let {
+                                EateriesSection(
+                                    header = location,
+                                    menuCards = it
+                                )
+                            }
                         },
                     ),
                     mealFilter = mealFilter,
@@ -142,42 +149,34 @@ class UpcomingViewModel @Inject constructor(
                 )
             }
         }
-    }.stateIn(
-        viewModelScope,
-        SharingStarted.Eagerly,
-        UpcomingMenusViewState(EateryApiResponse.Pending, MealFilter.LATE_DINNER, emptyList())
-    )
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, UpcomingMenusViewState())
 
     fun addLocationFilter(filter: Filter) = viewModelScope.launch {
         addLocationFilters(filter)
     }
 
     fun removeLocationFilter(filter: Filter) = viewModelScope.launch {
-        val newList = _locationFilterFlow.value.toMutableList()
+        val newList = selectedFiltersFlow.value.toMutableList()
         newList.remove(filter)
-        _locationFilterFlow.value = newList
+        selectedFiltersFlow.value = newList
     }
 
     fun changeMealFilter(filter: MealFilter) = viewModelScope.launch {
-        _mealFilterFlow.value = filter
-    }
-
-    fun resetLocationFilters() = viewModelScope.launch {
-        _locationFilterFlow.value = listOf()
+        mealFilterFlow.value = filter
     }
 
     fun resetMealFilter() = viewModelScope.launch {
-        _mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
+        mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
     }
 
     private fun addLocationFilters(filter: Filter) = viewModelScope.launch {
-        val newList = _locationFilterFlow.value.toMutableList()
+        val newList = selectedFiltersFlow.value.toMutableList()
         newList.add(filter)
         val locations = newList.filter { Filter.LOCATIONS.contains(it) }
         if (locations.size == 3) {
             newList.removeAll(Filter.LOCATIONS)
         }
-        _locationFilterFlow.value = newList
+        selectedFiltersFlow.value = newList
     }
 
     /**

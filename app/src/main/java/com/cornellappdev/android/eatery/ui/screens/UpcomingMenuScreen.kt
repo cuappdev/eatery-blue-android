@@ -6,8 +6,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -251,18 +253,23 @@ fun UpcomingMenuScreen(
 
                         is EateryApiResponse.Success -> {
                             items(menus.data) {
-                                Text(
-                                    modifier = Modifier.padding(start = 6.dp),
-                                    text = it.header,
-                                    style = EateryBlueTypography.h4
-                                )
-                                it.menuCards.forEach { eatery ->
-                                    MenuCard(
-                                        eatery
-                                    ) {
-                                        onEateryClick(eatery.eateryId)
+                                Column(modifier = Modifier.padding(horizontal = 12.dp)) {
+                                    Text(
+                                        modifier = Modifier.padding(start = 6.dp),
+                                        text = it.header,
+                                        style = EateryBlueTypography.h4
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    it.menuCards.forEach { eatery ->
+                                        MenuCard(
+                                            eatery
+                                        ) {
+                                            onEateryClick(eatery.eateryId)
+                                        }
+                                        Spacer(modifier = Modifier.height(12.dp))
                                     }
                                 }
+
                             }
                         }
                     }
