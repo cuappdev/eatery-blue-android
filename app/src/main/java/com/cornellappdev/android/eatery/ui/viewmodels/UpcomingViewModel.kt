@@ -74,12 +74,13 @@ class UpcomingViewModel @Inject constructor(
             return MenuCardViewState(
                 eateryHours = currentEvent.startTime?.let { startTime ->
                     currentEvent.endTime?.let { endTime ->
+                        val timePattern = "hh:mm a"
                         EateryHours(
                             startTime = startTime.format(
-                                DateTimeFormatter.ofPattern("hh:mm")
+                                DateTimeFormatter.ofPattern(timePattern)
                             ),
                             endTime = endTime.format(
-                                DateTimeFormatter.ofPattern("hh:mm")
+                                DateTimeFormatter.ofPattern(timePattern)
                             )
                         )
                     }
