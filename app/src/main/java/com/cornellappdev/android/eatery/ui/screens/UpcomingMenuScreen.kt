@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eatery.ui.components.general.FilterRowUpcoming
+import com.cornellappdev.android.eatery.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eatery.ui.components.upcoming.MealBottomSheet
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCard
 import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingItem
@@ -207,6 +208,23 @@ fun UpcomingMenuScreen(
                         }
 
                         is EateryApiResponse.Success -> {
+                            if (menus.data.isEmpty()) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillParentMaxHeight(0.7f)
+                                            .fillMaxWidth()
+                                    ) {
+                                        NoEateryFound(
+                                            modifier = Modifier.align(
+                                                Alignment.Center
+                                            )
+                                        ) {
+                                            upcomingViewModel.resetFilters()
+                                        }
+                                    }
+                                }
+                            }
                             items(menus.data) {
                                 Column(modifier = Modifier.padding(horizontal = 12.dp)) {
                                     Text(

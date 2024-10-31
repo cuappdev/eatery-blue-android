@@ -159,16 +159,27 @@ class UpcomingViewModel @Inject constructor(
                 )
             }
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, UpcomingMenusViewState())
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        UpcomingMenusViewState(mealFilter = nextMeal() ?: MealFilter.LATE_DINNER)
+    )
 
     fun addLocationFilter(filter: Filter) {
-        addLocationFilters(filter)
+        selectedFiltersFlow.update {
+            it + filter
+        }
     }
 
     fun removeLocationFilter(filter: Filter) {
         val newList = selectedFiltersFlow.value.toMutableList()
         newList.remove(filter)
         selectedFiltersFlow.value = newList
+    }
+
+    fun resetFilters() {
+        resetMealFilter()
+        selectedFiltersFlow.update { emptyList() }
     }
 
     fun changeMealFilter(filter: MealFilter) {
@@ -181,16 +192,6 @@ class UpcomingViewModel @Inject constructor(
 
     fun selectDayOffset(offset: Int) {
         selectedDayFlow.update { offset }
-    }
-
-    private fun addLocationFilters(filter: Filter) {
-        selectedFiltersFlow.update {
-            val newList = (it + filter).filter { Filter.LOCATIONS.contains(it) }
-
-            if (newList.size == 3) {
-                emptyList()
-            } else newList
-        }
     }
 
     /**
