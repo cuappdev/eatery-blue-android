@@ -23,7 +23,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.update
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -60,9 +61,16 @@ class UpcomingViewModel @Inject constructor(
         userPreferencesRepository.favoriteItemsFlow,
         mealFilterFlow,
         selectedDayFlow
-    ) { eateryApiResponse, filters, favoriteItemsMap, mealFilter, selectedDay ->
+    ) { eateryApiResponse, filters, favoriteItemsMap, mealFilter, selectedDayOffset ->
+        val viewingDate = LocalDate.now().plusDays(selectedDayOffset.toLong())
+
         fun Eatery.toMenuCardViewState(): MenuCardViewState? {
-            val currentEvent = events?.find { it.description in mealFilter.text } ?: return null
+            val currentEvent =
+                events?.find {
+                    it.description in mealFilter.text &&
+                            it.startTime?.toLocalDate() == viewingDate
+                }
+                    ?: return null
             return MenuCardViewState(
                 eateryHours = currentEvent.startTime?.let { startTime ->
                     currentEvent.endTime?.let { endTime ->
@@ -70,7 +78,7 @@ class UpcomingViewModel @Inject constructor(
                             startTime = startTime.format(
                                 DateTimeFormatter.ofPattern("hh:mm")
                             ),
-                            endTime = startTime.format(
+                            endTime = endTime.format(
                                 DateTimeFormatter.ofPattern("hh:mm")
                             )
                         )
@@ -146,37 +154,42 @@ class UpcomingViewModel @Inject constructor(
                     ),
                     mealFilter = mealFilter,
                     selectedFilters = filters,
+                    selectedDay = selectedDayOffset,
                 )
             }
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, UpcomingMenusViewState())
 
-    fun addLocationFilter(filter: Filter) = viewModelScope.launch {
+    fun addLocationFilter(filter: Filter) {
         addLocationFilters(filter)
     }
 
-    fun removeLocationFilter(filter: Filter) = viewModelScope.launch {
+    fun removeLocationFilter(filter: Filter) {
         val newList = selectedFiltersFlow.value.toMutableList()
         newList.remove(filter)
         selectedFiltersFlow.value = newList
     }
 
-    fun changeMealFilter(filter: MealFilter) = viewModelScope.launch {
+    fun changeMealFilter(filter: MealFilter) {
         mealFilterFlow.value = filter
     }
 
-    fun resetMealFilter() = viewModelScope.launch {
+    fun resetMealFilter() {
         mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
     }
 
-    private fun addLocationFilters(filter: Filter) = viewModelScope.launch {
-        val newList = selectedFiltersFlow.value.toMutableList()
-        newList.add(filter)
-        val locations = newList.filter { Filter.LOCATIONS.contains(it) }
-        if (locations.size == 3) {
-            newList.removeAll(Filter.LOCATIONS)
+    fun selectDayOffset(offset: Int) {
+        selectedDayFlow.update { offset }
+    }
+
+    private fun addLocationFilters(filter: Filter) {
+        selectedFiltersFlow.update {
+            val newList = (it + filter).filter { Filter.LOCATIONS.contains(it) }
+
+            if (newList.size == 3) {
+                emptyList()
+            } else newList
         }
-        selectedFiltersFlow.value = newList
     }
 
     /**
