@@ -172,9 +172,9 @@ class UpcomingViewModel @Inject constructor(
     }
 
     fun removeLocationFilter(filter: Filter) {
-        val newList = selectedFiltersFlow.value.toMutableList()
-        newList.remove(filter)
-        selectedFiltersFlow.value = newList
+        selectedFiltersFlow.update {
+            it - filter
+        }
     }
 
     fun resetFilters() {
