@@ -23,8 +23,8 @@ android {
         applicationId "com.cornellappdev.android.eatery"
         minSdk 28
         targetSdk 34
-        versionCode 73
-        versionName "1.2-compare-menus"
+        versionCode 74
+        versionName "1.2.1-cmpmenus-url"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

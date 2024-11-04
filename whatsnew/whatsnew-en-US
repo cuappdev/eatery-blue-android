@@ -1,2 +1,2 @@
 We're working hard to bring you the latest fixes and features to Eatery! Here's what we've been working on:
-* Fixed a crash on opening certain eatery detail screens related to menu selection.
+* Fixed a bug relating to not being able to hit our backend; eateries should now load correctly.
