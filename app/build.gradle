@@ -31,7 +31,6 @@ android {
             useSupportLibrary true
         }
 
-        buildConfigField("String", "BACKEND_URL", secretsProperties['BACKEND_URL'])
         buildConfigField("String", "GET_BACKEND_URL", secretsProperties['GET_BACKEND_URL'])
         buildConfigField("String", "SESSIONID_WEBVIEW_URL", secretsProperties['SESSIONID_WEBVIEW_URL'])
         buildConfigField("String", "CORNELL_INSTITUTION_ID", secretsProperties['CORNELL_INSTITUTION_ID'])
@@ -40,11 +39,13 @@ android {
     buildTypes {
         debug {
             resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "true")
+            buildConfigField("String", "BACKEND_URL", secretsProperties['BACKEND_URL'])
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
+            buildConfigField("String", "BACKEND_URL", secretsProperties['PROD_ENDPOINT'])
         }
     }
 
