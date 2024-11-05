@@ -62,7 +62,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.0-alpha02'
+        kotlinCompilerExtensionVersion '1.5.7'
     }
 
     packagingOptions {
@@ -114,7 +114,7 @@ dependencies {
 
     implementation "androidx.datastore:datastore:1.0.0"
     implementation "androidx.datastore:datastore-core:1.0.0"
-    implementation "com.google.protobuf:protobuf-javalite:3.21.1"
+    implementation "com.google.protobuf:protobuf-javalite:3.25.1"
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
 
@@ -134,8 +134,8 @@ dependencies {
 
     // Hilt
     // Implementation and kapt must be in-sync version number
-    implementation "com.google.dagger:hilt-android:2.44.2"
-    kapt 'com.google.dagger:hilt-compiler:2.44.2'
+    implementation "com.google.dagger:hilt-android:2.51.1"
+    kapt 'com.google.dagger:hilt-compiler:2.51.1'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation "androidx.fragment:fragment-ktx:1.5.5"
 
@@ -147,7 +147,7 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.20.0-rc-1"
+        artifact = "com.google.protobuf:protoc:3.25.1"
     }
 
     generateProtoTasks {
