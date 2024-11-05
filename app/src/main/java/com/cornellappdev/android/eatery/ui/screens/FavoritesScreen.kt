@@ -1,7 +1,10 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,15 +27,18 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +48,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,10 +64,12 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.ToggleViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
@@ -233,7 +241,7 @@ fun FavoritesScreen(
                             }
                         } else {
                             items(10) {
-                                FavoritesCard()
+                                ItemFavoritesCard()
                             }
                         }
 
@@ -281,32 +289,33 @@ fun FilterHeader(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesCard() {
+fun ItemFavoritesCard() {
+    var isExpanded by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .border(BorderStroke(Dp.Hairline, GrayZero), RoundedCornerShape(8)),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors( // Use CardDefaults to set background color
-            containerColor = Color.White // Change this to any color you want
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
         ),
-        elevation = CardDefaults.cardElevation(8.dp),
-        onClick = {}
+        elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Column(
-            Modifier
-                .padding(12.dp)
+            modifier = Modifier
+                .padding(20.dp)
                 .fillMaxWidth()
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, start = 8.dp, end = 8.dp)
             ) {
                 Text("Item Name", fontSize = 20.sp, style = EateryBlueTypography.button)
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_star_filled),
+                    tint = Yellow,
                     contentDescription = "favorited",
                     modifier = Modifier
                         .size(20.dp)
@@ -316,7 +325,6 @@ fun FavoritesCard() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 8.dp, start = 8.dp, end = 8.dp)
             ) {
                 Text(
                     "Availability",
@@ -327,10 +335,33 @@ fun FavoritesCard() {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_down_chevron),
                     contentDescription = "expand",
-                    modifier = Modifier
-                        .size(20.dp)
+                    modifier = Modifier.clickable(onClick = {isExpanded = !isExpanded })
                 )
+            }
+            if (!isExpanded) {
+                HorizontalDivider(thickness = Dp.Hairline)
+                ItemInformation("Lunch", listOf("Morrison", "Appel"))
             }
         }
     }
+}
+
+
+@Composable
+fun ItemInformation(meal: String, eateryName: List<String>) {
+    Column(
+        modifier = Modifier.padding(top = 8.dp)
+    ){
+        Text(meal, fontSize = 20.sp, style = EateryBlueTypography.button)
+        eateryName.forEach { eatery ->
+            Text(eatery, style = EateryBlueTypography.caption, color = Color(0xff7D8288))
+        }
+    }
+
+}
+
+@Preview
+@Composable
+private fun FavoritesCardPreview() = EateryPreview {
+    ItemFavoritesCard()
 }
