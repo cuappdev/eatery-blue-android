@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
@@ -11,7 +12,6 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewSt
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.components.general.passesFilter
 import com.cornellappdev.android.eatery.ui.components.upcoming.EateryHours
-import com.cornellappdev.android.eatery.ui.components.upcoming.EateryStatus
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCardViewState
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Orange

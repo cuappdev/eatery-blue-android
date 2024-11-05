@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.ui.components.details.ActiveToggle
 import com.cornellappdev.android.eatery.ui.components.details.InactiveToggle
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
@@ -60,11 +61,12 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Yellow
+import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.ToggleViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -80,7 +82,8 @@ fun FavoritesScreen(
     toggleViewModel: ToggleViewModel = hiltViewModel()
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
-    val favoriteEateriesApiResponse = favoriteViewModel.favoriteEateries.collectAsState().value
+    val favoritesScreenViewState =
+        favoriteViewModel.favoritesScreenViewState.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
     val toggle = toggleViewModel.isToggled.collectAsState()
 
@@ -121,8 +124,8 @@ fun FavoritesScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         // TODO add filtering
-        when (favoriteEateriesApiResponse) {
-            is EateryApiResponse.Pending -> {
+        when (favoritesScreenViewState) {
+            is FavoritesScreenViewState.Loading -> {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -137,12 +140,12 @@ fun FavoritesScreen(
             }
 
 
-            is EateryApiResponse.Error -> {
+            is FavoritesScreenViewState.Error -> {
                 // TODO Add No Internet/Oopsie display
             }
 
-            is EateryApiResponse.Success -> {
-                val favoriteEateries = favoriteEateriesApiResponse.data
+            is FavoritesScreenViewState.Loaded -> {
+                val favoriteEateries = favoritesScreenViewState.eateries
                 if (favoriteEateries.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -230,8 +233,10 @@ fun FavoritesScreen(
                                 }
                             }
                         } else {
-                            items(10) {
-                                ItemFavoritesCard()
+                            items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
+                                ItemFavoritesCard(
+                                    itemFavoritesCardViewState
+                                )
                             }
                         }
 
@@ -277,8 +282,14 @@ fun FilterHeader(
     )
 }
 
+data class ItemFavoritesCardViewState(
+    val itemName: String,
+    val availability: EateryStatus,
+    val mealAvailability: Map<String, List<String>>
+)
+
 @Composable
-fun ItemFavoritesCard() {
+fun ItemFavoritesCard(viewState: ItemFavoritesCardViewState) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotation: Float by animateFloatAsState(
         if (isExpanded) 180F else 0F,
@@ -305,7 +316,7 @@ fun ItemFavoritesCard() {
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text("Item Name", fontSize = 20.sp, style = EateryBlueTypography.button)
+                Text(viewState.itemName, fontSize = 20.sp, style = EateryBlueTypography.button)
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_star_filled),
                     tint = Yellow,
@@ -320,22 +331,27 @@ fun ItemFavoritesCard() {
                     .fillMaxWidth()
             ) {
                 Text(
-                    "Availability",
+                    viewState.availability.statusText,
                     fontSize = 12.sp,
-                    color = Color(0xFF63C774),
+                    color = viewState.availability.statusColor,
                     style = EateryBlueTypography.button
                 )
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_down_chevron),
-                    contentDescription = "expand",
-                    modifier = Modifier
-                        .clickable(onClick = { isExpanded = !isExpanded })
-                        .rotate(rotation)
-                )
+                if (viewState.mealAvailability.isNotEmpty()) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_down_chevron),
+                        contentDescription = "expand",
+                        modifier = Modifier
+                            .clickable(onClick = { isExpanded = !isExpanded })
+                            .rotate(rotation)
+                    )
+                }
+
             }
             if (isExpanded) {
                 Divider(thickness = Dp.Hairline)
-                ItemInformation("Lunch", listOf("Morrison", "Appel"))
+                viewState.mealAvailability.forEach { availability ->
+                    ItemInformation(availability.key, availability.value)
+                }
             }
         }
     }
@@ -358,5 +374,16 @@ fun ItemInformation(meal: String, eateryName: List<String>) {
 @Preview
 @Composable
 private fun FavoritesCardPreview() = EateryPreview {
-    ItemFavoritesCard()
+    ItemFavoritesCard(
+        ItemFavoritesCardViewState(
+            "tes",
+            EateryStatus("Available", Green),
+            mapOf(
+                "lunch" to listOf("becker"),
+                "lunch" to listOf("becker"),
+                "lunch" to listOf("becker"),
+                "lunch" to listOf("becker")
+            )
+        )
+    )
 }
