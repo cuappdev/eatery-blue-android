@@ -20,7 +20,7 @@ class FavoritesViewModel @Inject constructor(
      * A flow emitting all the eateries the user has favorited.
      */
     val favoriteEateries = combine(
-        eateryRepository.homeEateryFlow, userPreferencesRepository.favoritesFlow
+        eateryRepository.homeEateryFlow, userPreferencesRepository.favoritesFlow,
     ) { apiResponse, favorites ->
         when (apiResponse) {
             is EateryApiResponse.Error -> EateryApiResponse.Pending

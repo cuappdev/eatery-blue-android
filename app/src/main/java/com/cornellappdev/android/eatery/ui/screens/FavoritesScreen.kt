@@ -1,10 +1,10 @@
 package com.cornellappdev.android.eatery.ui.screens
 
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,27 +21,23 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -74,7 +70,6 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FavoritesScreen(
     favoriteViewModel: FavoritesViewModel = hiltViewModel(),
@@ -87,11 +82,6 @@ fun FavoritesScreen(
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val favoriteEateriesApiResponse = favoriteViewModel.favoriteEateries.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
-    val coroutineScope = rememberCoroutineScope()
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
     val toggle = toggleViewModel.isToggled.collectAsState()
 
     Column(
@@ -287,11 +277,13 @@ fun FilterHeader(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemFavoritesCard() {
     var isExpanded by remember { mutableStateOf(false) }
-
+    val rotation: Float by animateFloatAsState(
+        if (isExpanded) 180F else 0F,
+        label = "chevron rotation"
+    )
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -306,6 +298,7 @@ fun ItemFavoritesCard() {
             modifier = Modifier
                 .padding(20.dp)
                 .fillMaxWidth()
+                .animateContentSize()
         ) {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -335,11 +328,13 @@ fun ItemFavoritesCard() {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_down_chevron),
                     contentDescription = "expand",
-                    modifier = Modifier.clickable(onClick = {isExpanded = !isExpanded })
+                    modifier = Modifier
+                        .clickable(onClick = { isExpanded = !isExpanded })
+                        .rotate(rotation)
                 )
             }
-            if (!isExpanded) {
-                HorizontalDivider(thickness = Dp.Hairline)
+            if (isExpanded) {
+                Divider(thickness = Dp.Hairline)
                 ItemInformation("Lunch", listOf("Morrison", "Appel"))
             }
         }
@@ -351,7 +346,7 @@ fun ItemFavoritesCard() {
 fun ItemInformation(meal: String, eateryName: List<String>) {
     Column(
         modifier = Modifier.padding(top = 8.dp)
-    ){
+    ) {
         Text(meal, fontSize = 20.sp, style = EateryBlueTypography.button)
         eateryName.forEach { eatery ->
             Text(eatery, style = EateryBlueTypography.caption, color = Color(0xff7D8288))
