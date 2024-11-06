@@ -36,17 +36,29 @@ fun NotificationsHomeScreen(
         LazyColumn {
             item{
                 FavoriteItemRow(
-                    "Chicken Nuggets", listOf("Rose House")
+                    "Chicken Nuggets", listOf("Rose House"), true
                 )
             }
             item{
                 FavoriteItemRow(
-                    "French Fries", listOf("Bethe House")
+                    "French Fries", listOf("Bethe House","Rose House"), false
+                )
+            }
+            item{
+                FavoriteItemRow(
+                    "Sweet Potato Fries", listOf("Bethe House","Rose House","Toni Morrison"), false
+                )
+            }
+            item{
+                FavoriteItemRow(
+                    "Chicken Parm", listOf("Jansen's Dining Room at Bethe House"), false
+                )
+            }
+            item{
+                FavoriteItemRow(
+                    "Burgers", listOf("Rose House Dining Room"), false
                 )
             }
         }
-
-
-
     }
 }

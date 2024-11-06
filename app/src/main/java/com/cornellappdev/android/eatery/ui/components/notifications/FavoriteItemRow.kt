@@ -12,7 +12,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +26,8 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 @Composable
 fun FavoriteItemRow(
     itemName: String,
-    atEateries: List<String>
+    atEateries: List<String>,
+    newNotif : Boolean
 ) {
     Row(
         modifier = Modifier
@@ -36,9 +36,11 @@ fun FavoriteItemRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.notif_star),
+            painter = if(newNotif) painterResource(id = R.drawable.ic_new_notif_star)
+            else painterResource(id = R.drawable.ic_notif_star),
             contentDescription = "Notification Star Icon",
-            tint = Color.Yellow
+            tint = Color.Unspecified,
+            modifier = Modifier.padding(end=12.dp)
         )
         Column(
             modifier = Modifier.weight(1f)
@@ -82,15 +84,29 @@ fun FavoriteItemRow(
     }
 }
 
+
+/**
+ * Displays a formatted Text composable summarizing a list of eatery names based on the number of eateries.
+ * - If there is only one eatery, it displays the condensed name of that eatery.
+ * - If there are two eateries, it displays the primary eatery name followed by "and 1 other eatery."
+ * - If there are three or more eateries, it displays the primary eatery name followed by "and n other
+ *      eateries," where n is the count of additional eateries.
+ *
+ * @param eateries A list of eatery names to display.
+ * @Composable
+ * @return A Text composable that shows the primary eatery name with a summary of additional eateries,
+ *      if any.
+ */
 @Composable
 private fun condenseEateriesName(atEateries: List<String>) {
+    val condensed = atEateries.map { condenseDiningHallNames(it) }
     val text = if (atEateries.size > 1) {
-        "${atEateries.last()} + ${atEateries.size - 1} other"
+        "${condensed.last()} + ${atEateries.size - 1} other"
     } else {
-        atEateries.lastOrNull() ?: ""
+        condensed.lastOrNull() ?: ""
     }
 
-    val suffix = when(atEateries.size){
+    val suffix = when(condensed.size){
         1 -> {
             ""
         }
@@ -105,4 +121,21 @@ private fun condenseEateriesName(atEateries: List<String>) {
     Text(
         text = "At $text $suffix"
     )
+}
+
+/**
+ * Condenses the specified dining hall name by removing the phrase "Dining Room."
+ * If the name contains "Dining Room," the function returns the name without this phrase.
+ * Special Case: If the name is "Jansen's Dining Room at Bethe House," it returns "Bethe House."
+ *
+ * @param name The original dining hall name to be condensed.
+ * @return The condensed dining hall name with "Dining Room" removed,
+ *         or "Bethe House" for the specific "Jansen's Dining Room at Bethe House."
+ */
+private fun condenseDiningHallNames(name : String) : String{
+    if(name.contains("Bethe", ignoreCase = true)) return "Bethe House"
+    if (name.contains("Dining Room", ignoreCase = true)) {
+        return name.replace("Dining Room", "", ignoreCase = true).trim()
+    }
+    return name
 }
