@@ -142,7 +142,8 @@ fun FavoritesScreen(
 
 
             is FavoritesScreenViewState.Error -> {
-                // TODO Add No Internet display
+                // TODO we should have a better no internet display
+                EateriesEmptyState("Failed to obtain Eatery data")
             }
 
             is FavoritesScreenViewState.Loaded -> {
