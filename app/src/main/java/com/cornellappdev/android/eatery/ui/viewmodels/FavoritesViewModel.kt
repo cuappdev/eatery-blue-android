@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -102,6 +103,10 @@ class FavoritesViewModel @Inject constructor(
             }
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, FavoritesScreenViewState.Loading)
+
+    fun removeFavoriteMenuItem(menuItemName: String) = viewModelScope.launch {
+        userPreferencesRepository.toggleFavoriteMenuItem(menuItemName)
+    }
 
     fun removeFavorite(eateryId: Int?) {
         if (eateryId != null) userPreferencesRepository.setFavorite(eateryId, false)

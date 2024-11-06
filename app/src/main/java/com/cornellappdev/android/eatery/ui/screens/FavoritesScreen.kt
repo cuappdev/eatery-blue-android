@@ -1,8 +1,10 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -55,6 +56,7 @@ import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.ui.components.details.ActiveToggle
 import com.cornellappdev.android.eatery.ui.components.details.InactiveToggle
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
+import com.cornellappdev.android.eatery.ui.components.general.FavoriteButton
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -62,16 +64,15 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.ToggleViewModel
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FavoritesScreen(
     favoriteViewModel: FavoritesViewModel = hiltViewModel(),
@@ -79,13 +80,13 @@ fun FavoritesScreen(
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    toggleViewModel: ToggleViewModel = hiltViewModel()
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val favoritesScreenViewState =
         favoriteViewModel.favoritesScreenViewState.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
-    val toggle = toggleViewModel.isToggled.collectAsState()
+    var toggle by remember { mutableStateOf(true) }
+
 
     Column(
         modifier = Modifier
@@ -146,106 +147,125 @@ fun FavoritesScreen(
 
             is FavoritesScreenViewState.Loaded -> {
                 val favoriteEateries = favoritesScreenViewState.eateries
-                if (favoriteEateries.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight(0.7f)
-                            .fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    item {
+                        Row(
+                            horizontalArrangement = (Arrangement.spacedBy(8.dp))
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_eaterylogo),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(72.dp)
-                                    .width(72.dp),
-                                tint = GrayTwo,
-                            )
+                            //toggle.value = true means that the active toggle should be the Eatery button
+                            if (toggle) {
+                                ActiveToggle(onClick = { }, label = "Eateries")
+                                InactiveToggle(
+                                    onClick = { toggle = !toggle },
+                                    label = "Items"
+                                )
+                            } else {
+                                InactiveToggle(
+                                    onClick = { toggle = !toggle },
+                                    label = "Eateries"
+                                )
+                                ActiveToggle(onClick = { }, label = "Items")
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        FilterHeader(
+                            filters = filters,
+                            onFilterClicked = { filter ->
+                                if (filters.contains(filter)) {
+                                    homeViewModel.removeFilter(filter)
+                                } else {
+                                    homeViewModel.addFilter(filter)
+                                }
+                            }
+                        )
+                    }
+                    if (toggle) {
+                        item {
+                            AnimatedVisibility(favoriteEateries.isEmpty()) {
+                                EateriesEmptyState(message = "You currently have no favorite eateries!")
+                            }
+                        }
 
-                            Text(
-                                text = "You currently have no favorite eateries!",
-                                style = TextStyle(
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 18.sp
-                                ),
-                                color = Color.Black,
-                                modifier = Modifier.padding(top = 12.dp)
+                        items(
+                            items = favoriteEateries,
+                            key = { eatery ->
+                                eatery.id!!
+                            }) { eatery ->
+
+                            EateryCard(
+                                eatery = eatery,
+                                isFavorite = true,
+                                modifier = Modifier.animateItemPlacement(),
+                                onFavoriteClick = {
+                                    if (!it) {
+                                        favoriteViewModel.removeFavorite(eatery.id)
+                                    }
+                                }) {
+                                onEateryClick(it)
+                            }
+                        }
+                    } else {
+                        item {
+                            AnimatedVisibility(favoritesScreenViewState.favoriteCards.isEmpty()) {
+                                EateriesEmptyState("You currently have no favorite menu items!")
+                            }
+                        }
+                        items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
+                            ItemFavoritesCard(
+                                itemFavoritesCardViewState,
+                                modifier = Modifier.animateItemPlacement(),
+                                onFavoriteClick = {
+                                    favoriteViewModel.removeFavoriteMenuItem(
+                                        itemFavoritesCardViewState.itemName
+                                    )
+                                }
                             )
                         }
                     }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
 
-                    ) {
-                        item {
-                            Row(
-                                horizontalArrangement = (Arrangement.spacedBy(8.dp))
-                            ) {
-                                //toggle.value = true means that the active toggle should be the Eatery button
-                                if (toggle.value) {
-                                    ActiveToggle(onClick = { }, label = "Eateries")
-                                    InactiveToggle(
-                                        onClick = { toggleViewModel.toggle() },
-                                        label = "Items"
-                                    )
-                                } else {
-                                    InactiveToggle(
-                                        onClick = { toggleViewModel.toggle() },
-                                        label = "Eateries"
-                                    )
-                                    ActiveToggle(onClick = { }, label = "Items")
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            FilterHeader(
-                                filters = filters,
-                                onFilterClicked = { filter ->
-                                    if (filters.contains(filter)) {
-                                        homeViewModel.removeFilter(filter)
-                                    } else {
-                                        homeViewModel.addFilter(filter)
-                                    }
-                                }
-                            )
-                        }
-                        if (toggle.value) {
-                            items(
-                                items = favoriteEateries,
-                                key = { eatery ->
-                                    eatery.id!!
-                                }) { eatery ->
-                                EateryCard(
-                                    eatery = eatery,
-                                    isFavorite = true,
-                                    onFavoriteClick = {
-                                        if (!it) {
-                                            favoriteViewModel.removeFavorite(eatery.id)
-                                        }
-                                    }) {
-                                    onEateryClick(it)
-                                }
-                            }
-                        } else {
-                            items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
-                                ItemFavoritesCard(
-                                    itemFavoritesCardViewState
-                                )
-                            }
-                        }
-
-                        item {
-                            Spacer(Modifier.height(20.dp))
-                        }
+                    item {
+                        Spacer(Modifier.height(20.dp))
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun EateriesEmptyState(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight(0.7f)
+            .fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_eaterylogo),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(72.dp)
+                    .width(72.dp),
+                tint = GrayTwo,
+            )
+
+            Text(
+                text = message,
+                style = TextStyle(
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp
+                ),
+                color = Color.Black,
+                modifier = Modifier.padding(top = 12.dp)
+            )
         }
     }
 }
@@ -289,14 +309,18 @@ data class ItemFavoritesCardViewState(
 )
 
 @Composable
-fun ItemFavoritesCard(viewState: ItemFavoritesCardViewState) {
+fun ItemFavoritesCard(
+    viewState: ItemFavoritesCardViewState,
+    onFavoriteClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotation: Float by animateFloatAsState(
         if (isExpanded) 180F else 0F,
         label = "chevron rotation"
     )
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .border(BorderStroke(Dp.Hairline, GrayZero), RoundedCornerShape(8)),
         shape = RoundedCornerShape(8.dp),
@@ -317,13 +341,7 @@ fun ItemFavoritesCard(viewState: ItemFavoritesCardViewState) {
                     .fillMaxWidth()
             ) {
                 Text(viewState.itemName, fontSize = 20.sp, style = EateryBlueTypography.button)
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_star_filled),
-                    tint = Yellow,
-                    contentDescription = "favorite",
-                    modifier = Modifier
-                        .size(20.dp)
-                )
+                FavoriteButton(isFavorite = true, onFavoriteClick = { onFavoriteClick() })
             }
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -383,7 +401,8 @@ private fun FavoritesCardPreview() = EateryPreview {
                 "lunch" to listOf("becker"),
                 "lunch" to listOf("becker"),
                 "lunch" to listOf("becker")
-            )
-        )
+            ),
+        ),
+        onFavoriteClick = {}
     )
 }
