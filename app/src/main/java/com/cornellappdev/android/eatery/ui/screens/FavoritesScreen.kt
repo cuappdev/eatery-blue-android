@@ -141,7 +141,7 @@ fun FavoritesScreen(
 
 
             is FavoritesScreenViewState.Error -> {
-                // TODO Add No Internet/Oopsie display
+                // TODO Add No Internet display
             }
 
             is FavoritesScreenViewState.Loaded -> {
@@ -320,7 +320,7 @@ fun ItemFavoritesCard(viewState: ItemFavoritesCardViewState) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_star_filled),
                     tint = Yellow,
-                    contentDescription = "favorited",
+                    contentDescription = "favorite",
                     modifier = Modifier
                         .size(20.dp)
                 )

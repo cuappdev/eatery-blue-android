@@ -31,10 +31,10 @@ sealed class FavoritesScreenViewState {
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository
+    eateryRepository: EateryRepository
 ) : ViewModel() {
     /**
-     * A flow emitting all the eateries the user has favorited.
+     * A flow emitting the latest UI state
      */
     val favoritesScreenViewState: StateFlow<FavoritesScreenViewState> = combine(
         eateryRepository.eateryFlow, userPreferencesRepository.favoritesFlow,
@@ -44,27 +44,27 @@ class FavoritesViewModel @Inject constructor(
             is EateryApiResponse.Error -> FavoritesScreenViewState.Error
             is EateryApiResponse.Pending -> FavoritesScreenViewState.Loading
             is EateryApiResponse.Success -> {
-                val favoritedEateries = apiResponse.data.filter {
+                val favoriteEateries = apiResponse.data.filter {
                     favorites[it.id] == true
                 }.sortedBy { it.name }.sortedBy { it.isClosed() }
                 val allEateries = apiResponse.data
 
                 val favoriteItems = favoriteItemsMap.keys.filter { favoriteItemsMap[it] == true }
 
-                // Map<String, List<Eatery>>
-                val menuItemsToEateries = favoriteItems.associateWith { itemName ->
-                    allEateries.filter { eatery ->
-                        val todaysEvents = eatery.events?.filter {
-                            (it.endTime ?: LocalDateTime.MAX) < LocalDateTime.now().withHour(23)
-                                .withMinute(59)
-                        }
-                        todaysEvents?.any { event ->
-                            event.menu?.flatMap { it.items ?: emptyList() }?.any {
-                                itemName == it.name
+                val menuItemsToEateries: Map<String, List<Eatery>> =
+                    favoriteItems.associateWith { itemName ->
+                        allEateries.filter { eatery ->
+                            val todayEvents = eatery.events?.filter {
+                                (it.endTime ?: LocalDateTime.MAX) < LocalDateTime.now().withHour(23)
+                                    .withMinute(59)
+                            }
+                            todayEvents?.any { event ->
+                                event.menu?.flatMap { it.items ?: emptyList() }?.any {
+                                    itemName == it.name
+                                } == true
                             } == true
-                        } == true
+                        }
                     }
-                }
 
                 val itemFavoriteCards = menuItemsToEateries.map { (itemName, eateriesByItem) ->
                     ItemFavoritesCardViewState(
@@ -78,13 +78,13 @@ class FavoritesViewModel @Inject constructor(
                                 event.menu?.any {
                                     it.items?.any { menuItem -> menuItem.name == itemName } == true
                                 } == true
-                            }?.description ?: ""
-                        }.filterKeys { it != "" }
+                            }?.description
+                        }
                             .mapValues { mapEntry ->
                                 mapEntry.value.mapNotNull { eatery -> eatery.name }
                             }
                             .mapKeys { (key, _) ->
-                                if (key !in listOf(
+                                if (key == null || key !in listOf(
                                         "Breakfast",
                                         "Lunch",
                                         "Dinner"
@@ -92,11 +92,11 @@ class FavoritesViewModel @Inject constructor(
                                 ) "Other" else key
                             }
                     )
-                }
+                }.sortedByDescending { it.availability.statusColor == Green }
 
 
                 FavoritesScreenViewState.Loaded(
-                    eateries = favoritedEateries,
+                    eateries = favoriteEateries,
                     favoriteCards = itemFavoriteCards
                 )
             }
