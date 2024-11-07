@@ -174,7 +174,7 @@ fun FavoritesScreen(
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         FilterHeader(
-                            filters = filters,
+                            selectedFilters = filters,
                             onFilterClicked = { filter ->
                                 if (filters.contains(filter)) {
                                     homeViewModel.removeFilter(filter)
@@ -294,11 +294,13 @@ fun EateryBlob(
 
 @Composable
 fun FilterHeader(
+    selectedFilters: List<Filter>,
     filters: List<Filter>,
     onFilterClicked: (Filter) -> Unit
 ) {
     FilterRow(
-        currentFiltersSelected = filters,
+        currentFiltersSelected = selectedFilters,
+        filters = filters,
         onFilterClicked = onFilterClicked,
     )
 }

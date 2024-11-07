@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -27,95 +28,21 @@ import com.cornellappdev.android.eatery.ui.theme.colorInterp
 
 @Composable
 fun FilterRow(
+    filters: List<Filter>,
     currentFiltersSelected: List<Filter>,
     onFilterClicked: (Filter) -> Unit
 ) {
-    val paymentMethodFilters = currentFiltersSelected.filter { filter ->
-        filter in setOf(Filter.BRB, Filter.CASH, Filter.SWIPES)
-    }
-
-    val paymentMethodFilterText: String =
-        if (paymentMethodFilters.isEmpty()) "Payment Methods" else paymentMethodFilters.joinToString {
-            it.text
-        }
-
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        item {
-            Spacer(modifier = Modifier.width(10.dp))
-        }
-
-        item {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        items(filters) { filter ->
             FilterButton(
                 onFilterClicked = {
-                    onFilterClicked(Filter.NORTH)
-                },
-                selected = currentFiltersSelected.contains(Filter.NORTH),
-                text = Filter.NORTH.text
+                    onFilterClicked(filter)
+                }, selected = filter in currentFiltersSelected,
+                text = filter.text
             )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.WEST)
-                },
-                selected = currentFiltersSelected.contains(Filter.WEST),
-                text = Filter.WEST.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.CENTRAL)
-                },
-                selected = currentFiltersSelected.contains(Filter.CENTRAL),
-                text = Filter.CENTRAL.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.SWIPES)
-                },
-                selected = currentFiltersSelected.contains(Filter.SWIPES),
-                text = Filter.SWIPES.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.BRB)
-                },
-                selected = currentFiltersSelected.contains(Filter.BRB),
-                text = Filter.BRB.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.FAVORITES)
-                },
-                selected = currentFiltersSelected.contains(Filter.FAVORITES),
-                text = Filter.FAVORITES.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.UNDER_10)
-                },
-                selected = currentFiltersSelected.contains(Filter.UNDER_10),
-                text = Filter.UNDER_10.text
-            )
-        }
-
-        item {
-            Spacer(Modifier.width(16.dp))
         }
     }
 }
@@ -125,7 +52,7 @@ fun CompareFilterRow(
     currentFiltersSelected: List<Filter>,
     onPaymentMethodsClicked: () -> Unit,
     onFilterClicked: (Filter) -> Unit,
-    showPaymentFilter : Boolean = true
+    showPaymentFilter: Boolean = true
 ) {
     val paymentMethodFilters = currentFiltersSelected.filter { filter ->
         filter in setOf(Filter.BRB, Filter.CASH, Filter.SWIPES)
@@ -190,7 +117,7 @@ fun CompareFilterRow(
             )
         }
 
-        if(showPaymentFilter) {
+        if (showPaymentFilter) {
             item {
                 FilterButton(
                     onFilterClicked = onPaymentMethodsClicked,
