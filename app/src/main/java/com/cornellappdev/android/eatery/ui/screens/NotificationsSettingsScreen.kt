@@ -62,7 +62,7 @@ fun NotificationsSettingsScreen() {
             SwitchOption(
                 title = "Favorite item being served",
                 description = "Get notified when favorite items are served",
-                initialValue = false,
+                initialValue = true,
                 onCheckedChange = {
                     //todo
                 }
@@ -71,7 +71,7 @@ fun NotificationsSettingsScreen() {
             SwitchOption(
                 title = "Favorite eatery opening",
                 description = "Get notified when your favorite eatery opens",
-                initialValue = false,
+                initialValue = true,
                 onCheckedChange = {
                     //todo
                 }
@@ -80,7 +80,7 @@ fun NotificationsSettingsScreen() {
             SwitchOption(
                 title = "Favorite eatery closing",
                 description = "Get notified when your favorite eatery closes",
-                initialValue = false,
+                initialValue = true,
                 onCheckedChange = {
                     //todo
                 }

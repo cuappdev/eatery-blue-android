@@ -88,9 +88,10 @@ fun FavoriteItemRow(
 /**
  * Displays a formatted Text composable summarizing a list of eatery names based on the number of eateries.
  * - If there is only one eatery, it displays the condensed name of that eatery.
- * - If there are two eateries, it displays the primary eatery name followed by "and 1 other eatery."
- * - If there are three or more eateries, it displays the primary eatery name followed by "and n other
- *      eateries," where n is the count of additional eateries.
+ * - If there are two eateries, it displays the condensed eatery name of the last eatery
+ *      followed by "and 1 other eatery."
+ * - If there are three or more eateries, it displays the condensed eatery name of the last eatery
+ *      followed by "and n other eateries," where n is the count of additional eateries.
  *
  * @param eateries A list of eatery names to display.
  * @Composable
