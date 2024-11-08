@@ -234,7 +234,8 @@ fun EateryDetailScreen(
                     val mealTypeIndex by remember {
                         derivedStateOf {
                             mealTabNames?.indexOfFirst { it == nextEvent?.description }
-                                ?.coerceIn(mealTabNames?.indices ?: 0..0) ?: 0
+                                ?.coerceIn(mealTabNames?.indices ?: 0..0)
+                                ?: 0
                         }
                     }
 
