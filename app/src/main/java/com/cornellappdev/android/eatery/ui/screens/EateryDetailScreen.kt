@@ -225,11 +225,16 @@ fun EateryDetailScreen(
                             repeatMode = RepeatMode.Reverse
                         )
                     )
-                    val mealTypeIndex = remember {
+                    val mealTabNames by remember {
                         derivedStateOf {
                             eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
-                                ?.indexOfFirst { it.first == nextEvent?.description }
-                                ?.coerceAtLeast(0) ?: 0
+                                ?.map { it.first }?.takeIf { it.size > 1 }
+                        }
+                    }
+                    val mealTypeIndex by remember {
+                        derivedStateOf {
+                            mealTabNames?.indexOfFirst { it == nextEvent?.description }
+                                ?.coerceIn(mealTabNames?.indices ?: 0..0) ?: 0
                         }
                     }
 
@@ -299,7 +304,7 @@ fun EateryDetailScreen(
                                             weekDayIndex = 0
                                             eateryDetailViewModel.resetSelectedEvent()
                                         },
-                                        mealType = mealTypeIndex.value
+                                        mealType = mealTypeIndex
                                     )
                                 }
 
@@ -715,24 +720,21 @@ fun EateryDetailScreen(
                                                 .background(GrayZero, CircleShape)
                                         )
                                     }
-                                    eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
-                                        .takeIf { it?.size?.let { s -> s > 1 } == true }
-                                        ?.map { it.first }
-                                        ?.let { mealTypes ->
-                                            item {
-                                                EateryMealTabs(
-                                                    meals = mealTypes,
-                                                    onSelectMeal = { selectedMeal ->
-                                                        eateryDetailViewModel.selectEvent(
-                                                            eatery,
-                                                            weekDayIndex,
-                                                            mealTypes[selectedMeal]
-                                                        )
-                                                    },
-                                                    selectedMealIndex = mealTypeIndex.value
-                                                )
-                                            }
+                                    mealTabNames?.let { mealNames ->
+                                        item {
+                                            EateryMealTabs(
+                                                meals = mealNames,
+                                                onSelectMeal = { selectedMeal ->
+                                                    eateryDetailViewModel.selectEvent(
+                                                        eatery,
+                                                        weekDayIndex,
+                                                        mealNames[selectedMeal]
+                                                    )
+                                                },
+                                                selectedMealIndex = mealTypeIndex
+                                            )
                                         }
+                                    }
 
                                     nextEvent.menu?.forEachIndexed { categoryIndex, category ->
                                         val filteredItems = category.items?.filter {
