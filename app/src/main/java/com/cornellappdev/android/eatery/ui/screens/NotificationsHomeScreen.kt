@@ -15,7 +15,7 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 @Composable
 fun NotificationsHomeScreen(
 
-){
+) {
     Column(
         modifier = Modifier
             .padding(top = 40.dp, start = 16.dp, end = 16.dp)
@@ -34,27 +34,29 @@ fun NotificationsHomeScreen(
         )
 
         LazyColumn {
-            item{
+            item {
                 FavoriteItemRow(
                     "Chicken Nuggets", listOf("Rose House"), true
                 )
             }
-            item{
+            item {
                 FavoriteItemRow(
-                    "French Fries", listOf("Bethe House","Rose House"), false
+                    "French Fries", listOf("Bethe House", "Rose House"), false
                 )
             }
-            item{
+            item {
                 FavoriteItemRow(
-                    "Sweet Potato Fries", listOf("Bethe House","Rose House","Toni Morrison"), false
+                    "Sweet Potato Fries",
+                    listOf("Bethe House", "Rose House", "Toni Morrison"),
+                    false
                 )
             }
-            item{
+            item {
                 FavoriteItemRow(
                     "Chicken Parm", listOf("Jansen's Dining Room at Bethe House"), false
                 )
             }
-            item{
+            item {
                 FavoriteItemRow(
                     "Burgers", listOf("Rose House Dining Room"), false
                 )

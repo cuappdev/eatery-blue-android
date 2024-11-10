@@ -27,7 +27,7 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 fun FavoriteItemRow(
     itemName: String,
     atEateries: List<String>,
-    newNotif : Boolean
+    newNotif: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -36,11 +36,11 @@ fun FavoriteItemRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painter = if(newNotif) painterResource(id = R.drawable.ic_new_notif_star)
+            painter = if (newNotif) painterResource(id = R.drawable.ic_new_notif_star)
             else painterResource(id = R.drawable.ic_notif_star),
             contentDescription = "Notification Star Icon",
             tint = Color.Unspecified,
-            modifier = Modifier.padding(end=12.dp)
+            modifier = Modifier.padding(end = 12.dp)
         )
         Column(
             modifier = Modifier.weight(1f)
@@ -107,14 +107,16 @@ private fun condenseEateriesName(atEateries: List<String>) {
         condensed.lastOrNull() ?: ""
     }
 
-    val suffix = when(condensed.size){
+    val suffix = when (condensed.size) {
         1 -> {
             ""
         }
-        2->{
+
+        2 -> {
             "eatery"
         }
-        else-> {
+
+        else -> {
             "eateries"
         }
     }
@@ -133,8 +135,8 @@ private fun condenseEateriesName(atEateries: List<String>) {
  * @return The condensed dining hall name with "Dining Room" removed,
  *         or "Bethe House" for the specific "Jansen's Dining Room at Bethe House."
  */
-private fun condenseDiningHallNames(name : String) : String{
-    if(name.contains("Bethe", ignoreCase = true)) return "Bethe House"
+private fun condenseDiningHallNames(name: String): String {
+    if (name.contains("Bethe", ignoreCase = true)) return "Bethe House"
     if (name.contains("Dining Room", ignoreCase = true)) {
         return name.replace("Dining Room", "", ignoreCase = true).trim()
     }

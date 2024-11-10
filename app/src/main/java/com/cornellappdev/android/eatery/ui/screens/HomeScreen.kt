@@ -102,7 +102,7 @@ fun HomeScreen(
     onFavoriteExpand: () -> Unit,
     onNearestExpand: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
-    onNotificationsClick : () -> Unit
+    onNotificationsClick: () -> Unit
 ) {
     val context = LocalContext.current
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
@@ -532,7 +532,7 @@ private fun HomeStickyHeader(
                         )
                         Box(
                             modifier = Modifier.align(Alignment.CenterVertically)
-                        ){
+                        ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_bell),
                                 contentDescription = null,
