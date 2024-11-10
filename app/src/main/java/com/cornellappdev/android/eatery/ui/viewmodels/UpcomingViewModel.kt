@@ -48,7 +48,7 @@ class UpcomingViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val mealFilterFlow = MutableStateFlow(nextMeal() ?: MealFilter.LATE_DINNER)
-    private val selectedFiltersFlow = MutableStateFlow(listOf<Filter>())
+    private val selectedFiltersFlow = MutableStateFlow(listOf<Filter.FromEatery>())
     private val selectedDayFlow = MutableStateFlow(0)
 
 
@@ -127,14 +127,7 @@ class UpcomingViewModel @Inject constructor(
             is EateryApiResponse.Success -> {
                 val data = eateryApiResponse.data.filter { eatery ->
                     filters.all {
-                        it.passesFilter(
-                            eatery,
-                            // On this screen we don't display favorite eateries differently
-                            //  so we just pass an empty map
-                            emptyMap(),
-                            // We also don't select Eateries on this screen
-                            emptyList()
-                        )
+                        it.passesFilter(eatery)
                     }
                 }
 
@@ -165,13 +158,13 @@ class UpcomingViewModel @Inject constructor(
         UpcomingMenusViewState(mealFilter = nextMeal() ?: MealFilter.LATE_DINNER)
     )
 
-    fun addLocationFilter(filter: Filter) {
+    fun addLocationFilter(filter: Filter.FromEatery) {
         selectedFiltersFlow.update {
             it + filter
         }
     }
 
-    fun removeLocationFilter(filter: Filter) {
+    fun removeLocationFilter(filter: Filter.FromEatery) {
         selectedFiltersFlow.update {
             it - filter
         }

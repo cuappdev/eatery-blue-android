@@ -68,7 +68,23 @@ class CompareMenusBotViewModel @Inject constructor(
                             eateries =
                             (listOfNotNull(firstEatery) + eateriesApiResponse.data.filter { it.name != firstEatery?.name }).filter { eatery ->
                                 filters.all { filter ->
-                                    filter.passesFilter(eatery, favorites, selected)
+                                    when (filter) {
+                                        is Filter.FromEatery -> filter.passesFilter(eatery)
+                                        is Filter.RequiresFavoriteEateries -> filter.passesFilter(
+                                            eatery,
+                                            favorites
+                                        )
+
+                                        is Filter.CustomFilter -> {
+                                            when (filter) {
+                                                Filter.CustomFilter.Selected -> selected.contains(
+                                                    eatery
+                                                )
+
+                                                Filter.CustomFilter.Today -> true
+                                            }
+                                        }
+                                    }
                                 }
                             },
                             allEateries = listOfNotNull(firstEatery) + eateriesApiResponse.data.filter { it.name != firstEatery?.name },
@@ -108,14 +124,14 @@ class CompareMenusBotViewModel @Inject constructor(
     fun addFilterCM(filter: Filter) = viewModelScope.launch {
         filtersFlow.update { filters ->
             when (filter) {
-                Filter.NORTH ->
-                    filters.filter { it != Filter.WEST && it != Filter.CENTRAL } + filter
+                Filter.FromEatery.North ->
+                    filters.filter { it != Filter.FromEatery.West && it != Filter.FromEatery.Central } + filter
 
-                Filter.WEST ->
-                    filters.filter { it != Filter.NORTH && it != Filter.CENTRAL } + filter
+                Filter.FromEatery.West ->
+                    filters.filter { it != Filter.FromEatery.North && it != Filter.FromEatery.Central } + filter
 
-                Filter.CENTRAL ->
-                    filters.filter { it != Filter.WEST && it != Filter.NORTH } + filter
+                Filter.FromEatery.Central ->
+                    filters.filter { it != Filter.FromEatery.West && it != Filter.FromEatery.North } + filter
 
                 else ->
                     filters + filter

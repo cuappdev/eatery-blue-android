@@ -55,7 +55,7 @@ fun CompareFilterRow(
     showPaymentFilter: Boolean = true
 ) {
     val paymentMethodFilters = currentFiltersSelected.filter { filter ->
-        filter in setOf(Filter.BRB, Filter.CASH, Filter.SWIPES)
+        filter in setOf(Filter.FromEatery.BRB, Filter.FromEatery.Cash, Filter.FromEatery.Swipes)
     }
 
     val paymentMethodFilterText: String =
@@ -71,49 +71,49 @@ fun CompareFilterRow(
         item {
             FilterButton(
                 onFilterClicked = {
-                    onFilterClicked(Filter.SELECTED)
+                    onFilterClicked(Filter.CustomFilter.Selected)
                 },
-                selected = currentFiltersSelected.contains(Filter.SELECTED),
-                text = Filter.SELECTED.text
+                selected = currentFiltersSelected.contains(Filter.CustomFilter.Selected),
+                text = Filter.CustomFilter.Selected.text
             )
         }
         item {
             FilterButton(
                 onFilterClicked = {
-                    onFilterClicked(Filter.NORTH)
+                    onFilterClicked(Filter.FromEatery.North)
                 },
-                selected = currentFiltersSelected.contains(Filter.NORTH),
-                text = Filter.NORTH.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.WEST)
-                },
-                selected = currentFiltersSelected.contains(Filter.WEST),
-                text = Filter.WEST.text
+                selected = currentFiltersSelected.contains(Filter.FromEatery.North),
+                text = Filter.FromEatery.North.text
             )
         }
 
         item {
             FilterButton(
                 onFilterClicked = {
-                    onFilterClicked(Filter.CENTRAL)
+                    onFilterClicked(Filter.FromEatery.West)
                 },
-                selected = currentFiltersSelected.contains(Filter.CENTRAL),
-                text = Filter.CENTRAL.text
+                selected = currentFiltersSelected.contains(Filter.FromEatery.West),
+                text = Filter.FromEatery.West.text
             )
         }
 
         item {
             FilterButton(
                 onFilterClicked = {
-                    onFilterClicked(Filter.UNDER_10)
+                    onFilterClicked(Filter.FromEatery.Central)
                 },
-                selected = currentFiltersSelected.contains(Filter.UNDER_10),
-                text = Filter.UNDER_10.text
+                selected = currentFiltersSelected.contains(Filter.FromEatery.Central),
+                text = Filter.FromEatery.Central.text
+            )
+        }
+
+        item {
+            FilterButton(
+                onFilterClicked = {
+                    onFilterClicked(Filter.FromEatery.Under10)
+                },
+                selected = currentFiltersSelected.contains(Filter.FromEatery.Under10),
+                text = Filter.FromEatery.Under10.text
             )
         }
 
@@ -131,10 +131,10 @@ fun CompareFilterRow(
         item {
             FilterButton(
                 onFilterClicked = {
-                    onFilterClicked(Filter.FAVORITES)
+                    onFilterClicked(Filter.RequiresFavoriteEateries.Favorites)
                 },
-                selected = currentFiltersSelected.contains(Filter.FAVORITES),
-                text = Filter.FAVORITES.text
+                selected = currentFiltersSelected.contains(Filter.RequiresFavoriteEateries.Favorites),
+                text = Filter.RequiresFavoriteEateries.Favorites.text
             )
         }
 
@@ -206,25 +206,25 @@ fun FilterRowUpcoming(
 
         item {
             FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.NORTH) },
-                selected = selectedFilters.contains(Filter.NORTH),
-                text = Filter.NORTH.text
+                onFilterClicked = { onFilterClicked(Filter.FromEatery.North) },
+                selected = selectedFilters.contains(Filter.FromEatery.North),
+                text = Filter.FromEatery.North.text
             )
         }
 
         item {
             FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.WEST) },
-                selected = selectedFilters.contains(Filter.WEST),
-                text = Filter.WEST.text
+                onFilterClicked = { onFilterClicked(Filter.FromEatery.West) },
+                selected = selectedFilters.contains(Filter.FromEatery.West),
+                text = Filter.FromEatery.West.text
             )
         }
 
         item {
             FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.CENTRAL) },
-                selected = selectedFilters.contains(Filter.CENTRAL),
-                text = Filter.CENTRAL.text
+                onFilterClicked = { onFilterClicked(Filter.FromEatery.Central) },
+                selected = selectedFilters.contains(Filter.FromEatery.Central),
+                text = Filter.FromEatery.Central.text
             )
         }
 

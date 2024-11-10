@@ -161,14 +161,14 @@ fun SearchScreen(
                                     }
                                 },
                                 filters = listOf(
-                                    Filter.NORTH,
-                                    Filter.WEST,
-                                    Filter.CENTRAL,
-                                    Filter.BRB,
-                                    Filter.SWIPES,
-                                    Filter.FAVORITES,
-                                    Filter.SELECTED,
-                                    Filter.UNDER_10
+                                    Filter.FromEatery.North,
+                                    Filter.FromEatery.West,
+                                    Filter.FromEatery.Central,
+                                    Filter.FromEatery.BRB,
+                                    Filter.FromEatery.Swipes,
+                                    Filter.RequiresFavoriteEateries.Favorites,
+                                    Filter.CustomFilter.Selected,
+                                    Filter.FromEatery.Under10
                                 )
                             )
                         }

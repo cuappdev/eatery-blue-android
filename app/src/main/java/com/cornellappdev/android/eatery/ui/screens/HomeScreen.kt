@@ -106,13 +106,13 @@ fun HomeScreen(
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
     val homeScreenFilters = listOf(
-        Filter.NORTH,
-        Filter.WEST,
-        Filter.CENTRAL,
-        Filter.SWIPES,
-        Filter.BRB,
-        Filter.FAVORITES,
-        Filter.UNDER_10,
+        Filter.FromEatery.North,
+        Filter.FromEatery.West,
+        Filter.FromEatery.Central,
+        Filter.FromEatery.Swipes,
+        Filter.FromEatery.BRB,
+        Filter.RequiresFavoriteEateries.Favorites,
+        Filter.FromEatery.Under10,
     )
 
 

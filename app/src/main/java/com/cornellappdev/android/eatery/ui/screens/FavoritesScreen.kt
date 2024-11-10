@@ -175,28 +175,29 @@ fun FavoritesScreen(
                             selectedFilters = if (toggle) favoritesScreenViewState.selectedEateryFilters
                             else favoritesScreenViewState.selectedItemFilters,
                             onFilterClicked = { filter ->
-                                if (toggle) {
-                                    favoriteViewModel.toggleEateryFilter(filter)
-                                } else {
-                                    favoriteViewModel.toggleItemFilter(filter)
-
+                                (filter as? Filter.FromEatery)?.let {
+                                    if (toggle) {
+                                        favoriteViewModel.toggleEateryFilter(it)
+                                    } else {
+                                        favoriteViewModel.toggleItemFilter(it)
+                                    }
                                 }
                             },
                             filters = if (toggle) {
                                 listOf(
-                                    Filter.NORTH,
-                                    Filter.WEST,
-                                    Filter.CENTRAL,
-                                    Filter.BRB,
-                                    Filter.SWIPES,
-                                    Filter.UNDER_10,
+                                    Filter.FromEatery.North,
+                                    Filter.FromEatery.West,
+                                    Filter.FromEatery.Central,
+                                    Filter.FromEatery.BRB,
+                                    Filter.FromEatery.Swipes,
+                                    Filter.FromEatery.Under10,
                                 )
                             } else {
                                 listOf(
-                                    Filter.TODAY,
-                                    Filter.NORTH,
-                                    Filter.WEST,
-                                    Filter.CENTRAL,
+                                    Filter.CustomFilter.Today,
+                                    Filter.FromEatery.North,
+                                    Filter.FromEatery.West,
+                                    Filter.FromEatery.Central,
                                 )
 
                             }

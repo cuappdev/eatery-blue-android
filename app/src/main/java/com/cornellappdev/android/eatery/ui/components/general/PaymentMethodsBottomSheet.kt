@@ -76,23 +76,23 @@ fun PaymentMethodsBottomSheet(
             ) {
                 IconButton(
                     onClick = {
-                        if (selectedFilters.contains(Filter.SWIPES)) {
-                            selectedFilters.remove(Filter.SWIPES)
+                        if (selectedFilters.contains(Filter.FromEatery.Swipes)) {
+                            selectedFilters.remove(Filter.FromEatery.Swipes)
                         } else {
-                            selectedFilters.add(Filter.SWIPES)
+                            selectedFilters.add(Filter.FromEatery.Swipes)
                         }
                     },
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (selectedFilters.contains(Filter.SWIPES)) EateryBlue else GrayZero,
+                            color = if (selectedFilters.contains(Filter.FromEatery.Swipes)) EateryBlue else GrayZero,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_swipes),
                         contentDescription = "Swipes",
-                        tint = if (selectedFilters.contains(Filter.SWIPES)) Color.White else GrayFive
+                        tint = if (selectedFilters.contains(Filter.FromEatery.Swipes)) Color.White else GrayFive
                     )
                 }
 
@@ -108,23 +108,23 @@ fun PaymentMethodsBottomSheet(
             ) {
                 IconButton(
                     onClick = {
-                        if (selectedFilters.contains(Filter.BRB)) {
-                            selectedFilters.remove(Filter.BRB)
+                        if (selectedFilters.contains(Filter.FromEatery.BRB)) {
+                            selectedFilters.remove(Filter.FromEatery.BRB)
                         } else {
-                            selectedFilters.add(Filter.BRB)
+                            selectedFilters.add(Filter.FromEatery.BRB)
                         }
                     },
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (selectedFilters.contains(Filter.BRB)) Red else GrayZero,
+                            color = if (selectedFilters.contains(Filter.FromEatery.BRB)) Red else GrayZero,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_brbs),
                         contentDescription = "BRBs",
-                        tint = if (selectedFilters.contains(Filter.BRB)) Color.White else GrayFive
+                        tint = if (selectedFilters.contains(Filter.FromEatery.BRB)) Color.White else GrayFive
                     )
                 }
 
@@ -139,23 +139,23 @@ fun PaymentMethodsBottomSheet(
             ) {
                 IconButton(
                     onClick = {
-                        if (selectedFilters.contains(Filter.CASH)) {
-                            selectedFilters.remove(Filter.CASH)
+                        if (selectedFilters.contains(Filter.FromEatery.Cash)) {
+                            selectedFilters.remove(Filter.FromEatery.Cash)
                         } else {
-                            selectedFilters.add(Filter.CASH)
+                            selectedFilters.add(Filter.FromEatery.Cash)
                         }
                     },
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (selectedFilters.contains(Filter.CASH)) Green else GrayZero,
+                            color = if (selectedFilters.contains(Filter.FromEatery.Cash)) Green else GrayZero,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_cash),
                         contentDescription = "Cash or credit",
-                        tint = if (selectedFilters.contains(Filter.CASH)) Color.White else GrayFive
+                        tint = if (selectedFilters.contains(Filter.FromEatery.Cash)) Color.White else GrayFive
                     )
                 }
 

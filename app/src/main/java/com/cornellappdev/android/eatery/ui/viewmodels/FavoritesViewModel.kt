@@ -142,7 +142,7 @@ class FavoritesViewModel @Inject constructor(
         userPreferencesRepository.toggleFavoriteMenuItem(menuItemName)
     }
 
-    fun toggleEateryFilter(filter: Filter) {
+    fun toggleEateryFilter(filter: Filter.FromEatery) {
         selectedEateryFiltersFlow.update {
             if (filter in it) it - filter else it + filter
         }

@@ -2,24 +2,28 @@ package com.cornellappdev.android.eatery.ui.components.general
 
 import com.cornellappdev.android.eatery.data.models.Eatery
 
-sealed class Filter {
-    sealed class CustomFilter : Filter() {
-        data object Today : CustomFilter()
-        data object Selected : CustomFilter()
+sealed class Filter(open val text: String) {
+    sealed class CustomFilter(override val text: String) : Filter(text) {
+        data object Today : CustomFilter(text = "Today")
+        data object Selected : CustomFilter(text = "Selected")
     }
 
-    sealed class FromEatery : Filter() {
-        data object North : FromEatery()
-        data object West : FromEatery()
-        data object Central : FromEatery()
-        data object Under10 : FromEatery()
-        data object Swipes : FromEatery()
-        data object BRB : FromEatery()
-        data object Cash : FromEatery()
+    sealed class FromEatery(override val text: String) : Filter(text) {
+        data object North : FromEatery(text = "North")
+        data object West : FromEatery(text = "West")
+        data object Central : FromEatery(text = "Central")
+        data object Under10 : FromEatery(text = "Under 10 min")
+        data object Swipes : FromEatery(text = "Swipes")
+        data object BRB : FromEatery(text = "BRBs")
+        data object Cash : FromEatery(text = "Cash")
     }
 
-    sealed class RequiresFavoriteEateries : Filter() {
-        data object Favorites : RequiresFavoriteEateries()
+    sealed class RequiresFavoriteEateries(override val text: String) : Filter(text) {
+        data object Favorites : RequiresFavoriteEateries(text = "Favorites")
+    }
+
+    companion object {
+        val paymentMethodFilters = listOf(FromEatery.Cash, FromEatery.BRB, FromEatery.Swipes)
     }
 }
 

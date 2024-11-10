@@ -108,38 +108,38 @@ class SearchViewModel @Inject constructor(
 
     private fun Eatery.passesFilter(filters: List<Filter>): Boolean {
         var passesFilter = true
-        if (filters.contains(Filter.UNDER_10)) {
+        if (filters.contains(Filter.FromEatery.Under10)) {
             val walkTimes = getWalkTimes()
             passesFilter = walkTimes != null && walkTimes <= 10
         }
 
-        if (filters.contains(Filter.FAVORITES)) {
+        if (filters.contains(Filter.RequiresFavoriteEateries.Favorites)) {
             passesFilter = favoriteEateries.value.contains(this) == true
         }
 
         val allLocationsValid =
-            !filters.contains(Filter.NORTH) &&
-                    !filters.contains(Filter.CENTRAL) &&
-                    !filters.contains(Filter.WEST)
+            !filters.contains(Filter.FromEatery.North) &&
+                    !filters.contains(Filter.FromEatery.Central) &&
+                    !filters.contains(Filter.FromEatery.West)
 
         // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
         // or one/multiple are selected and the eatery is located there.
         passesFilter = passesFilter &&
-                (allLocationsValid || ((filters.contains(Filter.NORTH) && campusArea == "North") ||
-                        (filters.contains(Filter.WEST) && campusArea == "West") ||
-                        (filters.contains(Filter.CENTRAL) && campusArea == "Central")))
+                (allLocationsValid || ((filters.contains(Filter.FromEatery.North) && campusArea == "North") ||
+                        (filters.contains(Filter.FromEatery.West) && campusArea == "West") ||
+                        (filters.contains(Filter.FromEatery.Central) && campusArea == "Central")))
 
         val allPaymentMethodsValid =
-            !filters.contains(Filter.CASH) &&
-                    !filters.contains(Filter.BRB) &&
-                    !filters.contains(Filter.SWIPES)
+            !filters.contains(Filter.FromEatery.Cash) &&
+                    !filters.contains(Filter.FromEatery.BRB) &&
+                    !filters.contains(Filter.FromEatery.Swipes)
 
         // Passes filter if all three aren't selected (therefore any payment method is valid, specified by allPaymentMethodsValid)
         // or one/multiple are selected and the eatery takes it.
         return passesFilter &&
-                (allPaymentMethodsValid || ((filters.contains(Filter.SWIPES) && paymentAcceptsMealSwipes == true) ||
-                        (filters.contains(Filter.BRB) && paymentAcceptsBrbs == true) ||
-                        (filters.contains(Filter.CASH) && paymentAcceptsCash == true)))
+                (allPaymentMethodsValid || ((filters.contains(Filter.FromEatery.Swipes) && paymentAcceptsMealSwipes == true) ||
+                        (filters.contains(Filter.FromEatery.BRB) && paymentAcceptsBrbs == true) ||
+                        (filters.contains(Filter.FromEatery.Cash) && paymentAcceptsCash == true)))
     }
 
     private fun Eatery.passesSearch(query: String): Boolean {

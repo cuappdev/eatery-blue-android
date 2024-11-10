@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
+import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRowUpcoming
 import com.cornellappdev.android.eatery.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eatery.ui.components.upcoming.MealBottomSheet
@@ -185,11 +186,13 @@ fun UpcomingMenuScreen(
                                 }
                             },
                             onFilterClicked = { filter ->
-                                if (viewState.selectedFilters.contains(filter)
-                                ) {
-                                    upcomingViewModel.removeLocationFilter(filter)
-                                } else {
-                                    upcomingViewModel.addLocationFilter(filter)
+                                (filter as? Filter.FromEatery)?.let {
+                                    if (viewState.selectedFilters.contains(filter)
+                                    ) {
+                                        upcomingViewModel.removeLocationFilter(filter)
+                                    } else {
+                                        upcomingViewModel.addLocationFilter(filter)
+                                    }
                                 }
                             })
                     }
