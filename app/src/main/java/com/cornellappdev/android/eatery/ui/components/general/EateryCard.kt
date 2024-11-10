@@ -35,6 +35,7 @@ import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -47,7 +48,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
@@ -192,7 +192,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 //}
 
 @OptIn(
-    ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class,
+    ExperimentalMaterialApi::class,
     ExperimentalPermissionsApi::class
 )
 @Composable
@@ -207,7 +207,8 @@ fun EateryCard(
 ) {
     val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsState()?.value
 
-    val interactionSource = MutableInteractionSource()
+    val interactionSource = remember { MutableInteractionSource() }
+
     val bitmapState = eatery.imageUrl?.let { CoilRepository.getUrlState(it, LocalContext.current) }
 
     val infiniteTransition = rememberInfiniteTransition()
@@ -217,7 +218,157 @@ fun EateryCard(
         animationSpec = infiniteRepeatable(
             animation = tween(1000),
             repeatMode = RepeatMode.Reverse
-        )
+        ),
+    )
+    val closedAlpha by animateFloatAsState(
+        targetValue = if (eatery.isClosed()) .53f else 1f,
+        label = "Closed Fade",
+        animationSpec = tween(250)
+    )
+
+    Card(
+        elevation = 3.dp,
+        shape = RoundedCornerShape(10.dp),
+        onClick = {
+            selectEatery(eatery)
+        },
+        backgroundColor = Color.White,
+        modifier = modifier
+    ) {
+        Column {
+            Box {
+                Crossfade(
+                    targetState = bitmapState?.value,
+                    label = "imageFade",
+                    animationSpec = tween(250),
+                    modifier = Modifier.alpha(closedAlpha)
+                ) { apiResponse ->
+                    when (apiResponse) {
+                        is EateryApiResponse.Success ->
+                            Image(
+                                bitmap = apiResponse.data,
+                                modifier = Modifier
+                                    .height(130.dp)
+                                    .fillMaxWidth(),
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop
+                            )
+
+                        is EateryApiResponse.Pending ->
+                            Image(
+                                bitmap = ImageBitmap(width = 1, height = 1),
+                                modifier = Modifier
+                                    .height(130.dp)
+                                    .fillMaxWidth()
+                                    .background(colorInterp(progress, GrayOne, GrayThree)),
+                                contentDescription = "",
+                                contentScale = ContentScale.Crop
+                            )
+
+                        else ->
+                            Image(
+                                modifier = Modifier
+                                    .height(130.dp)
+                                    .fillMaxWidth(),
+                                painter = painterResource(R.drawable.blank_eatery),
+                                contentDescription = "Eatery Image",
+                                contentScale = ContentScale.Crop,
+                            )
+                    }
+                }
+                if (xMinutesUntilClosing != null && xMinutesUntilClosing <= 60) {
+                    Card(
+                        modifier = Modifier
+                            .padding(top = 12.dp, end = 12.dp)
+                            .align(Alignment.TopEnd),
+                        shape = RoundedCornerShape(100.dp),
+                        contentColor = Orange,
+                        backgroundColor = Color.White
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(
+                                horizontal = 10.dp,
+                                vertical = 8.dp
+                            )
+                        ) {
+                            Icon(
+                                Icons.Outlined.Warning,
+                                contentDescription = "Closing soon",
+                                modifier = Modifier.size(ButtonDefaults.IconSize)
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text(
+                                text = "Closing in $xMinutesUntilClosing min",
+                                style = EateryBlueTypography.button
+                            )
+                        }
+                    }
+                }
+            }
+            Column(
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = eatery.name ?: "",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = EateryBlueTypography.h5,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 30.dp)
+                    )
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                        tint = if (isFavorite) Yellow else GrayFive,
+                        modifier = Modifier
+                            .padding(top = 3.dp)
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = rememberRipple(radius = 9.dp),
+                                onClick = {
+                                    onFavoriteClick(!isFavorite)
+                                }
+                            ),
+                        contentDescription = null
+                    )
+                }
+                EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact)
+                EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
+            }
+        }
+    }
+}
+
+//TODO, change when design is finalized
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun EateryCardGrid(
+    eatery: Eatery,
+    isFavorite: Boolean,
+    onFavoriteClick: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+        .fillMaxWidth(),
+    isCompact: Boolean = false,
+    selectEatery: (eatery: Eatery) -> Unit = {}
+) {
+    val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsState()?.value
+
+    val interactionSource = remember { MutableInteractionSource() }
+
+    val bitmapState = eatery.imageUrl?.let { CoilRepository.getUrlState(it, LocalContext.current) }
+
+    val infiniteTransition = rememberInfiniteTransition()
+    val progress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = .5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000),
+            repeatMode = RepeatMode.Reverse
+        ),
     )
     val closedAlpha by animateFloatAsState(
         targetValue = if (eatery.isClosed()) .53f else 1f,
