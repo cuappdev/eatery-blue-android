@@ -27,7 +27,7 @@ sealed class FavoritesScreenViewState {
     data class Loaded(
         val eateries: List<Eatery>,
         val favoriteCards: List<ItemFavoritesCardViewState>,
-        val selectedEateryFilters: List<Filter>,
+        val selectedEateryFilters: List<Filter.FromEatery>,
         val selectedItemFilters: List<Filter>,
     ) : FavoritesScreenViewState()
 
@@ -40,7 +40,7 @@ class FavoritesViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     eateryRepository: EateryRepository
 ) : ViewModel() {
-    private val selectedEateryFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
+    private val selectedEateryFiltersFlow = MutableStateFlow<List<Filter.FromEatery>>(emptyList())
     private val selectedItemFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
 
     /**
@@ -59,11 +59,7 @@ class FavoritesViewModel @Inject constructor(
             is EateryApiResponse.Success -> {
                 val filteredEateries = apiResponse.data.filter { eatery ->
                     favorites[eatery.id] == true && selectedEateryFilters.all {
-                        it.passesFilter(
-                            eatery,
-                            emptyMap(),
-                            emptyList()
-                        )
+                        it.passesFilter(eatery)
                     }
                 }.sortedBy { it.name }.sortedBy { it.isClosed() }
 
@@ -84,23 +80,13 @@ class FavoritesViewModel @Inject constructor(
                                 } == true
                             } == true
                         }.filter { eatery ->
-                            selectedItemFilters.all {
-                                // Today filter is accounted for later (I designed this poorly)
-                                if (it == Filter.TODAY) {
-                                    return@all true
-                                }
-                                it.passesFilter(
-                                    eatery,
-                                    emptyMap(),
-                                    emptyList()
-                                )
+                            selectedItemFilters.filterIsInstance<Filter.FromEatery>().all {
+                                it.passesFilter(eatery)
                             }
                         }
                     }.filter { (_, eateries) ->
-                        if (Filter.TODAY in selectedItemFilters) {
+                        selectedItemFilters.filterIsInstance<Filter.CustomFilter.Today>().all {
                             eateries.isNotEmpty()
-                        } else {
-                            true
                         }
                     }
 

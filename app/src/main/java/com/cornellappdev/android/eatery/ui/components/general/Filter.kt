@@ -2,68 +2,66 @@ package com.cornellappdev.android.eatery.ui.components.general
 
 import com.cornellappdev.android.eatery.data.models.Eatery
 
-enum class Filter(val text: String) {
-    UNDER_10("Under 10 min"),
-    NORTH("North"),
-    WEST("West"),
-    CENTRAL("Central"),
-    FAVORITES("Favorites"),
-    BRB("BRBs"),
-    CASH("Cash or credit"),
-    SWIPES("Meal swipes"),
-    TODAY("Today"),
-    SELECTED("Selected");
+sealed class Filter {
+    sealed class CustomFilter : Filter() {
+        data object Today : CustomFilter()
+        data object Selected : CustomFilter()
+    }
 
-    companion object {
-        val PAYMENT_METHODS = setOf(BRB, CASH, SWIPES)
-        val LOCATIONS = setOf(NORTH, WEST, CENTRAL)
+    sealed class FromEatery : Filter() {
+        data object North : FromEatery()
+        data object West : FromEatery()
+        data object Central : FromEatery()
+        data object Under10 : FromEatery()
+        data object Swipes : FromEatery()
+        data object BRB : FromEatery()
+        data object Cash : FromEatery()
+    }
+
+    sealed class RequiresFavoriteEateries : Filter() {
+        data object Favorites : RequiresFavoriteEateries()
     }
 }
 
-fun Filter.passesFilter(
+fun Filter.RequiresFavoriteEateries.passesFilter(
     eatery: Eatery,
-    favorites: Map<Int, Boolean>,
-    selected: List<Eatery>
+    favorites: Map<Int, Boolean>
+): Boolean {
+    return favorites[eatery.id] == true
+}
+
+
+fun Filter.FromEatery.passesFilter(
+    eatery: Eatery,
 ): Boolean =
     when (this) {
-        Filter.UNDER_10 -> {
+        Filter.FromEatery.Under10 -> {
             eatery.getWalkTimes()?.let { it <= 10 } ?: false
         }
 
-        Filter.NORTH -> {
+        Filter.FromEatery.North -> {
             eatery.campusArea == "North"
         }
 
-        Filter.WEST -> {
+        Filter.FromEatery.West -> {
             eatery.campusArea == "West"
         }
 
-        Filter.CENTRAL -> {
+        Filter.FromEatery.Central -> {
             eatery.campusArea == "Central"
         }
 
-        Filter.FAVORITES -> {
-            favorites[eatery.id] == true
-        }
 
-        Filter.BRB -> {
+        Filter.FromEatery.BRB -> {
             eatery.paymentAcceptsBrbs == true
         }
 
-        Filter.CASH -> {
+        Filter.FromEatery.Cash -> {
             eatery.paymentAcceptsCash == true
         }
 
-        Filter.SWIPES -> {
+        Filter.FromEatery.Swipes -> {
             eatery.paymentAcceptsMealSwipes == true
-        }
-
-        Filter.SELECTED -> {
-            eatery in selected
-        }
-
-        Filter.TODAY -> {
-            TODO("This is poorly designed my b, will redo it later")
         }
     }
 
