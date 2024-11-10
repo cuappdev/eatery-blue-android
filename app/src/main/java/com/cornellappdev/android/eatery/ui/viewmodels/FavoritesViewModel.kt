@@ -1,20 +1,27 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.ui.components.general.Filter
+import com.cornellappdev.android.eatery.ui.components.general.passesFilter
 import com.cornellappdev.android.eatery.ui.screens.ItemFavoritesCardViewState
 import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -33,13 +40,18 @@ class FavoritesViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     eateryRepository: EateryRepository
 ) : ViewModel() {
+
+    private val _selectedFiltersFlow = MutableStateFlow(emptyList<Filter>())
+    val selectedFiltersFlow = _selectedFiltersFlow.asStateFlow()
+
     /**
      * A flow emitting the latest UI state
      */
     val favoritesScreenViewState: StateFlow<FavoritesScreenViewState> = combine(
         eateryRepository.eateryFlow, userPreferencesRepository.favoritesFlow,
         userPreferencesRepository.favoriteItemsFlow,
-    ) { apiResponse, favorites, favoriteItemsMap ->
+        _selectedFiltersFlow
+    ) { apiResponse, favorites, favoriteItemsMap, filters ->
         when (apiResponse) {
             is EateryApiResponse.Error -> FavoritesScreenViewState.Error
             is EateryApiResponse.Pending -> FavoritesScreenViewState.Loading
@@ -64,7 +76,20 @@ class FavoritesViewModel @Inject constructor(
                                 } == true
                             } == true
                         }
+                    }.mapValues {eateryList->
+                        eateryList.value.filter{ eatery ->
+                            filters.all{ filter ->
+                                filter.passesFilter(eatery, emptyMap(), emptyList())
+                            }
+                        }
+//                            for (eatery in eateryList.value){
+//                                if (!filters.all{ filter -> filter.passesFilter(eatery, emptyMap(),
+//                                        emptyList()) }) (eateryList.value - eatery)
+//                            }
+//                            eateryList.value
                     }
+//                Log.d("mapvalues", menuItemsToEateries.values.size.toString())
+
 
                 val itemFavoriteCards = menuItemsToEateries.map { (itemName, eateriesByItem) ->
                     ItemFavoritesCardViewState(
@@ -105,5 +130,11 @@ class FavoritesViewModel @Inject constructor(
 
     fun removeFavorite(eateryId: Int?) {
         if (eateryId != null) userPreferencesRepository.setFavorite(eateryId, false)
+    }
+
+    fun toggleFilter(filter: Filter) {
+//        Log.d("filter toggled", "toggled")
+        _selectedFiltersFlow.update { if (filter in it) it - filter else it + filter }
+//        Log.d("filter toggled", _selectedFiltersFlow.value.toString())
     }
 }

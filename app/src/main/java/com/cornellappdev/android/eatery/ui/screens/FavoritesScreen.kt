@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,7 +57,9 @@ import com.cornellappdev.android.eatery.ui.components.details.ActiveToggle
 import com.cornellappdev.android.eatery.ui.components.details.InactiveToggle
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
+import com.cornellappdev.android.eatery.ui.components.general.FilterButton
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.ItemFavoriteFilterRow
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
@@ -78,13 +81,11 @@ fun FavoritesScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel(),
     toggleViewModel: ToggleViewModel = hiltViewModel()
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val favoritesScreenViewState =
         favoriteViewModel.favoritesScreenViewState.collectAsState().value
-    val filters = homeViewModel.filtersFlow.collectAsState().value
     val toggle = toggleViewModel.isToggled.collectAsState()
 
     Column(
@@ -178,43 +179,46 @@ fun FavoritesScreen(
                         }
                     }
                 } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            horizontalArrangement = (Arrangement.spacedBy(8.dp))
+                        ) {
+                            //toggle.value = true means that the active toggle should be the Eatery button
+                            if (toggle.value) {
+                                ActiveToggle(onClick = { }, label = "Eateries")
+                                InactiveToggle(
+                                    onClick = { toggleViewModel.toggle() },
+                                    label = "Items"
+                                )
+                            } else {
+                                InactiveToggle(
+                                    onClick = { toggleViewModel.toggle() },
+                                    label = "Eateries"
+                                )
+                                ActiveToggle(onClick = { }, label = "Items")
+                            }
+                        }
+                    }
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        FilterHeader(
+                            filters = favoriteViewModel.selectedFiltersFlow.collectAsState().value,
+                            onFilterClicked = { filter ->
+                                favoriteViewModel.toggleFilter(filter)
+                            }
+                        )
+                    }
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
-
                     ) {
-                        item {
-                            Row(
-                                horizontalArrangement = (Arrangement.spacedBy(8.dp))
-                            ) {
-                                //toggle.value = true means that the active toggle should be the Eatery button
-                                if (toggle.value) {
-                                    ActiveToggle(onClick = { }, label = "Eateries")
-                                    InactiveToggle(
-                                        onClick = { toggleViewModel.toggle() },
-                                        label = "Items"
-                                    )
-                                } else {
-                                    InactiveToggle(
-                                        onClick = { toggleViewModel.toggle() },
-                                        label = "Eateries"
-                                    )
-                                    ActiveToggle(onClick = { }, label = "Items")
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            FilterHeader(
-                                filters = filters,
-                                onFilterClicked = { filter ->
-                                    if (filters.contains(filter)) {
-                                        homeViewModel.removeFilter(filter)
-                                    } else {
-                                        homeViewModel.addFilter(filter)
-                                    }
-                                }
-                            )
-                        }
                         if (toggle.value) {
                             items(
                                 items = favoriteEateries,
@@ -271,16 +275,18 @@ fun EateryBlob(
     ) {}
 }
 
+
 @Composable
 fun FilterHeader(
     filters: List<Filter>,
     onFilterClicked: (Filter) -> Unit
 ) {
-    FilterRow(
+    ItemFavoriteFilterRow(
         currentFiltersSelected = filters,
         onFilterClicked = onFilterClicked,
     )
 }
+
 
 data class ItemFavoritesCardViewState(
     val itemName: String,

@@ -11,7 +11,8 @@ enum class Filter(val text: String) {
     BRB("BRBs"),
     CASH("Cash or credit"),
     SWIPES("Meal swipes"),
-    SELECTED("Selected");
+    SELECTED("Selected"),
+    TODAY("Today");
 
     companion object {
         val PAYMENT_METHODS = setOf(BRB, CASH, SWIPES)
@@ -59,6 +60,10 @@ fun Filter.passesFilter(
 
         Filter.SELECTED -> {
             eatery in selected
+        }
+
+        Filter.TODAY -> {
+            throw Exception("TODO: redesign filter logic")
         }
     }
 
