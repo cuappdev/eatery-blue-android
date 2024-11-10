@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -82,13 +80,7 @@ class FavoritesViewModel @Inject constructor(
                                 filter.passesFilter(eatery, emptyMap(), emptyList())
                             }
                         }
-//                            for (eatery in eateryList.value){
-//                                if (!filters.all{ filter -> filter.passesFilter(eatery, emptyMap(),
-//                                        emptyList()) }) (eateryList.value - eatery)
-//                            }
-//                            eateryList.value
                     }
-//                Log.d("mapvalues", menuItemsToEateries.values.size.toString())
 
 
                 val itemFavoriteCards = menuItemsToEateries.map { (itemName, eateriesByItem) ->
@@ -133,8 +125,6 @@ class FavoritesViewModel @Inject constructor(
     }
 
     fun toggleFilter(filter: Filter) {
-//        Log.d("filter toggled", "toggled")
         _selectedFiltersFlow.update { if (filter in it) it - filter else it + filter }
-//        Log.d("filter toggled", _selectedFiltersFlow.value.toString())
     }
 }
