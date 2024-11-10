@@ -49,7 +49,6 @@ fun CalendarWeekSelector(
             .then(modifier),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-//        Log.d("closed days", closedDays.toString())
         for (i in 0..6) {
             val size by animateFloatAsState(
                 targetValue = if (currSelectedDay == i) 1.0f else 0f,

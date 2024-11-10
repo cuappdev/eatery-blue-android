@@ -9,7 +9,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,10 +27,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -58,7 +54,6 @@ import com.cornellappdev.android.eatery.ui.theme.GrayOne
 import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Orange
-import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -320,20 +315,7 @@ fun EateryCard(
                             .weight(1f)
                             .padding(end = 30.dp)
                     )
-                    Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                        tint = if (isFavorite) Yellow else GrayFive,
-                        modifier = Modifier
-                            .padding(top = 3.dp)
-                            .clickable(
-                                interactionSource = interactionSource,
-                                indication = rememberRipple(radius = 9.dp),
-                                onClick = {
-                                    onFavoriteClick(!isFavorite)
-                                }
-                            ),
-                        contentDescription = null
-                    )
+                    FavoriteButton(isFavorite, onFavoriteClick)
                 }
                 EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact)
                 EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact)
@@ -341,6 +323,7 @@ fun EateryCard(
         }
     }
 }
+
 
 @Composable
 fun EateryCardPrimaryHeader(eatery: Eatery, isCompact: Boolean) {
