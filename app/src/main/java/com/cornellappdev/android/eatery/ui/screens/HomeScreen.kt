@@ -10,8 +10,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -107,7 +110,6 @@ fun HomeScreen(
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
 
-
     val notificationPermissionState =
         rememberMultiplePermissionsState(
             permissions = listOf(
@@ -159,6 +161,9 @@ fun HomeScreen(
         targetValue = if (showFAB) 1.0f else 0.0f,
         label = "fab_scale"
     )
+
+    //false => list view, true => grid view
+    var listGridView : Boolean by remember{ mutableStateOf(false)}
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -252,6 +257,13 @@ fun HomeScreen(
                             },
                             onResetFilters = {
                                 homeViewModel.resetFilters()
+                            },
+                            listGridView = listGridView,
+                            onListClick = {
+                                listGridView = false
+                            },
+                            onGridClick = {
+                                listGridView = true
                             }
                         )
                     }
@@ -270,7 +282,6 @@ fun HomeScreen(
         })
 }
 
-
 @OptIn(
     ExperimentalFoundationApi::class,
     ExperimentalMaterialApi::class,
@@ -288,23 +299,21 @@ private fun HomeScrollableMainContent(
     nearestEateries: List<Eatery>,
     favorites: List<Eatery>,
     filters: List<Filter>,
+    listGridView: Boolean,
+    onListClick: () -> Unit,
+    onGridClick: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val isFirstVisible =
         remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
 
-
     val shimmer = rememberShimmer(ShimmerBounds.View)
 
-
-    // Code-ugly workaround to make favorites disappearing animation look good.
-    // lastFavorite will, whenever the favorites is deleted, persist the last favorite for a bit.
     var lastFavorite: Eatery? by remember { mutableStateOf(null) }
     if (favorites.isNotEmpty()) {
         lastFavorite = favorites[0]
     }
-
 
     LazyColumn(
         state = listState,
@@ -319,7 +328,6 @@ private fun HomeScrollableMainContent(
             )
         }
 
-
         when (eateriesApiResponse) {
             is EateryApiResponse.Pending -> {
                 items(MainLoadingItem.mainItems) { item ->
@@ -327,15 +335,12 @@ private fun HomeScrollableMainContent(
                 }
             }
 
-
             is EateryApiResponse.Error -> {
                 // TODO: Add No Internet State
             }
 
-
             is EateryApiResponse.Success -> {
                 val eateries = eateriesApiResponse.data
-
 
                 item {
                     HomeMainHeader(
@@ -350,9 +355,7 @@ private fun HomeScrollableMainContent(
                     )
                 }
 
-
                 if (filters.isNotEmpty()) {
-                    // Eateries found; display new screen. O/W, reset filter screen.
                     if (eateries.isNotEmpty()) {
                         items(eateries) { eatery ->
                             Box(
@@ -390,11 +393,7 @@ private fun HomeScrollableMainContent(
                 } else {
                     item {
                         Spacer(modifier = Modifier.height(6.dp))
-
-
-                        // If should show "fake" last favorite persisting for a bit.
                         val showFake = favorites.isEmpty() && lastFavorite != null
-
 
                         EateryHomeSection(
                             title = "Favorites",
@@ -408,37 +407,94 @@ private fun HomeScrollableMainContent(
                     }
 
                     item {
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 16.dp, bottom = 12.dp),
-                            text = "All Eateries",
-                            style = EateryBlueTypography.h4,
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .padding(start = 16.dp, bottom = 12.dp),
+                                text = "All Eateries",
+                                style = EateryBlueTypography.h4,
+                            )
+                            Row {
+                                IconButton(
+                                    onClick = {
+                                        onListClick()
+                                    },
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_bell),
+                                        contentDescription = "List View",
+                                        tint = Color.Black,
+                                        modifier = Modifier
+                                    )
+                                }
+                                IconButton(
+                                    onClick = {
+                                        onGridClick()
+                                    },
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_bell),
+                                        contentDescription = "Grid View",
+                                        tint = Color.Black,
+                                        modifier = Modifier
+                                    )
+                                }
+                            }
+                        }
                     }
 
-
-                    itemsIndexed(
-                        nearestEateries
-                    ) { index, eatery ->
-                        Box(
-                            Modifier.padding(
-                                start = 16.dp,
-                                end = 16.dp,
-                                // Handles the padding between items
-                                top = if (index != 0) 12.dp else 0.dp
-                            )
-                        ) {
-                            EateryCard(
-                                eatery = eatery,
-                                isFavorite = favorites.any { favoriteEatery ->
-                                    favoriteEatery.id == eatery.id
-                                },
-                                onFavoriteClick = {
-                                    onFavoriteClick(eatery, it)
-                                }
+                    if (listGridView) {
+                        items(eateries.chunked(2)) { row ->
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
                             ) {
-                                onEateryClick(it)
+                                row.forEach { eatery ->
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                    ) {
+                                        EateryCard(
+                                            eatery = eatery,
+                                            isFavorite = favorites.any { favoriteEatery ->
+                                                favoriteEatery.id == eatery.id
+                                            },
+                                            onFavoriteClick = {
+                                                onFavoriteClick(eatery, it)
+                                            }
+                                        ) {
+                                            onEateryClick(it)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        itemsIndexed(nearestEateries) { index, eatery ->
+                            Box(
+                                Modifier.padding(
+                                    start = 16.dp,
+                                    end = 16.dp,
+                                    top = if (index != 0) 12.dp else 0.dp
+                                )
+                            ) {
+                                EateryCard(
+                                    eatery = eatery,
+                                    isFavorite = favorites.any { favoriteEatery ->
+                                        favoriteEatery.id == eatery.id
+                                    },
+                                    onFavoriteClick = {
+                                        onFavoriteClick(eatery, it)
+                                    }
+                                ) {
+                                    onEateryClick(it)
+                                }
                             }
                         }
                     }
@@ -447,7 +503,6 @@ private fun HomeScrollableMainContent(
         }
     }
 }
-
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
