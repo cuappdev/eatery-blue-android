@@ -11,6 +11,7 @@ enum class Filter(val text: String) {
     BRB("BRBs"),
     CASH("Cash or credit"),
     SWIPES("Meal swipes"),
+    TODAY("Today"),
     SELECTED("Selected");
 
     companion object {
@@ -59,6 +60,10 @@ fun Filter.passesFilter(
 
         Filter.SELECTED -> {
             eatery in selected
+        }
+
+        Filter.TODAY -> {
+            TODO("This is poorly designed my b, will redo it later")
         }
     }
 

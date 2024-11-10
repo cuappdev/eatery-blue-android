@@ -66,7 +66,6 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -79,12 +78,10 @@ fun FavoritesScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel(),
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val favoritesScreenViewState =
         favoriteViewModel.favoritesScreenViewState.collectAsState().value
-    val filters = homeViewModel.filtersFlow.collectAsState().value
     var toggle by remember { mutableStateOf(true) }
 
 
@@ -173,14 +170,35 @@ fun FavoritesScreen(
                             }
                         }
                         Spacer(modifier = Modifier.height(12.dp))
+
                         FilterHeader(
-                            selectedFilters = filters,
+                            selectedFilters = if (toggle) favoritesScreenViewState.selectedEateryFilters
+                            else favoritesScreenViewState.selectedItemFilters,
                             onFilterClicked = { filter ->
-                                if (filters.contains(filter)) {
-                                    homeViewModel.removeFilter(filter)
+                                if (toggle) {
+                                    favoriteViewModel.toggleEateryFilter(filter)
                                 } else {
-                                    homeViewModel.addFilter(filter)
+                                    favoriteViewModel.toggleItemFilter(filter)
+
                                 }
+                            },
+                            filters = if (toggle) {
+                                listOf(
+                                    Filter.NORTH,
+                                    Filter.WEST,
+                                    Filter.CENTRAL,
+                                    Filter.BRB,
+                                    Filter.SWIPES,
+                                    Filter.UNDER_10,
+                                )
+                            } else {
+                                listOf(
+                                    Filter.TODAY,
+                                    Filter.NORTH,
+                                    Filter.WEST,
+                                    Filter.CENTRAL,
+                                )
+
                             }
                         )
                     }

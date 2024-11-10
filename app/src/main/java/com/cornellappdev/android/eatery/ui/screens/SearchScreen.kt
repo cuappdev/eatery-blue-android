@@ -159,7 +159,18 @@ fun SearchScreen(
                                     } else {
                                         searchViewModel.addFilter(filter)
                                     }
-                                })
+                                },
+                                filters = listOf(
+                                    Filter.NORTH,
+                                    Filter.WEST,
+                                    Filter.CENTRAL,
+                                    Filter.BRB,
+                                    Filter.SWIPES,
+                                    Filter.FAVORITES,
+                                    Filter.SELECTED,
+                                    Filter.UNDER_10
+                                )
+                            )
                         }
                     }
 
