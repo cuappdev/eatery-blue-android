@@ -523,25 +523,22 @@ private fun HomeStickyHeader(
                     }
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = "Eatery",
                             color = Color.White,
                             style = EateryBlueTypography.h2
                         )
-                        Box(
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_bell),
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.clickable {
-                                    onNotificationsClick()
-                                }
-                            )
-                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_bell),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.clickable {
+                                onNotificationsClick()
+                            }
+                        )
 
                     }
 

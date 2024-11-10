@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
@@ -26,7 +27,7 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 @Composable
 fun FavoriteItemRow(
     itemName: String,
-    atEateries: List<String>,
+    eateries: List<String>,
     newNotif: Boolean
 ) {
     Row(
@@ -54,14 +55,14 @@ fun FavoriteItemRow(
                     modifier = Modifier.padding(end = 10.dp)
                 )
                 Text(
-                    text = "today",
+                    text = "Today",
                     fontSize = 10.sp,
                     style = EateryBlueTypography.body1,
-                    color = Color.LightGray
+                    color = Color.DarkGray
                 )
             }
             Row {
-                condenseEateriesName(atEateries)
+                condenseEateriesName(eateries)
             }
         }
         IconButton(
@@ -122,7 +123,17 @@ private fun condenseEateriesName(atEateries: List<String>) {
     }
 
     Text(
-        text = "At $text $suffix"
+        text = "At ",
+        fontSize = 12.sp
+    )
+    Text(
+        text = text,
+        fontWeight = FontWeight(600),
+        fontSize = 12.sp
+    )
+    Text(
+        text = " $suffix",
+        fontSize = 12.sp
     )
 }
 
