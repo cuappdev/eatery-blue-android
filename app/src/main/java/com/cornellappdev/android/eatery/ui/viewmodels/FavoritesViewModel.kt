@@ -68,11 +68,10 @@ class FavoritesViewModel @Inject constructor(
      */
     val favoritesScreenViewState: StateFlow<FavoritesScreenViewState> = combine(
         eateryRepository.eateryFlow,
-        userPreferencesRepository.favoritesFlow,
         userPreferencesRepository.favoriteItemsFlow,
         selectedEateryFiltersFlow,
         selectedItemFiltersFlow
-    ) { apiResponse, favorites, favoriteItemsMap, selectedEateryFilters, selectedItemFilters ->
+    ) { apiResponse, favoriteItemsMap, selectedEateryFilters, selectedItemFilters ->
         when (apiResponse) {
             is EateryApiResponse.Error -> FavoritesScreenViewState.Error
             is EateryApiResponse.Pending -> FavoritesScreenViewState.Loading
@@ -113,7 +112,9 @@ class FavoritesViewModel @Inject constructor(
                             )
                         }
                     }.filter { (_, eateries) ->
-                        eateries.isNotEmpty()
+                        if (Filter.ItemAvailableToday in selectedItemFilters) {
+                            eateries.isNotEmpty()
+                        } else true
                     }
 
                 val itemFavoriteCards = menuItemsToEateries.map { (itemName, eateriesByItem) ->
