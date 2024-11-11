@@ -51,7 +51,11 @@ class UpcomingViewModel @Inject constructor(
     private val selectedFiltersFlow = MutableStateFlow(listOf<Filter>())
     private val selectedDayFlow = MutableStateFlow(0)
     val upcomingMenuFilters =
-        listOf(Filter.FromEatery.North, Filter.FromEatery.West, Filter.FromEatery.Central)
+        listOf(
+            Filter.FromEateryFilter.North,
+            Filter.FromEateryFilter.West,
+            Filter.FromEateryFilter.Central
+        )
 
 
     /**

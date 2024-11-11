@@ -7,6 +7,7 @@ import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
+import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.screens.ItemFavoritesCardViewState
 import com.cornellappdev.android.eatery.ui.theme.GrayThree
@@ -23,22 +24,30 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
-private val eateryFilters = Filter.fromEateryFilters
-private val itemFilters = listOf(
+private val allEateryFilters = listOf(
+    FromEateryFilter.Central,
+    FromEateryFilter.North,
+    FromEateryFilter.West,
+    FromEateryFilter.Swipes,
+    FromEateryFilter.BRB,
+    FromEateryFilter.Under10,
+    FromEateryFilter.Cash
+)
+private val allItemFilters = listOf(
     Filter.ItemAvailableToday,
-    Filter.FromEatery.Central,
-    Filter.FromEatery.North,
-    Filter.FromEatery.West,
+    FromEateryFilter.Central,
+    FromEateryFilter.North,
+    FromEateryFilter.West,
 )
 
 sealed class FavoritesScreenViewState {
     data class Loaded(
         val eateries: List<Eatery>,
         val favoriteCards: List<ItemFavoritesCardViewState>,
-        val selectedEateryFilters: List<Filter.FromEatery>,
+        val selectedEateryFilters: List<FromEateryFilter>,
         val selectedItemFilters: List<Filter>,
-        val eateryFilters: List<Filter> = Filter.fromEateryFilters,
-        val itemFilter: List<Filter> = itemFilters,
+        val eateryFilters: List<Filter> = allEateryFilters,
+        val itemFilters: List<Filter> = allItemFilters,
     ) : FavoritesScreenViewState()
 
     data object Error : FavoritesScreenViewState()
@@ -51,7 +60,7 @@ class FavoritesViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     eateryRepository: EateryRepository
 ) : ViewModel() {
-    private val selectedEateryFiltersFlow = MutableStateFlow<List<Filter.FromEatery>>(emptyList())
+    private val selectedEateryFiltersFlow = MutableStateFlow<List<FromEateryFilter>>(emptyList())
     private val selectedItemFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
 
     /**
@@ -72,7 +81,7 @@ class FavoritesViewModel @Inject constructor(
 
                 val filteredEateries = apiResponse.data.filter {
                     Filter.passesSelectedFilters(
-                        eateryFilters, selectedEateryFilters, FilterData(
+                        allEateryFilters, selectedEateryFilters, FilterData(
                             eatery = it,
                         )
                     )
@@ -97,7 +106,7 @@ class FavoritesViewModel @Inject constructor(
                     }.mapValues { (itemName, eateries) ->
                         eateries.filter {
                             Filter.passesSelectedFilters(
-                                itemFilters, selectedItemFilters, FilterData(
+                                allItemFilters, selectedItemFilters, FilterData(
                                     eatery = it,
                                     targetItemName = itemName,
                                 )
@@ -159,7 +168,7 @@ class FavoritesViewModel @Inject constructor(
         userPreferencesRepository.toggleFavoriteMenuItem(menuItemName)
     }
 
-    fun toggleEateryFilter(filter: Filter.FromEatery) {
+    fun toggleEateryFilter(filter: Filter.FromEateryFilter) {
         selectedEateryFiltersFlow.update {
             if (filter in it) it - filter else it + filter
         }

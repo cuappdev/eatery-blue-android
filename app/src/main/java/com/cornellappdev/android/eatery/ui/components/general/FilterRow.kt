@@ -115,25 +115,25 @@ fun FilterRowUpcoming(
 
         item {
             FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.FromEatery.North) },
-                selected = selectedFilters.contains(Filter.FromEatery.North),
-                text = Filter.FromEatery.North.text
+                onFilterClicked = { onFilterClicked(Filter.FromEateryFilter.North) },
+                selected = selectedFilters.contains(Filter.FromEateryFilter.North),
+                text = Filter.FromEateryFilter.North.text
             )
         }
 
         item {
             FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.FromEatery.West) },
-                selected = selectedFilters.contains(Filter.FromEatery.West),
-                text = Filter.FromEatery.West.text
+                onFilterClicked = { onFilterClicked(Filter.FromEateryFilter.West) },
+                selected = selectedFilters.contains(Filter.FromEateryFilter.West),
+                text = Filter.FromEateryFilter.West.text
             )
         }
 
         item {
             FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.FromEatery.Central) },
-                selected = selectedFilters.contains(Filter.FromEatery.Central),
-                text = Filter.FromEatery.Central.text
+                onFilterClicked = { onFilterClicked(Filter.FromEateryFilter.Central) },
+                selected = selectedFilters.contains(Filter.FromEateryFilter.Central),
+                text = Filter.FromEateryFilter.Central.text
             )
         }
 

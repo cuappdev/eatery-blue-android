@@ -36,13 +36,13 @@ class HomeViewModel @Inject constructor(
     val filtersFlow = _filtersFlow.asStateFlow()
 
     val homeScreenFilters = listOf(
-        Filter.FromEatery.North,
-        Filter.FromEatery.West,
-        Filter.FromEatery.Central,
-        Filter.FromEatery.Swipes,
-        Filter.FromEatery.BRB,
+        Filter.FromEateryFilter.North,
+        Filter.FromEateryFilter.West,
+        Filter.FromEateryFilter.Central,
+        Filter.FromEateryFilter.Swipes,
+        Filter.FromEateryFilter.BRB,
         Filter.RequiresFavoriteEateries.Favorites,
-        Filter.FromEatery.Under10,
+        Filter.FromEateryFilter.Under10,
     )
 
     /**

@@ -39,7 +39,7 @@ sealed class Filter(open val text: String) {
         }
     }
 
-    sealed class FromEatery(
+    sealed class FromEateryFilter(
         override val text: String,
     ) : Filter(text) {
         abstract fun passesEateryFilter(eatery: Eatery): Boolean
@@ -49,38 +49,38 @@ sealed class Filter(open val text: String) {
             return passesEateryFilter(eatery)
         }
 
-        data object North : FromEatery(text = "North") {
+        data object North : FromEateryFilter(text = "North") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.campusArea == "North"
 
         }
 
-        data object West : FromEatery(text = "West") {
+        data object West : FromEateryFilter(text = "West") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.campusArea == "West"
         }
 
-        data object Central : FromEatery(text = "Central") {
+        data object Central : FromEateryFilter(text = "Central") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.campusArea == "Central"
         }
 
-        data object Under10 : FromEatery(text = "Under 10 min") {
+        data object Under10 : FromEateryFilter(text = "Under 10 min") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.getWalkTimes()?.let { it <= 10 } == true
         }
 
-        data object Swipes : FromEatery(text = "Swipes") {
+        data object Swipes : FromEateryFilter(text = "Swipes") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.paymentAcceptsMealSwipes == true
         }
 
-        data object BRB : FromEatery(text = "BRBs") {
+        data object BRB : FromEateryFilter(text = "BRBs") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.paymentAcceptsBrbs == true
         }
 
-        data object Cash : FromEatery(text = "Cash") {
+        data object Cash : FromEateryFilter(text = "Cash") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.paymentAcceptsCash == true
         }
@@ -99,10 +99,9 @@ sealed class Filter(open val text: String) {
 
 
     companion object {
-        val paymentMethodFilters = listOf(FromEatery.Cash, FromEatery.BRB, FromEatery.Swipes)
+        val paymentMethodFilters =
+            listOf(FromEateryFilter.Cash, FromEateryFilter.BRB, FromEateryFilter.Swipes)
 
-        val fromEateryFilters: List<FromEatery> =
-            FromEatery::class.sealedSubclasses.mapNotNull { it.objectInstance }
 
         /**
          * Checks that the `filterData` passes all of the `selectedFilters`

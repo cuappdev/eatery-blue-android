@@ -35,10 +35,10 @@ class CompareMenusBotViewModel @Inject constructor(
 
     val compareMenusBottomSheetFilters = listOf(
         Filter.Selected,
-        Filter.FromEatery.North,
-        Filter.FromEatery.West,
-        Filter.FromEatery.Central,
-        Filter.FromEatery.Under10,
+        Filter.FromEateryFilter.North,
+        Filter.FromEateryFilter.West,
+        Filter.FromEateryFilter.Central,
+        Filter.FromEateryFilter.Under10,
     )
 
     private val filtersFlow = MutableStateFlow(emptyList<Filter>())
@@ -120,14 +120,14 @@ class CompareMenusBotViewModel @Inject constructor(
     fun addFilterCM(filter: Filter) = viewModelScope.launch {
         filtersFlow.update { filters ->
             when (filter) {
-                Filter.FromEatery.North ->
-                    filters.filter { it != Filter.FromEatery.West && it != Filter.FromEatery.Central } + filter
+                Filter.FromEateryFilter.North ->
+                    filters.filter { it != Filter.FromEateryFilter.West && it != Filter.FromEateryFilter.Central } + filter
 
-                Filter.FromEatery.West ->
-                    filters.filter { it != Filter.FromEatery.North && it != Filter.FromEatery.Central } + filter
+                Filter.FromEateryFilter.West ->
+                    filters.filter { it != Filter.FromEateryFilter.North && it != Filter.FromEateryFilter.Central } + filter
 
-                Filter.FromEatery.Central ->
-                    filters.filter { it != Filter.FromEatery.West && it != Filter.FromEatery.North } + filter
+                Filter.FromEateryFilter.Central ->
+                    filters.filter { it != Filter.FromEateryFilter.West && it != Filter.FromEateryFilter.North } + filter
 
                 else ->
                     filters + filter

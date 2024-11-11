@@ -40,13 +40,13 @@ class SearchViewModel @Inject constructor(
     val searchFlow = _searchFlow.asStateFlow()
 
     val searchScreenFilters = listOf(
-        Filter.FromEatery.North,
-        Filter.FromEatery.West,
-        Filter.FromEatery.Central,
-        Filter.FromEatery.BRB,
-        Filter.FromEatery.Swipes,
+        Filter.FromEateryFilter.North,
+        Filter.FromEateryFilter.West,
+        Filter.FromEateryFilter.Central,
+        Filter.FromEateryFilter.BRB,
+        Filter.FromEateryFilter.Swipes,
         Filter.RequiresFavoriteEateries.Favorites,
-        Filter.FromEatery.Under10
+        Filter.FromEateryFilter.Under10
     )
 
     /**
