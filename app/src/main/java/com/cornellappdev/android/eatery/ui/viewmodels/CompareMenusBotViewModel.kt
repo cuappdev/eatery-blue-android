@@ -7,7 +7,7 @@ import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
-import com.cornellappdev.android.eatery.ui.components.general.passesFilter
+import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,11 +27,19 @@ import javax.inject.Inject
 class CompareMenusBotViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val eateryRepository: EateryRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private val _compareMenusUiState = MutableStateFlow(CompareMenusUIState())
     val compareMenusUiState: StateFlow<CompareMenusUIState> = _compareMenusUiState.asStateFlow()
+
+    val compareMenusBottomSheetFilters = listOf(
+        Filter.Selected,
+        Filter.FromEatery.North,
+        Filter.FromEatery.West,
+        Filter.FromEatery.Central,
+        Filter.FromEatery.Under10,
+    )
 
     private val filtersFlow = MutableStateFlow(emptyList<Filter>())
     private val selectedEateriesFlow = MutableStateFlow(emptyList<Eatery>())
@@ -67,25 +75,13 @@ class CompareMenusBotViewModel @Inject constructor(
                         currentState.copy(
                             eateries =
                             (listOfNotNull(firstEatery) + eateriesApiResponse.data.filter { it.name != firstEatery?.name }).filter { eatery ->
-                                filters.all { filter ->
-                                    when (filter) {
-                                        is Filter.FromEatery -> filter.passesFilter(eatery)
-                                        is Filter.RequiresFavoriteEateries -> filter.passesFilter(
-                                            eatery,
-                                            favorites
-                                        )
-
-                                        is Filter.CustomFilter -> {
-                                            when (filter) {
-                                                Filter.CustomFilter.Selected -> selected.contains(
-                                                    eatery
-                                                )
-
-                                                Filter.CustomFilter.Today -> true
-                                            }
-                                        }
-                                    }
-                                }
+                                Filter.passesSelectedFilters(
+                                    compareMenusBottomSheetFilters,
+                                    filters,
+                                    FilterData(
+                                        eatery = eatery,
+                                        selectedEateryIds = selected.mapNotNull { it.id })
+                                )
                             },
                             allEateries = listOfNotNull(firstEatery) + eateriesApiResponse.data.filter { it.name != firstEatery?.name },
                             selected = selected,

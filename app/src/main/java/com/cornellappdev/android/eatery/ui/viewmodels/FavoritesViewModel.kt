@@ -7,7 +7,7 @@ import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
-import com.cornellappdev.android.eatery.ui.components.general.passesFilter
+import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.screens.ItemFavoritesCardViewState
 import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.Green
@@ -23,17 +23,28 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
+private val eateryFilters = Filter.fromEateryFilters
+private val itemFilters = listOf(
+    Filter.ItemAvailableToday,
+    Filter.FromEatery.Central,
+    Filter.FromEatery.North,
+    Filter.FromEatery.West,
+)
+
 sealed class FavoritesScreenViewState {
     data class Loaded(
         val eateries: List<Eatery>,
         val favoriteCards: List<ItemFavoritesCardViewState>,
         val selectedEateryFilters: List<Filter.FromEatery>,
         val selectedItemFilters: List<Filter>,
+        val eateryFilters: List<Filter> = Filter.fromEateryFilters,
+        val itemFilter: List<Filter> = itemFilters,
     ) : FavoritesScreenViewState()
 
     data object Error : FavoritesScreenViewState()
     data object Loading : FavoritesScreenViewState()
 }
+
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
@@ -57,13 +68,16 @@ class FavoritesViewModel @Inject constructor(
             is EateryApiResponse.Error -> FavoritesScreenViewState.Error
             is EateryApiResponse.Pending -> FavoritesScreenViewState.Loading
             is EateryApiResponse.Success -> {
-                val filteredEateries = apiResponse.data.filter { eatery ->
-                    favorites[eatery.id] == true && selectedEateryFilters.all {
-                        it.passesFilter(eatery)
-                    }
-                }.sortedBy { it.name }.sortedBy { it.isClosed() }
-
                 val allEateries = apiResponse.data
+
+                val filteredEateries = apiResponse.data.filter {
+                    Filter.passesSelectedFilters(
+                        eateryFilters, selectedEateryFilters, FilterData(
+                            eatery = it,
+                        )
+                    )
+                }
+
 
                 val favoriteItems = favoriteItemsMap.keys.filter { favoriteItemsMap[it] == true }
 
@@ -79,15 +93,18 @@ class FavoritesViewModel @Inject constructor(
                                     itemName == it.name
                                 } == true
                             } == true
-                        }.filter { eatery ->
-                            selectedItemFilters.filterIsInstance<Filter.FromEatery>().all {
-                                it.passesFilter(eatery)
-                            }
+                        }
+                    }.mapValues { (itemName, eateries) ->
+                        eateries.filter {
+                            Filter.passesSelectedFilters(
+                                itemFilters, selectedItemFilters, FilterData(
+                                    eatery = it,
+                                    targetItemName = itemName,
+                                )
+                            )
                         }
                     }.filter { (_, eateries) ->
-                        selectedItemFilters.filterIsInstance<Filter.CustomFilter.Today>().all {
-                            eateries.isNotEmpty()
-                        }
+                        eateries.isNotEmpty()
                     }
 
                 val itemFavoriteCards = menuItemsToEateries.map { (itemName, eateriesByItem) ->

@@ -6,6 +6,7 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
+import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,21 +39,37 @@ class SearchViewModel @Inject constructor(
      */
     val searchFlow = _searchFlow.asStateFlow()
 
+    val searchScreenFilters = listOf(
+        Filter.FromEatery.North,
+        Filter.FromEatery.West,
+        Filter.FromEatery.Central,
+        Filter.FromEatery.BRB,
+        Filter.FromEatery.Swipes,
+        Filter.RequiresFavoriteEateries.Favorites,
+        Filter.FromEatery.Under10
+    )
+
     /**
      * A flow of the eateries that should show up with the current query.
      */
     val searchResultEateries = combine(
         eateryRepository.homeEateryFlow,
         filtersFlow,
+        userPreferencesRepository.favoritesFlow,
         _searchFlow
-    ) { eateryApiResponse, filters, searchQuery ->
+    ) { eateryApiResponse, filters, favorites, searchQuery ->
         when (eateryApiResponse) {
             is EateryApiResponse.Error -> EateryApiResponse.Error
             is EateryApiResponse.Pending -> EateryApiResponse.Pending
             is EateryApiResponse.Success -> {
                 EateryApiResponse.Success(
                     eateryApiResponse.data.sortedBy { it.isClosed() }.filter {
-                        it.passesFilter(filters) && it.passesSearch(searchQuery)
+                        Filter.passesSelectedFilters(
+                            searchScreenFilters, filters, FilterData(
+                                eatery = it,
+                                favoriteEateryIds = favorites
+                            )
+                        ) && it.passesSearch(searchQuery)
                     })
             }
         }
@@ -104,42 +121,6 @@ class SearchViewModel @Inject constructor(
 
     fun queryEateries(query: String) {
         _searchFlow.value = query
-    }
-
-    private fun Eatery.passesFilter(filters: List<Filter>): Boolean {
-        var passesFilter = true
-        if (filters.contains(Filter.FromEatery.Under10)) {
-            val walkTimes = getWalkTimes()
-            passesFilter = walkTimes != null && walkTimes <= 10
-        }
-
-        if (filters.contains(Filter.RequiresFavoriteEateries.Favorites)) {
-            passesFilter = favoriteEateries.value.contains(this) == true
-        }
-
-        val allLocationsValid =
-            !filters.contains(Filter.FromEatery.North) &&
-                    !filters.contains(Filter.FromEatery.Central) &&
-                    !filters.contains(Filter.FromEatery.West)
-
-        // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
-        // or one/multiple are selected and the eatery is located there.
-        passesFilter = passesFilter &&
-                (allLocationsValid || ((filters.contains(Filter.FromEatery.North) && campusArea == "North") ||
-                        (filters.contains(Filter.FromEatery.West) && campusArea == "West") ||
-                        (filters.contains(Filter.FromEatery.Central) && campusArea == "Central")))
-
-        val allPaymentMethodsValid =
-            !filters.contains(Filter.FromEatery.Cash) &&
-                    !filters.contains(Filter.FromEatery.BRB) &&
-                    !filters.contains(Filter.FromEatery.Swipes)
-
-        // Passes filter if all three aren't selected (therefore any payment method is valid, specified by allPaymentMethodsValid)
-        // or one/multiple are selected and the eatery takes it.
-        return passesFilter &&
-                (allPaymentMethodsValid || ((filters.contains(Filter.FromEatery.Swipes) && paymentAcceptsMealSwipes == true) ||
-                        (filters.contains(Filter.FromEatery.BRB) && paymentAcceptsBrbs == true) ||
-                        (filters.contains(Filter.FromEatery.Cash) && paymentAcceptsCash == true)))
     }
 
     private fun Eatery.passesSearch(query: String): Boolean {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,12 +31,15 @@ import com.cornellappdev.android.eatery.ui.theme.colorInterp
 fun FilterRow(
     filters: List<Filter>,
     currentFiltersSelected: List<Filter>,
-    onFilterClicked: (Filter) -> Unit
+    onFilterClicked: (Filter) -> Unit,
+    customItemsBefore: LazyListScope.() -> Unit = {},
+    customItemsAfter: LazyListScope.() -> Unit = {},
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
+        customItemsBefore()
         items(filters) { filter ->
             FilterButton(
                 onFilterClicked = {
@@ -44,103 +48,7 @@ fun FilterRow(
                 text = filter.text
             )
         }
-    }
-}
-
-@Composable
-fun CompareFilterRow(
-    currentFiltersSelected: List<Filter>,
-    onPaymentMethodsClicked: () -> Unit,
-    onFilterClicked: (Filter) -> Unit,
-    showPaymentFilter: Boolean = true
-) {
-    val paymentMethodFilters = currentFiltersSelected.filter { filter ->
-        filter in setOf(Filter.FromEatery.BRB, Filter.FromEatery.Cash, Filter.FromEatery.Swipes)
-    }
-
-    val paymentMethodFilterText: String =
-        if (paymentMethodFilters.isEmpty()) "Payment Methods" else paymentMethodFilters.joinToString {
-            it.text
-        }
-
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        item {
-            Spacer(modifier = Modifier.width(10.dp))
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.CustomFilter.Selected)
-                },
-                selected = currentFiltersSelected.contains(Filter.CustomFilter.Selected),
-                text = Filter.CustomFilter.Selected.text
-            )
-        }
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.FromEatery.North)
-                },
-                selected = currentFiltersSelected.contains(Filter.FromEatery.North),
-                text = Filter.FromEatery.North.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.FromEatery.West)
-                },
-                selected = currentFiltersSelected.contains(Filter.FromEatery.West),
-                text = Filter.FromEatery.West.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.FromEatery.Central)
-                },
-                selected = currentFiltersSelected.contains(Filter.FromEatery.Central),
-                text = Filter.FromEatery.Central.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.FromEatery.Under10)
-                },
-                selected = currentFiltersSelected.contains(Filter.FromEatery.Under10),
-                text = Filter.FromEatery.Under10.text
-            )
-        }
-
-        if (showPaymentFilter) {
-            item {
-                FilterButton(
-                    onFilterClicked = onPaymentMethodsClicked,
-                    selected = paymentMethodFilters.isNotEmpty(),
-                    text = paymentMethodFilterText,
-                    icon = Icons.Default.ExpandMore
-                )
-            }
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.RequiresFavoriteEateries.Favorites)
-                },
-                selected = currentFiltersSelected.contains(Filter.RequiresFavoriteEateries.Favorites),
-                text = Filter.RequiresFavoriteEateries.Favorites.text
-            )
-        }
-
-        item {
-            Spacer(Modifier.width(16.dp))
-        }
+        customItemsAfter()
     }
 }
 
@@ -182,6 +90,7 @@ fun FilterButton(
         }
     }
 }
+
 
 @Composable
 fun FilterRowUpcoming(

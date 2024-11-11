@@ -9,7 +9,7 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
-import com.cornellappdev.android.eatery.ui.components.general.passesFilter
+import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +35,16 @@ class HomeViewModel @Inject constructor(
      */
     val filtersFlow = _filtersFlow.asStateFlow()
 
+    val homeScreenFilters = listOf(
+        Filter.FromEatery.North,
+        Filter.FromEatery.West,
+        Filter.FromEatery.Central,
+        Filter.FromEatery.Swipes,
+        Filter.FromEatery.BRB,
+        Filter.RequiresFavoriteEateries.Favorites,
+        Filter.FromEatery.Under10,
+    )
+
     /**
      * A flow emitting all eateries with the appropriate filters applied.
      *
@@ -52,20 +62,14 @@ class HomeViewModel @Inject constructor(
                 is EateryApiResponse.Success -> {
                     EateryApiResponse.Success(
                         apiResponse.data.filter { eatery ->
-                            filters.all { filter ->
-                                when (filter) {
-                                    is Filter.FromEatery -> filter.passesFilter(eatery)
-                                    is Filter.RequiresFavoriteEateries -> filter.passesFilter(
-                                        eatery,
-                                        favorites
-                                    )
-
-                                    is Filter.CustomFilter -> when (filter) {
-                                        Filter.CustomFilter.Selected,
-                                        Filter.CustomFilter.Today -> true
-                                    }
-                                }
-                            }
+                            Filter.passesSelectedFilters(
+                                allFilters = homeScreenFilters,
+                                selectedFilters = filters,
+                                filterData = FilterData(
+                                    eatery,
+                                    favoriteEateryIds = favorites
+                                )
+                            )
                         }.sortedBy { eatery ->
                             eatery.name
                         }.sortedBy { eatery ->

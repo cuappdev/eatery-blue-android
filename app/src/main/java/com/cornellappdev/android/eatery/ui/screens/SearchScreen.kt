@@ -160,16 +160,7 @@ fun SearchScreen(
                                         searchViewModel.addFilter(filter)
                                     }
                                 },
-                                filters = listOf(
-                                    Filter.FromEatery.North,
-                                    Filter.FromEatery.West,
-                                    Filter.FromEatery.Central,
-                                    Filter.FromEatery.BRB,
-                                    Filter.FromEatery.Swipes,
-                                    Filter.RequiresFavoriteEateries.Favorites,
-                                    Filter.CustomFilter.Selected,
-                                    Filter.FromEatery.Under10
-                                )
+                                filters = searchViewModel.searchScreenFilters,
                             )
                         }
                     }

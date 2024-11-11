@@ -105,15 +105,6 @@ fun HomeScreen(
     val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
-    val homeScreenFilters = listOf(
-        Filter.FromEatery.North,
-        Filter.FromEatery.West,
-        Filter.FromEatery.Central,
-        Filter.FromEatery.Swipes,
-        Filter.FromEatery.BRB,
-        Filter.RequiresFavoriteEateries.Favorites,
-        Filter.FromEatery.Under10,
-    )
 
 
     val notificationPermissionState =
@@ -261,7 +252,7 @@ fun HomeScreen(
                             onResetFilters = {
                                 homeViewModel.resetFilters()
                             },
-                            filters = homeScreenFilters,
+                            filters = homeViewModel.homeScreenFilters,
                         )
                     }
                 )

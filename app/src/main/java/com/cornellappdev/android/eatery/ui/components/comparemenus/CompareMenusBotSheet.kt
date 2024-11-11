@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,35 +25,23 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.components.general.CompareFilterRow
-import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
-import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusBotViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
-import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -108,9 +95,8 @@ fun CompareMenusBotSheet(
         }
     }
 
-    CompareFilterRow(
+    FilterRow(
         currentFiltersSelected = filters,
-        onPaymentMethodsClicked = {},
         onFilterClicked = { filter ->
             if (filters.contains(filter)) {
                 compareMenusBotViewModel.removeFilterCM(filter)
@@ -118,7 +104,7 @@ fun CompareMenusBotSheet(
                 compareMenusBotViewModel.addFilterCM(filter)
             }
         },
-        showPaymentFilter = false
+        filters = compareMenusBotViewModel.compareMenusBottomSheetFilters
     )
     Column(
         modifier = Modifier

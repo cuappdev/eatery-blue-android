@@ -184,22 +184,9 @@ fun FavoritesScreen(
                                 }
                             },
                             filters = if (toggle) {
-                                listOf(
-                                    Filter.FromEatery.North,
-                                    Filter.FromEatery.West,
-                                    Filter.FromEatery.Central,
-                                    Filter.FromEatery.BRB,
-                                    Filter.FromEatery.Swipes,
-                                    Filter.FromEatery.Under10,
-                                )
+                                favoritesScreenViewState.eateryFilters
                             } else {
-                                listOf(
-                                    Filter.CustomFilter.Today,
-                                    Filter.FromEatery.North,
-                                    Filter.FromEatery.West,
-                                    Filter.FromEatery.Central,
-                                )
-
+                                favoritesScreenViewState.selectedItemFilters
                             }
                         )
                     }
