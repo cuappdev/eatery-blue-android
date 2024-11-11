@@ -9,6 +9,7 @@ import com.cornellappdev.android.eatery.data.repositories.UserPreferencesReposit
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
+import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.screens.ItemFavoritesCardViewState
 import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.Green
@@ -44,7 +45,7 @@ sealed class FavoritesScreenViewState {
     data class Loaded(
         val eateries: List<Eatery>,
         val favoriteCards: List<ItemFavoritesCardViewState>,
-        val selectedEateryFilters: List<FromEateryFilter>,
+        val selectedEateryFilters: List<Filter>,
         val selectedItemFilters: List<Filter>,
         val eateryFilters: List<Filter> = allEateryFilters,
         val itemFilters: List<Filter> = allItemFilters,
@@ -60,7 +61,7 @@ class FavoritesViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     eateryRepository: EateryRepository
 ) : ViewModel() {
-    private val selectedEateryFiltersFlow = MutableStateFlow<List<FromEateryFilter>>(emptyList())
+    private val selectedEateryFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
     private val selectedItemFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
 
     /**
@@ -169,15 +170,15 @@ class FavoritesViewModel @Inject constructor(
         userPreferencesRepository.toggleFavoriteMenuItem(menuItemName)
     }
 
-    fun toggleEateryFilter(filter: Filter.FromEateryFilter) {
+    fun toggleEateryFilter(filter: FromEateryFilter) {
         selectedEateryFiltersFlow.update {
-            if (filter in it) it - filter else it + filter
+            it.updateFilters(filter)
         }
     }
 
     fun toggleItemFilter(filter: Filter) {
         selectedItemFiltersFlow.update {
-            if (filter in it) it - filter else it + filter
+            it.updateFilters(filter)
         }
     }
 

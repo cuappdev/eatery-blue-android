@@ -7,6 +7,7 @@ import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
+import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -107,16 +109,10 @@ class SearchViewModel @Inject constructor(
         _filtersFlow.value = newList
     }
 
-    fun addFilter(filter: Filter) {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.add(filter)
-        _filtersFlow.value = newList
-    }
-
-    fun removeFilter(filter: Filter) {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.remove(filter)
-        _filtersFlow.value = newList
+    fun toggleFilter(filter: Filter) {
+        _filtersFlow.update {
+            it.updateFilters(filter)
+        }
     }
 
     fun queryEateries(query: String) {

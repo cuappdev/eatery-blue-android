@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
 import java.time.LocalDateTime
 
 data class FilterData(
@@ -137,6 +138,19 @@ sealed class Filter(open val text: String) {
             }
         }
     }
+}
+
+fun List<Filter>.updateFilters(newFilter: Filter): List<Filter> {
+    if (newFilter in this) {
+        return this - newFilter
+    }
+    val locationFilters =
+        listOf(FromEateryFilter.Central, FromEateryFilter.West, FromEateryFilter.North)
+    if (newFilter in locationFilters
+    ) {
+        return (this - locationFilters.toSet()) + newFilter
+    }
+    return this + newFilter
 }
 
 

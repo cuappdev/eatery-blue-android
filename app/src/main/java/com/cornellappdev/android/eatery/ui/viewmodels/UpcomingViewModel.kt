@@ -11,6 +11,7 @@ import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
+import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.components.upcoming.EateryHours
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCardViewState
 import com.cornellappdev.android.eatery.ui.theme.Green
@@ -164,7 +165,7 @@ class UpcomingViewModel @Inject constructor(
 
     fun toggleFilter(filter: Filter) {
         selectedFiltersFlow.update {
-            if (filter in it) it - filter else it + filter
+            it.updateFilters(filter)
         }
     }
 

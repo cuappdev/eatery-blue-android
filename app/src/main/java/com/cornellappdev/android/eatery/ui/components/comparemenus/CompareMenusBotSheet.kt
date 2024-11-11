@@ -98,11 +98,7 @@ fun CompareMenusBotSheet(
     FilterRow(
         currentFiltersSelected = filters,
         onFilterClicked = { filter ->
-            if (filters.contains(filter)) {
-                compareMenusBotViewModel.removeFilterCM(filter)
-            } else {
-                compareMenusBotViewModel.addFilterCM(filter)
-            }
+            compareMenusBotViewModel.toggleFilter(filter)
         },
         filters = compareMenusBotViewModel.compareMenusBottomSheetFilters
     )
@@ -126,9 +122,7 @@ fun CompareMenusBotSheet(
         val coroutineScope = rememberCoroutineScope()
         Button(
             onClick = {
-                if (selectedEateries.size < 2) {
-
-                } else {
+                if (selectedEateries.size >= 2) {
                     coroutineScope.launch {
                         delay(100)
                         onCompareMenusClick(compareMenusUIState.selected.mapNotNull { it.id })

@@ -242,11 +242,7 @@ fun HomeScreen(
                                 }
                             },
                             onFilterClicked = { filter ->
-                                if (filters.contains(filter)) {
-                                    homeViewModel.removeFilter(filter)
-                                } else {
-                                    homeViewModel.addFilter(filter)
-                                }
+                                homeViewModel.toggleFilter(filter)
                             },
                             onResetFilters = {
                                 homeViewModel.resetFilters()

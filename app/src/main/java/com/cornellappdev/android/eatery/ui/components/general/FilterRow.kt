@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -87,58 +86,6 @@ fun FilterButton(
                 contentDescription = "Favorite",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
-        }
-    }
-}
-
-
-@Composable
-fun FilterRowUpcoming(
-    mealFilter: MealFilter,
-    selectedFilters: List<Filter>,
-    onMealsClicked: () -> Unit,
-    onFilterClicked: (Filter) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        item {
-            FilterButton(
-                onFilterClicked = onMealsClicked,
-                selected = true,
-                text = when (mealFilter) {
-                    MealFilter.LATE_DINNER -> "Late Dinner"
-                    else -> mealFilter.text.first()
-                },
-                icon = Icons.Default.ExpandMore
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.FromEateryFilter.North) },
-                selected = selectedFilters.contains(Filter.FromEateryFilter.North),
-                text = Filter.FromEateryFilter.North.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.FromEateryFilter.West) },
-                selected = selectedFilters.contains(Filter.FromEateryFilter.West),
-                text = Filter.FromEateryFilter.West.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.FromEateryFilter.Central) },
-                selected = selectedFilters.contains(Filter.FromEateryFilter.Central),
-                text = Filter.FromEateryFilter.Central.text
-            )
-        }
-
-        item {
-            Spacer(Modifier.width(16.dp))
         }
     }
 }

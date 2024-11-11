@@ -8,6 +8,7 @@ import com.cornellappdev.android.eatery.data.repositories.UserPreferencesReposit
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
+import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -117,27 +118,9 @@ class CompareMenusBotViewModel @Inject constructor(
         }
     }
 
-    fun addFilterCM(filter: Filter) = viewModelScope.launch {
-        filtersFlow.update { filters ->
-            when (filter) {
-                Filter.FromEateryFilter.North ->
-                    filters.filter { it != Filter.FromEateryFilter.West && it != Filter.FromEateryFilter.Central } + filter
-
-                Filter.FromEateryFilter.West ->
-                    filters.filter { it != Filter.FromEateryFilter.North && it != Filter.FromEateryFilter.Central } + filter
-
-                Filter.FromEateryFilter.Central ->
-                    filters.filter { it != Filter.FromEateryFilter.West && it != Filter.FromEateryFilter.North } + filter
-
-                else ->
-                    filters + filter
-            }
-        }
-    }
-
-    fun removeFilterCM(filter: Filter) = viewModelScope.launch {
+    fun toggleFilter(filter: Filter) {
         filtersFlow.update {
-            it - filter
+            it.updateFilters(filter)
         }
     }
 

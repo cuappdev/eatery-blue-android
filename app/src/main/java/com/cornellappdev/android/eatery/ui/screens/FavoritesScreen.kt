@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
@@ -10,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -71,7 +73,6 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FavoritesScreen(
     favoriteViewModel: FavoritesViewModel = hiltViewModel(),
@@ -121,7 +122,6 @@ fun FavoritesScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // TODO add filtering
         when (favoritesScreenViewState) {
             is FavoritesScreenViewState.Loading -> {
                 LazyColumn(
@@ -131,7 +131,6 @@ fun FavoritesScreen(
                         EateryBlob(
                             modifier = Modifier.shimmer(shimmer),
                             height = 216.dp,
-                            fillMaxWidth = true
                         )
                     }
                 }
@@ -145,100 +144,132 @@ fun FavoritesScreen(
 
             is FavoritesScreenViewState.Loaded -> {
                 val favoriteEateries = favoritesScreenViewState.eateries
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    item {
-                        Row(
-                            horizontalArrangement = (Arrangement.spacedBy(8.dp))
-                        ) {
-                            //toggle.value = true means that the active toggle should be the Eatery button
-                            if (toggle) {
-                                ActiveToggle(onClick = { }, label = "Eateries")
-                                InactiveToggle(
-                                    onClick = { toggle = !toggle },
-                                    label = "Items"
-                                )
-                            } else {
-                                InactiveToggle(
-                                    onClick = { toggle = !toggle },
-                                    label = "Eateries"
-                                )
-                                ActiveToggle(onClick = { }, label = "Items")
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
+                MainScrollableContent(
+                    toggle,
+                    setToggle = { toggle = it },
+                    favoritesScreenViewState,
+                    favoriteEateries,
+                    onEateryClick,
+                    toggleEateryFilter = favoriteViewModel::toggleEateryFilter,
+                    toggleItemFilter = favoriteViewModel::toggleItemFilter,
+                    removeFavorite = favoriteViewModel::removeFavorite,
+                    removeFavoriteMenuItem = favoriteViewModel::removeFavoriteMenuItem,
+                )
+            }
+        }
+    }
+}
 
-                        FilterHeader(
-                            selectedFilters = if (toggle) favoritesScreenViewState.selectedEateryFilters
-                            else favoritesScreenViewState.selectedItemFilters,
-                            onFilterClicked = { filter ->
-                                if (toggle) {
-                                    (filter as? Filter.FromEateryFilter)?.let {
-                                        favoriteViewModel.toggleEateryFilter(it)
-                                    }
-                                } else {
-                                    favoriteViewModel.toggleItemFilter(filter)
-                                }
-                            },
-                            filters = if (toggle) {
-                                favoritesScreenViewState.eateryFilters
-                            } else {
-                                favoritesScreenViewState.itemFilters
-                            }
-                        )
-                    }
+@Composable
+@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
+private fun ColumnScope.MainScrollableContent(
+    toggle: Boolean,
+    setToggle: (Boolean) -> Unit,
+    favoritesScreenViewState: FavoritesScreenViewState.Loaded,
+    favoriteEateries: List<Eatery>,
+    onEateryClick: (eatery: Eatery) -> Unit,
+    toggleEateryFilter: (filter: Filter.FromEateryFilter) -> Unit,
+    toggleItemFilter: (filter: Filter) -> Unit,
+    removeFavorite: (eateryId: Int?) -> Unit,
+    removeFavoriteMenuItem: (menuItem: String) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item {
+            ToggleRow(toggle, setToggle)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            FilterRow(
+                currentFiltersSelected = if (toggle) favoritesScreenViewState.selectedEateryFilters
+                else favoritesScreenViewState.selectedItemFilters,
+                onFilterClicked = { filter ->
                     if (toggle) {
-                        item {
-                            AnimatedVisibility(favoriteEateries.isEmpty()) {
-                                EateriesEmptyState(message = "You currently have no favorite eateries!")
-                            }
-                        }
-
-                        items(
-                            items = favoriteEateries,
-                            key = { eatery ->
-                                eatery.id!!
-                            }) { eatery ->
-
-                            EateryCard(
-                                eatery = eatery,
-                                isFavorite = true,
-                                modifier = Modifier.animateItemPlacement(),
-                                onFavoriteClick = {
-                                    if (!it) {
-                                        favoriteViewModel.removeFavorite(eatery.id)
-                                    }
-                                }) {
-                                onEateryClick(it)
-                            }
+                        (filter as? Filter.FromEateryFilter)?.let {
+                            toggleEateryFilter(it)
                         }
                     } else {
-                        item {
-                            AnimatedVisibility(favoritesScreenViewState.favoriteCards.isEmpty()) {
-                                EateriesEmptyState("You currently have no favorite menu items!")
-                            }
-                        }
-                        items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
-                            ItemFavoritesCard(
-                                itemFavoritesCardViewState,
-                                modifier = Modifier.animateItemPlacement(),
-                                onFavoriteClick = {
-                                    favoriteViewModel.removeFavoriteMenuItem(
-                                        itemFavoritesCardViewState.itemName
-                                    )
-                                }
-                            )
-                        }
+                        toggleItemFilter(filter)
                     }
+                },
+                filters = if (toggle) {
+                    favoritesScreenViewState.eateryFilters
+                } else {
+                    favoritesScreenViewState.itemFilters
+                }
+            )
+        }
 
-                    item {
-                        Spacer(Modifier.height(20.dp))
-                    }
+        if (toggle) {
+            item {
+                AnimatedVisibility(favoriteEateries.isEmpty()) {
+                    EateriesEmptyState(message = "You currently have no favorite eateries!")
                 }
             }
+
+            items(
+                items = favoriteEateries,
+                key = { eatery ->
+                    eatery.id!!
+                }) { eatery ->
+
+                EateryCard(
+                    eatery = eatery,
+                    isFavorite = true,
+                    modifier = Modifier.animateItemPlacement(),
+                    onFavoriteClick = {
+                        if (!it) {
+                            removeFavorite(eatery.id)
+                        }
+                    }) {
+                    onEateryClick(it)
+                }
+            }
+        } else {
+            item {
+                AnimatedVisibility(favoritesScreenViewState.favoriteCards.isEmpty()) {
+                    EateriesEmptyState("You currently have no favorite menu items!")
+                }
+            }
+            items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
+                ItemFavoritesCard(
+                    itemFavoritesCardViewState,
+                    modifier = Modifier.animateItemPlacement(),
+                    onFavoriteClick = {
+                        removeFavoriteMenuItem(
+                            itemFavoritesCardViewState.itemName
+                        )
+                    }
+                )
+            }
+        }
+
+        item {
+            Spacer(Modifier.height(20.dp))
+        }
+    }
+}
+
+@Composable
+private fun ToggleRow(toggle: Boolean, setToggle: (Boolean) -> Unit) {
+    Row(
+        horizontalArrangement = (Arrangement.spacedBy(8.dp))
+    ) {
+        //toggle.value = true means that the active toggle should be the Eatery button
+        if (toggle) {
+            ActiveToggle(onClick = { }, label = "Eateries")
+            InactiveToggle(
+                onClick = { setToggle(false) },
+                label = "Items"
+            )
+        } else {
+            InactiveToggle(
+                onClick = { setToggle(true) },
+                label = "Eateries"
+            )
+            ActiveToggle(onClick = { }, label = "Items")
         }
     }
 }
@@ -278,9 +309,9 @@ private fun EateriesEmptyState(message: String) {
 }
 
 @Composable
-fun EateryBlob(
+private fun EateryBlob(
     modifier: Modifier = Modifier,
-    fillMaxWidth: Boolean = false,
+    fillMaxWidth: Boolean = true,
     height: Dp = 186.dp
 ) {
     Surface(
@@ -298,19 +329,6 @@ fun EateryBlob(
     ) {}
 }
 
-@Composable
-fun FilterHeader(
-    selectedFilters: List<Filter>,
-    filters: List<Filter>,
-    onFilterClicked: (Filter) -> Unit
-) {
-    FilterRow(
-        currentFiltersSelected = selectedFilters,
-        filters = filters,
-        onFilterClicked = onFilterClicked,
-    )
-}
-
 data class ItemFavoritesCardViewState(
     val itemName: String,
     val availability: EateryStatus,
@@ -318,7 +336,7 @@ data class ItemFavoritesCardViewState(
 )
 
 @Composable
-fun ItemFavoritesCard(
+private fun ItemFavoritesCard(
     viewState: ItemFavoritesCardViewState,
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier
