@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -156,5 +155,9 @@ class FavoritesViewModel @Inject constructor(
 
     fun removeFavorite(eateryId: Int?) {
         if (eateryId != null) userPreferencesRepository.setFavorite(eateryId, false)
+    }
+
+    fun toggleFilter(filter: Filter) {
+        _selectedFiltersFlow.update { if (filter in it) it - filter else it + filter }
     }
 }
