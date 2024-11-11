@@ -144,61 +144,6 @@ fun CompareFilterRow(
     }
 }
 
-@Composable
-fun ItemFavoriteFilterRow(
-    currentFiltersSelected: List<Filter>,
-    onFilterClicked: (Filter) -> Unit
-){
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        item {
-            Spacer(modifier = Modifier.width(10.dp))
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.TODAY)
-                },
-                selected = currentFiltersSelected.contains(Filter.TODAY),
-                text = Filter.TODAY.text
-            )
-        }
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.NORTH)
-                },
-                selected = currentFiltersSelected.contains(Filter.NORTH),
-                text = Filter.NORTH.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.WEST)
-                },
-                selected = currentFiltersSelected.contains(Filter.WEST),
-                text = Filter.WEST.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.CENTRAL)
-                },
-                selected = currentFiltersSelected.contains(Filter.CENTRAL),
-                text = Filter.CENTRAL.text
-            )
-        }
-
-        item {
-            Spacer(Modifier.width(16.dp))
-        }
-    }
-}
-
 /**
  * One filter button.
  */

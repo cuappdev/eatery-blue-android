@@ -175,12 +175,12 @@ fun FavoritesScreen(
                             selectedFilters = if (toggle) favoritesScreenViewState.selectedEateryFilters
                             else favoritesScreenViewState.selectedItemFilters,
                             onFilterClicked = { filter ->
-                                (filter as? Filter.FromEatery)?.let {
-                                    if (toggle) {
+                                if (toggle) {
+                                    (filter as? Filter.FromEatery)?.let {
                                         favoriteViewModel.toggleEateryFilter(it)
-                                    } else {
-                                        favoriteViewModel.toggleItemFilter(it)
                                     }
+                                } else {
+                                    favoriteViewModel.toggleItemFilter(filter)
                                 }
                             },
                             filters = if (toggle) {

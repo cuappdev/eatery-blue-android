@@ -61,7 +61,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun UpcomingMenuScreen(
     upcomingViewModel: UpcomingViewModel = hiltViewModel(),
-    onEateryClick: (eateryId: Int) -> Unit
+    onEateryClick: (Int) -> Unit,
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
         skipHalfExpanded = true,
@@ -221,11 +221,11 @@ fun UpcomingMenuScreen(
                                         NoEateryFound(
                                             modifier = Modifier.align(
                                                 Alignment.Center
-                                            )
-                                        ) {
-                                            upcomingViewModel.resetFilters()
-                                        }
+                                            ), resetFilters = {
+                                                upcomingViewModel.resetFilters()
+                                            })
                                     }
+                                    Spacer(modifier = Modifier.height(12.dp))
                                 }
                             }
                             items(menus.data) {
