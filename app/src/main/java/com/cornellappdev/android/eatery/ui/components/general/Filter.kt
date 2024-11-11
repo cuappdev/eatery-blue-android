@@ -14,6 +14,12 @@ data class FilterData(
 
 sealed class Filter(open val text: String) {
 
+    /**
+     * It was an intentional design decision to make passesFilter protected.
+     * This way, you have to go through the passesSelectedFilters method. This method enforces that
+     * you provided all the data that all the filters need up front, which makes it harder to
+     * accidentally forget to pass data to one of the filters and not notice until a user crashes.
+     */
     protected abstract fun passesFilter(filterData: FilterData): Boolean
 
     data object ItemAvailableToday : Filter(text = "Today") {
@@ -43,7 +49,7 @@ sealed class Filter(open val text: String) {
     sealed class FromEateryFilter(
         override val text: String,
     ) : Filter(text) {
-        abstract fun passesEateryFilter(eatery: Eatery): Boolean
+        protected abstract fun passesEateryFilter(eatery: Eatery): Boolean
 
         override fun passesFilter(filterData: FilterData): Boolean {
             val eatery = checkNotNull(filterData.eatery)
