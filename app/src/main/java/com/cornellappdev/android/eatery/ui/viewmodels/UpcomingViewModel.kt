@@ -7,10 +7,11 @@ import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
+import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
-import com.cornellappdev.android.eatery.ui.components.general.passesFilter
+import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.components.upcoming.EateryHours
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCardViewState
 import com.cornellappdev.android.eatery.ui.theme.Green
@@ -50,6 +51,12 @@ class UpcomingViewModel @Inject constructor(
     private val mealFilterFlow = MutableStateFlow(nextMeal() ?: MealFilter.LATE_DINNER)
     private val selectedFiltersFlow = MutableStateFlow(listOf<Filter>())
     private val selectedDayFlow = MutableStateFlow(0)
+    val upcomingMenuFilters =
+        listOf(
+            Filter.FromEateryFilter.North,
+            Filter.FromEateryFilter.West,
+            Filter.FromEateryFilter.Central
+        )
 
 
     /**
@@ -126,16 +133,7 @@ class UpcomingViewModel @Inject constructor(
 
             is EateryApiResponse.Success -> {
                 val data = eateryApiResponse.data.filter { eatery ->
-                    filters.all {
-                        it.passesFilter(
-                            eatery,
-                            // On this screen we don't display favorite eateries differently
-                            //  so we just pass an empty map
-                            emptyMap(),
-                            // We also don't select Eateries on this screen
-                            emptyList()
-                        )
-                    }
+                    Filter.passesSelectedFilters(upcomingMenuFilters, filters, FilterData(eatery))
                 }
 
                 val eateriesByLocation = data.groupBy { it.campusArea ?: "Unknown" }
@@ -165,15 +163,9 @@ class UpcomingViewModel @Inject constructor(
         UpcomingMenusViewState(mealFilter = nextMeal() ?: MealFilter.LATE_DINNER)
     )
 
-    fun addLocationFilter(filter: Filter) {
+    fun toggleFilter(filter: Filter) {
         selectedFiltersFlow.update {
-            it + filter
-        }
-    }
-
-    fun removeLocationFilter(filter: Filter) {
-        selectedFiltersFlow.update {
-            it - filter
+            it.updateFilters(filter)
         }
     }
 

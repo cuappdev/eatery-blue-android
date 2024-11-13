@@ -198,8 +198,6 @@ fun SetupNavHost(
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
             }, onFavoriteExpand = {
                 navController.navigate(Routes.FAVORITES.route)
-            }, onNearestExpand = {
-                navController.navigate(Routes.NEAREST.route)
             }, onCompareMenusClick = { selectedEateries ->
                 navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
             }
@@ -218,9 +216,9 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            UpcomingMenuScreen {
-                navController.navigate("${Routes.EATERY_DETAIL.route}/${it}")
-            }
+            UpcomingMenuScreen(onEateryClick = { eateryId ->
+                navController.navigate("${Routes.EATERY_DETAIL.route}/$eateryId")
+            })
         }
         composable(
             route = "${Routes.EATERY_DETAIL.route}/{eateryId}",
@@ -362,7 +360,7 @@ fun SetupNavHost(
             }) {
             FavoritesScreen(onEateryClick = {
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            },onSearchClick = {
+            }, onSearchClick = {
                 FirstTimeShown.firstTimeShown = false
                 navController.navigate(Routes.SEARCH.route)
             },

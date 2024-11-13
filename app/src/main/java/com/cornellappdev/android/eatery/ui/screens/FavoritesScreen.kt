@@ -1,13 +1,17 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,10 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,17 +58,16 @@ import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.ui.components.details.ActiveToggle
 import com.cornellappdev.android.eatery.ui.components.details.InactiveToggle
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
+import com.cornellappdev.android.eatery.ui.components.general.FavoriteButton
 import com.cornellappdev.android.eatery.ui.components.general.Filter
-import com.cornellappdev.android.eatery.ui.components.general.ItemFavoriteFilterRow
+import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.ToggleViewModel
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -78,12 +79,12 @@ fun FavoritesScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit,
-    toggleViewModel: ToggleViewModel = hiltViewModel()
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val favoritesScreenViewState =
         favoriteViewModel.favoritesScreenViewState.collectAsState().value
-    val toggle = toggleViewModel.isToggled.collectAsState()
+    var toggle by remember { mutableStateOf(true) }
+
 
     Column(
         modifier = Modifier
@@ -121,7 +122,6 @@ fun FavoritesScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // TODO add filtering
         when (favoritesScreenViewState) {
             is FavoritesScreenViewState.Loading -> {
                 LazyColumn(
@@ -131,7 +131,6 @@ fun FavoritesScreen(
                         EateryBlob(
                             modifier = Modifier.shimmer(shimmer),
                             height = 216.dp,
-                            fillMaxWidth = true
                         )
                     }
                 }
@@ -139,122 +138,180 @@ fun FavoritesScreen(
 
 
             is FavoritesScreenViewState.Error -> {
-                // TODO Add No Internet display
+                // TODO we should have a better no internet display
+                EateriesEmptyState("Failed to obtain Eatery data")
             }
 
             is FavoritesScreenViewState.Loaded -> {
                 val favoriteEateries = favoritesScreenViewState.eateries
-                if (favoriteEateries.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight(0.7f)
-                            .fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_eaterylogo),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .height(72.dp)
-                                    .width(72.dp),
-                                tint = GrayTwo,
-                            )
-
-                            Text(
-                                text = "You currently have no favorite eateries!",
-                                style = TextStyle(
-                                    fontWeight = FontWeight.Medium,
-                                    fontSize = 18.sp
-                                ),
-                                color = Color.Black,
-                                modifier = Modifier.padding(top = 12.dp)
-                            )
-                        }
-                    }
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Row(
-                            horizontalArrangement = (Arrangement.spacedBy(8.dp))
-                        ) {
-                            //toggle.value = true means that the active toggle should be the Eatery button
-                            if (toggle.value) {
-                                ActiveToggle(onClick = { }, label = "Eateries")
-                                InactiveToggle(
-                                    onClick = { toggleViewModel.toggle() },
-                                    label = "Items"
-                                )
-                            } else {
-                                InactiveToggle(
-                                    onClick = { toggleViewModel.toggle() },
-                                    label = "Eateries"
-                                )
-                                ActiveToggle(onClick = { }, label = "Items")
-                            }
-                        }
-                    }
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        FilterHeader(
-                            filters = favoriteViewModel.selectedFiltersFlow.collectAsState().value,
-                            onFilterClicked = { filter ->
-                                favoriteViewModel.toggleFilter(filter)
-                            }
-                        )
-                    }
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (toggle.value) {
-                            items(
-                                items = favoriteEateries,
-                                key = { eatery ->
-                                    eatery.id!!
-                                }) { eatery ->
-                                EateryCard(
-                                    eatery = eatery,
-                                    isFavorite = true,
-                                    onFavoriteClick = {
-                                        if (!it) {
-                                            favoriteViewModel.removeFavorite(eatery.id)
-                                        }
-                                    }) {
-                                    onEateryClick(it)
-                                }
-                            }
-                        } else {
-                            items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
-                                ItemFavoritesCard(
-                                    itemFavoritesCardViewState
-                                )
-                            }
-                        }
-
-                        item {
-                            Spacer(Modifier.height(20.dp))
-                        }
-                    }
-                }
+                MainScrollableContent(
+                    toggle,
+                    setToggle = { toggle = it },
+                    favoritesScreenViewState,
+                    favoriteEateries,
+                    onEateryClick,
+                    toggleEateryFilter = favoriteViewModel::toggleEateryFilter,
+                    toggleItemFilter = favoriteViewModel::toggleItemFilter,
+                    removeFavorite = favoriteViewModel::removeFavorite,
+                    removeFavoriteMenuItem = favoriteViewModel::removeFavoriteMenuItem,
+                )
             }
         }
     }
 }
 
 @Composable
-fun EateryBlob(
+@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
+private fun ColumnScope.MainScrollableContent(
+    toggle: Boolean,
+    setToggle: (Boolean) -> Unit,
+    favoritesScreenViewState: FavoritesScreenViewState.Loaded,
+    favoriteEateries: List<Eatery>,
+    onEateryClick: (eatery: Eatery) -> Unit,
+    toggleEateryFilter: (filter: Filter.FromEateryFilter) -> Unit,
+    toggleItemFilter: (filter: Filter) -> Unit,
+    removeFavorite: (eateryId: Int?) -> Unit,
+    removeFavoriteMenuItem: (menuItem: String) -> Unit,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item {
+            ToggleRow(toggle, setToggle)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            FilterRow(
+                currentFiltersSelected = if (toggle) favoritesScreenViewState.selectedEateryFilters
+                else favoritesScreenViewState.selectedItemFilters,
+                onFilterClicked = { filter ->
+                    if (toggle) {
+                        (filter as? Filter.FromEateryFilter)?.let {
+                            toggleEateryFilter(it)
+                        }
+                    } else {
+                        toggleItemFilter(filter)
+                    }
+                },
+                filters = if (toggle) {
+                    favoritesScreenViewState.eateryFilters
+                } else {
+                    favoritesScreenViewState.itemFilters
+                }
+            )
+        }
+
+        if (toggle) {
+            item {
+                AnimatedVisibility(favoriteEateries.isEmpty()) {
+                    EateriesEmptyState(message = "You currently have no favorite eateries!")
+                }
+            }
+
+            items(
+                items = favoriteEateries,
+                key = { eatery ->
+                    eatery.id!!
+                }) { eatery ->
+
+                EateryCard(
+                    eatery = eatery,
+                    isFavorite = true,
+                    modifier = Modifier.animateItemPlacement(),
+                    onFavoriteClick = {
+                        if (!it) {
+                            removeFavorite(eatery.id)
+                        }
+                    }) {
+                    onEateryClick(it)
+                }
+            }
+        } else {
+            item {
+                AnimatedVisibility(favoritesScreenViewState.favoriteCards.isEmpty()) {
+                    EateriesEmptyState("You currently have no favorite menu items!")
+                }
+            }
+            items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
+                ItemFavoritesCard(
+                    itemFavoritesCardViewState,
+                    modifier = Modifier.animateItemPlacement(),
+                    onFavoriteClick = {
+                        removeFavoriteMenuItem(
+                            itemFavoritesCardViewState.itemName
+                        )
+                    }
+                )
+            }
+        }
+
+        item {
+            Spacer(Modifier.height(20.dp))
+        }
+    }
+}
+
+@Composable
+private fun ToggleRow(toggle: Boolean, setToggle: (Boolean) -> Unit) {
+    Row(
+        horizontalArrangement = (Arrangement.spacedBy(8.dp))
+    ) {
+        //toggle.value = true means that the active toggle should be the Eatery button
+        if (toggle) {
+            ActiveToggle(onClick = { }, label = "Eateries")
+            InactiveToggle(
+                onClick = { setToggle(false) },
+                label = "Items"
+            )
+        } else {
+            InactiveToggle(
+                onClick = { setToggle(true) },
+                label = "Eateries"
+            )
+            ActiveToggle(onClick = { }, label = "Items")
+        }
+    }
+}
+
+@Composable
+private fun EateriesEmptyState(message: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight(0.7f)
+            .fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_eaterylogo),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(72.dp)
+                    .width(72.dp),
+                tint = GrayTwo,
+            )
+
+            Text(
+                text = message,
+                style = TextStyle(
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp
+                ),
+                color = Color.Black,
+                modifier = Modifier.padding(top = 12.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun EateryBlob(
     modifier: Modifier = Modifier,
-    fillMaxWidth: Boolean = false,
+    fillMaxWidth: Boolean = true,
     height: Dp = 186.dp
 ) {
     Surface(
@@ -272,19 +329,6 @@ fun EateryBlob(
     ) {}
 }
 
-
-@Composable
-fun FilterHeader(
-    filters: List<Filter>,
-    onFilterClicked: (Filter) -> Unit
-) {
-    ItemFavoriteFilterRow(
-        currentFiltersSelected = filters,
-        onFilterClicked = onFilterClicked,
-    )
-}
-
-
 data class ItemFavoritesCardViewState(
     val itemName: String,
     val availability: EateryStatus,
@@ -292,14 +336,18 @@ data class ItemFavoritesCardViewState(
 )
 
 @Composable
-fun ItemFavoritesCard(viewState: ItemFavoritesCardViewState) {
+private fun ItemFavoritesCard(
+    viewState: ItemFavoritesCardViewState,
+    onFavoriteClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     var isExpanded by remember { mutableStateOf(false) }
     val rotation: Float by animateFloatAsState(
         if (isExpanded) 180F else 0F,
         label = "chevron rotation"
     )
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .border(BorderStroke(Dp.Hairline, GrayZero), RoundedCornerShape(8)),
         shape = RoundedCornerShape(8.dp),
@@ -320,13 +368,7 @@ fun ItemFavoritesCard(viewState: ItemFavoritesCardViewState) {
                     .fillMaxWidth()
             ) {
                 Text(viewState.itemName, fontSize = 20.sp, style = EateryBlueTypography.button)
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_star_filled),
-                    tint = Yellow,
-                    contentDescription = "favorite",
-                    modifier = Modifier
-                        .size(20.dp)
-                )
+                FavoriteButton(isFavorite = true, onFavoriteClick = { onFavoriteClick() })
             }
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -386,7 +428,8 @@ private fun FavoritesCardPreview() = EateryPreview {
                 "lunch" to listOf("becker"),
                 "lunch" to listOf("becker"),
                 "lunch" to listOf("becker")
-            )
-        )
+            ),
+        ),
+        onFavoriteClick = {}
     )
 }

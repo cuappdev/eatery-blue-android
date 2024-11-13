@@ -20,6 +20,8 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,7 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
-import com.cornellappdev.android.eatery.ui.components.general.FilterRowUpcoming
+import com.cornellappdev.android.eatery.ui.components.general.FilterButton
+import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.MealFilter
 import com.cornellappdev.android.eatery.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eatery.ui.components.upcoming.MealBottomSheet
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCard
@@ -60,7 +64,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun UpcomingMenuScreen(
     upcomingViewModel: UpcomingViewModel = hiltViewModel(),
-    onEateryClick: (eateryId: Int) -> Unit
+    onEateryClick: (Int) -> Unit,
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
         skipHalfExpanded = true,
@@ -175,23 +179,28 @@ fun UpcomingMenuScreen(
                         }
                     }
                     item {
-                        FilterRowUpcoming(
-                            modifier = Modifier.padding(start = 16.dp),
-                            mealFilter = viewState.mealFilter,
-                            selectedFilters = viewState.selectedFilters,
-                            onMealsClicked = {
-                                coroutineScope.launch {
-                                    modalBottomSheetState.show()
+                        FilterRow(
+                            customItemsBefore = {
+                                item {
+                                    FilterButton(
+                                        onFilterClicked = {
+                                            coroutineScope.launch {
+                                                modalBottomSheetState.show()
+                                            }
+                                        },
+                                        selected = true,
+                                        text = when (viewState.mealFilter) {
+                                            MealFilter.LATE_DINNER -> "Late Dinner"
+                                            else -> viewState.mealFilter.text.first()
+                                        },
+                                        icon = Icons.Default.ExpandMore
+                                    )
                                 }
                             },
-                            onFilterClicked = { filter ->
-                                if (viewState.selectedFilters.contains(filter)
-                                ) {
-                                    upcomingViewModel.removeLocationFilter(filter)
-                                } else {
-                                    upcomingViewModel.addLocationFilter(filter)
-                                }
-                            })
+                            filters = upcomingViewModel.upcomingMenuFilters,
+                            currentFiltersSelected = viewState.selectedFilters,
+                            onFilterClicked = upcomingViewModel::toggleFilter,
+                        )
                     }
                     when (val menus = viewState.menus) {
                         is EateryApiResponse.Pending -> {
@@ -218,11 +227,11 @@ fun UpcomingMenuScreen(
                                         NoEateryFound(
                                             modifier = Modifier.align(
                                                 Alignment.Center
-                                            )
-                                        ) {
-                                            upcomingViewModel.resetFilters()
-                                        }
+                                            ), resetFilters = {
+                                                upcomingViewModel.resetFilters()
+                                            })
                                     }
+                                    Spacer(modifier = Modifier.height(12.dp))
                                 }
                             }
                             items(menus.data) {

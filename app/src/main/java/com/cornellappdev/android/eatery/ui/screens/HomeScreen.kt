@@ -6,7 +6,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -98,7 +97,6 @@ fun HomeScreen(
     onSearchClick: () -> Unit,
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteExpand: () -> Unit,
-    onNearestExpand: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
 ) {
     val context = LocalContext.current
@@ -235,7 +233,7 @@ fun HomeScreen(
                             eateriesApiResponse = eateriesApiResponse,
                             favorites = favorites,
                             nearestEateries = nearestEateries,
-                            filters = filters,
+                            selectedFilters = filters,
                             onFavoriteClick = { eatery, favorite ->
                                 if (favorite) {
                                     homeViewModel.addFavorite(eatery.id)
@@ -244,15 +242,12 @@ fun HomeScreen(
                                 }
                             },
                             onFilterClicked = { filter ->
-                                if (filters.contains(filter)) {
-                                    homeViewModel.removeFilter(filter)
-                                } else {
-                                    homeViewModel.addFilter(filter)
-                                }
+                                homeViewModel.toggleFilter(filter)
                             },
                             onResetFilters = {
                                 homeViewModel.resetFilters()
-                            }
+                            },
+                            filters = homeViewModel.homeScreenFilters,
                         )
                     }
                 )
@@ -287,6 +282,7 @@ private fun HomeScrollableMainContent(
     eateriesApiResponse: EateryApiResponse<List<Eatery>>,
     nearestEateries: List<Eatery>,
     favorites: List<Eatery>,
+    selectedFilters: List<Filter>,
     filters: List<Filter>,
 ) {
     val listState = rememberLazyListState()
@@ -340,18 +336,19 @@ private fun HomeScrollableMainContent(
                 item {
                     HomeMainHeader(
                         onSearchClick = onSearchClick,
-                        filters = filters,
+                        selectedFilters = selectedFilters,
                         onFilterClicked = onFilterClicked,
                         onPaymentMethodsClicked = {
                             coroutineScope.launch {
                                 modalBottomSheetState.show()
                             }
-                        }
+                        },
+                        filters = filters,
                     )
                 }
 
 
-                if (filters.isNotEmpty()) {
+                if (selectedFilters.isNotEmpty()) {
                     // Eateries found; display new screen. O/W, reset filter screen.
                     if (eateries.isNotEmpty()) {
                         items(eateries) { eatery ->
@@ -529,6 +526,7 @@ private fun HomeStickyHeader(
 @Composable
 private fun HomeMainHeader(
     onSearchClick: () -> Unit,
+    selectedFilters: List<Filter>,
     filters: List<Filter>,
     onFilterClicked: (Filter) -> Unit,
     onPaymentMethodsClicked: () -> Unit,
@@ -549,8 +547,9 @@ private fun HomeMainHeader(
 
 
     FilterRow(
-        currentFiltersSelected = filters,
-        onFilterClicked = onFilterClicked
+        currentFiltersSelected = selectedFilters,
+        onFilterClicked = onFilterClicked,
+        filters = filters,
     )
 }
 
