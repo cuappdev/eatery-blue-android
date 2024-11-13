@@ -62,7 +62,7 @@ fun FavoriteItemRow(
                 )
             }
             Row {
-                condenseEateriesName(eateries)
+                CondenseEateriesName(eateries)
             }
         }
         IconButton(
@@ -100,7 +100,7 @@ fun FavoriteItemRow(
  *      if any.
  */
 @Composable
-private fun condenseEateriesName(atEateries: List<String>) {
+private fun CondenseEateriesName(atEateries: List<String>) {
     val condensed = atEateries.map { condenseDiningHallNames(it) }
     val text = if (atEateries.size > 1) {
         "${condensed.last()} + ${atEateries.size - 1} other"

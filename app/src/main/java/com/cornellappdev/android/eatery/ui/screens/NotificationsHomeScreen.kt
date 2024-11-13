@@ -14,7 +14,7 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 
 @Composable
 fun NotificationsHomeScreen(
-
+//TODO added hilt view model injection here
 ) {
     Column(
         modifier = Modifier
