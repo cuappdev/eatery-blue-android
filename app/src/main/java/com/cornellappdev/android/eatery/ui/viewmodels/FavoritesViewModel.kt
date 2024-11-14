@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
+import ItemFavoritesCardViewState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -10,7 +11,6 @@ import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
-import com.cornellappdev.android.eatery.ui.screens.ItemFavoritesCardViewState
 import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse

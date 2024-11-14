@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 
-
 @Composable
 fun FilterRow(
     filters: List<Filter>,
