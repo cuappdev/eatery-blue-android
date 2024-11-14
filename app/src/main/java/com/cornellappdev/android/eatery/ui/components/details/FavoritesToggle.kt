@@ -61,7 +61,7 @@ fun ToggleRow(toggle: Boolean, setToggle: (Boolean) -> Unit) {
         horizontalArrangement = (Arrangement.spacedBy(8.dp))
     ) {
         FavoritesToggle(
-            onClick = { setToggle(true) } ,
+            onClick = { setToggle(true) },
             label = "Eateries",
             active = toggle
         )
