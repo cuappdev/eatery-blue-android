@@ -7,9 +7,11 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDate
 import javax.inject.Inject
@@ -18,11 +20,12 @@ import javax.inject.Singleton
 @Singleton
 class AppStorePopupRepository @Inject constructor(
     val userPreferencesRepository: UserPreferencesRepository,
+    private val appScope: CoroutineScope,
 ) {
     private val popupEventFlow = MutableStateFlow(false)
     val popupShowing = popupEventFlow.asStateFlow()
 
-    suspend fun requestRatingPopup() {
+    fun requestRatingPopup() {
         if (
             Duration.between(
                 userPreferencesRepository.lastShowedRatingPopupFlow.value.atStartOfDay(),
@@ -30,7 +33,9 @@ class AppStorePopupRepository @Inject constructor(
             ).toDays() >= userPreferencesRepository.minDaysBetweenRatingShow.value
         ) {
             popupEventFlow.update { true }
-            userPreferencesRepository.onShownRating()
+            appScope.launch {
+                userPreferencesRepository.onShownRating()
+            }
         }
     }
 

@@ -46,13 +46,13 @@ class UserPreferencesRepository @Inject constructor(
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, LocalDate.MIN)
 
     val minDaysBetweenRatingShow = userPreferencesFlow.map {
-        if (it.minDaysBetweenRatingShow == 0) 14 else it.minDaysBetweenRatingShow
-    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, 14)
+        if (it.minDaysBetweenRatingShow == 0) 7 else it.minDaysBetweenRatingShow
+    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, 7)
 
     suspend fun onShownRating() {
         userPreferencesStore.updateData { prefs ->
             with(prefs.toBuilder()) {
-                setMinDaysBetweenRatingShow(prefs.minDaysBetweenRatingShow * 2)
+                setMinDaysBetweenRatingShow((prefs.minDaysBetweenRatingShow * 1.5).toInt())
                 setLastShowedRatingPopup(with(LocalDate.now()) {
                     Date.newBuilder().setYear(year).setMonth(monthValue).setDay(dayOfYear)
                 }).build()

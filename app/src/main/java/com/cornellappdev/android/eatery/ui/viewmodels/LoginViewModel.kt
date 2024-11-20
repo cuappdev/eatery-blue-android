@@ -195,9 +195,6 @@ class LoginViewModel @Inject constructor(
 
     init {
         getSavedLoginInfo()
-        viewModelScope.launch {
-            appStorePopupRepository.requestRatingPopup()
-        }
     }
 
     private fun getSavedLoginInfo() = viewModelScope.launch {

@@ -52,6 +52,8 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
@@ -66,6 +68,7 @@ import java.time.ZoneId
 @Composable
 fun UpcomingMenuScreen(
     upcomingViewModel: UpcomingViewModel = hiltViewModel(),
+    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -297,6 +300,7 @@ fun UpcomingMenuScreen(
                                                     eatery = eatery,
                                                     day = selectedDay,
                                                     upcomingViewModel = upcomingViewModel,
+                                                    onEateryCardContract = appStorePopupRepository::requestRatingPopup
                                                 ) {
                                                     onEateryClick(it)
                                                 }
@@ -314,6 +318,7 @@ fun UpcomingMenuScreen(
                                                     eatery = eatery,
                                                     day = selectedDay,
                                                     upcomingViewModel = upcomingViewModel,
+                                                    onEateryCardContract = appStorePopupRepository::requestRatingPopup
                                                 ) {
                                                     onEateryClick(it)
                                                 }
@@ -331,6 +336,7 @@ fun UpcomingMenuScreen(
                                                     eatery = eatery,
                                                     day = selectedDay,
                                                     upcomingViewModel = upcomingViewModel,
+                                                    onEateryCardContract = appStorePopupRepository::requestRatingPopup
                                                 ) {
                                                     onEateryClick(it)
                                                 }

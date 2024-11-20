@@ -58,8 +58,10 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun MenuCard(
     eatery: Eatery,
+    // TODO we should not be passing down the entire ViewModel
     upcomingViewModel: UpcomingViewModel,
     day: Int,
+    onEateryCardContract: () -> Unit,
     selectEatery: (eatery: Eatery) -> Unit = {},
 ) {
     var openDropdown by remember { mutableStateOf(false) }
@@ -72,6 +74,9 @@ fun MenuCard(
         backgroundColor = Color.White,
         modifier = Modifier.clickable {
             openDropdown = !openDropdown
+            if (!openDropdown) {
+                onEateryCardContract()
+            }
         }
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
