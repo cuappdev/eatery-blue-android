@@ -36,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.ui.components.general.FavoriteIcon
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
@@ -52,10 +53,6 @@ data class MenuCardViewState(
     val eateryStatus: EateryStatus?,
 )
 
-data class EateryStatus(
-    val statusText: String,
-    val statusColor: Color,
-)
 
 data class EateryHours(
     val startTime: String,
