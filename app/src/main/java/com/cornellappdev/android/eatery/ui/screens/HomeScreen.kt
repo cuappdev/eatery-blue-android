@@ -68,7 +68,6 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
-import com.cornellappdev.android.eatery.ui.components.general.EateryCardGrid
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.general.NoEateryFound
@@ -459,16 +458,17 @@ private fun HomeScrollableMainContent(
                                 row.forEach { eatery ->
                                     Box(
                                         modifier = Modifier
-                                            .weight(1f)
+                                            .weight(1f).padding(bottom = 12.dp)
                                     ) {
-                                        EateryCardGrid(
+                                        EateryCard(
                                             eatery = eatery,
                                             isFavorite = favorites.any { favoriteEatery ->
                                                 favoriteEatery.id == eatery.id
                                             },
                                             onFavoriteClick = {
                                                 onFavoriteClick(eatery, it)
-                                            }
+                                            },
+                                            isGridView = true
                                         ) {
                                             onEateryClick(it)
                                         }

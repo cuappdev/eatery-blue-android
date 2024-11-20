@@ -33,25 +33,62 @@ fun DietaryWidgets(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(ButtonDefaults.IconSpacing)
         ) {
-            if (eatery.paymentAcceptsMealSwipes == true) {
+            //TODO once backend has each dietary attribute for an Eatery, change
+            //the if statement content to if(eatery.vegan)
+            if (true) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_swipes),
-                    contentDescription = "Accepts Swipes",
-                    tint = EateryBlue
+                    painter = painterResource(id = R.drawable.ic_vegan),
+                    contentDescription = "vegan",
+                    tint = Color.Unspecified
                 )
             }
-            if (eatery.paymentAcceptsBrbs == true) {
+            if (true) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_brbs),
-                    contentDescription = "Accepts BRBs",
-                    tint = Red
+                    painter = painterResource(id = R.drawable.ic_peanut_free),
+                    contentDescription = "peanut free",
+                    tint = Color.Unspecified
                 )
             }
-            if (eatery.paymentAcceptsCash == true) {
+            if (true) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_cash),
-                    contentDescription = "Accepts Cash",
-                    tint = Green
+                    painter = painterResource(id = R.drawable.ic_diary_free),
+                    contentDescription = "diary free",
+                    tint = Color.Unspecified
+                )
+            }
+            if (true) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_vegetarian),
+                    contentDescription = "vegetarian",
+                    tint = Color.Unspecified
+                )
+            }
+            if (true) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_gluten_free),
+                    contentDescription = "gluten free",
+                    tint = Color.Unspecified
+                )
+            }
+            if (true) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_halal),
+                    contentDescription = "halal",
+                    tint = Color.Unspecified
+                )
+            }
+            if (true) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_nut_free),
+                    contentDescription = "nut free",
+                    tint = Color.Unspecified
+                )
+            }
+            if (true) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_kosher),
+                    contentDescription = "kosher",
+                    tint = Color.Unspecified
                 )
             }
         }
