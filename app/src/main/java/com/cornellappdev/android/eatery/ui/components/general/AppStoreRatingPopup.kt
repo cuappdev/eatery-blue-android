@@ -15,11 +15,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material3.Icon
@@ -42,6 +46,7 @@ import androidx.core.content.ContextCompat.startActivity
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
@@ -62,18 +67,19 @@ fun AppStoreRatingPopup(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, dismiss: () -> Unit) {
+private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () -> Unit) {
     var rating by remember { mutableStateOf(0) }
     val context = LocalContext.current
     val packageName = context.packageName
 
     AnimatedContent(targetState = rating) { currentRating ->
         when (currentRating) {
-            0 -> RatingPrompt(rating, onChangeRating = { rating = it })
+            0 -> RatingPrompt(rating, onChangeRating = { rating = it }, onDismiss = onDismiss)
 
-            5 -> ActionPrompt("Awesome! We'd love to hear more on the PlayStore",
+            5 -> ActionPrompt(
+                "Awesome! We'd love to hear more on the PlayStore",
                 "Open PlayStore",
-                action = {
+                onButtonPress = {
                     try {
                         startActivity(
                             context, Intent(
@@ -91,26 +97,34 @@ private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, dismiss: () -> U
                             null
                         )
                     } finally {
-                        dismiss()
+                        onDismiss()
                     }
-                })
+                },
+                onDismiss = onDismiss,
+            )
 
             else -> ActionPrompt(
                 "Sorry to hear that.",
                 "Visit support",
-                action = { navigateToSupport(); dismiss() }
+                onButtonPress = { navigateToSupport(); onDismiss() },
+                onDismiss = onDismiss,
             )
         }
     }
 }
 
 @Composable
-private fun ActionPrompt(actionText: String, buttonText: String, action: () -> Unit) {
-    AppStoreRatingCardBorder {
-        Text(actionText, style = EateryBlueTypography.subtitle2)
+private fun ActionPrompt(
+    actionText: String,
+    buttonText: String,
+    onButtonPress: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AppStoreRatingCardBorder(onDismiss) {
+        Text(actionText, style = EateryBlueTypography.h6)
         Spacer(Modifier.height(12.dp))
         Button(
-            action,
+            onButtonPress,
             colors = ButtonDefaults.buttonColors(backgroundColor = EateryBlue),
             shape = RoundedCornerShape(100.dp)
         ) {
@@ -127,12 +141,12 @@ private fun ActionPrompt(actionText: String, buttonText: String, action: () -> U
 @Composable
 private fun ActionPromptPreview() {
     ActionPrompt(actionText = "Awesome, we'd love to hear about it on the PlayStore!",
-        buttonText = "Visit the PlayStore", action = {})
+        buttonText = "Visit the PlayStore", onButtonPress = {}, onDismiss = {})
 }
 
 @Composable
-private fun RatingPrompt(rating: Int, onChangeRating: (Int) -> Unit) {
-    AppStoreRatingCardBorder {
+private fun RatingPrompt(rating: Int, onChangeRating: (Int) -> Unit, onDismiss: () -> Unit) {
+    AppStoreRatingCardBorder(onDismiss = onDismiss) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text("How is your experience so far?", style = EateryBlueTypography.h4)
             RatingBar(rating, onChangeRating)
@@ -160,15 +174,34 @@ private fun RatingBar(rating: Int, onChangeRating: (Int) -> Unit) {
 }
 
 @Composable
-private fun AppStoreRatingCardBorder(content: @Composable ColumnScope.() -> Unit) {
+private fun AppStoreRatingCardBorder(
+    onDismiss: () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Column(
         modifier = Modifier
             .shadow(3.dp, shape = RoundedCornerShape(20.dp))
             .background(Color.White)
             .clip(RoundedCornerShape(20.dp))
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        content = content,
-    )
+            .padding(bottom = 24.dp, start = 24.dp)
+    ) {
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .padding(end = 16.dp, top = 16.dp)
+                    .size(24.dp)
+                    .background(color = GrayZero, shape = CircleShape)
+            ) {
+                androidx.compose.material.Icon(
+                    Icons.Default.Close,
+                    contentDescription = Icons.Default.Close.name,
+                    tint = Color.Black
+                )
+            }
+        }
+        content()
+    }
 }
 
 
@@ -176,5 +209,5 @@ private fun AppStoreRatingCardBorder(content: @Composable ColumnScope.() -> Unit
 @Preview
 private fun AppStoreRatingCardPreview() {
     EateryDetailLoadingScreen(shimmer = rememberShimmer(ShimmerBounds.View))
-    Dialog(onDismissRequest = {}) { AppStoreRatingDialog(navigateToSupport = {}, dismiss = {}) }
+    Dialog(onDismissRequest = {}) { AppStoreRatingDialog(navigateToSupport = {}, onDismiss = {}) }
 }
