@@ -21,6 +21,10 @@ message UserPreferences {
 
   bool analyticsDisabled = 8;
 
+  Date lastShowedRatingPopup = 9;
+
+  int32 minDaysBetweenRatingShow = 10;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.

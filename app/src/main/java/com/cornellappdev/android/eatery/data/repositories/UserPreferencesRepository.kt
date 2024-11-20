@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.data.repositories
 
 import androidx.datastore.core.DataStore
+import com.cornellappdev.android.eatery.Date
 import com.cornellappdev.android.eatery.UserPreferences
 import com.cornellappdev.android.eatery.util.Constants.PASSWORD_ALIAS
 import com.cornellappdev.android.eatery.util.encryptData
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,6 +36,29 @@ class UserPreferencesRepository @Inject constructor(
     val recentSearchesFlow: StateFlow<List<Int>> = userPreferencesFlow.map { prefs ->
         prefs.recentSearchesList
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, listOf())
+
+    val lastShowedRatingPopupFlow = userPreferencesFlow.map {
+        with(it.lastShowedRatingPopup) {
+            // Default value should be min local date
+            if (year == 0) LocalDate.MIN else
+                LocalDate.now().withYear(year).withMonth(month).withDayOfYear(day)
+        }
+    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, LocalDate.MIN)
+
+    val minDaysBetweenRatingShow = userPreferencesFlow.map {
+        if (it.minDaysBetweenRatingShow == 0) 14 else it.minDaysBetweenRatingShow
+    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, 14)
+
+    suspend fun onShownRating() {
+        userPreferencesStore.updateData { prefs ->
+            with(prefs.toBuilder()) {
+                setMinDaysBetweenRatingShow(prefs.minDaysBetweenRatingShow * 2)
+                setLastShowedRatingPopup(with(LocalDate.now()) {
+                    Date.newBuilder().setYear(year).setMonth(monthValue).setDay(dayOfYear)
+                }).build()
+            }
+        }
+    }
 
     suspend fun setHasOnboarded(hasOnboarded: Boolean) {
         userPreferencesStore.updateData { currentPreferences ->
