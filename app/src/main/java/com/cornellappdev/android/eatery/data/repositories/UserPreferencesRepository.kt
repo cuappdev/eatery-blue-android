@@ -41,21 +41,35 @@ class UserPreferencesRepository @Inject constructor(
         with(it.lastShowedRatingPopup) {
             // Default value should be min local date
             if (year == 0) LocalDate.MIN else
-                LocalDate.now().withYear(year).withMonth(month).withDayOfYear(day)
+                LocalDate.now().withYear(year).withDayOfMonth(day)
         }
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, LocalDate.MIN)
 
-    val minDaysBetweenRatingShow = userPreferencesFlow.map {
-        if (it.minDaysBetweenRatingShow == 0) 7 else it.minDaysBetweenRatingShow
-    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, 7)
+    val minDaysBetweenRatingShow =
+        userPreferencesFlow.map { it.minDaysBetweenRatingShow }
+            .stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, 7)
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            userPreferencesStore.updateData {
+                with(it.toBuilder()) {
+                    if (it.minDaysBetweenRatingShow == 0) {
+                        setMinDaysBetweenRatingShow(7).build()
+                    } else {
+                        build()
+                    }
+                }
+            }
+        }
+    }
 
     suspend fun onShownRating() {
         userPreferencesStore.updateData { prefs ->
             with(prefs.toBuilder()) {
                 setMinDaysBetweenRatingShow((prefs.minDaysBetweenRatingShow * 1.5).toInt())
-                setLastShowedRatingPopup(with(LocalDate.now()) {
-                    Date.newBuilder().setYear(year).setMonth(monthValue).setDay(dayOfYear)
-                }).build()
+                setLastShowedRatingPopup(
+                    Date.newBuilder().setYear(2024).setMonth(10).setDay(12)
+                ).build()
             }
         }
     }

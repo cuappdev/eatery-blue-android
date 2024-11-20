@@ -26,11 +26,15 @@ class AppStorePopupRepository @Inject constructor(
     val popupShowing = popupEventFlow.asStateFlow()
 
     fun requestRatingPopup() {
+        val lastShowedRatingPopup =
+            userPreferencesRepository.lastShowedRatingPopupFlow.value.atStartOfDay()
+        val now = LocalDate.now().atStartOfDay()
+        val daysSinceRatingShown = Duration.between(
+            lastShowedRatingPopup,
+            now,
+        ).toDays()
         if (
-            Duration.between(
-                userPreferencesRepository.lastShowedRatingPopupFlow.value.atStartOfDay(),
-                LocalDate.now().atStartOfDay(),
-            ).toDays() >= userPreferencesRepository.minDaysBetweenRatingShow.value
+            daysSinceRatingShown >= userPreferencesRepository.minDaysBetweenRatingShow.value
         ) {
             popupEventFlow.update { true }
             appScope.launch {
