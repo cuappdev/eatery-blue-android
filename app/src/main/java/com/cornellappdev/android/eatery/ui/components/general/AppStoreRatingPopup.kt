@@ -77,7 +77,7 @@ private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () ->
             0 -> RatingPrompt(rating, onChangeRating = { rating = it }, onDismiss = onDismiss)
 
             5 -> ActionPrompt(
-                "Awesome! We'd love to hear more on the PlayStore",
+                "Awesome! We'd love to hear more in a review",
                 "Open PlayStore",
                 onButtonPress = {
                     try {
@@ -140,8 +140,8 @@ private fun ActionPrompt(
 @Preview
 @Composable
 private fun ActionPromptPreview() {
-    ActionPrompt(actionText = "Awesome, we'd love to hear about it on the PlayStore!",
-        buttonText = "Visit the PlayStore", onButtonPress = {}, onDismiss = {})
+    ActionPrompt(actionText = "Awesome! We'd love to hear more in a review.",
+        buttonText = "Open PlayStore", onButtonPress = {}, onDismiss = {})
 }
 
 @Composable
@@ -190,7 +190,7 @@ private fun AppStoreRatingCardBorder(
                 onClick = onDismiss,
                 modifier = Modifier
                     .padding(end = 16.dp, top = 16.dp)
-                    .size(24.dp)
+                    .size(20.dp)
                     .background(color = GrayZero, shape = CircleShape)
             ) {
                 androidx.compose.material.Icon(
@@ -200,6 +200,7 @@ private fun AppStoreRatingCardBorder(
                 )
             }
         }
+        Spacer(modifier = Modifier.height(12.dp))
         content()
     }
 }
