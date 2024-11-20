@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
+import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
+import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
@@ -62,6 +64,7 @@ import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import kotlinx.coroutines.launch
 
 //@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
 //@Composable
@@ -193,7 +196,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 @OptIn(
     ExperimentalMaterialApi::class,
-    ExperimentalPermissionsApi::class
 )
 @Composable
 fun EateryCard(
@@ -276,6 +278,15 @@ fun EateryCard(
                             )
                     }
                 }
+                //TODO change to dietary widgets once design is finalized
+//                PaymentWidgets(
+//                    eatery,
+//                    modifier = Modifier
+//                        .align(Alignment.BottomEnd)
+//                        .padding(16.dp)
+//                        .height(40.dp)
+//                ) {
+//                }
                 if (xMinutesUntilClosing != null && xMinutesUntilClosing <= 60) {
                     Card(
                         modifier = Modifier
