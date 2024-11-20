@@ -7,12 +7,9 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import java.time.Duration
 import java.time.LocalDate
 import javax.inject.Inject
@@ -39,13 +36,6 @@ class AppStorePopupRepository @Inject constructor(
 
     fun dismissPopup() {
         popupEventFlow.update { false }
-    }
-
-    init {
-        GlobalScope.launch {
-            delay(1000L)
-            popupEventFlow.update { true }
-        }
     }
 }
 
