@@ -257,7 +257,7 @@ fun EateryCard(
                             Image(
                                 bitmap = apiResponse.data,
                                 modifier = Modifier
-                                    .height(130.dp)
+                                    .height(if (isGridView) 100.dp else 130.dp)
                                     .fillMaxWidth(),
                                 contentDescription = "",
                                 contentScale = ContentScale.Crop
@@ -267,7 +267,7 @@ fun EateryCard(
                             Image(
                                 bitmap = ImageBitmap(width = 1, height = 1),
                                 modifier = Modifier
-                                    .height(130.dp)
+                                    .height(if (isGridView) 100.dp else 130.dp)
                                     .fillMaxWidth()
                                     .background(colorInterp(progress, GrayOne, GrayThree)),
                                 contentDescription = "",
@@ -277,7 +277,7 @@ fun EateryCard(
                         else ->
                             Image(
                                 modifier = Modifier
-                                    .height(130.dp)
+                                    .height(if (isGridView) 100.dp else 130.dp)
                                     .fillMaxWidth(),
                                 painter = painterResource(R.drawable.blank_eatery),
                                 contentDescription = "Eatery Image",
