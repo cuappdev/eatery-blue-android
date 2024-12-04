@@ -28,7 +28,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.LocalMinimumTouchTargetEnforcement
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -39,7 +38,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -68,6 +66,7 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
+import com.cornellappdev.android.eatery.ui.components.general.EateryCardStyle
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.general.NoEateryFound
@@ -456,16 +455,16 @@ private fun HomeScrollableMainContent(
                                     ) {
                                         EateryCard(
                                             eatery = eatery,
-                                            isFavorite = favorites.any { favoriteEatery ->
-                                                favoriteEatery.id == eatery.id
+                                            isFavorite = favorites.any { it.id == eatery.id },
+                                            onFavoriteClick = { isFavorite ->
+                                                onFavoriteClick(eatery, isFavorite)
                                             },
-                                            onFavoriteClick = {
-                                                onFavoriteClick(eatery, it)
-                                            },
-                                            isGridView = true
-                                        ) {
-                                            onEateryClick(it)
-                                        }
+                                            style = if (isGridView) EateryCardStyle.GRID_VIEW else EateryCardStyle.DEFAULT,
+                                            selectEatery = { selectedEatery ->
+                                                onEateryClick(selectedEatery)
+                                            }
+                                        )
+
                                     }
                                 }
                             }
