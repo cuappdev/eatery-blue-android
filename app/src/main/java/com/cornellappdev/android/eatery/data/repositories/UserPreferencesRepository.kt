@@ -52,6 +52,13 @@ class UserPreferencesRepository @Inject constructor(
     init {
         CoroutineScope(Dispatchers.IO).launch {
             userPreferencesStore.updateData {
+                /**
+                 * This is a way of manually setting the default value for minDaysBetweenRatingShow
+                 * so we can multiply it for an exponential fall off.
+                 * Currently it doesn't seem like proto files support custom default values so this
+                 * is the only way to do it really.
+                 * See https://protobuf.dev/programming-guides/proto3/#default for more details
+                 */
                 with(it.toBuilder()) {
                     if (it.minDaysBetweenRatingShow == 0) {
                         setMinDaysBetweenRatingShow(7).build()
