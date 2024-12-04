@@ -7,7 +7,8 @@ import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
-import com.cornellappdev.android.eatery.ui.components.general.passesFilter
+import com.cornellappdev.android.eatery.ui.components.general.FilterData
+import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,11 +28,19 @@ import javax.inject.Inject
 class CompareMenusBotViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val eateryRepository: EateryRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private val _compareMenusUiState = MutableStateFlow(CompareMenusUIState())
     val compareMenusUiState: StateFlow<CompareMenusUIState> = _compareMenusUiState.asStateFlow()
+
+    val compareMenusBottomSheetFilters = listOf(
+        Filter.Selected,
+        Filter.FromEateryFilter.North,
+        Filter.FromEateryFilter.West,
+        Filter.FromEateryFilter.Central,
+        Filter.FromEateryFilter.Under10,
+    )
 
     private val filtersFlow = MutableStateFlow(emptyList<Filter>())
     private val selectedEateriesFlow = MutableStateFlow(emptyList<Eatery>())
@@ -67,9 +76,13 @@ class CompareMenusBotViewModel @Inject constructor(
                         currentState.copy(
                             eateries =
                             (listOfNotNull(firstEatery) + eateriesApiResponse.data.filter { it.name != firstEatery?.name }).filter { eatery ->
-                                filters.all { filter ->
-                                    filter.passesFilter(eatery, favorites, selected)
-                                }
+                                Filter.passesSelectedFilters(
+                                    compareMenusBottomSheetFilters,
+                                    filters,
+                                    FilterData(
+                                        eatery = eatery,
+                                        selectedEateryIds = selected.mapNotNull { it.id })
+                                )
                             },
                             allEateries = listOfNotNull(firstEatery) + eateriesApiResponse.data.filter { it.name != firstEatery?.name },
                             selected = selected,
@@ -105,27 +118,9 @@ class CompareMenusBotViewModel @Inject constructor(
         }
     }
 
-    fun addFilterCM(filter: Filter) = viewModelScope.launch {
-        filtersFlow.update { filters ->
-            when (filter) {
-                Filter.NORTH ->
-                    filters.filter { it != Filter.WEST && it != Filter.CENTRAL } + filter
-
-                Filter.WEST ->
-                    filters.filter { it != Filter.NORTH && it != Filter.CENTRAL } + filter
-
-                Filter.CENTRAL ->
-                    filters.filter { it != Filter.WEST && it != Filter.NORTH } + filter
-
-                else ->
-                    filters + filter
-            }
-        }
-    }
-
-    fun removeFilterCM(filter: Filter) = viewModelScope.launch {
+    fun toggleFilter(filter: Filter) {
         filtersFlow.update {
-            it - filter
+            it.updateFilters(filter)
         }
     }
 
