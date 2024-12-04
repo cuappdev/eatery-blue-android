@@ -6,7 +6,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,6 +28,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LocalMinimumTouchTargetEnforcement
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -40,6 +39,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -163,7 +163,7 @@ fun HomeScreen(
     )
 
     //false => list view, true => grid view
-    var listGridView : Boolean by remember{ mutableStateOf(false)}
+    var isGridView: Boolean by remember { mutableStateOf(false) }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -258,12 +258,12 @@ fun HomeScreen(
                             onResetFilters = {
                                 homeViewModel.resetFilters()
                             },
-                            listGridView = listGridView,
+                            isGridView = isGridView,
                             onListClick = {
-                                listGridView = false
+                                isGridView = false
                             },
                             onGridClick = {
-                                listGridView = true
+                                isGridView = true
                             }
                         )
                     }
@@ -299,7 +299,7 @@ private fun HomeScrollableMainContent(
     nearestEateries: List<Eatery>,
     favorites: List<Eatery>,
     filters: List<Filter>,
-    listGridView: Boolean,
+    isGridView: Boolean,
     onListClick: () -> Unit,
     onGridClick: () -> Unit
 ) {
@@ -418,36 +418,29 @@ private fun HomeScrollableMainContent(
                                 text = "All Eateries",
                                 style = EateryBlueTypography.h4,
                             )
-                            Row {
-                                IconButton(
-                                    onClick = {
-                                        onListClick()
-                                    },
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_bell),
-                                        contentDescription = "List View",
-                                        tint = Color.Black,
-                                        modifier = Modifier
-                                    )
-                                }
-                                IconButton(
-                                    onClick = {
-                                        onGridClick()
-                                    },
-                                ) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_bell),
-                                        contentDescription = "Grid View",
-                                        tint = Color.Black,
-                                        modifier = Modifier
-                                    )
-                                }
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                modifier = Modifier
+                                    .padding(end = 12.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = if (isGridView) R.drawable.ic_list_view_unselected else R.drawable.ic_list_view_selected),
+                                    contentDescription = "List View",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.clickable { onListClick() }
+                                )
+                                Icon(
+                                    painter = painterResource(id = if (isGridView) R.drawable.ic_grid_view_selected else R.drawable.ic_grid_view_unselected),
+                                    contentDescription = "Grid View",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier.clickable { onGridClick() }
+                                )
                             }
+
                         }
                     }
 
-                    if (listGridView) {
+                    if (isGridView) {
                         items(eateries.chunked(2)) { row ->
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -458,7 +451,8 @@ private fun HomeScrollableMainContent(
                                 row.forEach { eatery ->
                                     Box(
                                         modifier = Modifier
-                                            .weight(1f).padding(bottom = 12.dp)
+                                            .weight(1f)
+                                            .padding(bottom = 12.dp)
                                     ) {
                                         EateryCard(
                                             eatery = eatery,

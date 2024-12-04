@@ -211,7 +211,7 @@ fun EateryCard(
     modifier: Modifier = Modifier
         .fillMaxWidth(),
     isCompact: Boolean = false,
-    isGridView : Boolean = false,
+    isGridView: Boolean = false,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
     val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsState()?.value
@@ -285,26 +285,30 @@ fun EateryCard(
                             )
                     }
                 }
-                //TODO change to dietary widgets once design is finalized
-                if(!isGridView){
-                    DietaryWidgets(
-                        eatery,
+                //TODO uncomment once backend finishes AI feature
+//                if(!isGridView){
+//                    DietaryWidgets(
+//                        eatery,
+//                        modifier = Modifier
+//                            .align(Alignment.BottomEnd)
+//                            .padding(16.dp)
+//                            .height(40.dp)
+//                    ) {
+//                    }
+//                }
+                if (isGridView) {
+                    GridViewFavoriteWidget(
+                        isFavorite = isFavorite,
+                        interactionSource = interactionSource,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(16.dp)
                             .height(40.dp)
                     ) {
-                    }
-                }
-                if(isGridView){
-                    GridViewFavoriteWidget(isFavorite = isFavorite, interactionSource = interactionSource,modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp)
-                        .height(40.dp)){
                         onFavoriteClick(!isFavorite)
                     }
                 }
-                if (xMinutesUntilClosing != null && xMinutesUntilClosing <= 60) {
+                if (!isGridView && xMinutesUntilClosing != null && xMinutesUntilClosing <= 60) {
                     Card(
                         modifier = Modifier
                             .padding(top = 12.dp, end = 12.dp)
@@ -349,7 +353,7 @@ fun EateryCard(
                             .weight(1f)
                             .padding(end = 30.dp)
                     )
-                    if(!isGridView){
+                    if (!isGridView) {
                         Icon(
                             imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
                             tint = if (isFavorite) Yellow else GrayFive,
@@ -366,10 +370,22 @@ fun EateryCard(
                         )
                     }
                 }
-                EateryCardPrimaryHeader(eatery = eatery, isCompact = isCompact,isGridView = isGridView)
-                EateryCardSecondaryHeader(eatery = eatery, isCompact = isCompact,isGridView = isGridView)
+                EateryCardPrimaryHeader(
+                    eatery = eatery,
+                    isCompact = isCompact,
+                    isGridView = isGridView
+                )
+                EateryCardSecondaryHeader(
+                    eatery = eatery,
+                    isCompact = isCompact,
+                    isGridView = isGridView
+                )
                 //TODO comment until backend is done with entree recommendation
-                EateryCardTertiaryHeader(eatery = eatery, isCompact = isCompact, isGridView = isGridView)
+                EateryCardTertiaryHeader(
+                    eatery = eatery,
+                    isCompact = isCompact,
+                    isGridView = isGridView
+                )
             }
         }
     }
@@ -442,7 +458,7 @@ fun EateryCardPrimaryHeader(eatery: Eatery, isCompact: Boolean, isGridView: Bool
 }
 
 @Composable
-fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean,isGridView: Boolean) {
+fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean, isGridView: Boolean) {
     if (!isCompact) {
         Row(
             modifier = Modifier.padding(top = 2.dp),
@@ -467,40 +483,41 @@ fun EateryCardSecondaryHeader(eatery: Eatery, isCompact: Boolean,isGridView: Boo
 
 //TODO, integrate backend for the entree recommendation once backend is done for that
 @Composable
-fun EateryCardTertiaryHeader(eatery: Eatery, isCompact: Boolean,isGridView: Boolean) {
-    if (!isCompact && !isGridView) {
-        Row(
-            modifier = Modifier.padding(top = 2.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Recommended for You: ",
-                color = GrayFive,
-                style = EateryBlueTypography.subtitle2
-            )
-            Text(
-                text = "Carved Roast Beef",
-                color = EateryBlue,
-                fontStyle = FontStyle.Italic,
-                style = EateryBlueTypography.subtitle2
-            )
-        }
-    }
-    else{
-        Column (modifier = Modifier.padding(top = 8.dp)){
-            Text(
-                text = "Recommended for You: ",
-                color = GrayFive,
-                style = EateryBlueTypography.subtitle2
-            )
-            Text(
-                text = "Carved Roast Beef",
-                color = EateryBlue,
-                fontStyle = FontStyle.Italic,
-                style = EateryBlueTypography.subtitle2
-            )
-        }
-    }
+fun EateryCardTertiaryHeader(eatery: Eatery, isCompact: Boolean, isGridView: Boolean) {
+    //TODO uncomment when backend finishes AI feature
+//    if (!isCompact && !isGridView) {
+//        Row(
+//            modifier = Modifier.padding(top = 2.dp),
+//            verticalAlignment = Alignment.CenterVertically
+//        ) {
+//            Text(
+//                text = "Recommended for You: ",
+//                color = GrayFive,
+//                style = EateryBlueTypography.subtitle2
+//            )
+//            Text(
+//                text = "Carved Roast Beef",
+//                color = EateryBlue,
+//                fontStyle = FontStyle.Italic,
+//                style = EateryBlueTypography.subtitle2
+//            )
+//        }
+//    }
+//    else{
+//        Column (modifier = Modifier.padding(top = 8.dp)){
+//            Text(
+//                text = "Recommended for You: ",
+//                color = GrayFive,
+//                style = EateryBlueTypography.subtitle2
+//            )
+//            Text(
+//                text = "Carved Roast Beef",
+//                color = EateryBlue,
+//                fontStyle = FontStyle.Italic,
+//                style = EateryBlueTypography.subtitle2
+//            )
+//        }
+//    }
 }
 
 //@Composable
