@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.util
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.cornellappdev.android.eatery.data.repositories.PopupDataRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -20,6 +21,7 @@ import javax.inject.Singleton
 @Singleton
 class AppStorePopupRepository @Inject constructor(
     val userPreferencesRepository: UserPreferencesRepository,
+    private val popupDataRepository: PopupDataRepository,
     private val appScope: CoroutineScope,
 ) {
     private val popupEventFlow = MutableStateFlow(false)
@@ -27,18 +29,18 @@ class AppStorePopupRepository @Inject constructor(
 
     fun requestRatingPopup() {
         val lastShowedRatingPopup =
-            userPreferencesRepository.lastShowedRatingPopupFlow.value.atStartOfDay()
+            popupDataRepository.lastShowedRatingPopupFlow.value.atStartOfDay()
         val now = LocalDate.now().atStartOfDay()
         val daysSinceRatingShown = Duration.between(
             lastShowedRatingPopup,
             now,
         ).toDays()
         if (
-            daysSinceRatingShown >= userPreferencesRepository.minDaysBetweenRatingShow.value
+            daysSinceRatingShown >= popupDataRepository.minDaysBetweenRatingShow.value
         ) {
             popupEventFlow.update { true }
             appScope.launch {
-                userPreferencesRepository.onShownRating()
+                popupDataRepository.onShownRating()
             }
         }
     }
