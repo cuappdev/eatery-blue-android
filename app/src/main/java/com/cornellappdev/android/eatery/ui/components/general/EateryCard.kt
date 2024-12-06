@@ -47,8 +47,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
@@ -242,10 +244,10 @@ fun EateryCard(
                         )
                     }
                 }
-//                EateryCardPrimaryHeader(
-//                    eatery = eatery,
-//                    style = style
-//                )
+                EateryCardPrimaryHeader(
+                    eatery = eatery,
+                    style = style
+                )
                 EateryCardSecondaryHeader(
                     eatery = eatery,
                     style = style
@@ -292,36 +294,12 @@ fun GridViewFavoriteWidget(
 @Composable
 fun EateryCardPrimaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardStyle.DEFAULT) {
     if (style == EateryCardStyle.DEFAULT) {
-        Row(
-            modifier = Modifier.padding(top = 2.dp)
-        ) {
+        Row {
             Text(
                 text = eatery.location ?: "Unknown location",
                 color = GrayFive,
                 style = EateryBlueTypography.subtitle2
             )
-            EateryMenuSummary(eatery = eatery)
-        }
-    } else {
-        Row(
-            modifier = Modifier.padding(top = 2.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Default.Schedule,
-                contentDescription = null,
-                tint = GrayFive,
-                modifier = Modifier.padding(end = 4.dp, top = 1.dp)
-            )
-
-            Text(
-                text = "${eatery.getWaitTimes() ?: "3-5"} min wait",
-                color = GrayFive,
-                style = EateryBlueTypography.subtitle2
-            )
-
-            DotSeparator()
-            EateryMenuSummary(eatery = eatery)
         }
     }
 }
@@ -329,10 +307,28 @@ fun EateryCardPrimaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardS
 @Composable
 fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardStyle.DEFAULT) {
     if (style != EateryCardStyle.COMPACT) {
+        val walkText =
+            "${if (eatery.getWalkTimes()!! > 0) eatery.getWalkTimes() else "< 1"} min walk"
         Row(
             modifier = Modifier.padding(top = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            if(style == EateryCardStyle.DEFAULT) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_walk_small),
+                    contentDescription = null,
+                    tint = GrayFive,
+                    modifier = Modifier.padding(end = 4.dp, top = 1.dp)
+                )
+                Text(
+                    text = walkText,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight(500),
+                    color = GrayFive,
+                    style = EateryBlueTypography.subtitle2
+                )
+                DotSeparator()
+            }
             val openUntil = eatery.getOpenUntil()
             Text(
                 modifier = Modifier.padding(top = 2.dp),
