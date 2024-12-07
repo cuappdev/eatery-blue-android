@@ -181,8 +181,7 @@ fun EateryCard(
                     ) {
                         onFavoriteClick(!isFavorite)
                     }
-                }
-                else if (xMinutesUntilClosing != null && xMinutesUntilClosing <= 60) {
+                } else if (xMinutesUntilClosing != null && xMinutesUntilClosing <= 60) {
                     Card(
                         modifier = Modifier
                             .padding(top = 12.dp, end = 12.dp)
@@ -313,7 +312,7 @@ fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCar
             modifier = Modifier.padding(top = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if(style == EateryCardStyle.DEFAULT) {
+            if (style == EateryCardStyle.DEFAULT) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_walk_small),
                     contentDescription = null,
@@ -367,9 +366,8 @@ fun EateryCardTertiaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCard
                 style = EateryBlueTypography.subtitle2
             )
         }
-    }
-    else{
-        Column (modifier = Modifier.padding(top = 8.dp)){
+    } else {
+        Column(modifier = Modifier.padding(top = 8.dp)) {
             Text(
                 text = "Recommended for You: ",
                 color = GrayFive,
