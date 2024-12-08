@@ -113,6 +113,8 @@ import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds
@@ -126,6 +128,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
+    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -899,16 +902,17 @@ fun EateryDetailScreen(
                                         filterText,
                                         fullMenuList,
                                         listState,
-                                        5
-                                    ) { index ->
-                                        // The first category title has an item index of 8
-                                        // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)
-                                        coroutineScope.launch {
-                                            listState.animateScrollToItem(
-                                                index + 5
-                                            )
+                                        5,
+                                        onItemClick = { index ->
+                                            // The first category title has an item index of 8
+                                            // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)
+                                            coroutineScope.launch {
+                                                listState.animateScrollToItem(
+                                                    index + 5
+                                                )
+                                            }
                                         }
-                                    }
+                                    )
                                 }
                             }
                         }
