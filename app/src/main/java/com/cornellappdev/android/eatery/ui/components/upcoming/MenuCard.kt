@@ -66,8 +66,8 @@ data class EateryHours(
 @Composable
 fun MenuCard(
     menuCardViewState: MenuCardViewState,
+    onEateryCardContract: () -> Unit = {},
     selectEatery: (eateryId: Int) -> Unit = {},
-    onEateryCardContract: () -> Unit,
 ) = with(menuCardViewState) {
     var openDropdown by remember { mutableStateOf(false) }
     Card(

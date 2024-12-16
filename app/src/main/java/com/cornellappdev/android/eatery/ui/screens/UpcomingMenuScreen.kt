@@ -247,10 +247,14 @@ fun UpcomingMenuScreen(
                                     Spacer(modifier = Modifier.height(16.dp))
                                     it.menuCards.forEach { eatery ->
                                         MenuCard(
-                                            eatery
-                                        ) {
-                                            onEateryClick(eatery.eateryId)
-                                        }
+                                            eatery,
+                                            selectEatery = {
+                                                onEateryClick(eatery.eateryId)
+                                            },
+                                            onEateryCardContract = {
+                                                appStorePopupRepository.requestRatingPopup()
+                                            }
+                                        )
                                         Spacer(modifier = Modifier.height(12.dp))
                                     }
                                 }
