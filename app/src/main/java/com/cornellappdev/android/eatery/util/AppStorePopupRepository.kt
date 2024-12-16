@@ -27,6 +27,12 @@ class AppStorePopupRepository @Inject constructor(
     private val popupEventFlow = MutableStateFlow(false)
     val popupShowing = popupEventFlow.asStateFlow()
 
+    /**
+     * This function requests that the app store popup repository shows a rating popup to the user.
+     * This request will not succeed if the number of days since the user has been shown the rating
+     * prompt is less than the minimum number of days in between when the rating pop up should show.
+     * This minimum days number is increased exponentially as the rating prompt is successfully shown.
+     */
     fun requestRatingPopup() {
         val lastShowedRatingPopup =
             popupDataRepository.lastShowedRatingPopupFlow.value.atStartOfDay()
