@@ -66,6 +66,7 @@ data class EateryHours(
 @Composable
 fun MenuCard(
     menuCardViewState: MenuCardViewState,
+    onEateryCardContract: () -> Unit = {},
     selectEatery: (eateryId: Int) -> Unit = {},
 ) = with(menuCardViewState) {
     var openDropdown by remember { mutableStateOf(false) }
@@ -75,6 +76,9 @@ fun MenuCard(
         backgroundColor = Color.White,
         modifier = Modifier.clickable {
             openDropdown = !openDropdown
+            if (!openDropdown) {
+                onEateryCardContract()
+            }
         }
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {

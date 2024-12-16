@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.cornellappdev.android.eatery.ui.components.general.AppStoreRatingPopup
 import com.cornellappdev.android.eatery.ui.screens.AboutScreen
 import com.cornellappdev.android.eatery.ui.screens.CompareMenusScreen
 import com.cornellappdev.android.eatery.ui.screens.EateryDetailScreen
@@ -154,6 +155,7 @@ fun SetupNavHost(
     showBottomBar: MutableState<Boolean>,
     loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
+    AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
         modifier = modifier,

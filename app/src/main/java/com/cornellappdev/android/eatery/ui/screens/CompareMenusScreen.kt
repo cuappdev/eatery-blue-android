@@ -310,12 +310,13 @@ private fun MenuPager(
                     "",
                     fullMenuList,
                     listState,
-                    0
-                ) { index ->
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(index)
+                    0,
+                    onItemClick = { index ->
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(index)
+                        }
                     }
-                }
+                )
 
 
 

@@ -50,6 +50,8 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
@@ -64,6 +66,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun UpcomingMenuScreen(
     upcomingViewModel: UpcomingViewModel = hiltViewModel(),
+    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onEateryClick: (Int) -> Unit,
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -244,10 +247,14 @@ fun UpcomingMenuScreen(
                                     Spacer(modifier = Modifier.height(16.dp))
                                     it.menuCards.forEach { eatery ->
                                         MenuCard(
-                                            eatery
-                                        ) {
-                                            onEateryClick(eatery.eateryId)
-                                        }
+                                            eatery,
+                                            selectEatery = {
+                                                onEateryClick(eatery.eateryId)
+                                            },
+                                            onEateryCardContract = {
+                                                appStorePopupRepository.requestRatingPopup()
+                                            }
+                                        )
                                         Spacer(modifier = Modifier.height(12.dp))
                                     }
                                 }

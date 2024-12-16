@@ -21,7 +21,11 @@ message UserPreferences {
 
   bool analyticsDisabled = 8;
 
-  map<string, bool> itemFavorites = 9;
+  Date lastShowedRatingPopup = 9;
+
+  int32 minDaysBetweenRatingShow = 10;
+
+  map<string, bool> itemFavorites = 11;
 
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
