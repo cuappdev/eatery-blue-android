@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.data.models
 
 import android.location.Location
+import androidx.compose.ui.graphics.Color
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
 import com.cornellappdev.android.eatery.util.Constants.AVERAGE_WALK_SPEED
 import com.cornellappdev.android.eatery.util.LocationHandler
@@ -483,4 +484,9 @@ data class MenuItem(
     @Json(name = "id") val id: Int? = null,
     @Json(name = "category") val category: Int? = null,
     @Json(name = "name") val name: String? = null,
+)
+
+data class EateryStatus(
+    val statusText: String,
+    val statusColor: Color,
 )

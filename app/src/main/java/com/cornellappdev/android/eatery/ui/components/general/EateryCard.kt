@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
+import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -29,7 +30,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
@@ -118,6 +118,7 @@ fun EateryCard(
         backgroundColor = Color.White,
         modifier = modifier
     ) {
+        Log.d("TAG", "EateryCard:still alvie ")
         Column {
             Box {
                 Crossfade(
@@ -227,20 +228,7 @@ fun EateryCard(
                             .padding(end = 30.dp)
                     )
                     if (style != EateryCardStyle.GRID_VIEW) {
-                        Icon(
-                            imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                            tint = if (isFavorite) Yellow else GrayFive,
-                            modifier = Modifier
-                                .padding(top = 3.dp)
-                                .clickable(
-                                    interactionSource = interactionSource,
-                                    indication = rememberRipple(radius = 9.dp),
-                                    onClick = {
-                                        onFavoriteClick(!isFavorite)
-                                    }
-                                ),
-                            contentDescription = null
-                        )
+                        FavoriteButton(isFavorite, onFavoriteClick)
                     }
                 }
                 EateryCardPrimaryHeader(
@@ -260,6 +248,7 @@ fun EateryCard(
         }
     }
 }
+
 
 @Composable
 fun GridViewFavoriteWidget(
@@ -306,13 +295,14 @@ fun EateryCardPrimaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardS
 @Composable
 fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardStyle.DEFAULT) {
     if (style != EateryCardStyle.COMPACT) {
-        val walkText =
-            "${if (eatery.getWalkTimes()!! > 0) eatery.getWalkTimes() else "< 1"} min walk"
+        val walkText = eatery.getWalkTimes()?.let {
+            "${if (it > 0) it else "< 1"} min walk"
+        }
         Row(
             modifier = Modifier.padding(top = 2.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (style == EateryCardStyle.DEFAULT) {
+            walkText?.takeIf { style == EateryCardStyle.DEFAULT }?.let {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_walk_small),
                     contentDescription = null,
@@ -340,7 +330,6 @@ fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCar
                 else if (eatery.isClosingSoon()) Yellow
                 else Green
             )
-
         }
     }
 }

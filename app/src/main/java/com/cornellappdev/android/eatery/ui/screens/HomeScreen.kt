@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.screens
 
 
 import android.Manifest
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -100,7 +101,6 @@ fun HomeScreen(
     onSearchClick: () -> Unit,
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteExpand: () -> Unit,
-    onNearestExpand: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
 ) {
     val context = LocalContext.current
@@ -239,7 +239,7 @@ fun HomeScreen(
                             eateriesApiResponse = eateriesApiResponse,
                             favorites = favorites,
                             nearestEateries = nearestEateries,
-                            filters = filters,
+                            selectedFilters = filters,
                             onFavoriteClick = { eatery, favorite ->
                                 if (favorite) {
                                     homeViewModel.addFavorite(eatery.id)
@@ -248,15 +248,12 @@ fun HomeScreen(
                                 }
                             },
                             onFilterClicked = { filter ->
-                                if (filters.contains(filter)) {
-                                    homeViewModel.removeFilter(filter)
-                                } else {
-                                    homeViewModel.addFilter(filter)
-                                }
+                                homeViewModel.toggleFilter(filter)
                             },
                             onResetFilters = {
                                 homeViewModel.resetFilters()
                             },
+                            filters = homeViewModel.homeScreenFilters,
                             isGridView = isGridView,
                             onListClick = {
                                 isGridView = false
@@ -297,6 +294,7 @@ private fun HomeScrollableMainContent(
     eateriesApiResponse: EateryApiResponse<List<Eatery>>,
     nearestEateries: List<Eatery>,
     favorites: List<Eatery>,
+    selectedFilters: List<Filter>,
     filters: List<Filter>,
     isGridView: Boolean,
     onListClick: () -> Unit,
@@ -344,17 +342,18 @@ private fun HomeScrollableMainContent(
                 item {
                     HomeMainHeader(
                         onSearchClick = onSearchClick,
-                        filters = filters,
+                        selectedFilters = selectedFilters,
                         onFilterClicked = onFilterClicked,
                         onPaymentMethodsClicked = {
                             coroutineScope.launch {
                                 modalBottomSheetState.show()
                             }
-                        }
+                        },
+                        filters = filters,
                     )
                 }
 
-                if (filters.isNotEmpty()) {
+                if (selectedFilters.isNotEmpty()) {
                     if (eateries.isNotEmpty()) {
                         items(eateries) { eatery ->
                             Box(
@@ -438,7 +437,6 @@ private fun HomeScrollableMainContent(
 
                         }
                     }
-
                     if (isGridView) {
                         items(eateries.chunked(2)) { row ->
                             Row(
@@ -459,7 +457,7 @@ private fun HomeScrollableMainContent(
                                             onFavoriteClick = { isFavorite ->
                                                 onFavoriteClick(eatery, isFavorite)
                                             },
-                                            style = if (isGridView) EateryCardStyle.GRID_VIEW else EateryCardStyle.DEFAULT,
+                                            style = EateryCardStyle.GRID_VIEW,
                                             selectEatery = { selectedEatery ->
                                                 onEateryClick(selectedEatery)
                                             }
@@ -471,6 +469,10 @@ private fun HomeScrollableMainContent(
                         }
                     } else {
                         itemsIndexed(nearestEateries) { index, eatery ->
+                            Log.d(
+                                "TAG",
+                                "HomeScrollableMainContent: index = $index, eatery = $eatery, \n\n\nsize = ${nearestEateries.size}"
+                            )
                             Box(
                                 Modifier.padding(
                                     start = 16.dp,
@@ -478,6 +480,10 @@ private fun HomeScrollableMainContent(
                                     top = if (index != 0) 12.dp else 0.dp
                                 )
                             ) {
+                                Log.d(
+                                    "TAG",
+                                    "HomeScrollableMainContent: index = $index, eatery = $eatery"
+                                )
                                 EateryCard(
                                     eatery = eatery,
                                     isFavorite = favorites.any { favoriteEatery ->
@@ -578,6 +584,7 @@ private fun HomeStickyHeader(
 @Composable
 private fun HomeMainHeader(
     onSearchClick: () -> Unit,
+    selectedFilters: List<Filter>,
     filters: List<Filter>,
     onFilterClicked: (Filter) -> Unit,
     onPaymentMethodsClicked: () -> Unit,
@@ -598,9 +605,9 @@ private fun HomeMainHeader(
 
 
     FilterRow(
-        currentFiltersSelected = filters,
-        onPaymentMethodsClicked = onPaymentMethodsClicked,
+        currentFiltersSelected = selectedFilters,
         onFilterClicked = onFilterClicked,
+        filters = filters,
     )
 }
 

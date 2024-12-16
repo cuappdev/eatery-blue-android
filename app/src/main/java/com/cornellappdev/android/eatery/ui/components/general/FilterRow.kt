@@ -6,8 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -24,197 +25,28 @@ import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 
-
 @Composable
 fun FilterRow(
+    filters: List<Filter>,
     currentFiltersSelected: List<Filter>,
-    onPaymentMethodsClicked: () -> Unit,
-    onFilterClicked: (Filter) -> Unit
-) {
-    val paymentMethodFilters = currentFiltersSelected.filter { filter ->
-        filter in setOf(Filter.BRB, Filter.CASH, Filter.SWIPES)
-    }
-
-    val paymentMethodFilterText: String =
-        if (paymentMethodFilters.isEmpty()) "Payment Methods" else paymentMethodFilters.joinToString {
-            it.text
-        }
-
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        item {
-            Spacer(modifier = Modifier.width(10.dp))
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.NORTH)
-                },
-                selected = currentFiltersSelected.contains(Filter.NORTH),
-                text = Filter.NORTH.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.WEST)
-                },
-                selected = currentFiltersSelected.contains(Filter.WEST),
-                text = Filter.WEST.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.CENTRAL)
-                },
-                selected = currentFiltersSelected.contains(Filter.CENTRAL),
-                text = Filter.CENTRAL.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.SWIPES)
-                },
-                selected = currentFiltersSelected.contains(Filter.SWIPES),
-                text = Filter.SWIPES.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.BRB)
-                },
-                selected = currentFiltersSelected.contains(Filter.BRB),
-                text = Filter.BRB.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.FAVORITES)
-                },
-                selected = currentFiltersSelected.contains(Filter.FAVORITES),
-                text = Filter.FAVORITES.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.UNDER_10)
-                },
-                selected = currentFiltersSelected.contains(Filter.UNDER_10),
-                text = Filter.UNDER_10.text
-            )
-        }
-
-        item {
-            Spacer(Modifier.width(16.dp))
-        }
-    }
-}
-
-@Composable
-fun CompareFilterRow(
-    currentFiltersSelected: List<Filter>,
-    onPaymentMethodsClicked: () -> Unit,
     onFilterClicked: (Filter) -> Unit,
-    showPaymentFilter : Boolean = true
+    customItemsBefore: LazyListScope.() -> Unit = {},
+    customItemsAfter: LazyListScope.() -> Unit = {},
 ) {
-    val paymentMethodFilters = currentFiltersSelected.filter { filter ->
-        filter in setOf(Filter.BRB, Filter.CASH, Filter.SWIPES)
-    }
-
-    val paymentMethodFilterText: String =
-        if (paymentMethodFilters.isEmpty()) "Payment Methods" else paymentMethodFilters.joinToString {
-            it.text
-        }
-
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        item {
-            Spacer(modifier = Modifier.width(10.dp))
-        }
-
-        item {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp)
+    ) {
+        customItemsBefore()
+        items(filters) { filter ->
             FilterButton(
                 onFilterClicked = {
-                    onFilterClicked(Filter.SELECTED)
-                },
-                selected = currentFiltersSelected.contains(Filter.SELECTED),
-                text = Filter.SELECTED.text
+                    onFilterClicked(filter)
+                }, selected = filter in currentFiltersSelected,
+                text = filter.text
             )
         }
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.NORTH)
-                },
-                selected = currentFiltersSelected.contains(Filter.NORTH),
-                text = Filter.NORTH.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.WEST)
-                },
-                selected = currentFiltersSelected.contains(Filter.WEST),
-                text = Filter.WEST.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.CENTRAL)
-                },
-                selected = currentFiltersSelected.contains(Filter.CENTRAL),
-                text = Filter.CENTRAL.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.UNDER_10)
-                },
-                selected = currentFiltersSelected.contains(Filter.UNDER_10),
-                text = Filter.UNDER_10.text
-            )
-        }
-
-        if(showPaymentFilter) {
-            item {
-                FilterButton(
-                    onFilterClicked = onPaymentMethodsClicked,
-                    selected = paymentMethodFilters.isNotEmpty(),
-                    text = paymentMethodFilterText,
-                    icon = Icons.Default.ExpandMore
-                )
-            }
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = {
-                    onFilterClicked(Filter.FAVORITES)
-                },
-                selected = currentFiltersSelected.contains(Filter.FAVORITES),
-                text = Filter.FAVORITES.text
-            )
-        }
-
-        item {
-            Spacer(Modifier.width(16.dp))
-        }
+        customItemsAfter()
     }
 }
 
@@ -253,57 +85,6 @@ fun FilterButton(
                 contentDescription = "Favorite",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
-        }
-    }
-}
-
-@Composable
-fun FilterRowUpcoming(
-    mealFilter: MealFilter,
-    selectedFilters: List<Filter>,
-    onMealsClicked: () -> Unit,
-    onFilterClicked: (Filter) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        item {
-            FilterButton(
-                onFilterClicked = onMealsClicked,
-                selected = true,
-                text = when (mealFilter) {
-                    MealFilter.LATE_DINNER -> "Late Dinner"
-                    else -> mealFilter.text.first()
-                },
-                icon = Icons.Default.ExpandMore
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.NORTH) },
-                selected = selectedFilters.contains(Filter.NORTH),
-                text = Filter.NORTH.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.WEST) },
-                selected = selectedFilters.contains(Filter.WEST),
-                text = Filter.WEST.text
-            )
-        }
-
-        item {
-            FilterButton(
-                onFilterClicked = { onFilterClicked(Filter.CENTRAL) },
-                selected = selectedFilters.contains(Filter.CENTRAL),
-                text = Filter.CENTRAL.text
-            )
-        }
-
-        item {
-            Spacer(Modifier.width(16.dp))
         }
     }
 }
