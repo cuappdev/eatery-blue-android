@@ -25,6 +25,8 @@ message UserPreferences {
 
   int32 minDaysBetweenRatingShow = 10;
 
+  map<string, bool> itemFavorites = 11;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.

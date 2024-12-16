@@ -9,7 +9,8 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
-import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
+import com.cornellappdev.android.eatery.ui.components.general.FilterData
+import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +37,16 @@ class HomeViewModel @Inject constructor(
      */
     val filtersFlow = _filtersFlow.asStateFlow()
 
+    val homeScreenFilters = listOf(
+        Filter.FromEateryFilter.North,
+        Filter.FromEateryFilter.West,
+        Filter.FromEateryFilter.Central,
+        Filter.FromEateryFilter.Swipes,
+        Filter.FromEateryFilter.BRB,
+        Filter.RequiresFavoriteEateries.Favorites,
+        Filter.FromEateryFilter.Under10,
+    )
+
     /**
      * A flow emitting all eateries with the appropriate filters applied.
      *
@@ -52,8 +63,15 @@ class HomeViewModel @Inject constructor(
                 is EateryApiResponse.Pending -> EateryApiResponse.Pending
                 is EateryApiResponse.Success -> {
                     EateryApiResponse.Success(
-                        apiResponse.data.filter {
-                            passesFilter(it, filters, favorites, null)
+                        apiResponse.data.filter { eatery ->
+                            Filter.passesSelectedFilters(
+                                allFilters = homeScreenFilters,
+                                selectedFilters = filters,
+                                filterData = FilterData(
+                                    eatery,
+                                    favoriteEateryIds = favorites
+                                )
+                            )
                         }.sortedBy { eatery ->
                             eatery.name
                         }.sortedBy { eatery ->
@@ -107,21 +125,15 @@ class HomeViewModel @Inject constructor(
         bigPopUp = bool
     }
 
-    fun addFilter(filter: Filter) = viewModelScope.launch {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.add(filter)
-        _filtersFlow.value = newList
-    }
-
-    fun removeFilter(filter: Filter) = viewModelScope.launch {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.remove(filter)
-        _filtersFlow.value = newList
+    fun toggleFilter(filter: Filter) {
+        _filtersFlow.update {
+            it.updateFilters(filter)
+        }
     }
 
     fun addPaymentMethodFilters(filters: List<Filter>) = viewModelScope.launch {
         val newList = _filtersFlow.value.toMutableList()
-        newList.removeAll(Filter.PAYMENT_METHODS)
+        newList.removeAll(Filter.paymentMethodFilters)
         newList.addAll(filters)
         _filtersFlow.value = newList
     }
@@ -133,50 +145,7 @@ class HomeViewModel @Inject constructor(
     /**
      * Determines if the eatery passes the filter inspection based on what's currently selected.
      */
-    private fun passesFilter(
-        eatery: Eatery,
-        filters: List<Filter>,
-        favorites: Map<Int, Boolean>,
-        selected: List<Eatery>?
-    ): Boolean {
-        var passesFilter = true
-        if (filters.contains(Filter.UNDER_10)) {
-            val walkTimes = eatery.getWalkTimes()
-            passesFilter = walkTimes != null && walkTimes <= 10
-        }
 
-        if (filters.contains(Filter.FAVORITES)) {
-            passesFilter = favorites[eatery.id] == true
-        }
-
-        val allLocationsValid =
-            !filters.contains(Filter.NORTH) &&
-                    !filters.contains(Filter.CENTRAL) &&
-                    !filters.contains(Filter.WEST)
-
-        if (filters.contains(Filter.SELECTED)) {
-            if (!(selected?.contains(eatery) ?: false)) return false
-        }
-
-        // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
-        // or one/multiple are selected and the eatery is located there.
-        passesFilter = passesFilter &&
-                (allLocationsValid || ((filters.contains(Filter.NORTH) && eatery.campusArea == "North") ||
-                        (filters.contains(Filter.WEST) && eatery.campusArea == "West") ||
-                        (filters.contains(Filter.CENTRAL) && eatery.campusArea == "Central")))
-
-        val allPaymentMethodsValid =
-            !filters.contains(Filter.CASH) &&
-                    !filters.contains(Filter.BRB) &&
-                    !filters.contains(Filter.SWIPES)
-
-        // Passes filter if all three aren't selected (therefore any payment method is valid, specified by allPaymentMethodsValid)
-        // or one/multiple are selected and the eatery takes it.
-        return passesFilter &&
-                (allPaymentMethodsValid || ((filters.contains(Filter.SWIPES) && eatery.paymentAcceptsMealSwipes == true) ||
-                        (filters.contains(Filter.BRB) && eatery.paymentAcceptsBrbs == true) ||
-                        (filters.contains(Filter.CASH) && eatery.paymentAcceptsCash == true)))
-    }
 
     fun addFavorite(eateryId: Int?) {
         if (eateryId != null)
