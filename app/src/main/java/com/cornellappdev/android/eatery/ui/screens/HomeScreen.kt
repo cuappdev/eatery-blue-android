@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.screens
 
 
 import android.Manifest
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -253,7 +254,6 @@ fun HomeScreen(
                                 homeViewModel.resetFilters()
                             },
                             filters = homeViewModel.homeScreenFilters,
-                            },
                             isGridView = isGridView,
                             onListClick = {
                                 isGridView = false
@@ -437,7 +437,6 @@ private fun HomeScrollableMainContent(
 
                         }
                     }
-
                     if (isGridView) {
                         items(eateries.chunked(2)) { row ->
                             Row(
@@ -458,7 +457,7 @@ private fun HomeScrollableMainContent(
                                             onFavoriteClick = { isFavorite ->
                                                 onFavoriteClick(eatery, isFavorite)
                                             },
-                                            style = if (isGridView) EateryCardStyle.GRID_VIEW else EateryCardStyle.DEFAULT,
+                                            style = EateryCardStyle.GRID_VIEW,
                                             selectEatery = { selectedEatery ->
                                                 onEateryClick(selectedEatery)
                                             }
@@ -470,6 +469,10 @@ private fun HomeScrollableMainContent(
                         }
                     } else {
                         itemsIndexed(nearestEateries) { index, eatery ->
+                            Log.d(
+                                "TAG",
+                                "HomeScrollableMainContent: index = $index, eatery = $eatery, \n\n\nsize = ${nearestEateries.size}"
+                            )
                             Box(
                                 Modifier.padding(
                                     start = 16.dp,
@@ -477,6 +480,10 @@ private fun HomeScrollableMainContent(
                                     top = if (index != 0) 12.dp else 0.dp
                                 )
                             ) {
+                                Log.d(
+                                    "TAG",
+                                    "HomeScrollableMainContent: index = $index, eatery = $eatery"
+                                )
                                 EateryCard(
                                     eatery = eatery,
                                     isFavorite = favorites.any { favoriteEatery ->
