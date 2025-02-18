@@ -80,3 +80,4 @@ private fun FavoritesTogglePreview() = EateryPreview {
     var active by remember { mutableStateOf(false) }
     FavoritesToggle({ active = !active }, "Eateries", active)
 }
+
