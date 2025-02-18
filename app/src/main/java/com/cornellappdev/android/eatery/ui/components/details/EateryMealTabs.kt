@@ -20,7 +20,11 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 fun EateryMealTabs(selectedMealIndex: Int, onSelectMeal: (Int) -> Unit, meals: List<String>) {
     TabRow(selectedTabIndex = selectedMealIndex, indicator = { tabPositions ->
         TabRowDefaults.Indicator(
-            Modifier.tabIndicatorOffset(tabPositions[selectedMealIndex]),
+            Modifier.tabIndicatorOffset(
+                // We were having lots of users crash here, so avoiding any unsafe accesses for tab positions
+                tabPositions.getOrNull(selectedMealIndex) ?: tabPositions.firstOrNull()
+                ?: return@TabRow
+            ),
             color = Color.Black,
             height = 1.dp,
         )
