@@ -35,6 +35,7 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.conditional
 
 data class ItemFavoritesCardViewState(
     val itemName: String,
@@ -81,6 +82,9 @@ fun ItemFavoritesCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .conditional(viewState.mealAvailability.isNotEmpty()) {
+                        clickable { isExpanded = !isExpanded }
+                    }
             ) {
                 Text(
                     viewState.availability.statusText,
@@ -92,9 +96,7 @@ fun ItemFavoritesCard(
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_down_chevron),
                         contentDescription = "expand",
-                        modifier = Modifier
-                            .clickable(onClick = { isExpanded = !isExpanded })
-                            .rotate(rotation)
+                        modifier = Modifier.rotate(rotation)
                     )
                 }
 
