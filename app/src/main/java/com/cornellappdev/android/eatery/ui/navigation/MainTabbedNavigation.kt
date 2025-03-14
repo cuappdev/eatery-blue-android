@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.cornellappdev.android.eatery.ui.components.general.AppStoreRatingPopup
 import com.cornellappdev.android.eatery.ui.screens.AboutScreen
 import com.cornellappdev.android.eatery.ui.screens.CompareMenusScreen
 import com.cornellappdev.android.eatery.ui.screens.EateryDetailScreen
@@ -164,6 +165,7 @@ fun SetupNavHost(
     showBottomBar: MutableState<Boolean>,
     loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
+    AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
         modifier = modifier,
@@ -208,8 +210,6 @@ fun SetupNavHost(
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
             }, onFavoriteExpand = {
                 navController.navigate(Routes.FAVORITES.route)
-            }, onNearestExpand = {
-                navController.navigate(Routes.NEAREST.route)
             }, onCompareMenusClick = { selectedEateries ->
                 navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
             },
@@ -231,9 +231,9 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            UpcomingMenuScreen {
-                navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            }
+            UpcomingMenuScreen(onEateryClick = { eateryId ->
+                navController.navigate("${Routes.EATERY_DETAIL.route}/$eateryId")
+            })
         }
         composable(
             route = "${Routes.EATERY_DETAIL.route}/{eateryId}",
@@ -377,7 +377,13 @@ fun SetupNavHost(
             }) {
             FavoritesScreen(onEateryClick = {
                 navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            })
+            }, onSearchClick = {
+                FirstTimeShown.firstTimeShown = false
+                navController.navigate(Routes.SEARCH.route)
+            },
+                onBackClick = {
+                    navController.popBackStack()
+                })
         }
 
         composable(

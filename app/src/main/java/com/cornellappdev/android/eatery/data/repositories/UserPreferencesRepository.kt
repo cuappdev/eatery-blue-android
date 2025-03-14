@@ -31,6 +31,11 @@ class UserPreferencesRepository @Inject constructor(
         prefs.favoritesMap
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, mapOf())
 
+    val favoriteItemsFlow: StateFlow<Map<String, Boolean>> =
+        userPreferencesFlow.map { prefs ->
+            prefs.itemFavoritesMap
+        }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, mapOf())
+
     val recentSearchesFlow: StateFlow<List<Int>> = userPreferencesFlow.map { prefs ->
         prefs.recentSearchesList
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, listOf())
@@ -60,6 +65,17 @@ class UserPreferencesRepository @Inject constructor(
                 } else {
                     currentPreferences.toBuilder().removeFavorites(eateryId).build()
                 }
+            }
+        }
+    }
+
+    suspend fun toggleFavoriteMenuItem(menuItem: String) {
+        userPreferencesStore.updateData { currentPreferences ->
+            val isFavorite = currentPreferences.itemFavoritesMap[menuItem] == true
+            if (!isFavorite) {
+                currentPreferences.toBuilder().putItemFavorites(menuItem, true).build()
+            } else {
+                currentPreferences.toBuilder().removeItemFavorites(menuItem).build()
             }
         }
     }
@@ -97,9 +113,6 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun getFavoritesMap(): Map<Int, Boolean> =
-        userPreferencesFlow.first().favoritesMap
-
     suspend fun getHasOnboarded(): Boolean =
         userPreferencesFlow.first().hasOnboarded
 
@@ -108,9 +121,6 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun getIsLoggedIn(): Boolean =
         userPreferencesFlow.first().isLoggedIn
-
-    suspend fun getRecentSearches(): List<Int> =
-        userPreferencesFlow.first().recentSearchesList
 
     suspend fun getAnalyticsDisabled(): Boolean =
         userPreferencesFlow.first().analyticsDisabled

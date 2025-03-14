@@ -9,6 +9,7 @@ import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.screens.CurrentUser
+import com.cornellappdev.android.eatery.util.AppStorePopupRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,6 +22,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val userRepository: UserRepository,
+    private val appStorePopupRepository: AppStorePopupRepository,
 ) : ViewModel() {
 
     /**

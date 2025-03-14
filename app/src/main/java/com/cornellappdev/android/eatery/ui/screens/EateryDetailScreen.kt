@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -58,7 +57,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -97,6 +95,7 @@ import com.cornellappdev.android.eatery.ui.components.details.EateryMenusBottomS
 import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
+import com.cornellappdev.android.eatery.ui.components.general.menuItems
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
@@ -112,7 +111,10 @@ import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds
@@ -126,6 +128,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
+    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -139,17 +142,12 @@ fun EateryDetailScreen(
     val paymentMethods = remember { mutableStateListOf<PaymentMethodsAvailable>() }
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
+    val viewState = eateryDetailViewModel.eateryDetailViewState.collectAsState().value
 
 
     /**
      * The amount of days offset from the current weekday
      */
-    var weekDayIndex by remember { mutableStateOf(0) }
-
-
-    // The event/meal to display. May be null.
-    val nextEvent by eateryDetailViewModel.mealToShow.collectAsState()
-
 
     // The filter text typed in.
     val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
@@ -195,20 +193,14 @@ fun EateryDetailScreen(
                 .background(Color.White)
                 .padding(paddingValues)
         ) {
-            when (val eateryApiResponse =
-                eateryDetailViewModel.eateryFlow.collectAsState().value) {
-                is EateryApiResponse.Pending -> {
-                    EateryDetailLoadingScreen(shimmer)
+            when (viewState) {
+                is EateryDetailViewState.Error -> {
+                    // TODO we should have an error state for this screen lol
+                    Text("Cannot load Eatery Details")
                 }
 
-
-                is EateryApiResponse.Error -> {
-                    Text(text = "ERROR")
-                }
-
-
-                is EateryApiResponse.Success -> {
-                    val eatery = eateryApiResponse.data
+                is EateryDetailViewState.Loaded -> {
+                    val eatery = viewState.eatery
                     val bitmapState =
                         eatery.imageUrl?.let {
                             CoilRepository.getUrlState(
@@ -216,6 +208,7 @@ fun EateryDetailScreen(
                                 LocalContext.current
                             )
                         }
+                    val nextEvent = viewState.mealToShow
                     val infiniteTransition = rememberInfiniteTransition()
                     val progress by infiniteTransition.animateFloat(
                         initialValue = 0f,
@@ -225,13 +218,6 @@ fun EateryDetailScreen(
                             repeatMode = RepeatMode.Reverse
                         )
                     )
-                    val mealTypeIndex = remember {
-                        derivedStateOf {
-                            eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
-                                ?.indexOfFirst { it.first == nextEvent?.description }
-                                ?.coerceAtLeast(0) ?: 0
-                        }
-                    }
 
 
                     ModalBottomSheetLayout(
@@ -280,7 +266,7 @@ fun EateryDetailScreen(
 
                                 BottomSheetContent.MENUS -> {
                                     EateryMenusBottomSheet(
-                                        weekDayIndex = weekDayIndex,
+                                        weekDayIndex = viewState.weekdayIndex,
                                         onDismiss = {
                                             coroutineScope.launch {
                                                 modalBottomSheetState.hide()
@@ -293,13 +279,13 @@ fun EateryDetailScreen(
                                                 dayIndex,
                                                 mealDescription
                                             )
-                                            weekDayIndex = dayIndex
+                                            eateryDetailViewModel.setSelectedWeekdayIndex(dayIndex)
                                         },
                                         onResetClick = {
-                                            weekDayIndex = 0
+                                            eateryDetailViewModel.setSelectedWeekdayIndex(0)
                                             eateryDetailViewModel.resetSelectedEvent()
                                         },
-                                        mealType = mealTypeIndex.value
+                                        mealType = viewState.mealTypeIndex
                                     )
                                 }
 
@@ -345,13 +331,10 @@ fun EateryDetailScreen(
 
 
                         Box {
-                            val fullMenuList = mutableListOf<String>()
-                            nextEvent?.menu?.forEach { category ->
-                                category.category?.let { fullMenuList.add(it) }
-                                category.items?.forEach { item ->
-                                    item.name?.let { fullMenuList.add(it) }
-                                }
-                            }
+                            val fullMenuList: MutableList<String> =
+                                nextEvent.menu?.flatMap { category ->
+                                    listOf(category.category) + category.items.mapNotNull { it.item.name }
+                                }?.toMutableList() ?: emptyList<String>().toMutableList()
 
 
                             LazyColumn(
@@ -430,8 +413,8 @@ fun EateryDetailScreen(
                                             )
                                         ) {
                                             Icon(
-                                                imageVector = if (eateryDetailViewModel.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                                                tint = if (eateryDetailViewModel.isFavorite) Yellow else GrayFive,
+                                                imageVector = if (viewState.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                                                tint = if (viewState.isFavorite) Yellow else GrayFive,
                                                 contentDescription = null
                                             )
                                         }
@@ -681,15 +664,16 @@ fun EateryDetailScreen(
                                             .background(GrayZero)
                                     )
                                 }
-
-                                nextEvent?.let { nextEvent ->
-                                    menuHeadingItem(weekDayIndex, nextEvent, hoursOnClick = {
-                                        sheetContent = BottomSheetContent.MENUS
-                                        coroutineScope.launch {
-                                            modalBottomSheetState.show()
-                                        }
-                                    })
-
+                                nextEvent.menu?.let {
+                                    menuHeadingItem(
+                                        viewState.weekdayIndex,
+                                        nextEvent.toEvent(),
+                                        hoursOnClick = {
+                                            sheetContent = BottomSheetContent.MENUS
+                                            coroutineScope.launch {
+                                                modalBottomSheetState.show()
+                                            }
+                                        })
                                     item {
                                         SearchBar(searchText = filterText,
                                             onSearchTextChange = {
@@ -715,7 +699,7 @@ fun EateryDetailScreen(
                                                 .background(GrayZero, CircleShape)
                                         )
                                     }
-                                    eatery.getTypeMeal(weekDayIndex.fromOffsetToDayOfWeek())
+                                    eatery.getTypeMeal(viewState.weekdayIndex.fromOffsetToDayOfWeek())
                                         .takeIf { it?.size?.let { s -> s > 1 } == true }
                                         ?.map { it.first }
                                         ?.let { mealTypes ->
@@ -725,86 +709,34 @@ fun EateryDetailScreen(
                                                     onSelectMeal = { selectedMeal ->
                                                         eateryDetailViewModel.selectEvent(
                                                             eatery,
-                                                            weekDayIndex,
+                                                            viewState.weekdayIndex,
                                                             mealTypes[selectedMeal]
                                                         )
                                                     },
-                                                    selectedMealIndex = mealTypeIndex.value
+                                                    selectedMealIndex = viewState.mealTypeIndex
                                                 )
                                             }
                                         }
 
-                                    nextEvent.menu?.forEachIndexed { categoryIndex, category ->
-                                        val filteredItems = category.items?.filter {
-                                            it.name?.contains(filterText, true) ?: false
-                                        }
-                                        if (!filteredItems.isNullOrEmpty()) {
-                                            item {
-                                                Text(
-                                                    text = category.category ?: "Category",
-                                                    style = EateryBlueTypography.h5,
-                                                    modifier = Modifier.padding(
-                                                        horizontal = 16.dp,
-                                                        vertical = 12.dp
-                                                    )
-                                                )
+                                    menuItems(nextEvent.menu.map {
+                                        it.copy(
+                                            items = it.items.filter { menuItem ->
+                                                menuItem.item.name?.contains(filterText, true)
+                                                    ?: false
                                             }
+                                        )
+                                    }, onFavoriteClick = {
+                                        eateryDetailViewModel.toggleFavoriteMenuItem(it)
+                                    })
 
-
-                                            itemsIndexed(filteredItems) { index, menuItem ->
-                                                Row(
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                    modifier = Modifier.padding(
-                                                        top = 12.dp,
-                                                        bottom = 12.dp,
-                                                        start = 16.dp,
-                                                        end = 16.dp
-                                                    )
-                                                ) {
-                                                    Text(
-                                                        text = menuItem.name ?: "Item Name",
-                                                        style = EateryBlueTypography.button,
-                                                        modifier = Modifier.weight(1f)
-                                                    )
-                                                }
-
-
-                                                if (category.items.lastIndex != index) {
-                                                    Spacer(
-                                                        modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .height(1.dp)
-                                                            .background(
-                                                                GrayZero,
-                                                                CircleShape
-                                                            )
-                                                    )
-                                                }
-                                                if (category.items.lastIndex == index && categoryIndex != nextEvent.menu.lastIndex) {
-                                                    Divider(
-                                                        color = GrayZero,
-                                                        modifier = Modifier.height(10.dp)
-                                                    )
-                                                }
-                                            }
-                                        }
+                                    item {
+                                        Spacer(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(16.dp)
+                                                .background(GrayZero)
+                                        )
                                     }
-
-
-                                }
-
-
-
-
-
-
-                                item {
-                                    Spacer(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(16.dp)
-                                            .background(GrayZero)
-                                    )
                                 }
 
 
@@ -888,28 +820,34 @@ fun EateryDetailScreen(
                                 ) {
                                     EateryHeader(
                                         eatery = eatery,
-                                        eateryDetailViewModel = eateryDetailViewModel
+                                        isFavorite = viewState.isFavorite,
+                                        onFavoriteClick = eateryDetailViewModel::toggleFavorite
                                     )
                                     EateryDetailsStickyHeader(
-                                        nextEvent,
+                                        nextEvent.toEvent(),
                                         eatery,
                                         filterText,
                                         fullMenuList,
                                         listState,
-                                        5
-                                    ) { index ->
-                                        // The first category title has an item index of 8
-                                        // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)
-                                        coroutineScope.launch {
-                                            listState.animateScrollToItem(
-                                                index + 5
-                                            )
+                                        5,
+                                        onItemClick = { index ->
+                                            // The first category title has an item index of 8
+                                            // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)
+                                            coroutineScope.launch {
+                                                listState.animateScrollToItem(
+                                                    index + 5
+                                                )
+                                            }
                                         }
-                                    }
+                                    )
                                 }
                             }
                         }
                     }
+                }
+
+                EateryDetailViewState.Loading -> {
+                    EateryDetailLoadingScreen(shimmer)
                 }
             }
         }
@@ -961,7 +899,7 @@ private fun LazyListScope.menuHeadingItem(
 }
 
 @Composable
-fun EateryHeader(eatery: Eatery, eateryDetailViewModel: EateryDetailViewModel) {
+fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -984,7 +922,7 @@ fun EateryHeader(eatery: Eatery, eateryDetailViewModel: EateryDetailViewModel) {
         )
 
         Button(
-            onClick = { eateryDetailViewModel.toggleFavorite() },
+            onClick = onFavoriteClick,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 16.dp)
@@ -1000,8 +938,8 @@ fun EateryHeader(eatery: Eatery, eateryDetailViewModel: EateryDetailViewModel) {
             )
         ) {
             Icon(
-                imageVector = if (eateryDetailViewModel.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                tint = if (eateryDetailViewModel.isFavorite) Yellow else GrayFive,
+                imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
+                tint = if (isFavorite) Yellow else GrayFive,
                 contentDescription = null
             )
         }

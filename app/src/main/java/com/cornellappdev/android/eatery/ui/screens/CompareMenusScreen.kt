@@ -28,7 +28,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -39,6 +38,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -205,7 +207,10 @@ fun CompareMenusScreen(
 }
 
 @Composable
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class
+)
 private fun MenuPager(
     eateries: List<Eatery>,
     firstPagerState: PagerState,
@@ -305,12 +310,13 @@ private fun MenuPager(
                     "",
                     fullMenuList,
                     listState,
-                    0
-                ) { index ->
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(index)
+                    0,
+                    onItemClick = { index ->
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(index)
+                        }
                     }
-                }
+                )
 
 
 
@@ -332,7 +338,7 @@ private fun MenuPager(
                                 .fillMaxSize()
                                 .background(Color.White)
                         ) {
-                            currentEvent!!.menu?.forEach { category ->
+                            currentEvent.menu?.forEach { category ->
                                 item {
                                     Text(
                                         text = category.category ?: "Category",
@@ -354,7 +360,8 @@ private fun MenuPager(
                                             bottom = 12.dp,
                                             start = 16.dp,
                                             end = 16.dp
-                                        )
+                                        ),
+                                        horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(
                                             text = menuItem.name ?: "Item Name",
@@ -379,7 +386,7 @@ private fun MenuPager(
                                     }
                                 }
                             }
-                            if (currentEvent!!.menu == null || currentEvent!!.menu?.isEmpty() == true) {
+                            if (currentEvent.menu.isNullOrEmpty()) {
                                 item {
                                     Row(
                                         modifier = Modifier
@@ -419,7 +426,7 @@ private fun MenuPager(
                                         onClick = {
                                             onEateryClick(eateries[page])
                                         },
-                                        backgroundColor = GrayZero,
+                                        colors = CardDefaults.cardColors(containerColor = GrayZero),
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(
