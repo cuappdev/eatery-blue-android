@@ -102,6 +102,7 @@ fun HomeScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteExpand: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+    onNotificationsClick: () -> Unit
 ) {
     val context = LocalContext.current
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
@@ -260,7 +261,8 @@ fun HomeScreen(
                             },
                             onGridClick = {
                                 isGridView = true
-                            }
+                            },
+                            onNotificationsClick = onNotificationsClick
                         )
                     }
                 )
@@ -298,7 +300,8 @@ private fun HomeScrollableMainContent(
     filters: List<Filter>,
     isGridView: Boolean,
     onListClick: () -> Unit,
-    onGridClick: () -> Unit
+    onGridClick: () -> Unit,
+    onNotificationsClick: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -321,7 +324,8 @@ private fun HomeScrollableMainContent(
             HomeStickyHeader(
                 collapsed = isFirstVisible.value,
                 loaded = eateriesApiResponse is EateryApiResponse.Success,
-                onSearchClick = onSearchClick
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick
             )
         }
 
@@ -510,6 +514,7 @@ private fun HomeStickyHeader(
     collapsed: Boolean,
     loaded: Boolean,
     onSearchClick: () -> Unit,
+    onNotificationsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -569,11 +574,27 @@ private fun HomeStickyHeader(
                             tint = Color.White
                         )
                     }
-                    Text(
-                        text = "Eatery",
-                        color = Color.White,
-                        style = EateryBlueTypography.h2
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Eatery",
+                            color = Color.White,
+                            style = EateryBlueTypography.h2
+                        )
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_bell),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.clickable {
+                                onNotificationsClick()
+                            }
+                        )
+
+                    }
+
                 }
             }
         }
