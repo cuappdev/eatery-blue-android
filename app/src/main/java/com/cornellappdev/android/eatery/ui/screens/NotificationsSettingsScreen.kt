@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.screens
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,10 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -21,12 +16,9 @@ import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GraySix
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.messaging.RemoteMessage.Notification
 
 @Composable
 fun NotificationsSettingsScreen() {
-    var allNotificationsEnabled by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -50,41 +42,41 @@ fun NotificationsSettingsScreen() {
         SwitchOption(
             title = "All Notifications",
             description = "",
-            initialValue = allNotificationsEnabled,
-            onCheckedChange = { enabled ->
-                allNotificationsEnabled = enabled
+            initialValue = true,
+            onCheckedChange = {
+//                TODO()
             }
         )
 
-        if (allNotificationsEnabled) {
-            Spacer(modifier = Modifier.height(12.dp))
+        // TODO: Conditional visibility based on whether all notifications are enabled
 
-            SwitchOption(
-                title = "Favorite item being served",
-                description = "Get notified when favorite items are served",
-                initialValue = true,
-                onCheckedChange = {
-                    //todo
-                }
-            )
+        Spacer(modifier = Modifier.height(12.dp))
 
-            SwitchOption(
-                title = "Favorite eatery opening",
-                description = "Get notified when your favorite eatery opens",
-                initialValue = true,
-                onCheckedChange = {
-                    //todo
-                }
-            )
+        SwitchOption(
+            title = "Favorite item being served",
+            description = "Get notified when favorite items are served",
+            initialValue = true,
+            onCheckedChange = {
+//                TODO()
+            }
+        )
 
-            SwitchOption(
-                title = "Favorite eatery closing",
-                description = "Get notified when your favorite eatery closes",
-                initialValue = true,
-                onCheckedChange = {
-                    //todo
-                }
-            )
-        }
+        SwitchOption(
+            title = "Favorite eatery opening",
+            description = "Get notified when your favorite eatery opens",
+            initialValue = true,
+            onCheckedChange = {
+//                TODO()
+            }
+        )
+
+        SwitchOption(
+            title = "Favorite eatery closing",
+            description = "Get notified when your favorite eatery closes",
+            initialValue = true,
+            onCheckedChange = {
+//                TODO()
+            }
+        )
     }
 }

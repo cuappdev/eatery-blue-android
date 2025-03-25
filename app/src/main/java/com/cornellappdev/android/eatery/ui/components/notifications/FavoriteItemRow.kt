@@ -3,7 +3,6 @@ package com.cornellappdev.android.eatery.ui.components.notifications
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -28,11 +27,12 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 fun FavoriteItemRow(
     itemName: String,
     eateries: List<String>,
-    newNotif: Boolean
+    newNotif: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -66,9 +66,7 @@ fun FavoriteItemRow(
             }
         }
         IconButton(
-            onClick = {
-                // TODO: Add click action here
-            },
+            onClick = onClick,
             modifier = Modifier
                 .size(24.dp)
                 .background(
@@ -88,6 +86,7 @@ fun FavoriteItemRow(
 
 /**
  * Displays a formatted Text composable summarizing a list of eatery names based on the number of eateries.
+ * Also prepends "At" to the eateries list.
  * - If there is only one eatery, it displays the condensed name of that eatery.
  * - If there are two eateries, it displays the condensed eatery name of the last eatery
  *      followed by "and 1 other eatery."
@@ -100,10 +99,10 @@ fun FavoriteItemRow(
  *      if any.
  */
 @Composable
-private fun CondenseEateriesName(atEateries: List<String>) {
-    val condensed = atEateries.map { condenseDiningHallNames(it) }
-    val text = if (atEateries.size > 1) {
-        "${condensed.last()} + ${atEateries.size - 1} other"
+private fun CondenseEateriesName(eateries: List<String>) {
+    val condensed = eateries.map { condenseDiningHallNames(it) }
+    val text = if (eateries.size > 1) {
+        "${condensed.last()} + ${eateries.size - 1} other"
     } else {
         condensed.lastOrNull() ?: ""
     }
