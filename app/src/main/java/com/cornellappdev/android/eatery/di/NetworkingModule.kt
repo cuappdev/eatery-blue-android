@@ -2,7 +2,13 @@ package com.cornellappdev.android.eatery.di
 
 import android.util.Log
 import com.cornellappdev.android.eatery.BuildConfig
-import com.cornellappdev.android.eatery.data.*
+import com.cornellappdev.android.eatery.data.AccountTypeAdapter
+import com.cornellappdev.android.eatery.data.DateAdapter
+import com.cornellappdev.android.eatery.data.DateTimeAdapter
+import com.cornellappdev.android.eatery.data.ReportAdapter
+import com.cornellappdev.android.eatery.data.TimestampAdapter
+import com.cornellappdev.android.eatery.data.TransactionTypeAdapter
+import com.cornellappdev.android.eatery.data.api.NetworkApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module

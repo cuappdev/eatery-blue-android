@@ -1,6 +1,6 @@
 package com.cornellappdev.android.eatery.data.repositories
 
-import com.cornellappdev.android.eatery.data.NetworkApi
+import com.cornellappdev.android.eatery.data.api.NetworkApi
 import com.cornellappdev.android.eatery.data.models.ApiResponse
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event

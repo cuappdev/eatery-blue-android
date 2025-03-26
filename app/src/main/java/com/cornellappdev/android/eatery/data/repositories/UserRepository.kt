@@ -1,7 +1,7 @@
 package com.cornellappdev.android.eatery.data.repositories
 
 import com.cornellappdev.android.eatery.BuildConfig
-import com.cornellappdev.android.eatery.data.NetworkApi
+import com.cornellappdev.android.eatery.data.api.NetworkApi
 import com.cornellappdev.android.eatery.data.models.AccountsResponse
 import com.cornellappdev.android.eatery.data.models.GetApiAccountsParams
 import com.cornellappdev.android.eatery.data.models.GetApiRequestBody
