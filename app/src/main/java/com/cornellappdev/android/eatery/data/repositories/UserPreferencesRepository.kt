@@ -16,8 +16,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// TODO: Add flow for favorites map. Wherever filtering by favorites are needed, read from this
-//  flow, and combine to filter the eateries out with the latest favorites.
 @Singleton
 class UserPreferencesRepository @Inject constructor(
     private val userPreferencesStore: DataStore<UserPreferences>,
