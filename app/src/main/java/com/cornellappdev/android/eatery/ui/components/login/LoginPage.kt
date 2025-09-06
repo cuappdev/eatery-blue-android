@@ -1,14 +1,13 @@
 package com.cornellappdev.android.eatery.ui.components.login
 
 import android.content.Context
-import android.os.Handler
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.cornellappdev.android.eatery.BuildConfig
-import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.general.CustomTextField
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -137,7 +135,6 @@ fun LoginPage(
             )
         }
         if (loginState.loading) {
-            // LoginWebView should take up no space whatsoever. User should not be able to see it.
             LoginWebView(
                 netId = loginState.netid,
                 password = loginState.password,
@@ -155,7 +152,7 @@ fun LoginPage(
 }
 
 @Composable
-fun LoginWebView(
+private fun LoginWebView(
     netId: String,
     password: String,
     onSuccess: (String) -> Unit,
@@ -165,32 +162,32 @@ fun LoginWebView(
     CookieManager.getInstance().removeAllCookies(null)
     CookieManager.getInstance().flush()
 
-    AndroidView(factory = {
-        WebView(it).apply {
-            visibility = View.INVISIBLE
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            settings.javaScriptEnabled = true
-            webViewClient =
-                CustomWebViewClient(
-                    netId = netId,
-                    password = password,
-                    onSuccess = onSuccess,
-                    onWrongCredentials = onWrongCredentials,
-                    context = context
+    AndroidView(
+        factory = {
+            WebView(it).apply {
+                visibility = View.VISIBLE
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
                 )
-            loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
-        }
-    }, update = {
-        it.loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
-    })
+                settings.javaScriptEnabled = true
+                webViewClient =
+                    CustomWebViewClient(
+                        netId = netId,
+                        password = password,
+                        onSuccess = onSuccess,
+                        onWrongCredentials = onWrongCredentials,
+                        context = context
+                    )
+                loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
+            }
+        },
+        update = {
+            it.loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
+        })
 }
 
-var loadingMessage = ""
-
-class CustomWebViewClient(
+private class CustomWebViewClient(
     private val netId: String,
     private val password: String,
     val onSuccess: (String) -> Unit,
@@ -205,68 +202,10 @@ class CustomWebViewClient(
         lastUrl = url
         if (url?.contains("sessionId=") == true) {
             val sessionToken = url.substringAfter("sessionId=").removeSuffix("&")
-            Log.d("SessionID", sessionToken)
             onSuccess(sessionToken)
-        } else if (attempts > 1) {
+        } else if (attempts > 2) {
+            // We allow 2 attempts because there is an intermediate redirect that happens.
             onWrongCredentials()
-        } else if (url?.contains("auth/prompt") == true) {
-            val handler = Handler()
-            val interval = 1000L // Interval in milliseconds (e.g., check every second)
-            val runnable = object : Runnable {
-                override fun run() {
-                    // Execute JavaScript to get document element by ID
-                    view?.evaluateJavascript("javascript:document.querySelectorAll('[id*=\"header-text\"], [id*=\"push-success-label\"]')[0].innerHTML;") { message ->
-                        loadingMessage = message
-                        when (loadingMessage) {
-                            "\"Check for a Duo Push\"" -> {
-                                LoginToast(
-                                    context,
-                                    "Authenticating",
-                                    R.drawable.ic_bell,
-                                    R.color.light_yellow,
-                                    R.color.yellow
-                                )
-                            }
-
-                            "\"Open Duo Mobile\"" -> {
-                                LoginToast(
-                                    context,
-                                    "Authenticating",
-                                    R.drawable.ic_bell,
-                                    R.color.light_yellow,
-                                    R.color.yellow
-                                )
-                            }
-
-                            "\"Duo Push timed out\"" -> {
-                                LoginToast(
-                                    context,
-                                    "Timed Out",
-                                    R.drawable.ic_error,
-                                    R.color.light_red,
-                                    R.color.red
-                                )
-                            }
-
-                            "\"Success!\"" -> {
-                                LoginToast(
-                                    context,
-                                    "Successful Login",
-                                    es.dmoral.toasty.R.drawable.ic_check_white_24dp,
-                                    R.color.light_green,
-                                    R.color.green
-                                )
-                            }
-                        }
-                    }
-
-                    // Schedule the next execution
-                    handler.postDelayed(this, interval)
-                }
-            }
-
-            // Start the initial execution
-            handler.post(runnable)
         } else if (url?.contains("shibidp") == true) {
             // Injects the username and password into their respective spots on the
             // login form.
@@ -275,7 +214,7 @@ class CustomWebViewClient(
                 document.getElementsByName('j_password')[0].value = '${password}';
                 document.getElementsByName('_eventId_proceed')[0].click();
                 """.trimIndent()
-            view?.evaluateJavascript(script) { attempts += 1 }
+            view?.evaluateJavascript(script) { attempts++ }
         }
         super.onPageFinished(view, url)
     }
