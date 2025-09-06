@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.components.login
 
-import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -19,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -59,7 +57,7 @@ fun LoginPage(
 }
 
 @Composable
-private fun LoginPageContent(
+fun LoginPageContent(
     loginState: LoginViewModel.State.Login,
     onWrongCredentials: () -> Unit,
     onNetIdTyped: (String) -> Unit,
