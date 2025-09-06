@@ -7,7 +7,6 @@ import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -36,15 +36,36 @@ import com.cornellappdev.android.eatery.ui.theme.GraySix
 import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
+import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.Job
 
 @Composable
 fun LoginPage(
     loginState: LoginViewModel.State.Login,
     loginViewModel: LoginViewModel,
     onWrongCredentials: () -> Unit = {}
+) {
+    LoginPageContent(
+        loginState = loginState,
+        onWrongCredentials = onWrongCredentials,
+        onNetIdTyped = loginViewModel::onNetIDTyped,
+        onPasswordTyped = loginViewModel::onPasswordTyped,
+        onLoginPressed = loginViewModel::onLoginPressed,
+        getUser = loginViewModel::getUser
+    )
+}
+
+@Composable
+private fun LoginPageContent(
+    loginState: LoginViewModel.State.Login,
+    onWrongCredentials: () -> Unit,
+    onNetIdTyped: (String) -> Unit,
+    onPasswordTyped: (String) -> Unit,
+    onLoginPressed: () -> Unit,
+    getUser: ((String) -> Job)?
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val shimmerModifier =
@@ -53,7 +74,6 @@ fun LoginPage(
     val focusManager = LocalFocusManager.current
     val clickable =
         loginState.netid.isNotEmpty() && loginState.password.isNotEmpty() && !loginState.loading
-
 
     Column(
         modifier = Modifier
@@ -76,9 +96,7 @@ fun LoginPage(
         CustomTextField(
             modifier = Modifier.then(shimmerModifier),
             value = loginState.netid,
-            onValueChange = {
-                loginViewModel.onNetIDTyped(it)
-            },
+            onValueChange = onNetIdTyped,
             enabled = !loginState.loading,
             placeholder = "Type your NetID (e.g. abc123)",
             backgroundColor = GrayZero,
@@ -97,9 +115,7 @@ fun LoginPage(
         CustomTextField(
             modifier = Modifier.then(shimmerModifier),
             value = loginState.password,
-            onValueChange = {
-                loginViewModel.onPasswordTyped(it)
-            },
+            onValueChange = onPasswordTyped,
             enabled = !loginState.loading,
             placeholder = "Type your password...",
             backgroundColor = GrayZero,
@@ -121,7 +137,7 @@ fun LoginPage(
                 .height(56.dp),
             onClick = {
                 focusManager.clearFocus()
-                loginViewModel.onLoginPressed()
+                onLoginPressed()
             },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = if (clickable) EateryBlue else GrayZero
@@ -139,16 +155,34 @@ fun LoginPage(
                 netId = loginState.netid,
                 password = loginState.password,
                 onSuccess = { sessionId ->
-                    loginViewModel.getUser(sessionId)
-                    loginViewModel.onLoginPressed()
+                    getUser?.invoke(sessionId)
+                    onLoginPressed()
                 },
                 onWrongCredentials = {
                     onWrongCredentials()
-                },
-                context = LocalContext.current
+                }
             )
         }
     }
+}
+
+
+@Preview
+@Composable
+private fun LoginPagePreview() = EateryPreview {
+    LoginPageContent(
+        loginState = LoginViewModel.State.Login(
+            netid = "aaa00",
+            password = "myVeryLongPassword",
+            failureMessage = null,
+            loading = false
+        ),
+        onWrongCredentials = {},
+        onNetIdTyped = {},
+        onPasswordTyped = {},
+        onLoginPressed = {},
+        getUser = null
+    )
 }
 
 @Composable
@@ -157,7 +191,6 @@ private fun LoginWebView(
     password: String,
     onSuccess: (String) -> Unit,
     onWrongCredentials: () -> Unit,
-    context: Context
 ) {
     CookieManager.getInstance().removeAllCookies(null)
     CookieManager.getInstance().flush()
@@ -177,7 +210,6 @@ private fun LoginWebView(
                         password = password,
                         onSuccess = onSuccess,
                         onWrongCredentials = onWrongCredentials,
-                        context = context
                     )
                 loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
             }
@@ -192,7 +224,6 @@ private class CustomWebViewClient(
     private val password: String,
     val onSuccess: (String) -> Unit,
     val onWrongCredentials: () -> Unit,
-    val context: Context
 ) : WebViewClient() {
     private var attempts = 0
     private var lastUrl: String? = null
