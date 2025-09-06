@@ -45,7 +45,7 @@ class LoginViewModel @Inject constructor(
 
     private var _state = MutableStateFlow<State>(
         if (CurrentUser.user == null) {
-            State.Login("", "", null, false)
+            defaultState()
         } else {
             State.Account(CurrentUser.user!!, "", AccountType.BRBS)
         }
@@ -66,6 +66,12 @@ class LoginViewModel @Inject constructor(
         AccountType.JUST_BUCKS,
         AccountType.OFF_CAMPUS
     )
+
+    fun resetLogin() {
+        _state.value = defaultState()
+    }
+
+    private fun defaultState() = State.Login("", "", null, false)
 
     // Check what the meal plan is against our list of meal plans
     fun checkMealPlan(): Account? {
@@ -112,41 +118,6 @@ class LoginViewModel @Inject constructor(
         } ?: listOf()
     }
 
-    fun onNetIDTyped(newNetid: String) {
-        val currState = _state.value
-        if (currState !is State.Login) return
-
-        // currState is a Login state (expected).
-        val loginState = currState
-        val newState = State.Login(
-            newNetid,
-            loginState.password,
-            loginState.failureMessage,
-            false // Should never be able to type in when loading, anyways.
-        )
-
-        // Send the new netID Login state down.
-        _state.value = newState
-    }
-
-    fun onPasswordTyped(newPassword: String) {
-        val currState = _state.value
-        if (currState !is State.Login) return
-
-        // currState is a Login state (expected).
-        val loginState = currState
-
-        val newState = State.Login(
-            loginState.netid,
-            newPassword,
-            loginState.failureMessage,
-            false // Should never be able to type in when loading, anyways.
-        )
-
-        // Send the new password Login state down.
-        _state.value = newState
-    }
-
     fun onLoginPressed() {
         val currState = _state.value
         if (currState !is State.Login) return
@@ -164,21 +135,6 @@ class LoginViewModel @Inject constructor(
         // Send the new loading Login state down
         _state.value = newState
 
-    }
-
-    fun onLoginFailed() {
-        val currState = _state.value
-        if (currState !is State.Login) return
-
-        val loginState = currState
-
-        val newState = State.Login(
-            loginState.netid,
-            password = "",
-            failureMessage = "",
-            false
-        )
-        _state.value = newState
     }
 
     fun onLogoutPressed() {
