@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -169,7 +170,8 @@ fun SetupNavHost(
     AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
 
     // Need to handle here so the webview is destroyed before navigating away from profile.
-    val webViewEnabled = remember { mutableStateOf(true) }
+    // Otherwise it causes a crash when navigating away from the webview.
+    var webViewEnabled by remember { mutableStateOf(true) }
 
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
@@ -287,14 +289,14 @@ fun SetupNavHost(
                 defaultValue = true
             }),
             enterTransition = {
-                webViewEnabled.value = true
+                webViewEnabled = true
                 fadeIn(
                     initialAlpha = 0f,
                     animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
-                webViewEnabled.value = false
+                webViewEnabled = false
                 if (loginViewModel.state.value is LoginViewModel.State.Login) {
                     // not yet logged in, so reset.
                     loginViewModel.resetLogin()
@@ -306,7 +308,7 @@ fun SetupNavHost(
             ProfileScreen(
                 loginViewModel = loginViewModel,
                 onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
-                webViewEnabled = webViewEnabled.value,
+                webViewEnabled = webViewEnabled,
                 onBackClick = {
                     navController.popBackStack()
                 }
