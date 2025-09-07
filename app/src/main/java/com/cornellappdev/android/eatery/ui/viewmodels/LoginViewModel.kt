@@ -9,7 +9,6 @@ import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.screens.CurrentUser
-import com.cornellappdev.android.eatery.util.AppStorePopupRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +21,6 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val userRepository: UserRepository,
-    private val appStorePopupRepository: AppStorePopupRepository,
 ) : ViewModel() {
 
     /**
@@ -132,13 +130,10 @@ class LoginViewModel @Inject constructor(
 
         // Send the new loading Login state down
         _state.value = newState
-
     }
 
     fun onLogoutPressed() {
-        val newState = State.Login(
-            "", "", null, false
-        )
+        val newState = State.Login()
         _state.value = newState
         viewModelScope.launch {
             CurrentUser.user = null
@@ -158,7 +153,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun getUser(sessionId: String) = viewModelScope.launch {
+    fun onLoginWebViewSuccess(sessionId: String) {
+        getUser(sessionId)
+    }
+
+    private fun getUser(sessionId: String) = viewModelScope.launch {
         try {
             val currState = _state.value
             val user = userRepository.getUser(sessionId).response!!

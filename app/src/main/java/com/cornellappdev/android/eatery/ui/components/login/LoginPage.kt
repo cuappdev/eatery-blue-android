@@ -43,7 +43,6 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import kotlinx.coroutines.Job
 
 @Composable
 fun LoginPage(
@@ -54,7 +53,7 @@ fun LoginPage(
     LoginPageContent(
         loginState = loginState,
         onLoginPressed = loginViewModel::onLoginPressed,
-        getUser = loginViewModel::getUser,
+        onSuccess = loginViewModel::onLoginWebViewSuccess,
         webViewEnabled = webViewEnabled
     )
 }
@@ -63,7 +62,7 @@ fun LoginPage(
 fun LoginPageContent(
     loginState: LoginViewModel.State.Login,
     onLoginPressed: () -> Unit,
-    getUser: ((String) -> Job)?,
+    onSuccess: (String) -> Unit,
     webViewEnabled: Boolean
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -79,10 +78,7 @@ fun LoginPageContent(
                 onLoggedIn = {
                     loggedIn.value = true
                 },
-                onSuccess = { sessionId ->
-                    getUser?.invoke(sessionId)
-                    onLoginPressed()
-                }
+                onSuccess = onSuccess,
             )
             return
         }
@@ -192,7 +188,7 @@ private fun LoginPagePreview() = EateryPreview {
             loading = false
         ),
         onLoginPressed = {},
-        getUser = null,
+        onSuccess = {},
         webViewEnabled = false
     )
 }

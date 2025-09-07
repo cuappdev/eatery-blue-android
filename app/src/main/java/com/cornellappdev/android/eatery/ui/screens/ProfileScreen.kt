@@ -124,7 +124,7 @@ private fun ProfileLoginScreenPreview() = EateryPreview {
             LoginPageContent(
                 loginState = state,
                 onLoginPressed = {},
-                getUser = null,
+                onSuccess = {},
                 webViewEnabled = false
             )
         },
