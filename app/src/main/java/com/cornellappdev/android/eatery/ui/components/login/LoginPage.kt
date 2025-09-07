@@ -6,16 +6,25 @@ import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.IconButton
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,81 +57,135 @@ import com.valentinilk.shimmer.shimmer
 fun LoginPage(
     loginState: LoginViewModel.State.Login,
     loginViewModel: LoginViewModel,
-    webViewEnabled: Boolean
+    webViewEnabled: Boolean,
+    onBackClick: () -> Unit
 ) {
     LoginPageContent(
         loginState = loginState,
         onLoginPressed = loginViewModel::onLoginPressed,
         onSuccess = loginViewModel::onLoginWebViewSuccess,
-        webViewEnabled = webViewEnabled
+        webViewEnabled = webViewEnabled,
+        onBackClick = onBackClick
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginPageContent(
     loginState: LoginViewModel.State.Login,
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
-    webViewEnabled: Boolean
+    webViewEnabled: Boolean,
+    onBackClick: () -> Unit
 ) {
-    val shimmer = rememberShimmer(ShimmerBounds.View)
-    val shimmerModifier =
-        if (loginState.loading) Modifier.shimmer(customShimmer = shimmer) else Modifier
-    val clickable = !loginState.loading
     val loggedIn = remember { mutableStateOf(false) }
-    Column(
-        modifier = Modifier.zIndex(1f)
-    ) {
-        if (loginState.loading && !loggedIn.value && webViewEnabled) {
-            LoginWebView(
-                onLoggedIn = {
-                    loggedIn.value = true
-                },
-                onSuccess = onSuccess,
-            )
-            return
-        }
-        Text(
-            text = "Log in with your Cornell NetID to see your account balance and history",
-            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
-            modifier = Modifier.padding(top = 7.dp)
-        )
 
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(), contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_eaterylogo),
-                contentDescription = "Eatery logo",
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)
-                    .fillMaxHeight(),
-                colorFilter = ColorFilter.tint(Color(0xFFB7D3F3))
+    if (loginState.loading && !loggedIn.value && webViewEnabled) {
+        ModalBottomSheetLayout(
+            sheetState = rememberModalBottomSheetState(
+                initialValue = ModalBottomSheetValue.Expanded
+            ),
+            sheetShape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            ),
+            sheetElevation = 8.dp,
+            sheetContent = {
+                LoginWebView(
+                    onLoggedIn = {
+                        loggedIn.value = true
+                    },
+                    onSuccess = onSuccess,
+                )
+            }
+        ) {}
+        return
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                bottom = 7.dp,
+                start = 16.dp,
+                end = 16.dp
             )
-        }
-        Button(
-            enabled = clickable,
-            shape = RoundedCornerShape(24.dp),
+            .then(Modifier.statusBarsPadding())
+    ) {
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(shimmerModifier)
-                .height(56.dp),
-            onClick = {
-                onLoginPressed()
-            },
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = if (clickable) EateryBlue else GrayZero
-            ),
-            elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
+                .padding(top = 12.dp, bottom = 2.dp)
+                .height(34.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier.size(24.dp, 24.dp)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_left_chevron),
+                    contentDescription = "Back Arrow"
+                )
+            }
+        }
+        Text(
+            text = "Log into Eatery",
+            color = EateryBlue,
+            style = EateryBlueTypography.h3
+        )
+        val shimmer = rememberShimmer(ShimmerBounds.View)
+        val shimmerModifier =
+            if (loginState.loading) Modifier.shimmer(customShimmer = shimmer) else Modifier
+        val clickable = !loginState.loading
+
+        Column(
+            modifier = Modifier.zIndex(1f)
         ) {
             Text(
-                text = if (loginState.loading) "Logging in..." else "Log in",
-                color = if (clickable) Color.White else GrayThree,
-                style = EateryBlueTypography.h5
+                text = "Log in with your Cornell NetID to see your account balance and history",
+                style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
+                color = GraySix,
+                modifier = Modifier.padding(top = 7.dp)
             )
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(), contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_eaterylogo),
+                    contentDescription = "Eatery logo",
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .fillMaxHeight(),
+                    colorFilter = ColorFilter.tint(Color(0xFFB7D3F3))
+                )
+            }
+            Button(
+                enabled = clickable,
+                shape = RoundedCornerShape(24.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(shimmerModifier)
+                    .height(56.dp),
+                onClick = {
+                    onLoginPressed()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = if (clickable) EateryBlue else GrayZero
+                ),
+                elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
+            ) {
+                Text(
+                    text = if (loginState.loading) "Logging in..." else "Log in",
+                    color = if (clickable) Color.White else GrayThree,
+                    style = EateryBlueTypography.h5
+                )
+            }
         }
     }
 }
@@ -189,6 +252,7 @@ private fun LoginPagePreview() = EateryPreview {
         ),
         onLoginPressed = {},
         onSuccess = {},
-        webViewEnabled = false
+        webViewEnabled = false,
+        onBackClick = {}
     )
 }
