@@ -113,7 +113,7 @@ private fun ProfileScreenContent(
 @Composable
 private fun ProfileLoginScreenPreview() = EateryPreview {
     val state = LoginViewModel.State.Login(
-        netid = "aaa00",
+        netID = "aaa00",
         password = "myVeryLongPassword",
         failureMessage = null,
         loading = false

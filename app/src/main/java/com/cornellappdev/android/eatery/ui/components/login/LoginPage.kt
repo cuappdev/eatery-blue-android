@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.components.login
 
-import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -137,7 +136,6 @@ fun LoginPageContent(
  * [onSuccess] is called after [onLoggedIn] when we have grabbed the sessionID from the
  * validation page after log in.
  */
-@SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun LoginWebView(
     onLoggedIn: () -> Unit,
@@ -188,7 +186,7 @@ private class CustomWebViewClient(
 private fun LoginPagePreview() = EateryPreview {
     LoginPageContent(
         loginState = LoginViewModel.State.Login(
-            netid = "aaa00",
+            netID = "aaa00",
             password = "myVeryLongPassword",
             failureMessage = null,
             loading = false

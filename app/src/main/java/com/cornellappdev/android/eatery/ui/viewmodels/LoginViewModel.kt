@@ -30,10 +30,10 @@ class LoginViewModel @Inject constructor(
      */
     sealed class State {
         data class Login(
-            val netid: String,
-            val password: String,
-            val failureMessage: String?,
-            val loading: Boolean
+            val netID: String = "",
+            val password: String = "",
+            val failureMessage: String? = null,
+            val loading: Boolean = false
         ) : State()
 
         data class Account(
@@ -45,7 +45,7 @@ class LoginViewModel @Inject constructor(
 
     private var _state = MutableStateFlow<State>(
         if (CurrentUser.user == null) {
-            defaultState()
+            State.Login()
         } else {
             State.Account(CurrentUser.user!!, "", AccountType.BRBS)
         }
@@ -68,10 +68,8 @@ class LoginViewModel @Inject constructor(
     )
 
     fun resetLogin() {
-        _state.value = defaultState()
+        _state.value = State.Login()
     }
-
-    private fun defaultState() = State.Login("", "", null, false)
 
     // Check what the meal plan is against our list of meal plans
     fun checkMealPlan(): Account? {
@@ -126,7 +124,7 @@ class LoginViewModel @Inject constructor(
         val loginState = currState
 
         val newState = State.Login(
-            loginState.netid,
+            loginState.netID,
             loginState.password,
             loginState.failureMessage,
             true // Should never be able to type in when loading, anyways.
@@ -185,7 +183,7 @@ class LoginViewModel @Inject constructor(
             val currState = _state.value
             if (currState is State.Login) {
                 val newState = State.Login(
-                    netid = currState.netid,
+                    netID = currState.netID,
                     password = currState.password,
                     failureMessage = e.stackTraceToString(),
                     loading = false
