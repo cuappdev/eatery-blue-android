@@ -78,6 +78,10 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
+    suspend fun setFavoriteMenuItem(menuItem: String, isFavorite: Boolean) {
+        TODO()
+    }
+
     suspend fun saveLoginInfo(username: String, password: String) {
         userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
