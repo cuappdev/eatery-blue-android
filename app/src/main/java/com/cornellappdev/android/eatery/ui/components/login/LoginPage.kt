@@ -1,9 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.login
 
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
@@ -86,22 +84,25 @@ fun LoginPageContent(
 ) {
     var loggedIn by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Hidden
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
     )
     var webViewExpanded by remember { mutableStateOf(false) }
-    if (!sheetState.isVisible && loading) {
+    if (!sheetState.isVisible && loading && !loggedIn) {
         if (webViewExpanded) {
+            // only run if user manually hid the screen
+            // and not if it was already hidden
             onModalHidden()
         }
         webViewExpanded = false
+    } else if (loggedIn) {
+        LaunchedEffect(true) {
+            sheetState.hide()
+        }
     } else if (sheetState.isVisible) {
-        Log.d("debug", "visible")
         webViewExpanded = true
     }
-
-    Log.d("debug", "loading: $loading")
-    if (loading && !loggedIn && webViewEnabled) {
-        Log.d("debug", "show sheet")
+    if (loading && !loggedIn && webViewEnabled && !sheetState.isVisible) {
         LaunchedEffect(true) {
             sheetState.show()
         }
@@ -118,10 +119,8 @@ fun LoginPageContent(
         sheetElevation = 8.dp,
         sheetContent = {
             LoginWebView(
-                onLoggedIn = {
-                    loggedIn = true
-                },
-                onSuccess = onSuccess,
+                onLoggedIn = { loggedIn = true },
+                onSuccess = onSuccess
             )
         },
         modifier = Modifier.statusBarsPadding()
@@ -231,10 +230,8 @@ private fun LoginPageMainLayer(
 @Composable
 private fun LoginWebView(
     onLoggedIn: () -> Unit,
-    onSuccess: (String) -> Unit,
+    onSuccess: (String) -> Unit
 ) {
-    CookieManager.getInstance().removeAllCookies(null)
-    CookieManager.getInstance().flush()
     AndroidView(
         factory = {
             WebView(it).apply {
@@ -248,7 +245,7 @@ private fun LoginWebView(
                 webViewClient = CustomWebViewClient(onSuccess, onLoggedIn)
                 loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
             }
-        },
+        }
     )
 }
 
