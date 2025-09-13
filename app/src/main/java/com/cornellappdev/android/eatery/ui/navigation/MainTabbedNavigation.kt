@@ -305,10 +305,13 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
+            // need this for when user navigates from profile to itself
+            // since no guarantee of order between enterTransition and exitTransition
+            webViewEnabled = true
             ProfileScreen(
                 loginViewModel = loginViewModel,
                 onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
-                webViewEnabled = webViewEnabled,
+                webViewEnabled = true,
                 onBackClick = {
                     navController.popBackStack()
                 }

@@ -115,21 +115,20 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onLoginPressed() {
+        loadLogin(true)
+    }
+
+    fun onLoginExited() {
+        loadLogin(false)
+    }
+
+    private fun loadLogin(loading: Boolean) {
         val currState = _state.value
         if (currState !is State.Login) return
 
-        // currState is a Login state (expected).
-        val loginState = currState
-
-        val newState = State.Login(
-            loginState.netID,
-            loginState.password,
-            loginState.failureMessage,
-            true // Should never be able to type in when loading, anyways.
-        )
-
         // Send the new loading Login state down
-        _state.value = newState
+        _state.value = currState.copy(loading = loading)
+
     }
 
     fun onLogoutPressed() {
@@ -194,3 +193,4 @@ class LoginViewModel @Inject constructor(
         }
     }
 }
+

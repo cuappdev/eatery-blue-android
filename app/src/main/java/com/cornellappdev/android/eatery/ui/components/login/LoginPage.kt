@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.login
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -26,8 +27,11 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,48 +65,77 @@ fun LoginPage(
     onBackClick: () -> Unit
 ) {
     LoginPageContent(
-        loginState = loginState,
+        loading = loginState.loading,
         onLoginPressed = loginViewModel::onLoginPressed,
         onSuccess = loginViewModel::onLoginWebViewSuccess,
         webViewEnabled = webViewEnabled,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        onModalHidden = loginViewModel::onLoginExited
     )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginPageContent(
-    loginState: LoginViewModel.State.Login,
+    loading: Boolean,
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
     webViewEnabled: Boolean,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onModalHidden: () -> Unit
 ) {
-    val loggedIn = remember { mutableStateOf(false) }
-
-    if (loginState.loading && !loggedIn.value && webViewEnabled) {
-        ModalBottomSheetLayout(
-            sheetState = rememberModalBottomSheetState(
-                initialValue = ModalBottomSheetValue.Expanded
-            ),
-            sheetShape = RoundedCornerShape(
-                bottomStart = 0.dp,
-                bottomEnd = 0.dp,
-                topStart = 12.dp,
-                topEnd = 12.dp
-            ),
-            sheetElevation = 8.dp,
-            sheetContent = {
-                LoginWebView(
-                    onLoggedIn = {
-                        loggedIn.value = true
-                    },
-                    onSuccess = onSuccess,
-                )
-            }
-        ) {}
-        return
+    var loggedIn by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(
+        ModalBottomSheetValue.Hidden
+    )
+    var webViewExpanded by remember { mutableStateOf(false) }
+    if (!sheetState.isVisible && loading) {
+        if (webViewExpanded) {
+            onModalHidden()
+        }
+        webViewExpanded = false
+    } else if (sheetState.isVisible) {
+        Log.d("debug", "visible")
+        webViewExpanded = true
     }
+
+    Log.d("debug", "loading: $loading")
+    if (loading && !loggedIn && webViewEnabled) {
+        Log.d("debug", "show sheet")
+        LaunchedEffect(true) {
+            sheetState.show()
+        }
+    }
+
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetShape = RoundedCornerShape(
+            bottomStart = 0.dp,
+            bottomEnd = 0.dp,
+            topStart = 12.dp,
+            topEnd = 12.dp
+        ),
+        sheetElevation = 8.dp,
+        sheetContent = {
+            LoginWebView(
+                onLoggedIn = {
+                    loggedIn = true
+                },
+                onSuccess = onSuccess,
+            )
+        },
+        modifier = Modifier.statusBarsPadding()
+    ) {
+        LoginPageMainLayer(onBackClick, loading, onLoginPressed)
+    }
+}
+
+@Composable
+private fun LoginPageMainLayer(
+    onBackClick: () -> Unit,
+    loading: Boolean,
+    onLoginPressed: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -138,8 +171,8 @@ fun LoginPageContent(
         )
         val shimmer = rememberShimmer(ShimmerBounds.View)
         val shimmerModifier =
-            if (loginState.loading) Modifier.shimmer(customShimmer = shimmer) else Modifier
-        val clickable = !loginState.loading
+            if (loading) Modifier.shimmer(customShimmer = shimmer) else Modifier
+        val clickable = !loading
 
         Column(
             modifier = Modifier.zIndex(1f)
@@ -181,7 +214,7 @@ fun LoginPageContent(
                 elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
             ) {
                 Text(
-                    text = if (loginState.loading) "Logging in..." else "Log in",
+                    text = if (loading) "Logging in..." else "Log in",
                     color = if (clickable) Color.White else GrayThree,
                     style = EateryBlueTypography.h5
                 )
@@ -244,15 +277,11 @@ private class CustomWebViewClient(
 @Composable
 private fun LoginPagePreview() = EateryPreview {
     LoginPageContent(
-        loginState = LoginViewModel.State.Login(
-            netID = "aaa00",
-            password = "myVeryLongPassword",
-            failureMessage = null,
-            loading = false
-        ),
+        loading = false,
         onLoginPressed = {},
         onSuccess = {},
         webViewEnabled = false,
-        onBackClick = {}
+        onBackClick = {},
+        onModalHidden = {}
     )
 }
