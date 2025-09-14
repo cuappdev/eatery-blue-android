@@ -115,19 +115,19 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onLoginPressed() {
-        loadLogin(true)
+        updateLoginLoadingState(true)
     }
 
     fun onLoginExited() {
-        loadLogin(false)
+        updateLoginLoadingState(false)
     }
 
-    private fun loadLogin(loading: Boolean) {
+    private fun updateLoginLoadingState(isLoading: Boolean) {
         val currState = _state.value
         if (currState !is State.Login) return
 
         // Send the new loading Login state down
-        _state.value = currState.copy(loading = loading)
+        _state.value = currState.copy(loading = isLoading)
 
     }
 
