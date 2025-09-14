@@ -90,7 +90,7 @@ fun LoginPage(
             sheetState.show()
         }
     }
-    if (!LocalInspectionMode.current) {
+    if (!isPreview()) {
         ModalBottomSheetLayout(
             sheetState = sheetState,
             sheetShape = RoundedCornerShape(
@@ -268,3 +268,6 @@ private fun LoginPagePreview() = EateryPreview {
         onModalHidden = {}
     )
 }
+
+@Composable
+private fun isPreview() = LocalInspectionMode.current
