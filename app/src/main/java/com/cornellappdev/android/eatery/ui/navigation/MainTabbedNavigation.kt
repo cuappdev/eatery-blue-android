@@ -17,7 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -166,6 +168,11 @@ fun SetupNavHost(
     loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
     AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
+
+    // Need to handle here so the webview is destroyed before navigating away from profile.
+    // Otherwise it causes a crash when navigating away from the webview.
+    var webViewEnabled by remember { mutableStateOf(true) }
+
     // The starting destination switches to onboarding if it isn't completed.
     AnimatedNavHost(
         modifier = modifier,
@@ -202,17 +209,18 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            HomeScreen(showBottomBar = showBottomBar, onSearchClick = {
-                FirstTimeShown.firstTimeShown = false
-                navController.navigate(Routes.SEARCH.route)
-            }, onEateryClick = {
-                FirstTimeShown.firstTimeShown = false
-                navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            }, onFavoriteExpand = {
-                navController.navigate(Routes.FAVORITES.route)
-            }, onCompareMenusClick = { selectedEateries ->
-                navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
-            },
+            HomeScreen(
+                showBottomBar = showBottomBar, onSearchClick = {
+                    FirstTimeShown.firstTimeShown = false
+                    navController.navigate(Routes.SEARCH.route)
+                }, onEateryClick = {
+                    FirstTimeShown.firstTimeShown = false
+                    navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+                }, onFavoriteExpand = {
+                    navController.navigate(Routes.FAVORITES.route)
+                }, onCompareMenusClick = { selectedEateries ->
+                    navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
+                },
                 onNotificationsClick = {
                     navController.navigate("notifications_home")
                 }
@@ -281,19 +289,32 @@ fun SetupNavHost(
                 defaultValue = true
             }),
             enterTransition = {
+                webViewEnabled = true
                 fadeIn(
                     initialAlpha = 0f,
                     animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
+                webViewEnabled = false
+                if (loginViewModel.state.value is LoginViewModel.State.Login) {
+                    // not yet logged in, so reset.
+                    loginViewModel.resetLogin()
+                }
                 fadeOut(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
+            // need this for when user navigates from profile to itself
+            // since no guarantee of order between enterTransition and exitTransition
+            webViewEnabled = true
             ProfileScreen(
                 loginViewModel = loginViewModel,
-                onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) }
+                onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
+                webViewEnabled = true,
+                onBackClick = {
+                    navController.popBackStack()
+                }
             )
         }
         composable(
@@ -375,12 +396,13 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            FavoritesScreen(onEateryClick = {
-                navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            }, onSearchClick = {
-                FirstTimeShown.firstTimeShown = false
-                navController.navigate(Routes.SEARCH.route)
-            },
+            FavoritesScreen(
+                onEateryClick = {
+                    navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+                }, onSearchClick = {
+                    FirstTimeShown.firstTimeShown = false
+                    navController.navigate(Routes.SEARCH.route)
+                },
                 onBackClick = {
                     navController.popBackStack()
                 })
@@ -509,6 +531,6 @@ private fun currentRoute(navController: NavHostController): String? {
 
 fun NavController.isOnBackStack(route: String): Boolean = try {
     getBackStackEntry(route); true
-} catch (e: Throwable) {
+} catch (_: Throwable) {
     false
 }
