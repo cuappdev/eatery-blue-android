@@ -53,13 +53,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.data.models.Account
 import com.cornellappdev.android.eatery.data.models.AccountType
+import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -70,9 +71,12 @@ import java.time.format.DateTimeFormatter
 )
 @Composable
 fun AccountPage(
-    accountState: LoginViewModel.State.Account,
-    loginViewModel: LoginViewModel,
-    onSettingsClicked: () -> Unit
+    accountFilter: AccountType,
+    checkAccount: (AccountType) -> Account?,
+    checkMealPlan: () -> Account?,
+    onSettingsClicked: () -> Unit,
+    getTransactionsOfType: (AccountType, String) -> List<Transaction>,
+    updateAccountFilter: (AccountType) -> Unit
 ) {
     var filterText by remember { mutableStateOf("") }
     val modalBottomSheetState =
@@ -87,19 +91,20 @@ fun AccountPage(
         sheetContent = {
             when (sheetContent) {
                 BottomSheetContent.ACCOUNT_TYPE -> {
-                    AccountTypesAvailable(selectedPaymentMethod = listOf(
-                        AccountType.MEALSWIPES,
-                        AccountType.BRBS,
-                        AccountType.CITYBUCKS,
-                        AccountType.LAUNDRY
-                    ),
-                        accountState = accountState,
+                    AccountTypesAvailable(
+                        selectedPaymentMethod = listOf(
+                            AccountType.MEALSWIPES,
+                            AccountType.BRBS,
+                            AccountType.CITYBUCKS,
+                            AccountType.LAUNDRY
+                        ),
+                        accountFilter = accountFilter,
                         hide = {
                             coroutineScope.launch {
                                 modalBottomSheetState.hide()
                             }
                         }) {
-                        loginViewModel.updateAccountFilter(it)
+                        updateAccountFilter(it)
                     }
                 }
 
@@ -207,8 +212,7 @@ fun AccountPage(
             LazyColumn(state = innerListState) {
                 item {
                     (Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Column(
-                        ) {
+                        Column {
                             Text(
                                 text = "Meal Plan",
                                 style = EateryBlueTypography.h4,
@@ -217,7 +221,8 @@ fun AccountPage(
                             AccountBalanceRow(
                                 accountName = "Meal Swipes",
                                 accountType = AccountType.MEALSWIPES,
-                                loginViewModel = loginViewModel
+                                checkAccount = checkAccount,
+                                checkMealPlan = checkMealPlan
                             )
                             Spacer(
                                 modifier = Modifier
@@ -228,7 +233,8 @@ fun AccountPage(
                             AccountBalanceRow(
                                 accountName = "Big Red Bucks",
                                 accountType = AccountType.BRBS,
-                                loginViewModel = loginViewModel
+                                checkAccount = checkAccount,
+                                checkMealPlan = checkMealPlan
                             )
                             Spacer(
                                 modifier = Modifier
@@ -239,7 +245,8 @@ fun AccountPage(
                             AccountBalanceRow(
                                 accountName = "City Bucks",
                                 accountType = AccountType.CITYBUCKS,
-                                loginViewModel = loginViewModel
+                                checkAccount = checkAccount,
+                                checkMealPlan = checkMealPlan
                             )
                             Spacer(
                                 modifier = Modifier
@@ -250,7 +257,8 @@ fun AccountPage(
                             AccountBalanceRow(
                                 accountName = "Laundry",
                                 accountType = AccountType.LAUNDRY,
-                                loginViewModel = loginViewModel
+                                checkAccount = checkAccount,
+                                checkMealPlan = checkMealPlan
                             )
                         }
                     })
@@ -278,7 +286,7 @@ fun AccountPage(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    text = when (accountState.accountFilter.name) {
+                                    text = when (accountFilter.name) {
                                         "MEALSWIPES" -> "Meal Swipes"
                                         "BRBS" -> "Big Red Bucks"
                                         "LAUNDRY" -> "Laundry"
@@ -341,8 +349,8 @@ fun AccountPage(
                     }
                 }
                 items(
-                    loginViewModel.getTransactionsOfType(
-                        accountState.accountFilter,
+                    getTransactionsOfType(
+                        accountFilter,
                         filterText
                     )
                 ) { it ->
@@ -410,7 +418,8 @@ fun AccountPage(
 fun AccountBalanceRow(
     accountName: String,
     accountType: AccountType,
-    loginViewModel: LoginViewModel
+    checkAccount: (AccountType) -> Account?,
+    checkMealPlan: () -> Account?
 ) {
     Row(
         modifier = Modifier.height(50.dp),
@@ -426,11 +435,11 @@ fun AccountBalanceRow(
             textAlign = TextAlign.Right,
             text = if (accountType != AccountType.MEALSWIPES) {
                 "$" + "%.2f".format(
-                    loginViewModel.checkAccount(accountType)?.balance?.toFloat() ?: 0f
+                    checkAccount(accountType)?.balance?.toFloat() ?: 0f
                 )
             } else {
                 "%.0f".format(
-                    loginViewModel.checkMealPlan()?.balance?.toFloat() ?: 0f
+                    checkMealPlan()?.balance?.toFloat() ?: 0f
                 ) + " remaining"
             },
             style = EateryBlueTypography.button,
@@ -442,11 +451,11 @@ fun AccountBalanceRow(
 @Composable
 fun AccountTypesAvailable(
     selectedPaymentMethod: List<AccountType>,
-    accountState: LoginViewModel.State.Account,
+    accountFilter: AccountType,
     hide: () -> Unit,
     onSubmit: (AccountType) -> Unit
 ) {
-    var selected by remember { mutableStateOf(accountState.accountFilter) }
+    var selected by remember { mutableStateOf(accountFilter) }
     Column(
         modifier = Modifier
             .padding(vertical = 24.dp)
@@ -480,13 +489,14 @@ fun AccountTypesAvailable(
                     account -> true
                     else -> false
                 }
-                Row(modifier = Modifier
-                    .height(63.dp)
-                    .fillMaxWidth()
-                    .selectable(
-                        selected = (select),
-                        onClick = { selected = account }
-                    ),
+                Row(
+                    modifier = Modifier
+                        .height(63.dp)
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (select),
+                            onClick = { selected = account }
+                        ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(

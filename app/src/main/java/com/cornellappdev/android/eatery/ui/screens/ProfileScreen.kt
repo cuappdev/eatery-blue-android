@@ -4,9 +4,11 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
+import com.cornellappdev.android.eatery.data.models.Account
+import com.cornellappdev.android.eatery.data.models.AccountType
+import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
-import com.cornellappdev.android.eatery.ui.components.login.LoginPageContent
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.cornellappdev.android.eatery.util.EateryPreview
 
@@ -22,36 +24,58 @@ fun ProfileScreen(
     val state = loginViewModel.state.collectAsState().value
     ProfileScreenContent(
         state,
-        loginPage = @Composable {
-            LoginPage(
-                loginState = state as LoginViewModel.State.Login,
-                loginViewModel = loginViewModel,
-                webViewEnabled = webViewEnabled,
-                onBackClick = onBackClick
-            )
-        },
-        accountPage = @Composable {
-            AccountPage(
-                accountState = state as LoginViewModel.State.Account,
-                loginViewModel = loginViewModel,
-                onSettingsClicked = { onSettingsClicked() })
-        }
+        loading = state is LoginViewModel.State.Login && state.loading,
+        onLoginPressed = loginViewModel::onLoginPressed,
+        onSuccess = loginViewModel::onLoginWebViewSuccess,
+        webViewEnabled = webViewEnabled,
+        onBackClick = onBackClick,
+        onModalHidden = loginViewModel::onLoginExited,
+        accountFilter = if (state is LoginViewModel.State.Account) state.accountFilter else AccountType.BRBS,
+        checkAccount = loginViewModel::checkAccount,
+        checkMealPlan = loginViewModel::checkMealPlan,
+        onSettingsClicked = onSettingsClicked,
+        getTransactionsOfType = loginViewModel::getTransactionsOfType,
+        updateAccountFilter = loginViewModel::updateAccountFilter
     )
 }
 
 @Composable
 private fun ProfileScreenContent(
     state: LoginViewModel.State,
-    loginPage: @Composable () -> Unit,
-    accountPage: @Composable () -> Unit,
+    loading: Boolean,
+    onLoginPressed: () -> Unit,
+    onSuccess: (String) -> Unit,
+    webViewEnabled: Boolean,
+    onBackClick: () -> Unit,
+    onModalHidden: () -> Unit,
+    accountFilter: AccountType,
+    checkAccount: (AccountType) -> Account?,
+    checkMealPlan: () -> Account?,
+    onSettingsClicked: () -> Unit,
+    getTransactionsOfType: (AccountType, String) -> List<Transaction>,
+    updateAccountFilter: (AccountType) -> Unit
 ) {
     when (state) {
         is LoginViewModel.State.Login -> {
-            loginPage()
+            LoginPage(
+                loading = loading,
+                onLoginPressed = onLoginPressed,
+                onSuccess = onSuccess,
+                webViewEnabled = webViewEnabled,
+                onBackClick = onBackClick,
+                onModalHidden = onModalHidden
+            )
         }
 
         is LoginViewModel.State.Account -> {
-            accountPage()
+            AccountPage(
+                accountFilter = accountFilter,
+                checkAccount = checkAccount,
+                checkMealPlan = checkMealPlan,
+                onSettingsClicked = onSettingsClicked,
+                getTransactionsOfType = getTransactionsOfType,
+                updateAccountFilter = updateAccountFilter
+            )
         }
     }
 }
@@ -67,16 +91,17 @@ private fun ProfileLoginScreenPreview() = EateryPreview {
     )
     ProfileScreenContent(
         state = state,
-        loginPage = {
-            LoginPageContent(
-                loading = false,
-                onLoginPressed = {},
-                onSuccess = {},
-                webViewEnabled = false,
-                onBackClick = {},
-                onModalHidden = {}
-            )
-        },
-        accountPage = { }
+        loading = false,
+        onLoginPressed = {},
+        onSuccess = {},
+        webViewEnabled = false,
+        onBackClick = {},
+        onModalHidden = {},
+        accountFilter = AccountType.BRBS,
+        checkAccount = { null },
+        checkMealPlan = { null },
+        onSettingsClicked = {},
+        getTransactionsOfType = { _, _ -> emptyList() },
+        updateAccountFilter = {},
     )
 }

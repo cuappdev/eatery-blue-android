@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -49,32 +50,14 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GraySix
 import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
-@Composable
-fun LoginPage(
-    loginState: LoginViewModel.State.Login,
-    loginViewModel: LoginViewModel,
-    webViewEnabled: Boolean,
-    onBackClick: () -> Unit
-) {
-    LoginPageContent(
-        loading = loginState.loading,
-        onLoginPressed = loginViewModel::onLoginPressed,
-        onSuccess = loginViewModel::onLoginWebViewSuccess,
-        webViewEnabled = webViewEnabled,
-        onBackClick = onBackClick,
-        onModalHidden = loginViewModel::onLoginExited
-    )
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun LoginPageContent(
+fun LoginPage(
     loading: Boolean,
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
@@ -107,24 +90,27 @@ fun LoginPageContent(
             sheetState.show()
         }
     }
-
-    ModalBottomSheetLayout(
-        sheetState = sheetState,
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 12.dp,
-            topEnd = 12.dp
-        ),
-        sheetElevation = 8.dp,
-        sheetContent = {
-            LoginWebView(
-                onLoggedIn = { loggedIn = true },
-                onSuccess = onSuccess
-            )
-        },
-        modifier = Modifier.statusBarsPadding()
-    ) {
+    if (!isPreview()) {
+        ModalBottomSheetLayout(
+            sheetState = sheetState,
+            sheetShape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            ),
+            sheetElevation = 8.dp,
+            sheetContent = {
+                LoginWebView(
+                    onLoggedIn = { loggedIn = true },
+                    onSuccess = onSuccess
+                )
+            },
+            modifier = Modifier.statusBarsPadding()
+        ) {
+            LoginPageMainLayer(onBackClick, loading, onLoginPressed)
+        }
+    } else {
         LoginPageMainLayer(onBackClick, loading, onLoginPressed)
     }
 }
@@ -273,7 +259,7 @@ private class CustomWebViewClient(
 @Preview
 @Composable
 private fun LoginPagePreview() = EateryPreview {
-    LoginPageContent(
+    LoginPage(
         loading = false,
         onLoginPressed = {},
         onSuccess = {},
@@ -282,3 +268,6 @@ private fun LoginPagePreview() = EateryPreview {
         onModalHidden = {}
     )
 }
+
+@Composable
+private fun isPreview() = LocalInspectionMode.current
