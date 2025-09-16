@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.components.login
 
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
@@ -71,6 +72,7 @@ fun LoginPage(
         skipHalfExpanded = true
     )
     var webViewExpanded by remember { mutableStateOf(false) }
+    var isFirstWebView by remember { mutableStateOf(true) }
     if (!sheetState.isVisible && loading && !loggedIn) {
         if (webViewExpanded) {
             // only run if user manually hid the screen
@@ -103,7 +105,9 @@ fun LoginPage(
             sheetContent = {
                 LoginWebView(
                     onLoggedIn = { loggedIn = true },
-                    onSuccess = onSuccess
+                    onSuccess = onSuccess,
+                    isFirstWebView = isFirstWebView,
+                    webViewLoaded = { isFirstWebView = false }
                 )
             },
             modifier = Modifier.statusBarsPadding()
@@ -216,8 +220,18 @@ private fun LoginPageMainLayer(
 @Composable
 private fun LoginWebView(
     onLoggedIn: () -> Unit,
-    onSuccess: (String) -> Unit
+    onSuccess: (String) -> Unit,
+    isFirstWebView: Boolean,
+    webViewLoaded: () -> Unit
 ) {
+    if (isFirstWebView) {
+        // If the web view is being loaded for the first time after user navigates to LoginPage,
+        // then reset cookies. This makes logging out work.
+        // We need the conditional since LoginWebView gets recomposed during login.
+        CookieManager.getInstance().removeAllCookies(null)
+        CookieManager.getInstance().flush()
+        webViewLoaded()
+    }
     AndroidView(
         factory = {
             WebView(it).apply {

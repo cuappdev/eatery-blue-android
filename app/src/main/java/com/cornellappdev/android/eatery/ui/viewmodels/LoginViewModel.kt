@@ -114,13 +114,9 @@ class LoginViewModel @Inject constructor(
         } ?: listOf()
     }
 
-    fun onLoginPressed() {
-        updateLoginLoadingState(true)
-    }
+    fun onLoginPressed() = updateLoginLoadingState(true)
 
-    fun onLoginExited() {
-        updateLoginLoadingState(false)
-    }
+    fun onLoginExited() = updateLoginLoadingState(false)
 
     private fun updateLoginLoadingState(isLoading: Boolean) {
         val currState = _state.value
