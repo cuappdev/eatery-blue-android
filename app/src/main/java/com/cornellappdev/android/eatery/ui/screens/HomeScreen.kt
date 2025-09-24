@@ -89,6 +89,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
 
+private const val enableNotifs = false
 
 @OptIn(
     ExperimentalMaterialApi::class,
@@ -584,15 +585,16 @@ private fun HomeStickyHeader(
                             color = Color.White,
                             style = EateryBlueTypography.h2
                         )
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_bell),
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.clickable {
-                                onNotificationsClick()
-                            }
-                        )
-
+                        if (enableNotifs) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_bell),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.clickable {
+                                    onNotificationsClick()
+                                }
+                            )
+                        }
                     }
 
                 }
