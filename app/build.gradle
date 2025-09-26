@@ -40,11 +40,13 @@ android {
         debug {
             resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "true")
             buildConfigField("String", "BACKEND_URL", secretsProperties['BACKEND_URL'])
+            buildConfigField("boolean", "ENABLE_NOTIFICATIONS", "true")
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField("String", "BACKEND_URL", secretsProperties['PROD_ENDPOINT'])
+            buildConfigField("boolean", "ENABLE_NOTIFICATIONS", "false")
         }
     }
 

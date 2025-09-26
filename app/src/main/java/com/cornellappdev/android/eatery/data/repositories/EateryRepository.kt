@@ -46,6 +46,10 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     init {
         // Start loading backend as soon as the app initializes.
+        pingEateries()
+    }
+
+    fun pingEateries() {
         pingAllEateries()
         pingHomeEateries()
     }
