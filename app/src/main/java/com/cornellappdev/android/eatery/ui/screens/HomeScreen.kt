@@ -62,6 +62,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
@@ -88,8 +89,6 @@ import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
-
-private const val enableNotifs = false
 
 @OptIn(
     ExperimentalMaterialApi::class,
@@ -585,7 +584,7 @@ private fun HomeStickyHeader(
                             color = Color.White,
                             style = EateryBlueTypography.h2
                         )
-                        if (enableNotifs) {
+                        if (BuildConfig.ENABLE_NOTIFICATIONS) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_bell),
                                 contentDescription = null,
