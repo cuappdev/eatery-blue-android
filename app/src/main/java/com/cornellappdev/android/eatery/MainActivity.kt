@@ -34,12 +34,11 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // Want to eventually switch over to this typography
-        androidx.compose.material3.Typography()
+        val typography = androidx.compose.material3.Typography()
         setContent {
             LockScreenOrientation()
 
-            androidx.compose.material3.MaterialTheme {
+            androidx.compose.material3.MaterialTheme(typography = typography) {
                 NavigationSetup(hasOnboarded)
             }
         }
