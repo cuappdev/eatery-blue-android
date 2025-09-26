@@ -21,9 +21,6 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var eateryRepository: EateryRepository
-    private val dataRefresher = DataRefresher(pingEateries = {
-        eateryRepository.pingEateries()
-    })
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +39,12 @@ class MainActivity : ComponentActivity() {
                 NavigationSetup(hasOnboarded)
             }
         }
+        val dataRefresher = object : DefaultLifecycleObserver {
+            override fun onResume(owner: LifecycleOwner) {
+                super.onResume(owner)
+                eateryRepository.pingEateries()
+            }
+        }
         lifecycle.addObserver(dataRefresher)
     }
-}
-
-class DataRefresher(val pingEateries: () -> Unit) : DefaultLifecycleObserver {
-    override fun onResume(owner: LifecycleOwner) = pingEateries()
 }
