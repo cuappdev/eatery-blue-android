@@ -44,6 +44,8 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      */
     val homeEateryFlow = _homeEateryFlow.asStateFlow()
 
+    private var lastEateryId: Int? = null
+
     init {
         // Start loading backend as soon as the app initializes.
         pingEateries()
@@ -66,6 +68,12 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
             } catch (_: Exception) {
                 _eateryFlow.value = EateryApiResponse.Error
             }
+        }
+    }
+
+    fun pingLastEatery() {
+        if (lastEateryId != null) {
+            pingEatery(lastEateryId!!)
         }
     }
 
@@ -118,6 +126,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      * If ALL eateries are already loaded, then this simply instantly returns that.
      */
     fun getEateryFlow(eateryId: Int): StateFlow<EateryApiResponse<Eatery>> {
+        lastEateryId = eateryId
         if (eateryFlow.value is EateryApiResponse.Success) {
             return MutableStateFlow(
                 EateryApiResponse.Success(

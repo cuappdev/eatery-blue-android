@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
                 eateryRepository.pingEateries()
+                eateryRepository.pingLastEatery()
             }
         }
         lifecycle.addObserver(dataRefresher)
