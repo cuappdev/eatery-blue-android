@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.screens
 
 
 import android.Manifest
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -473,10 +472,6 @@ private fun HomeScrollableMainContent(
                         }
                     } else {
                         itemsIndexed(nearestEateries) { index, eatery ->
-                            Log.d(
-                                "TAG",
-                                "HomeScrollableMainContent: index = $index, eatery = $eatery, \n\n\nsize = ${nearestEateries.size}"
-                            )
                             Box(
                                 Modifier.padding(
                                     start = 16.dp,
@@ -484,10 +479,6 @@ private fun HomeScrollableMainContent(
                                     top = if (index != 0) 12.dp else 0.dp
                                 )
                             ) {
-                                Log.d(
-                                    "TAG",
-                                    "HomeScrollableMainContent: index = $index, eatery = $eatery"
-                                )
                                 EateryCard(
                                     eatery = eatery,
                                     isFavorite = favorites.any { favoriteEatery ->

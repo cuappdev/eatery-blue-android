@@ -127,22 +127,9 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      */
     fun getEateryFlow(eateryId: Int): StateFlow<EateryApiResponse<Eatery>> {
         lastEateryId = eateryId
-        if (eateryFlow.value is EateryApiResponse.Success) {
-            return MutableStateFlow(
-                EateryApiResponse.Success(
-                    (eateryFlow.value as EateryApiResponse.Success<List<Eatery>>)
-                        .data.find { it.id == eateryId }!!
-                )
-            )
+        if (!eateryApiCache.contains(eateryId)) {
+            pingEatery(eateryId)
         }
-
-        // If not called yet or is in an error, re-ping.
-        if (!eateryApiCache.contains(eateryId)
-            || eateryApiCache[eateryId]!!.value is EateryApiResponse.Error
-        ) {
-            pingEatery(eateryId = eateryId)
-        }
-
         return eateryApiCache[eateryId]!!
     }
 }
