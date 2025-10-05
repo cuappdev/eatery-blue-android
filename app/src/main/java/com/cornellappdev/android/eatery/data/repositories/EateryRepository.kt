@@ -7,9 +7,12 @@ import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -95,8 +98,8 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     /**
      * A map from eatery ids to the states representing their API loading calls.
      */
-    private val eateryApiCache: MutableMap<Int, MutableStateFlow<EateryApiResponse<Eatery>>> =
-        mutableMapOf()
+    private val eateryApiCache: MutableStateFlow<MutableMap<Int, EateryApiResponse<Eatery>>> =
+        MutableStateFlow(mutableMapOf())
 
     /**
      * Makes a new call to backend for the specified eatery. After calling,
@@ -105,19 +108,21 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      */
     private fun pingEatery(eateryId: Int) {
         // If first time calling, make new state.
-        if (eateryApiCache[eateryId] == null) {
-            eateryApiCache[eateryId] = MutableStateFlow(EateryApiResponse.Pending)
-        }
-
-        eateryApiCache[eateryId]!!.value = EateryApiResponse.Pending
+        updateCache(eateryId, EateryApiResponse.Pending)
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val eatery = getEatery(eateryId = eateryId)
-                eateryApiCache[eateryId]!!.value = EateryApiResponse.Success(eatery)
+                updateCache(eateryId, EateryApiResponse.Success(eatery))
             } catch (_: Exception) {
-                eateryApiCache[eateryId]!!.value = EateryApiResponse.Error
+                updateCache(eateryId, EateryApiResponse.Error)
             }
+        }
+    }
+
+    private fun updateCache(eateryId: Int, response: EateryApiResponse<Eatery>) {
+        eateryApiCache.update {
+            (it + (eateryId to response)).toMutableMap()
         }
     }
 
@@ -125,11 +130,11 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      * Returns the [StateFlow] representing the API call for the specified eatery.
      * If ALL eateries are already loaded, then this simply instantly returns that.
      */
-    fun getEateryFlow(eateryId: Int): StateFlow<EateryApiResponse<Eatery>> {
+    fun getEateryFlow(eateryId: Int): Flow<EateryApiResponse<Eatery>> {
         lastEateryId = eateryId
-        if (!eateryApiCache.contains(eateryId)) {
+        if (!eateryApiCache.value.contains(eateryId)) {
             pingEatery(eateryId)
         }
-        return eateryApiCache[eateryId]!!
+        return eateryApiCache.map { it[eateryId]!! }
     }
 }

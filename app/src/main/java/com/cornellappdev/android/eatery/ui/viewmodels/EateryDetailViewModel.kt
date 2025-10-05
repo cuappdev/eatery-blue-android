@@ -13,8 +13,8 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
@@ -72,7 +72,7 @@ class EateryDetailViewModel @Inject constructor(
     /**
      * A flow emitting the loading status of the current eatery.
      */
-    private val eateryFlow: StateFlow<EateryApiResponse<Eatery>> =
+    private val eateryFlow: Flow<EateryApiResponse<Eatery>> =
         eateryRepository.getEateryFlow(eateryId)
 
     private val userSelectedMeal = MutableStateFlow<Event?>(null)
