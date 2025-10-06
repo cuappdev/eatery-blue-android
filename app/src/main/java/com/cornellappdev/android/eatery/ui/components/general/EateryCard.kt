@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
-import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -118,7 +117,6 @@ fun EateryCard(
         backgroundColor = Color.White,
         modifier = modifier
     ) {
-        Log.d("TAG", "EateryCard:still alvie ")
         Column {
             Box {
                 Crossfade(
