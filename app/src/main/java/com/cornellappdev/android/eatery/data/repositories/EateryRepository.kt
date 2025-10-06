@@ -47,7 +47,11 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      */
     val homeEateryFlow = _homeEateryFlow.asStateFlow()
 
-    private var lastEateryId: Int? = null
+    /**
+     * A map from eatery ids to the states representing their API loading calls.
+     */
+    private val eateryApiCache: MutableStateFlow<Map<Int, EateryApiResponse<Eatery>>> =
+        MutableStateFlow(mapOf<Int, EateryApiResponse<Eatery>>().withDefault { EateryApiResponse.Error })
 
     init {
         // Start loading backend as soon as the app initializes.
@@ -64,19 +68,20 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      */
     private fun pingAllEateries() {
         _eateryFlow.value = EateryApiResponse.Pending
+        eateryApiCache.update { map -> map.mapValues { EateryApiResponse.Pending } }
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val eateries = getAllEateries()
                 _eateryFlow.value = EateryApiResponse.Success(eateries)
+                eateryApiCache.update { map ->
+                    eateries.filter { it.id != null }
+                        .associate { it.id!! to EateryApiResponse.Success(it) }
+                        .withDefault { EateryApiResponse.Error }
+                }
             } catch (_: Exception) {
                 _eateryFlow.value = EateryApiResponse.Error
+                eateryApiCache.update { map -> map.mapValues { EateryApiResponse.Error } }
             }
-        }
-    }
-
-    fun pingLastEatery() {
-        if (lastEateryId != null) {
-            pingEatery(lastEateryId!!)
         }
     }
 
@@ -94,12 +99,6 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
             }
         }
     }
-
-    /**
-     * A map from eatery ids to the states representing their API loading calls.
-     */
-    private val eateryApiCache: MutableStateFlow<MutableMap<Int, EateryApiResponse<Eatery>>> =
-        MutableStateFlow(mutableMapOf())
 
     /**
      * Makes a new call to backend for the specified eatery. After calling,
@@ -122,7 +121,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     private fun updateCache(eateryId: Int, response: EateryApiResponse<Eatery>) {
         eateryApiCache.update {
-            (it + (eateryId to response)).toMutableMap()
+            (it + (eateryId to response)).withDefault { EateryApiResponse.Error }
         }
     }
 
@@ -131,10 +130,9 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      * If ALL eateries are already loaded, then this simply instantly returns that.
      */
     fun getEateryFlow(eateryId: Int): Flow<EateryApiResponse<Eatery>> {
-        lastEateryId = eateryId
         if (!eateryApiCache.value.contains(eateryId)) {
             pingEatery(eateryId)
         }
-        return eateryApiCache.map { it[eateryId]!! }
+        return eateryApiCache.map { it.getValue(eateryId) }
     }
 }
