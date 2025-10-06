@@ -68,7 +68,10 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      */
     private fun pingAllEateries() {
         _eateryFlow.value = EateryApiResponse.Pending
-        eateryApiCache.update { map -> map.mapValues { EateryApiResponse.Pending } }
+        eateryApiCache.update { map ->
+            map.mapValues { EateryApiResponse.Pending }
+                .withDefault { EateryApiResponse.Error }
+        }
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val eateries = getAllEateries()
@@ -80,7 +83,10 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
                 }
             } catch (_: Exception) {
                 _eateryFlow.value = EateryApiResponse.Error
-                eateryApiCache.update { map -> map.mapValues { EateryApiResponse.Error } }
+                eateryApiCache.update { map ->
+                    map.mapValues { EateryApiResponse.Error }
+                        .withDefault { EateryApiResponse.Error }
+                }
             }
         }
     }
