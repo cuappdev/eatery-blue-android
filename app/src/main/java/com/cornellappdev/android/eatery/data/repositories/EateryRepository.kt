@@ -83,9 +83,8 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
                 }
             } catch (_: Exception) {
                 _eateryFlow.value = EateryApiResponse.Error
-                eateryApiCache.update { map ->
-                    map.mapValues { EateryApiResponse.Error }
-                        .withDefault { EateryApiResponse.Error }
+                eateryApiCache.update {
+                    emptyMap<Int, EateryApiResponse<Eatery>>().withDefault { EateryApiResponse.Error }
                 }
             }
         }
