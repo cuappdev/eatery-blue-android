@@ -27,6 +27,8 @@ message UserPreferences {
 
   map<string, bool> itemFavorites = 11;
 
+  string deviceId = 12;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.

@@ -6,6 +6,16 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class User(
     @Json(name = "id") val id: String? = null,
+    @Json(name = "fcmToken") val fcmToken: String? = null,
+    @Json(name = "deviceId") val deviceId: String? = null,
+    @Json(name = "pin") val pin: Int? = null,
+    @Json(name = "favorite_eateries") val favoriteEateries: List<Int>? = null,
+    @Json(name = "brb_balance") val brbBalance: Double? = null,
+    @Json(name = "city_bucks_balance") val cityBucksBalance: Double? = null,
+    @Json(name = "laundry_balance") val laundryBalance: Double? = null,
+    @Json(name = "brb_account_name") val brbAccountName: String? = null,
+    @Json(name = "city_bucks_account_name") val cityBucksAccountName: String? = null,
+    @Json(name = "laundry_account_name") val laundryAccountName: String? = null,
     @Json(name = "userName") val userName: String? = null,
     @Json(name = "firstName") val firstName: String? = null,
     @Json(name = "middleName") val middleName: String? = null,

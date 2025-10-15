@@ -3,12 +3,12 @@ package com.cornellappdev.android.eatery.data.repositories
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.AccountsResponse
+import com.cornellappdev.android.eatery.data.models.ApiResponse
 import com.cornellappdev.android.eatery.data.models.GetApiAccountsParams
 import com.cornellappdev.android.eatery.data.models.GetApiRequestBody
 import com.cornellappdev.android.eatery.data.models.GetApiResponse
 import com.cornellappdev.android.eatery.data.models.GetApiTransactionHistoryParams
 import com.cornellappdev.android.eatery.data.models.GetApiTransactionHistoryQueryCriteria
-import com.cornellappdev.android.eatery.data.models.GetApiUserParams
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.TransactionsResponse
 import com.cornellappdev.android.eatery.data.models.User
@@ -29,17 +29,16 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
             )
         )
 
-    suspend fun getUser(sessionId: String): GetApiResponse<User> =
-        networkApi.fetchUser(
-            url = BuildConfig.GET_BACKEND_URL + "user",
-            body = GetApiRequestBody(
-                version = "1",
-                method = "retrieve",
-                params = GetApiUserParams(
-                    sessionId = sessionId
-                )
-            )
+    suspend fun getUser(
+        sessionId: String,
+        deviceId: String,
+        fcmToken: String
+    ): ApiResponse<User> {
+        return networkApi.authorizeUser(
+            sessionId = "Bearer $sessionId",
+            user = User(deviceId = deviceId, pin = 1234, fcmToken = fcmToken)
         )
+    }
 
     suspend fun getAccount(sessionId: String, userId: String): GetApiResponse<AccountsResponse> =
         networkApi.fetchAccounts(

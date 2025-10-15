@@ -13,8 +13,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,6 +66,10 @@ class LoginViewModel @Inject constructor(
         AccountType.JUST_BUCKS,
         AccountType.OFF_CAMPUS
     )
+
+    init {
+        getSavedLoginInfo()
+    }
 
     fun resetLogin() {
         _state.value = State.Login()
@@ -137,10 +143,6 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    init {
-        getSavedLoginInfo()
-    }
-
     private fun getSavedLoginInfo() = viewModelScope.launch {
         if (userPreferencesRepository.getIsLoggedIn()) {
             val loginInfo = userPreferencesRepository.fetchLoginInfo()
@@ -152,10 +154,19 @@ class LoginViewModel @Inject constructor(
         getUser(sessionId)
     }
 
+    /**
+     * Fetches user data given [sessionId] and updates the state and user preferences.
+     */
     private fun getUser(sessionId: String) = viewModelScope.launch {
         try {
             val currState = _state.value
-            val user = userRepository.getUser(sessionId).response!!
+            if (userPreferencesRepository.getDeviceId() == null) {
+                userPreferencesRepository.setDeviceId(UUID.randomUUID())
+            }
+            val fcmToken =
+                com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
+            val deviceId = userPreferencesRepository.getDeviceId()!!
+            val user = userRepository.getUser(sessionId, deviceId, fcmToken).data!!
             val account = userRepository.getAccount(sessionId, user.id!!).response!!.accounts
             val transactions =
                 userRepository.getTransactionHistory(sessionId, user.id).response!!.transactions

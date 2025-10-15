@@ -1,15 +1,29 @@
 package com.cornellappdev.android.eatery.data
 
 import com.cornellappdev.android.eatery.BuildConfig
-import com.cornellappdev.android.eatery.data.models.*
+import com.cornellappdev.android.eatery.data.models.AccountsResponse
+import com.cornellappdev.android.eatery.data.models.ApiResponse
+import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.Event
+import com.cornellappdev.android.eatery.data.models.GetApiAccountsParams
+import com.cornellappdev.android.eatery.data.models.GetApiRequestBody
+import com.cornellappdev.android.eatery.data.models.GetApiResponse
+import com.cornellappdev.android.eatery.data.models.GetApiTransactionHistoryParams
+import com.cornellappdev.android.eatery.data.models.GetApiTransactionHistoryQueryCriteria
+import com.cornellappdev.android.eatery.data.models.GetApiUserParams
+import com.cornellappdev.android.eatery.data.models.ReportSendBody
+import com.cornellappdev.android.eatery.data.models.TransactionsResponse
+import com.cornellappdev.android.eatery.data.models.User
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Url
 import java.text.SimpleDateFormat
 import java.time.Duration
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 interface NetworkApi {
     @POST()
@@ -47,6 +61,12 @@ interface NetworkApi {
     suspend fun sendReport(
         @Body report: ReportSendBody
     ): GetApiResponse<ReportSendBody>
+
+    @POST("/user/authorize")
+    suspend fun authorizeUser(
+        @Header("Authorization") sessionId: String,
+        @Body user: User
+    ): ApiResponse<User>
 }
 
 fun generateUserBody(sessionId: String): GetApiRequestBody<GetApiUserParams> {

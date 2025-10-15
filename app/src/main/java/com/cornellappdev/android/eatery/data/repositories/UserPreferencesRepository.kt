@@ -127,4 +127,17 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun fetchLoginInfo(): Pair<String, String> =
         Pair(userPreferencesFlow.first().username, userPreferencesFlow.first().password)
+
+    suspend fun setDeviceId(deviceId: java.util.UUID) {
+        userPreferencesStore.updateData { currentPreferences ->
+            currentPreferences.toBuilder()
+                .setDeviceId(deviceId.toString())
+                .build()
+        }
+    }
+
+    suspend fun getDeviceId(): String? {
+        val id: String? = userPreferencesFlow.first().deviceId
+        return if (id.isNullOrEmpty()) null else id
+    }
 }
