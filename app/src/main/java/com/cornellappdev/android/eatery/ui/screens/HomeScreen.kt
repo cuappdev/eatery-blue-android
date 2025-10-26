@@ -176,17 +176,19 @@ fun HomeScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
-            CompareMenusFAB(
-                modifier = Modifier.scale(compareMenusScale),
-            ) {
-                if (!showFAB) {
-                    return@CompareMenusFAB
-                }
+            if (eateriesApiResponse is EateryApiResponse.Success && eateriesApiResponse.data.size >= 2) {
+                CompareMenusFAB(
+                    modifier = Modifier.scale(compareMenusScale),
+                ) {
+                    if (!showFAB) {
+                        return@CompareMenusFAB
+                    }
 
-                showFAB = false
-                coroutineScope.launch {
-                    sheetContent = BottomSheetContent.COMPARE_MENUS
-                    modalBottomSheetState.show()
+                    showFAB = false
+                    coroutineScope.launch {
+                        sheetContent = BottomSheetContent.COMPARE_MENUS
+                        modalBottomSheetState.show()
+                    }
                 }
             }
         },
