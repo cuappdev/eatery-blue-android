@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,7 @@ import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingIt
 import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingItem.Companion.CreateUpcomingLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingMenusViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
@@ -95,7 +97,10 @@ fun UpcomingMenuScreen(
                     sheetState = modalBottomSheetState,
                     selectedMeal = viewState.mealFilter,
                     onSubmit = {
-                        upcomingViewModel.changeMealFilter(it)
+                        upcomingViewModel.changeMealFilter(
+                            filter = it,
+                            pingAgain = isErrorState(viewState)
+                        )
                     },
                     onReset = {
                         upcomingViewModel.resetMealFilter()
@@ -107,162 +112,203 @@ fun UpcomingMenuScreen(
                     }
                 )
             },
-            content = { ->
+            content = {
                 val innerListState = rememberLazyListState()
                 val isFirstVisible =
                     remember { derivedStateOf { innerListState.firstVisibleItemIndex > 0 } }
-                LazyColumn(
-                    state = innerListState, modifier = Modifier.fillMaxSize()
-                ) {
-
-                    stickyHeader {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(EateryBlue)
-                                .then(Modifier.statusBarsPadding())
-                                .padding(bottom = 7.dp),
-                        ) {
-                            AnimatedContent(
-                                targetState = isFirstVisible.value
-                            ) { isFirstVisible ->
-                                if (isFirstVisible) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = 12.dp)
-                                    ) {
-                                        Text(
-                                            modifier = Modifier.align(Alignment.Center),
-                                            textAlign = TextAlign.Center,
-                                            text = "Upcoming Menus",
-                                            color = White,
-                                            style = TextStyle(
-                                                fontWeight = FontWeight.SemiBold,
-                                                fontSize = 20.sp
-                                            )
-                                        )
-                                    }
-                                } else {
-                                    Column(
-                                        modifier = Modifier.padding(
-                                            start = 16.dp,
-                                            end = 16.dp,
-                                            top = 56.dp
-                                        )
-                                    ) {
-                                        Text(
-                                            text = "Upcoming Menus",
-                                            color = White,
-                                            style = EateryBlueTypography.h2
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    item {
-                        Box(
-                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                        ) {
-                            CalendarWeekSelector(
-                                dayNames = (0 until 7).map {
-                                    LocalDate.now().plusDays(it.toLong())
-                                        .format(DateTimeFormatter.ofPattern("EEE"))
-                                },
-                                currSelectedDay = viewState.selectedDay,
-                                selectedDay = viewState.selectedDay,
-                                days = (0 until 7).map {
-                                    LocalDate.now().plusDays(it.toLong()).dayOfMonth
-                                },
-                                onClick = { i -> upcomingViewModel.selectDayOffset(i) },
-                                closedDays = null
-                            )
-                        }
-                    }
-                    item {
-                        FilterRow(
-                            customItemsBefore = {
-                                item {
-                                    FilterButton(
-                                        onFilterClicked = {
-                                            coroutineScope.launch {
-                                                modalBottomSheetState.show()
-                                            }
-                                        },
-                                        selected = true,
-                                        text = when (viewState.mealFilter) {
-                                            MealFilter.LATE_DINNER -> "Late Dinner"
-                                            else -> viewState.mealFilter.text.first()
-                                        },
-                                        icon = Icons.Default.ExpandMore
-                                    )
-                                }
+                val upcomingMenuHeader = @Composable {
+                    UpcomingMenuHeader(isFirstVisible)
+                }
+                val calendarWeekSelector = @Composable {
+                    Box(
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                    ) {
+                        CalendarWeekSelector(
+                            dayNames = (0 until 7).map {
+                                LocalDate.now().plusDays(it.toLong())
+                                    .format(DateTimeFormatter.ofPattern("EEE"))
                             },
-                            filters = upcomingViewModel.upcomingMenuFilters,
-                            currentFiltersSelected = viewState.selectedFilters,
-                            onFilterClicked = upcomingViewModel::toggleFilter,
+                            currSelectedDay = viewState.selectedDay,
+                            selectedDay = viewState.selectedDay,
+                            days = (0 until 7).map {
+                                LocalDate.now().plusDays(it.toLong()).dayOfMonth
+                            },
+                            onClick = { i ->
+                                upcomingViewModel.selectDayOffset(
+                                    offset = i,
+                                    pingAgain = isErrorState(viewState)
+                                )
+                            },
+                            closedDays = null
                         )
                     }
-                    when (val menus = viewState.menus) {
-                        is EateryApiResponse.Pending -> {
-                            items(UpcomingLoadingItem.upcomingItems) { item ->
-                                CreateUpcomingLoadingItem(
-                                    item,
-                                    shimmer
+                }
+                val filterRow = @Composable {
+                    FilterRow(
+                        customItemsBefore = {
+                            item {
+                                FilterButton(
+                                    onFilterClicked = {
+                                        coroutineScope.launch {
+                                            modalBottomSheetState.show()
+                                        }
+                                    },
+                                    selected = true,
+                                    text = when (viewState.mealFilter) {
+                                        MealFilter.LATE_DINNER -> "Late Dinner"
+                                        else -> viewState.mealFilter.text.first()
+                                    },
+                                    icon = Icons.Default.ExpandMore
                                 )
                             }
-                        }
+                        },
+                        filters = upcomingViewModel.upcomingMenuFilters,
+                        currentFiltersSelected = viewState.selectedFilters,
+                        onFilterClicked = { filter ->
+                            upcomingViewModel.toggleFilter(
+                                filter = filter,
+                                pingAgain = isErrorState(viewState)
+                            )
+                        },
+                    )
+                }
 
-                        is EateryApiResponse.Error -> {
-                            item { Text(text = "error") }
+                if (isErrorState(viewState)) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        upcomingMenuHeader()
+                        calendarWeekSelector()
+                        filterRow()
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ErrorContent(onTryAgain = upcomingViewModel::pingEateries)
                         }
-
-                        is EateryApiResponse.Success -> {
-                            if (menus.data.isEmpty()) {
-                                item {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillParentMaxHeight(0.7f)
-                                            .fillMaxWidth()
-                                    ) {
-                                        NoEateryFound(
-                                            modifier = Modifier.align(
-                                                Alignment.Center
-                                            ), resetFilters = {
-                                                upcomingViewModel.resetFilters()
-                                            })
-                                    }
-                                    Spacer(modifier = Modifier.height(12.dp))
+                    }
+                } else {
+                    LazyColumn(
+                        state = innerListState, modifier = Modifier.fillMaxSize()
+                    ) {
+                        stickyHeader {
+                            upcomingMenuHeader()
+                        }
+                        item {
+                            calendarWeekSelector()
+                        }
+                        item {
+                            filterRow()
+                        }
+                        when (val menus = viewState.menus) {
+                            is EateryApiResponse.Pending -> {
+                                items(UpcomingLoadingItem.upcomingItems) { item ->
+                                    CreateUpcomingLoadingItem(
+                                        item,
+                                        shimmer
+                                    )
                                 }
                             }
-                            items(menus.data) {
-                                Column(modifier = Modifier.padding(horizontal = 12.dp)) {
-                                    Text(
-                                        modifier = Modifier.padding(start = 6.dp),
-                                        text = it.header,
-                                        style = EateryBlueTypography.h4
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    it.menuCards.forEach { eatery ->
-                                        MenuCard(
-                                            eatery,
-                                            selectEatery = {
-                                                onEateryClick(eatery.eateryId)
-                                            },
-                                            onEateryCardContract = {
-                                                appStorePopupRepository.requestRatingPopup()
-                                            }
-                                        )
+
+                            is EateryApiResponse.Success -> {
+                                if (menus.data.isEmpty()) {
+                                    item {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillParentMaxHeight(0.7f)
+                                                .fillMaxWidth()
+                                        ) {
+                                            NoEateryFound(
+                                                modifier = Modifier.align(
+                                                    Alignment.Center
+                                                ), resetFilters = {
+                                                    upcomingViewModel.resetFilters(pingAgain = false)
+                                                })
+                                        }
                                         Spacer(modifier = Modifier.height(12.dp))
                                     }
                                 }
+                                items(menus.data) {
+                                    Column(modifier = Modifier.padding(horizontal = 12.dp)) {
+                                        Text(
+                                            modifier = Modifier.padding(start = 6.dp),
+                                            text = it.header,
+                                            style = EateryBlueTypography.h4
+                                        )
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        it.menuCards.forEach { eatery ->
+                                            MenuCard(
+                                                eatery,
+                                                selectEatery = {
+                                                    onEateryClick(eatery.eateryId)
+                                                },
+                                                onEateryCardContract = {
+                                                    appStorePopupRepository.requestRatingPopup()
+                                                }
+                                            )
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                        }
+                                    }
+                                }
+                            }
+
+                            EateryApiResponse.Error -> {
+                                /* Handled above */
                             }
                         }
                     }
                 }
             }
         )
+    }
+}
+
+private fun isErrorState(viewState: UpcomingMenusViewState): Boolean =
+    viewState.menus is EateryApiResponse.Error
+
+@Composable
+@OptIn(ExperimentalAnimationApi::class)
+private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(EateryBlue)
+            .then(Modifier.statusBarsPadding())
+            .padding(bottom = 7.dp),
+    ) {
+        AnimatedContent(
+            targetState = isFirstVisible.value
+        ) { isFirstVisible ->
+            if (isFirstVisible) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        textAlign = TextAlign.Center,
+                        text = "Upcoming Menus",
+                        color = White,
+                        style = TextStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp
+                        )
+                    )
+                }
+            } else {
+                Column(
+                    modifier = Modifier.padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 56.dp
+                    )
+                ) {
+                    Text(
+                        text = "Upcoming Menus",
+                        color = White,
+                        style = EateryBlueTypography.h2
+                    )
+                }
+            }
+        }
     }
 }
