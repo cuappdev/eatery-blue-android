@@ -125,7 +125,10 @@ class HomeViewModel @Inject constructor(
         bigPopUp = bool
     }
 
-    fun toggleFilter(filter: Filter) {
+    fun toggleFilter(filter: Filter, pingAgain: Boolean) {
+        if (pingAgain) {
+            eateryRepository.pingEateries()
+        }
         _filtersFlow.update {
             it.updateFilters(filter)
         }
@@ -138,14 +141,14 @@ class HomeViewModel @Inject constructor(
         _filtersFlow.value = newList
     }
 
-    fun resetFilters() = viewModelScope.launch {
-        _filtersFlow.value = listOf()
+    fun resetFilters(pingAgain: Boolean) = {
+        if (pingAgain) {
+            eateryRepository.pingEateries()
+        }
+        viewModelScope.launch {
+            _filtersFlow.value = listOf()
+        }
     }
-
-    /**
-     * Determines if the eatery passes the filter inspection based on what's currently selected.
-     */
-
 
     fun addFavorite(eateryId: Int?) {
         if (eateryId != null)
@@ -163,5 +166,9 @@ class HomeViewModel @Inject constructor(
 
     fun setNotificationFlowCompleted(value: Boolean) = viewModelScope.launch {
         userPreferencesRepository.setNotificationFlowCompleted(value)
+    }
+
+    fun pingEateries() {
+        eateryRepository.pingEateries()
     }
 }

@@ -45,7 +45,7 @@ data class EateriesSection(
 @HiltViewModel
 class UpcomingViewModel @Inject constructor(
     userPreferencesRepository: UserPreferencesRepository,
-    eateryRepository: EateryRepository
+    private val eateryRepository: EateryRepository
 ) : ViewModel() {
 
     private val mealFilterFlow = MutableStateFlow(nextMeal() ?: MealFilter.LATE_DINNER)
@@ -119,14 +119,16 @@ class UpcomingViewModel @Inject constructor(
                     menus = EateryApiResponse.Error,
                     mealFilter = mealFilter,
                     selectedFilters = filters,
+                    selectedDay = selectedDayOffset
                 )
             }
 
             is EateryApiResponse.Pending -> {
                 UpcomingMenusViewState(
                     menus = EateryApiResponse.Pending,
-                    mealFilter,
-                    filters,
+                    mealFilter = mealFilter,
+                    selectedFilters = filters,
+                    selectedDay = selectedDayOffset
                 )
             }
 
@@ -163,18 +165,27 @@ class UpcomingViewModel @Inject constructor(
         UpcomingMenusViewState(mealFilter = nextMeal() ?: MealFilter.LATE_DINNER)
     )
 
-    fun toggleFilter(filter: Filter) {
+    fun toggleFilter(filter: Filter, pingAgain: Boolean) {
+        if (pingAgain) {
+            eateryRepository.pingEateries()
+        }
         selectedFiltersFlow.update {
             it.updateFilters(filter)
         }
     }
 
-    fun resetFilters() {
+    fun resetFilters(pingAgain: Boolean) {
+        if (pingAgain) {
+            eateryRepository.pingEateries()
+        }
         resetMealFilter()
         selectedFiltersFlow.update { emptyList() }
     }
 
-    fun changeMealFilter(filter: MealFilter) {
+    fun changeMealFilter(filter: MealFilter, pingAgain: Boolean) {
+        if (pingAgain) {
+            eateryRepository.pingEateries()
+        }
         mealFilterFlow.value = filter
     }
 
@@ -182,8 +193,15 @@ class UpcomingViewModel @Inject constructor(
         mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
     }
 
-    fun selectDayOffset(offset: Int) {
+    fun selectDayOffset(offset: Int, pingAgain: Boolean) {
+        if (pingAgain) {
+            eateryRepository.pingEateries()
+        }
         selectedDayFlow.update { offset }
+    }
+
+    fun pingEateries() {
+        eateryRepository.pingEateries()
     }
 
     /**
@@ -192,7 +210,7 @@ class UpcomingViewModel @Inject constructor(
      * Returns null when no meals end after the current time.
      */
     private fun nextMeal(): MealFilter? {
-        return MealFilter.values()
+        return MealFilter.entries
             .find { it.endTimes >= LocalDateTime.now().hour + LocalDateTime.now().minute / 60f }
     }
 }
