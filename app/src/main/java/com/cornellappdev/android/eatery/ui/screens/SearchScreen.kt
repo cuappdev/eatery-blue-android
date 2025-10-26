@@ -109,7 +109,8 @@ fun SearchScreen(
         }
     }
 
-    ModalBottomSheetLayout(sheetState = modalBottomSheetState, sheetShape = RoundedCornerShape(
+    ModalBottomSheetLayout(
+        sheetState = modalBottomSheetState, sheetShape = RoundedCornerShape(
         bottomStart = 0.dp, bottomEnd = 0.dp, topStart = 12.dp, topEnd = 12.dp
     ), sheetElevation = 8.dp, sheetContent = {
         PaymentMethodsBottomSheet(selectedFilters = selectedPaymentMethodFilters, hide = {
@@ -242,7 +243,10 @@ fun SearchScreen(
                         )
 
                         recentSearches.forEach { eateryId ->
-                            val eateryResponse = searchViewModel.openEatery(eateryId).value
+                            val eateryResponse =
+                                searchViewModel.openEatery(eateryId).collectAsState(
+                                    initial = EateryApiResponse.Pending
+                                ).value
                             if (eateryResponse is EateryApiResponse.Success) {
                                 Box(
                                     Modifier.padding(
@@ -280,7 +284,8 @@ fun SearchScreen(
                                 horizontal = 16.dp, vertical = 12.dp
                             )
                         ) {
-                            EateryCard(eatery = eatery,
+                            EateryCard(
+                                eatery = eatery,
                                 isFavorite = favorites.any { favoriteEatery ->
                                     favoriteEatery.id == eatery.id
                                 },
@@ -309,14 +314,16 @@ fun SearchScreen(
 fun FavoriteItem(
     eatery: Eatery, onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    Column(modifier = Modifier
-        .width(96.dp)
-        .clickable {
-            onEateryClick(eatery)
-        }) {
+    Column(
+        modifier = Modifier
+            .width(96.dp)
+            .clickable {
+                onEateryClick(eatery)
+            }) {
         // Use box to overlay the star over the eatery
         Box {
-            GlideImage(imageModel = { eatery.imageUrl ?: "" },
+            GlideImage(
+                imageModel = { eatery.imageUrl ?: "" },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(96.dp)
