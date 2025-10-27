@@ -50,7 +50,6 @@ import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingIt
 import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingItem.Companion.CreateUpcomingLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingMenusViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
@@ -126,12 +125,7 @@ fun UpcomingMenuScreen(
                             days = (0 until 7).map {
                                 LocalDate.now().plusDays(it.toLong()).dayOfMonth
                             },
-                            onClick = { i ->
-                                pingIfError(viewState, upcomingViewModel)
-                                upcomingViewModel.selectDayOffset(
-                                    offset = i
-                                )
-                            },
+                            onClick = upcomingViewModel::selectDayOffset,
                             closedDays = null
                         )
                     }
@@ -158,12 +152,7 @@ fun UpcomingMenuScreen(
                         },
                         filters = upcomingViewModel.upcomingMenuFilters,
                         currentFiltersSelected = viewState.selectedFilters,
-                        onFilterClicked = { filter ->
-                            pingIfError(viewState, upcomingViewModel)
-                            upcomingViewModel.toggleFilter(
-                                filter
-                            )
-                        },
+                        onFilterClicked = upcomingViewModel::onToggleFilterClicked,
                         rowState = filterRowState
                     )
                 }
@@ -256,15 +245,6 @@ fun UpcomingMenuScreen(
                 }
             }
         )
-    }
-}
-
-private fun pingIfError(
-    viewState: UpcomingMenusViewState,
-    upcomingViewModel: UpcomingViewModel
-) {
-    if (viewState.menus is EateryApiResponse.Error) {
-        upcomingViewModel.pingEateries()
     }
 }
 

@@ -165,7 +165,10 @@ class UpcomingViewModel @Inject constructor(
         UpcomingMenusViewState(mealFilter = nextMeal() ?: MealFilter.LATE_DINNER)
     )
 
-    fun toggleFilter(filter: Filter) {
+    fun onToggleFilterClicked(filter: Filter) {
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            pingEateries()
+        }
         selectedFiltersFlow.update {
             it.updateFilters(filter)
         }
@@ -187,6 +190,9 @@ class UpcomingViewModel @Inject constructor(
     }
 
     fun selectDayOffset(offset: Int) {
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            pingEateries()
+        }
         selectedDayFlow.update { offset }
     }
 
