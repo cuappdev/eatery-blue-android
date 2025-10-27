@@ -157,17 +157,23 @@ fun CompareMenusScreen(
         ModalBottomSheetLayout(
             sheetState = modalBottomSheetState, sheetContent = {
                 when (sheetContent) {
-                    BottomSheetContent.HOURS -> EateryHourBottomSheet(onDismiss = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.hide()
+                    BottomSheetContent.HOURS -> {
+                        val eatery = eateries.getOrNull(firstPagerState.currentPage)
+                        eatery?.let {
+                            EateryHourBottomSheet(onDismiss = {
+                                coroutineScope.launch {
+                                    modalBottomSheetState.hide()
+                                }
+                            }, eatery = eatery, onReportIssue = {
+                                sheetContent = BottomSheetContent.REPORT
+                            })
                         }
-                    }, eatery = eateries[firstPagerState.currentPage], onReportIssue = {
-                        sheetContent = BottomSheetContent.REPORT
-                    })
+                    }
 
                     BottomSheetContent.REPORT -> {
                         eateries[0].id?.let {
-                            ReportBottomSheet(issue = issue,
+                            ReportBottomSheet(
+                                issue = issue,
                                 eateryid = it,
                                 sendReport = { issue, report, eateryid ->
                                     compareMenusViewModel.sendReport(
@@ -289,9 +295,9 @@ private fun MenuPager(
                         Text(
                             modifier = Modifier.padding(top = 2.dp),
                             text =
-                            if (openUntil == null) "Closed"
-                            else if (eateries[page].isClosingSoon()) "Closing at $openUntil"
-                            else ("Open until $openUntil"),
+                                if (openUntil == null) "Closed"
+                                else if (eateries[page].isClosingSoon()) "Closing at $openUntil"
+                                else ("Open until $openUntil"),
                             style = TextStyle(
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp

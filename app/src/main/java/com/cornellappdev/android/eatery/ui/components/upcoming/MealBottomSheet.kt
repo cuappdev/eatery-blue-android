@@ -48,7 +48,6 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 fun MealBottomSheet(
     selectedMeal: MealFilter,
     onSubmit: (MealFilter) -> Unit,
-    onReset: () -> Unit,
     hide: () -> Unit,
     sheetState: ModalBottomSheetState
 ) {

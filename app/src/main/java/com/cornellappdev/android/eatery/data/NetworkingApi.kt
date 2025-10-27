@@ -1,15 +1,22 @@
 package com.cornellappdev.android.eatery.data
 
-import com.cornellappdev.android.eatery.BuildConfig
-import com.cornellappdev.android.eatery.data.models.*
+import com.cornellappdev.android.eatery.data.models.AccountsResponse
+import com.cornellappdev.android.eatery.data.models.ApiResponse
+import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.Event
+import com.cornellappdev.android.eatery.data.models.GetApiAccountsParams
+import com.cornellappdev.android.eatery.data.models.GetApiRequestBody
+import com.cornellappdev.android.eatery.data.models.GetApiResponse
+import com.cornellappdev.android.eatery.data.models.GetApiTransactionHistoryParams
+import com.cornellappdev.android.eatery.data.models.GetApiUserParams
+import com.cornellappdev.android.eatery.data.models.ReportSendBody
+import com.cornellappdev.android.eatery.data.models.TransactionsResponse
+import com.cornellappdev.android.eatery.data.models.User
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Url
-import java.text.SimpleDateFormat
-import java.time.Duration
-import java.util.*
 
 interface NetworkApi {
     @POST()
@@ -47,49 +54,4 @@ interface NetworkApi {
     suspend fun sendReport(
         @Body report: ReportSendBody
     ): GetApiResponse<ReportSendBody>
-}
-
-fun generateUserBody(sessionId: String): GetApiRequestBody<GetApiUserParams> {
-    return GetApiRequestBody(
-        version = "1",
-        method = "retrieve",
-        params = GetApiUserParams(
-            sessionId = sessionId
-        )
-    )
-}
-
-fun generateAccountsBody(
-    sessionId: String,
-    userId: String
-): GetApiRequestBody<GetApiAccountsParams> {
-    return GetApiRequestBody(
-        version = "1",
-        method = "retrieveAccountsByUser",
-        params = GetApiAccountsParams(
-            sessionId = sessionId,
-            userId = userId
-        )
-    )
-}
-
-fun generateTransactionHistoryBody(
-    sessionId: String, userId: String, endDate: Date
-): GetApiRequestBody<GetApiTransactionHistoryParams> {
-    val startDate = Date.from(endDate.toInstant().minus(Duration.ofDays(5000)))
-    return GetApiRequestBody(
-        version = "1",
-        method = "retrieveTransactionHistory",
-        params = GetApiTransactionHistoryParams(
-            paymentSystemType = 0,
-            sessionId = sessionId,
-            queryCriteria = GetApiTransactionHistoryQueryCriteria(
-                endDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(endDate),
-                startDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(startDate),
-                maxReturn = 5000,
-                institutionId = BuildConfig.CORNELL_INSTITUTION_ID,
-                userId = userId
-            )
-        )
-    )
 }
