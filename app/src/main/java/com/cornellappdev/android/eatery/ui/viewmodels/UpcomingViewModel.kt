@@ -171,17 +171,19 @@ class UpcomingViewModel @Inject constructor(
         }
     }
 
-    fun resetFilters() {
-        resetMealFilter()
+    fun onResetFiltersClicked() {
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            pingEateries()
+        }
+        mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
         selectedFiltersFlow.update { emptyList() }
     }
 
-    fun changeMealFilter(filter: MealFilter) {
+    fun onMealFilterChanged(filter: MealFilter) {
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            pingEateries()
+        }
         mealFilterFlow.value = filter
-    }
-
-    fun resetMealFilter() {
-        mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
     }
 
     fun selectDayOffset(offset: Int) {

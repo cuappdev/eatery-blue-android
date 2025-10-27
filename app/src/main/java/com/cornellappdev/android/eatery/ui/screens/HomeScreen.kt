@@ -232,14 +232,8 @@ fun HomeScreen(
                                     homeViewModel.removeFavorite(eatery.id)
                                 }
                             },
-                            onFilterClicked = { filter ->
-                                pingIfError(eateriesApiResponse, homeViewModel)
-                                homeViewModel.toggleFilter(filter)
-                            },
-                            onResetFilters = {
-                                pingIfError(eateriesApiResponse, homeViewModel)
-                                homeViewModel.resetFilters()
-                            },
+                            onFilterClicked = homeViewModel::onToggleFilterPressed,
+                            onResetFilters = homeViewModel::onResetFiltersClicked,
                             filters = homeViewModel.homeScreenFilters,
                             isGridView = isGridView,
                             onListClick = { isGridView = false },
@@ -261,15 +255,6 @@ fun HomeScreen(
                 }
             }
         })
-}
-
-private fun pingIfError(
-    eateriesApiResponse: EateryApiResponse<List<Eatery>>,
-    homeViewModel: HomeViewModel
-) {
-    if (eateriesApiResponse is EateryApiResponse.Error) {
-        homeViewModel.pingEateries()
-    }
 }
 
 @Composable

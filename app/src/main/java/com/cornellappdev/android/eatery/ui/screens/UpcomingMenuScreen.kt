@@ -97,15 +97,7 @@ fun UpcomingMenuScreen(
                 MealBottomSheet(
                     sheetState = modalBottomSheetState,
                     selectedMeal = viewState.mealFilter,
-                    onSubmit = {
-                        pingIfError(viewState, upcomingViewModel)
-                        upcomingViewModel.changeMealFilter(
-                            filter = it
-                        )
-                    },
-                    onReset = {
-                        upcomingViewModel.resetMealFilter()
-                    },
+                    onSubmit = upcomingViewModel::onMealFilterChanged,
                     hide = {
                         coroutineScope.launch {
                             modalBottomSheetState.hide()
@@ -205,9 +197,9 @@ fun UpcomingMenuScreen(
                                         NoEateryFound(
                                             modifier = Modifier.align(
                                                 Alignment.Center
-                                            ), resetFilters = {
-                                                upcomingViewModel.resetFilters()
-                                            })
+                                            ),
+                                            resetFilters = upcomingViewModel::onResetFiltersClicked
+                                        )
                                     }
                                     Spacer(modifier = Modifier.height(12.dp))
                                 }

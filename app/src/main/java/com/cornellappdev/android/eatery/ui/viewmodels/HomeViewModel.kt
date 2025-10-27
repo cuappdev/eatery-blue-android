@@ -125,7 +125,10 @@ class HomeViewModel @Inject constructor(
         bigPopUp = bool
     }
 
-    fun toggleFilter(filter: Filter) {
+    fun onToggleFilterPressed(filter: Filter) {
+        if (eateryFlow.value is EateryApiResponse.Error) {
+            pingEateries()
+        }
         _filtersFlow.update {
             it.updateFilters(filter)
         }
@@ -138,10 +141,11 @@ class HomeViewModel @Inject constructor(
         _filtersFlow.value = newList
     }
 
-    fun resetFilters() {
-        viewModelScope.launch {
-            _filtersFlow.value = listOf()
+    fun onResetFiltersClicked() {
+        if (eateryFlow.value is EateryApiResponse.Error) {
+            pingEateries()
         }
+        _filtersFlow.update { emptyList() }
     }
 
     fun addFavorite(eateryId: Int?) {
