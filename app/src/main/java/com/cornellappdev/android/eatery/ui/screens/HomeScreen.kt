@@ -322,6 +322,7 @@ private fun HomeScrollableMainContent(
     onReload: () -> Unit
 ) {
     val listState = rememberLazyListState()
+    val filterRowState = rememberLazyListState()
     val isFirstVisible =
         remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
 
@@ -331,36 +332,19 @@ private fun HomeScrollableMainContent(
     if (favorites.isNotEmpty()) {
         lastFavorite = favorites[0]
     }
-    val filterRowState = rememberLazyListState()
-    val homeLazyColumn: @Composable (LazyListScope.() -> Unit) -> Unit = { content ->
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            stickyHeader {
-                HomeStickyHeader(
-                    collapsed = isFirstVisible.value,
-                    loaded = eateriesApiResponse is EateryApiResponse.Success,
-                    onSearchClick = onSearchClick,
-                    onNotificationsClick = onNotificationsClick
-                )
-            }
-            item {
-                HomeMainHeader(
-                    onSearchClick = onSearchClick,
-                    selectedFilters = selectedFilters,
-                    onFilterClicked = onFilterClicked,
-                    filters = filters,
-                    filterRowState = filterRowState
-                )
-            }
-            content()
-        }
-    }
     when (eateriesApiResponse) {
         is EateryApiResponse.Success -> {
-            homeLazyColumn {
+            HomeLazyColumn(
+                listState = listState,
+                collapsed = isFirstVisible.value,
+                loaded = true,
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick,
+                selectedFilters = selectedFilters,
+                onFilterClicked = onFilterClicked,
+                filters = filters,
+                filterRowState = filterRowState
+            ) {
                 regularContent(
                     eateriesApiResponse,
                     selectedFilters,
@@ -379,7 +363,17 @@ private fun HomeScrollableMainContent(
         }
 
         is EateryApiResponse.Pending -> {
-            homeLazyColumn {
+            HomeLazyColumn(
+                listState = listState,
+                collapsed = isFirstVisible.value,
+                loaded = false,
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick,
+                selectedFilters = selectedFilters,
+                onFilterClicked = onFilterClicked,
+                filters = filters,
+                filterRowState = filterRowState
+            ) {
                 items(MainLoadingItem.mainItems) { item ->
                     CreateMainLoadingItem(item, shimmer)
                 }
@@ -406,6 +400,46 @@ private fun HomeScrollableMainContent(
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HomeLazyColumn(
+    listState: LazyListState,
+    collapsed: Boolean,
+    loaded: Boolean,
+    onSearchClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    selectedFilters: List<Filter>,
+    onFilterClicked: (Filter) -> Unit,
+    filters: List<Filter>,
+    filterRowState: LazyListState,
+    content: LazyListScope.() -> Unit
+) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        stickyHeader {
+            HomeStickyHeader(
+                collapsed = collapsed,
+                loaded = loaded,
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick
+            )
+        }
+        item {
+            HomeMainHeader(
+                onSearchClick = onSearchClick,
+                selectedFilters = selectedFilters,
+                onFilterClicked = onFilterClicked,
+                filters = filters,
+                filterRowState = filterRowState
+            )
+        }
+        content()
     }
 }
 
