@@ -165,27 +165,18 @@ class UpcomingViewModel @Inject constructor(
         UpcomingMenusViewState(mealFilter = nextMeal() ?: MealFilter.LATE_DINNER)
     )
 
-    fun toggleFilter(filter: Filter, pingAgain: Boolean) {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
-        }
+    fun toggleFilter(filter: Filter) {
         selectedFiltersFlow.update {
             it.updateFilters(filter)
         }
     }
 
-    fun resetFilters(pingAgain: Boolean) {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
-        }
+    fun resetFilters() {
         resetMealFilter()
         selectedFiltersFlow.update { emptyList() }
     }
 
-    fun changeMealFilter(filter: MealFilter, pingAgain: Boolean) {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
-        }
+    fun changeMealFilter(filter: MealFilter) {
         mealFilterFlow.value = filter
     }
 
@@ -193,10 +184,7 @@ class UpcomingViewModel @Inject constructor(
         mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
     }
 
-    fun selectDayOffset(offset: Int, pingAgain: Boolean) {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
-        }
+    fun selectDayOffset(offset: Int) {
         selectedDayFlow.update { offset }
     }
 

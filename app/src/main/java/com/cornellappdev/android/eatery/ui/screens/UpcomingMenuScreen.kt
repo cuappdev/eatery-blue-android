@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -97,9 +98,9 @@ fun UpcomingMenuScreen(
                     sheetState = modalBottomSheetState,
                     selectedMeal = viewState.mealFilter,
                     onSubmit = {
+                        pingIfError(viewState, upcomingViewModel)
                         upcomingViewModel.changeMealFilter(
-                            filter = it,
-                            pingAgain = isErrorState(viewState)
+                            filter = it
                         )
                     },
                     onReset = {
@@ -134,15 +135,16 @@ fun UpcomingMenuScreen(
                                 LocalDate.now().plusDays(it.toLong()).dayOfMonth
                             },
                             onClick = { i ->
+                                pingIfError(viewState, upcomingViewModel)
                                 upcomingViewModel.selectDayOffset(
-                                    offset = i,
-                                    pingAgain = isErrorState(viewState)
+                                    offset = i
                                 )
                             },
                             closedDays = null
                         )
                     }
                 }
+                val filterRowState = rememberLazyListState()
                 val filterRow = @Composable {
                     FilterRow(
                         customItemsBefore = {
@@ -165,93 +167,97 @@ fun UpcomingMenuScreen(
                         filters = upcomingViewModel.upcomingMenuFilters,
                         currentFiltersSelected = viewState.selectedFilters,
                         onFilterClicked = { filter ->
+                            pingIfError(viewState, upcomingViewModel)
                             upcomingViewModel.toggleFilter(
-                                filter = filter,
-                                pingAgain = isErrorState(viewState)
+                                filter
                             )
                         },
+                        rowState = filterRowState
                     )
                 }
-
-                if (isErrorState(viewState)) {
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        upcomingMenuHeader()
-                        calendarWeekSelector()
-                        filterRow()
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                val upcomingLazyColumn: @Composable (LazyListScope.() -> Unit) -> Unit =
+                    { content ->
+                        LazyColumn(
+                            state = innerListState, modifier = Modifier.fillMaxSize()
                         ) {
-                            ErrorContent(onTryAgain = upcomingViewModel::pingEateries)
+                            stickyHeader {
+                                upcomingMenuHeader()
+                            }
+                            item {
+                                calendarWeekSelector()
+                            }
+                            item {
+                                filterRow()
+                            }
+                            content()
                         }
                     }
-                } else {
-                    LazyColumn(
-                        state = innerListState, modifier = Modifier.fillMaxSize()
-                    ) {
-                        stickyHeader {
-                            upcomingMenuHeader()
-                        }
-                        item {
-                            calendarWeekSelector()
-                        }
-                        item {
-                            filterRow()
-                        }
-                        when (val menus = viewState.menus) {
-                            is EateryApiResponse.Pending -> {
-                                items(UpcomingLoadingItem.upcomingItems) { item ->
-                                    CreateUpcomingLoadingItem(
-                                        item,
-                                        shimmer
-                                    )
+                when (val menus = viewState.menus) {
+                    is EateryApiResponse.Success -> {
+                        upcomingLazyColumn {
+                            if (menus.data.isEmpty()) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillParentMaxHeight(0.7f)
+                                            .fillMaxWidth()
+                                    ) {
+                                        NoEateryFound(
+                                            modifier = Modifier.align(
+                                                Alignment.Center
+                                            ), resetFilters = {
+                                                upcomingViewModel.resetFilters()
+                                            })
+                                    }
+                                    Spacer(modifier = Modifier.height(12.dp))
                                 }
                             }
-
-                            is EateryApiResponse.Success -> {
-                                if (menus.data.isEmpty()) {
-                                    item {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillParentMaxHeight(0.7f)
-                                                .fillMaxWidth()
-                                        ) {
-                                            NoEateryFound(
-                                                modifier = Modifier.align(
-                                                    Alignment.Center
-                                                ), resetFilters = {
-                                                    upcomingViewModel.resetFilters(pingAgain = false)
-                                                })
-                                        }
+                            items(menus.data) {
+                                Column(modifier = Modifier.padding(horizontal = 12.dp)) {
+                                    Text(
+                                        modifier = Modifier.padding(start = 6.dp),
+                                        text = it.header,
+                                        style = EateryBlueTypography.h4
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    it.menuCards.forEach { eatery ->
+                                        MenuCard(
+                                            menuCardViewState = eatery,
+                                            selectEatery = {
+                                                onEateryClick(eatery.eateryId)
+                                            },
+                                            onEateryCardContract = {
+                                                appStorePopupRepository.requestRatingPopup()
+                                            }
+                                        )
                                         Spacer(modifier = Modifier.height(12.dp))
                                     }
                                 }
-                                items(menus.data) {
-                                    Column(modifier = Modifier.padding(horizontal = 12.dp)) {
-                                        Text(
-                                            modifier = Modifier.padding(start = 6.dp),
-                                            text = it.header,
-                                            style = EateryBlueTypography.h4
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        it.menuCards.forEach { eatery ->
-                                            MenuCard(
-                                                eatery,
-                                                selectEatery = {
-                                                    onEateryClick(eatery.eateryId)
-                                                },
-                                                onEateryCardContract = {
-                                                    appStorePopupRepository.requestRatingPopup()
-                                                }
-                                            )
-                                            Spacer(modifier = Modifier.height(12.dp))
-                                        }
-                                    }
-                                }
                             }
+                        }
+                    }
 
-                            EateryApiResponse.Error -> {
-                                /* Handled above */
+                    is EateryApiResponse.Pending -> {
+                        upcomingLazyColumn {
+                            items(UpcomingLoadingItem.upcomingItems) { item ->
+                                CreateUpcomingLoadingItem(
+                                    item,
+                                    shimmer
+                                )
+                            }
+                        }
+                    }
+
+                    is EateryApiResponse.Error -> {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            upcomingMenuHeader()
+                            calendarWeekSelector()
+                            filterRow()
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ErrorContent(onTryAgain = upcomingViewModel::pingEateries)
                             }
                         }
                     }
@@ -261,8 +267,14 @@ fun UpcomingMenuScreen(
     }
 }
 
-private fun isErrorState(viewState: UpcomingMenusViewState): Boolean =
-    viewState.menus is EateryApiResponse.Error
+private fun pingIfError(
+    viewState: UpcomingMenusViewState,
+    upcomingViewModel: UpcomingViewModel
+) {
+    if (viewState.menus is EateryApiResponse.Error) {
+        upcomingViewModel.pingEateries()
+    }
+}
 
 @Composable
 @OptIn(ExperimentalAnimationApi::class)

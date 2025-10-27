@@ -125,10 +125,7 @@ class HomeViewModel @Inject constructor(
         bigPopUp = bool
     }
 
-    fun toggleFilter(filter: Filter, pingAgain: Boolean) {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
-        }
+    fun toggleFilter(filter: Filter) {
         _filtersFlow.update {
             it.updateFilters(filter)
         }
@@ -141,10 +138,7 @@ class HomeViewModel @Inject constructor(
         _filtersFlow.value = newList
     }
 
-    fun resetFilters(pingAgain: Boolean) = {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
-        }
+    fun resetFilters() {
         viewModelScope.launch {
             _filtersFlow.value = listOf()
         }
