@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
+import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterButton
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
@@ -56,6 +58,7 @@ import com.cornellappdev.android.eatery.util.AppStorePopupRepository
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -106,76 +109,34 @@ fun UpcomingMenuScreen(
             },
             content = {
                 val innerListState = rememberLazyListState()
+                val filterRowState = rememberLazyListState()
                 val isFirstVisible =
                     remember { derivedStateOf { innerListState.firstVisibleItemIndex > 0 } }
-                val upcomingMenuHeader = @Composable {
-                    UpcomingMenuHeader(isFirstVisible)
-                }
-                val calendarWeekSelector = @Composable {
-                    Box(
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                    ) {
-                        CalendarWeekSelector(
-                            dayNames = (0 until 7).map {
-                                LocalDate.now().plusDays(it.toLong())
-                                    .format(DateTimeFormatter.ofPattern("EEE"))
-                            },
-                            currSelectedDay = viewState.selectedDay,
-                            selectedDay = viewState.selectedDay,
-                            days = (0 until 7).map {
-                                LocalDate.now().plusDays(it.toLong()).dayOfMonth
-                            },
-                            onClick = upcomingViewModel::selectDayOffset,
-                            closedDays = null
-                        )
-                    }
-                }
-                val filterRowState = rememberLazyListState()
-                val filterRow = @Composable {
-                    FilterRow(
-                        customItemsBefore = {
-                            item {
-                                FilterButton(
-                                    onFilterClicked = {
-                                        coroutineScope.launch {
-                                            modalBottomSheetState.show()
-                                        }
-                                    },
-                                    selected = true,
-                                    text = when (viewState.mealFilter) {
-                                        MealFilter.LATE_DINNER -> "Late Dinner"
-                                        else -> viewState.mealFilter.text.first()
-                                    },
-                                    icon = Icons.Default.ExpandMore
-                                )
-                            }
-                        },
-                        filters = upcomingViewModel.upcomingMenuFilters,
-                        currentFiltersSelected = viewState.selectedFilters,
-                        onFilterClicked = upcomingViewModel::onToggleFilterClicked,
-                        rowState = filterRowState
-                    )
-                }
-                val upcomingLazyColumn: @Composable (LazyListScope.() -> Unit) -> Unit =
-                    { content ->
-                        LazyColumn(
-                            state = innerListState, modifier = Modifier.fillMaxSize()
-                        ) {
-                            stickyHeader {
-                                upcomingMenuHeader()
-                            }
-                            item {
-                                calendarWeekSelector()
-                            }
-                            item {
-                                filterRow()
-                            }
-                            content()
-                        }
-                    }
                 when (val menus = viewState.menus) {
                     is EateryApiResponse.Success -> {
-                        upcomingLazyColumn {
+                        UpcomingLazyColumn(
+                            innerListState = innerListState,
+                            upcomingMenuHeader = { UpcomingMenuHeader(isFirstVisible) },
+                            calendarWeekSelector = {
+                                CalendarWeekSelector(
+                                    selectedDay = viewState.selectedDay,
+                                    selectDayOffset = upcomingViewModel::selectDayOffset
+                                )
+                            },
+                            filterRow = {
+                                UpcomingFilterRow(
+                                    coroutineScope = coroutineScope,
+                                    showModalBottomSheet = {
+                                        modalBottomSheetState.show()
+                                    },
+                                    mealFilter = viewState.mealFilter,
+                                    upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                                    selectedFilters = viewState.selectedFilters,
+                                    onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                                    filterRowState = filterRowState
+                                )
+                            }
+                        ) {
                             if (menus.data.isEmpty()) {
                                 item {
                                     Box(
@@ -219,7 +180,29 @@ fun UpcomingMenuScreen(
                     }
 
                     is EateryApiResponse.Pending -> {
-                        upcomingLazyColumn {
+                        UpcomingLazyColumn(
+                            innerListState = innerListState,
+                            upcomingMenuHeader = { UpcomingMenuHeader(isFirstVisible) },
+                            calendarWeekSelector = {
+                                CalendarWeekSelector(
+                                    selectedDay = viewState.selectedDay,
+                                    selectDayOffset = upcomingViewModel::selectDayOffset
+                                )
+                            },
+                            filterRow = {
+                                UpcomingFilterRow(
+                                    coroutineScope = coroutineScope,
+                                    showModalBottomSheet = {
+                                        modalBottomSheetState.show()
+                                    },
+                                    mealFilter = viewState.mealFilter,
+                                    upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                                    selectedFilters = viewState.selectedFilters,
+                                    onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                                    filterRowState = filterRowState
+                                )
+                            }
+                        ) {
                             items(UpcomingLoadingItem.upcomingItems) { item ->
                                 CreateUpcomingLoadingItem(
                                     item,
@@ -231,9 +214,22 @@ fun UpcomingMenuScreen(
 
                     is EateryApiResponse.Error -> {
                         Column(modifier = Modifier.fillMaxSize()) {
-                            upcomingMenuHeader()
-                            calendarWeekSelector()
-                            filterRow()
+                            UpcomingMenuHeader(isFirstVisible)
+                            CalendarWeekSelector(
+                                selectedDay = viewState.selectedDay,
+                                selectDayOffset = upcomingViewModel::selectDayOffset
+                            )
+                            UpcomingFilterRow(
+                                coroutineScope = coroutineScope,
+                                showModalBottomSheet = {
+                                    modalBottomSheetState.show()
+                                },
+                                mealFilter = viewState.mealFilter,
+                                upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                                selectedFilters = viewState.selectedFilters,
+                                onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                                filterRowState = filterRowState
+                            )
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
@@ -245,6 +241,90 @@ fun UpcomingMenuScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun CalendarWeekSelector(
+    selectedDay: Int,
+    selectDayOffset: (Int) -> Unit,
+) {
+    Box(
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
+    ) {
+        CalendarWeekSelector(
+            dayNames = (0 until 7).map {
+                LocalDate.now().plusDays(it.toLong())
+                    .format(DateTimeFormatter.ofPattern("EEE"))
+            },
+            currSelectedDay = selectedDay,
+            selectedDay = selectedDay,
+            days = (0 until 7).map {
+                LocalDate.now().plusDays(it.toLong()).dayOfMonth
+            },
+            onClick = selectDayOffset,
+            closedDays = null
+        )
+    }
+}
+
+@Composable
+private fun UpcomingFilterRow(
+    coroutineScope: CoroutineScope,
+    showModalBottomSheet: suspend () -> Unit,
+    mealFilter: MealFilter,
+    upcomingMenuFilters: List<Filter>,
+    selectedFilters: List<Filter>,
+    onToggleFilterClicked: (Filter) -> Unit,
+    filterRowState: LazyListState,
+) {
+    FilterRow(
+        customItemsBefore = {
+            item {
+                FilterButton(
+                    onFilterClicked = {
+                        coroutineScope.launch {
+                            showModalBottomSheet()
+                        }
+                    },
+                    selected = true,
+                    text = when (mealFilter) {
+                        MealFilter.LATE_DINNER -> "Late Dinner"
+                        else -> mealFilter.text.first()
+                    },
+                    icon = Icons.Default.ExpandMore
+                )
+            }
+        },
+        filters = upcomingMenuFilters,
+        currentFiltersSelected = selectedFilters,
+        onFilterClicked = onToggleFilterClicked,
+        rowState = filterRowState
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun UpcomingLazyColumn(
+    innerListState: LazyListState,
+    upcomingMenuHeader: @Composable () -> Unit,
+    calendarWeekSelector: @Composable () -> Unit,
+    filterRow: @Composable () -> Unit,
+    content: LazyListScope.() -> Unit
+) {
+    LazyColumn(
+        state = innerListState, modifier = Modifier.fillMaxSize()
+    ) {
+        stickyHeader {
+            upcomingMenuHeader()
+        }
+        item {
+            calendarWeekSelector()
+        }
+        item {
+            filterRow()
+        }
+        content()
     }
 }
 
