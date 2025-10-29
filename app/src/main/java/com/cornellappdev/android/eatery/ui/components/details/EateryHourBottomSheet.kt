@@ -44,11 +44,10 @@ import com.cornellappdev.android.eatery.ui.theme.Yellow
  */
 @Composable
 fun EateryHourBottomSheet(
-    eatery: Eatery?,
+    eatery: Eatery,
     onDismiss: () -> Unit,
     onReportIssue: () -> Unit
 ) {
-    if (eatery == null) return
     Column(
         modifier = Modifier
             .fillMaxWidth()

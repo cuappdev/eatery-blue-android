@@ -165,37 +165,33 @@ class UpcomingViewModel @Inject constructor(
         UpcomingMenusViewState(mealFilter = nextMeal() ?: MealFilter.LATE_DINNER)
     )
 
-    fun toggleFilter(filter: Filter, pingAgain: Boolean) {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
+    fun onToggleFilterClicked(filter: Filter) {
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            pingEateries()
         }
         selectedFiltersFlow.update {
             it.updateFilters(filter)
         }
     }
 
-    fun resetFilters(pingAgain: Boolean) {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
+    fun onResetFiltersClicked() {
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            pingEateries()
         }
-        resetMealFilter()
+        mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
         selectedFiltersFlow.update { emptyList() }
     }
 
-    fun changeMealFilter(filter: MealFilter, pingAgain: Boolean) {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
+    fun onMealFilterChanged(filter: MealFilter) {
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            pingEateries()
         }
         mealFilterFlow.value = filter
     }
 
-    fun resetMealFilter() {
-        mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
-    }
-
-    fun selectDayOffset(offset: Int, pingAgain: Boolean) {
-        if (pingAgain) {
-            eateryRepository.pingEateries()
+    fun selectDayOffset(offset: Int) {
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            pingEateries()
         }
         selectedDayFlow.update { offset }
     }

@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -231,17 +232,8 @@ fun HomeScreen(
                                     homeViewModel.removeFavorite(eatery.id)
                                 }
                             },
-                            onFilterClicked = { filter ->
-                                homeViewModel.toggleFilter(
-                                    filter = filter,
-                                    pingAgain = isErrorState(eateriesApiResponse)
-                                )
-                            },
-                            onResetFilters = {
-                                homeViewModel.resetFilters(
-                                    pingAgain = isErrorState(eateriesApiResponse)
-                                )
-                            },
+                            onFilterClicked = homeViewModel::onToggleFilterPressed,
+                            onResetFilters = homeViewModel::onResetFiltersClicked,
                             filters = homeViewModel.homeScreenFilters,
                             isGridView = isGridView,
                             onListClick = { isGridView = false },
@@ -330,6 +322,7 @@ private fun HomeScrollableMainContent(
     onReload: () -> Unit
 ) {
     val listState = rememberLazyListState()
+    val filterRowState = rememberLazyListState()
     val isFirstVisible =
         remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
 
@@ -339,55 +332,19 @@ private fun HomeScrollableMainContent(
     if (favorites.isNotEmpty()) {
         lastFavorite = favorites[0]
     }
-    if (isErrorState(eateriesApiResponse)) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            HomeStickyHeader(
+    when (eateriesApiResponse) {
+        is EateryApiResponse.Success -> {
+            HomeLazyColumn(
+                listState = listState,
                 collapsed = isFirstVisible.value,
-                loaded = false,
+                loaded = true,
                 onSearchClick = onSearchClick,
-                onNotificationsClick = onNotificationsClick
-            )
-            HomeMainHeader(
-                onSearchClick = onSearchClick,
-                selectedFilters = selectedFilters,
-                filters = filters,
-                onFilterClicked = onFilterClicked
-            )
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                ErrorContent(onTryAgain = onReload)
-            }
-        }
-        return
-    }
-    LazyColumn(
-        state = listState,
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        stickyHeader {
-            HomeStickyHeader(
-                collapsed = isFirstVisible.value,
-                loaded = eateriesApiResponse is EateryApiResponse.Success,
-                onSearchClick = onSearchClick,
-                onNotificationsClick = onNotificationsClick
-            )
-        }
-        item {
-            HomeMainHeader(
-                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick,
                 selectedFilters = selectedFilters,
                 onFilterClicked = onFilterClicked,
                 filters = filters,
-            )
-        }
-        when (eateriesApiResponse) {
-            is EateryApiResponse.Pending -> {
-                items(MainLoadingItem.mainItems) { item ->
-                    CreateMainLoadingItem(item, shimmer)
-                }
-            }
-
-            is EateryApiResponse.Success -> {
+                filterRowState = filterRowState
+            ) {
                 regularContent(
                     eateriesApiResponse,
                     selectedFilters,
@@ -403,16 +360,88 @@ private fun HomeScrollableMainContent(
                     nearestEateries
                 )
             }
+        }
 
-            EateryApiResponse.Error -> {
-                // impossible
+        is EateryApiResponse.Pending -> {
+            HomeLazyColumn(
+                listState = listState,
+                collapsed = isFirstVisible.value,
+                loaded = false,
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick,
+                selectedFilters = selectedFilters,
+                onFilterClicked = onFilterClicked,
+                filters = filters,
+                filterRowState = filterRowState
+            ) {
+                items(MainLoadingItem.mainItems) { item ->
+                    CreateMainLoadingItem(item, shimmer)
+                }
+            }
+        }
+
+        is EateryApiResponse.Error -> {
+            Column(modifier = Modifier.fillMaxSize()) {
+                HomeStickyHeader(
+                    collapsed = isFirstVisible.value,
+                    loaded = false,
+                    onSearchClick = onSearchClick,
+                    onNotificationsClick = onNotificationsClick
+                )
+                HomeMainHeader(
+                    onSearchClick = onSearchClick,
+                    selectedFilters = selectedFilters,
+                    filters = filters,
+                    onFilterClicked = onFilterClicked,
+                    filterRowState = filterRowState
+                )
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    ErrorContent(onTryAgain = onReload)
+                }
             }
         }
     }
 }
 
-private fun isErrorState(eateriesApiResponse: EateryApiResponse<List<Eatery>>): Boolean =
-    eateriesApiResponse is EateryApiResponse.Error
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HomeLazyColumn(
+    listState: LazyListState,
+    collapsed: Boolean,
+    loaded: Boolean,
+    onSearchClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    selectedFilters: List<Filter>,
+    onFilterClicked: (Filter) -> Unit,
+    filters: List<Filter>,
+    filterRowState: LazyListState,
+    content: LazyListScope.() -> Unit
+) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        stickyHeader {
+            HomeStickyHeader(
+                collapsed = collapsed,
+                loaded = loaded,
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick
+            )
+        }
+        item {
+            HomeMainHeader(
+                onSearchClick = onSearchClick,
+                selectedFilters = selectedFilters,
+                onFilterClicked = onFilterClicked,
+                filters = filters,
+                filterRowState = filterRowState
+            )
+        }
+        content()
+    }
+}
 
 @Composable
 fun ErrorContent(onTryAgain: () -> Unit) {
@@ -726,6 +755,7 @@ private fun HomeMainHeader(
     selectedFilters: List<Filter>,
     filters: List<Filter>,
     onFilterClicked: (Filter) -> Unit,
+    filterRowState: LazyListState
 ) {
     SearchBar(
         searchText = "",
@@ -740,12 +770,11 @@ private fun HomeMainHeader(
         onCancelClicked = {},
         enabled = false
     )
-
-
     FilterRow(
         currentFiltersSelected = selectedFilters,
         onFilterClicked = onFilterClicked,
-        filters = filters
+        filters = filters,
+        rowState = filterRowState
     )
 }
 
