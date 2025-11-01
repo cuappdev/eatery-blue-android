@@ -30,6 +30,9 @@ class HomeViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val eateryRepository: EateryRepository
 ) : ViewModel() {
+    init {
+        eateryRepository.changeScreen(EateryRepository.Screen.HOME)
+    }
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
 
     /**
@@ -167,6 +170,6 @@ class HomeViewModel @Inject constructor(
     }
 
     fun pingEateries() {
-        eateryRepository.pingEateries()
+        eateryRepository.pingHomeEateries()
     }
 }

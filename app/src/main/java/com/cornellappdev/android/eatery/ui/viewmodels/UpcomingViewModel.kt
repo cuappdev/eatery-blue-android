@@ -63,7 +63,7 @@ class UpcomingViewModel @Inject constructor(
      * A flow emitting all eateries with the appropriate filters applied.
      */
     val viewStateFlow: StateFlow<UpcomingMenusViewState> = combine(
-        eateryRepository.eateryFlow,
+        eateryRepository.upcomingEateriesFlow,
         selectedFiltersFlow,
         userPreferencesRepository.favoriteItemsFlow,
         mealFilterFlow,
@@ -165,39 +165,42 @@ class UpcomingViewModel @Inject constructor(
         UpcomingMenusViewState(mealFilter = nextMeal() ?: MealFilter.LATE_DINNER)
     )
 
+    init {
+        eateryRepository.changeScreen(EateryRepository.Screen.UPCOMING)
+        retrieveEateries()
+    }
+
     fun onToggleFilterClicked(filter: Filter) {
-        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
-            pingEateries()
-        }
         selectedFiltersFlow.update {
             it.updateFilters(filter)
+        }
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            retrieveEateries()
         }
     }
 
     fun onResetFiltersClicked() {
-        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
-            pingEateries()
-        }
         mealFilterFlow.value = nextMeal() ?: MealFilter.LATE_DINNER
         selectedFiltersFlow.update { emptyList() }
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            retrieveEateries()
+        }
     }
 
     fun onMealFilterChanged(filter: MealFilter) {
-        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
-            pingEateries()
-        }
         mealFilterFlow.value = filter
+        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
+            retrieveEateries()
+        }
     }
 
     fun selectDayOffset(offset: Int) {
-        if (viewStateFlow.value.menus is EateryApiResponse.Error) {
-            pingEateries()
-        }
         selectedDayFlow.update { offset }
+        retrieveEateries()
     }
 
-    fun pingEateries() {
-        eateryRepository.pingEateries()
+    fun retrieveEateries() {
+        eateryRepository.retrieveUpcomingMenu(selectedDayFlow.value)
     }
 
     /**

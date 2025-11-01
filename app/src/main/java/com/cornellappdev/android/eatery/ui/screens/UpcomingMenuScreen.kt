@@ -234,7 +234,7 @@ fun UpcomingMenuScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                ErrorContent(onTryAgain = upcomingViewModel::pingEateries)
+                                ErrorContent(onTryAgain = upcomingViewModel::retrieveEateries)
                             }
                         }
                     }

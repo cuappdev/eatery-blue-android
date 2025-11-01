@@ -63,6 +63,10 @@ class EateryDetailViewModel @Inject constructor(
     eateryRepository: EateryRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
+    init {
+        eateryRepository.changeScreen(EateryRepository.Screen.DETAILS)
+    }
+
     private val eateryId: Int = checkNotNull(savedStateHandle["eateryId"])
 
     private val _eateryDetailsViewState =

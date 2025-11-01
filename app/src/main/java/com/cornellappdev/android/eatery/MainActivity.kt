@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         val dataRefresher = object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
-                eateryRepository.pingEateries()
+                eateryRepository.refresh()
             }
         }
         lifecycle.addObserver(dataRefresher)
