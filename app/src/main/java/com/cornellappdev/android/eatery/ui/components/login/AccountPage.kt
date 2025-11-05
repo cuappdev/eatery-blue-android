@@ -53,7 +53,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.data.models.Account
 import com.cornellappdev.android.eatery.data.models.AccountType
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
@@ -72,8 +71,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AccountPage(
     accountFilter: AccountType,
-    checkAccount: (AccountType) -> Account?,
-    checkMealPlan: () -> Account?,
+    accountTypeBalance: Map<AccountType, Double?>,
     onSettingsClicked: () -> Unit,
     getTransactionsOfType: (AccountType, String) -> List<Transaction>,
     updateAccountFilter: (AccountType) -> Unit
@@ -220,9 +218,8 @@ fun AccountPage(
                             )
                             AccountBalanceRow(
                                 accountName = "Meal Swipes",
-                                accountType = AccountType.MEALSWIPES,
-                                checkAccount = checkAccount,
-                                checkMealPlan = checkMealPlan
+                                balance = accountTypeBalance[AccountType.MEALSWIPES],
+                                isMealSwipes = true
                             )
                             Spacer(
                                 modifier = Modifier
@@ -232,9 +229,8 @@ fun AccountPage(
                             )
                             AccountBalanceRow(
                                 accountName = "Big Red Bucks",
-                                accountType = AccountType.BRBS,
-                                checkAccount = checkAccount,
-                                checkMealPlan = checkMealPlan
+                                balance = accountTypeBalance[AccountType.BRBS],
+                                isMealSwipes = false
                             )
                             Spacer(
                                 modifier = Modifier
@@ -244,9 +240,8 @@ fun AccountPage(
                             )
                             AccountBalanceRow(
                                 accountName = "City Bucks",
-                                accountType = AccountType.CITYBUCKS,
-                                checkAccount = checkAccount,
-                                checkMealPlan = checkMealPlan
+                                balance = accountTypeBalance[AccountType.CITYBUCKS],
+                                isMealSwipes = false
                             )
                             Spacer(
                                 modifier = Modifier
@@ -256,9 +251,8 @@ fun AccountPage(
                             )
                             AccountBalanceRow(
                                 accountName = "Laundry",
-                                accountType = AccountType.LAUNDRY,
-                                checkAccount = checkAccount,
-                                checkMealPlan = checkMealPlan
+                                balance = accountTypeBalance[AccountType.LAUNDRY],
+                                isMealSwipes = false
                             )
                         }
                     })
@@ -353,7 +347,7 @@ fun AccountPage(
                         accountFilter,
                         filterText
                     )
-                ) { it ->
+                ) {
                     val inputFormatter =
                         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
                     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
@@ -417,9 +411,8 @@ fun AccountPage(
 @Composable
 fun AccountBalanceRow(
     accountName: String,
-    accountType: AccountType,
-    checkAccount: (AccountType) -> Account?,
-    checkMealPlan: () -> Account?
+    isMealSwipes: Boolean,
+    balance: Double?
 ) {
     Row(
         modifier = Modifier.height(50.dp),
@@ -430,20 +423,18 @@ fun AccountBalanceRow(
             text = accountName,
             style = EateryBlueTypography.button,
         )
-        Text(
-            modifier = Modifier.weight(1f),
-            textAlign = TextAlign.Right,
-            text = if (accountType != AccountType.MEALSWIPES) {
-                "$" + "%.2f".format(
-                    checkAccount(accountType)?.balance?.toFloat() ?: 0f
-                )
-            } else {
-                "%.0f".format(
-                    checkMealPlan()?.balance?.toFloat() ?: 0f
-                ) + " remaining"
-            },
-            style = EateryBlueTypography.button,
-        )
+        if (balance != null) {
+            Text(
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Right,
+                text = if (!isMealSwipes) {
+                    "$" + "%.2f".format(balance.toFloat())
+                } else {
+                    "%.0f".format(balance.toFloat()) + " remaining"
+                },
+                style = EateryBlueTypography.button,
+            )
+        }
     }
 }
 

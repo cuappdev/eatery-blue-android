@@ -1,8 +1,8 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.android.eatery.data.models.Account
 import com.cornellappdev.android.eatery.data.models.AccountType
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.User
@@ -41,6 +41,17 @@ class LoginViewModel @Inject constructor(
             var query: String, // Search bar query.
             var accountFilter: AccountType // Search bar filter.
         ) : State()
+
+        fun getBalanceMap(): Map<AccountType, Double?> {
+            if (this !is Account) return mapOf()
+            val balanceMap = mutableMapOf<AccountType, Double?>()
+            this.user.accounts?.forEach { account ->
+                if (account.type != null) {
+                    balanceMap[account.type] = account.balance
+                }
+            }
+            return balanceMap
+        }
     }
 
     private var _state = MutableStateFlow<State>(
@@ -54,44 +65,12 @@ class LoginViewModel @Inject constructor(
     // Convert the state to a flow that can be updated by screens that use the LoginViewModel
     val state = _state.asStateFlow()
 
-    // List of all available meal plans
-    val mealPlanList = mutableListOf(
-        AccountType.FLEX,
-        AccountType.BEAR_TRADITIONAL,
-        AccountType.BEAR_CHOICE,
-        AccountType.BEAR_BASIC,
-        AccountType.UNLIMITED,
-        AccountType.HOUSE_AFFILIATE,
-        AccountType.HOUSE_MEALPLAN,
-        AccountType.JUST_BUCKS,
-        AccountType.OFF_CAMPUS
-    )
-
     init {
         getSavedLoginInfo()
     }
 
     fun resetLogin() {
         _state.value = State.Login()
-    }
-
-    // Check what the meal plan is against our list of meal plans
-    fun checkMealPlan(): Account? {
-        if (_state.value !is State.Account || CurrentUser.user == null) return null
-        var currAccount: Account? = null
-        CurrentUser.user!!.accounts!!.forEach {
-            if (mealPlanList.contains(it.type)) {
-                currAccount = it
-            }
-        }
-        return currAccount
-    }
-
-    fun checkAccount(accountType: AccountType): Account? {
-        if (_state.value !is State.Account || CurrentUser.user == null) return null
-        return CurrentUser.user!!.accounts!!.find {
-            it.type == accountType
-        }
     }
 
     fun updateAccountFilter(newAccountType: AccountType) {
@@ -158,22 +137,17 @@ class LoginViewModel @Inject constructor(
      * Fetches user data given [sessionId] and updates the state and user preferences.
      */
     private fun getUser(sessionId: String) = viewModelScope.launch {
+        val currState = _state.value
+        if (userPreferencesRepository.getDeviceId() == null) {
+            userPreferencesRepository.setDeviceId(UUID.randomUUID())
+        }
         try {
-            val currState = _state.value
-            if (userPreferencesRepository.getDeviceId() == null) {
-                userPreferencesRepository.setDeviceId(UUID.randomUUID())
-            }
             val fcmToken =
                 com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
             val deviceId = userPreferencesRepository.getDeviceId()!!
-            val user = userRepository.getUser(sessionId, deviceId, fcmToken).data!!
-            val account = userRepository.getAccount(sessionId, user.id!!).response!!.accounts
-            val transactions =
-                userRepository.getTransactionHistory(sessionId, user.id).response!!.transactions
-            user.accounts = account
-            user.transactions = transactions
+            Log.d("debug", "sessionId: $sessionId, deviceId: $deviceId, fcmToken: $fcmToken")
+            val user = userRepository.getUser(sessionId, deviceId, fcmToken)
             CurrentUser.user = user
-
             if (currState is State.Login) {
                 userPreferencesRepository.saveLoginInfo(sessionId, currState.password)
                 userPreferencesRepository.setIsLoggedIn(true)
@@ -185,6 +159,7 @@ class LoginViewModel @Inject constructor(
             )
             _state.value = newState
         } catch (e: Exception) {
+            // todo - error state
             val currState = _state.value
             if (currState is State.Login) {
                 val newState = State.Login(
