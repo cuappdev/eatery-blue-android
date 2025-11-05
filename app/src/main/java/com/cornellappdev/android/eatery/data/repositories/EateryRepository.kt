@@ -1,9 +1,7 @@
 package com.cornellappdev.android.eatery.data.repositories
 
 import com.cornellappdev.android.eatery.data.NetworkApi
-import com.cornellappdev.android.eatery.data.models.ApiResponse
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,9 +25,6 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
 
     private suspend fun getHomeEateries(): List<Eatery> =
         networkApi.fetchHomeEateries()
-
-    private suspend fun getAllEvents(): ApiResponse<List<Event>> =
-        networkApi.fetchEvents()
 
     private val _eateryFlow: MutableStateFlow<EateryApiResponse<List<Eatery>>> =
         MutableStateFlow(EateryApiResponse.Pending)
@@ -76,7 +71,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
             try {
                 val eateries = getAllEateries()
                 _eateryFlow.value = EateryApiResponse.Success(eateries)
-                eateryApiCache.update { map ->
+                eateryApiCache.update { _ ->
                     eateries.filter { it.id != null }
                         .associate { it.id!! to EateryApiResponse.Success(it) }
                         .withDefault { EateryApiResponse.Error }

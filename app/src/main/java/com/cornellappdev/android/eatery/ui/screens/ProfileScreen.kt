@@ -4,7 +4,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
-import com.cornellappdev.android.eatery.data.models.Account
 import com.cornellappdev.android.eatery.data.models.AccountType
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
@@ -23,7 +22,8 @@ fun ProfileScreen(
 ) {
     val state = loginViewModel.state.collectAsState().value
     ProfileScreenContent(
-        state,
+        isLoginState = state is LoginViewModel.State.Login,
+        accountTypeBalance = state.getBalanceMap(),
         loading = state is LoginViewModel.State.Login && state.loading,
         onLoginPressed = loginViewModel::onLoginPressed,
         onSuccess = loginViewModel::onLoginWebViewSuccess,
@@ -31,8 +31,6 @@ fun ProfileScreen(
         onBackClick = onBackClick,
         onModalHidden = loginViewModel::onLoginExited,
         accountFilter = if (state is LoginViewModel.State.Account) state.accountFilter else AccountType.BRBS,
-        checkAccount = loginViewModel::checkAccount,
-        checkMealPlan = loginViewModel::checkMealPlan,
         onSettingsClicked = onSettingsClicked,
         getTransactionsOfType = loginViewModel::getTransactionsOfType,
         updateAccountFilter = loginViewModel::updateAccountFilter
@@ -41,7 +39,8 @@ fun ProfileScreen(
 
 @Composable
 private fun ProfileScreenContent(
-    state: LoginViewModel.State,
+    isLoginState: Boolean,
+    accountTypeBalance: Map<AccountType, Double?>,
     loading: Boolean,
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
@@ -49,48 +48,47 @@ private fun ProfileScreenContent(
     onBackClick: () -> Unit,
     onModalHidden: () -> Unit,
     accountFilter: AccountType,
-    checkAccount: (AccountType) -> Account?,
-    checkMealPlan: () -> Account?,
     onSettingsClicked: () -> Unit,
     getTransactionsOfType: (AccountType, String) -> List<Transaction>,
     updateAccountFilter: (AccountType) -> Unit
 ) {
-    when (state) {
-        is LoginViewModel.State.Login -> {
-            LoginPage(
-                loading = loading,
-                onLoginPressed = onLoginPressed,
-                onSuccess = onSuccess,
-                webViewEnabled = webViewEnabled,
-                onBackClick = onBackClick,
-                onModalHidden = onModalHidden
-            )
-        }
-
-        is LoginViewModel.State.Account -> {
-            AccountPage(
-                accountFilter = accountFilter,
-                checkAccount = checkAccount,
-                checkMealPlan = checkMealPlan,
-                onSettingsClicked = onSettingsClicked,
-                getTransactionsOfType = getTransactionsOfType,
-                updateAccountFilter = updateAccountFilter
-            )
-        }
+    if (isLoginState) {
+        LoginPage(
+            loading = loading,
+            onLoginPressed = onLoginPressed,
+            onSuccess = onSuccess,
+            webViewEnabled = webViewEnabled,
+            onBackClick = onBackClick,
+            onModalHidden = onModalHidden
+        )
+    } else {
+        AccountPage(
+            accountFilter = accountFilter,
+            accountTypeBalance = accountTypeBalance,
+            onSettingsClicked = onSettingsClicked,
+            getTransactionsOfType = getTransactionsOfType,
+            updateAccountFilter = updateAccountFilter
+        )
     }
 }
 
 @Preview
 @Composable
 private fun ProfileLoginScreenPreview() = EateryPreview {
-    val state = LoginViewModel.State.Login(
+    LoginViewModel.State.Login(
         netID = "aaa00",
         password = "myVeryLongPassword",
         failureMessage = null,
         loading = false
     )
     ProfileScreenContent(
-        state = state,
+        isLoginState = false,
+        accountTypeBalance = mapOf(
+            AccountType.BRBS to 1234.56,
+            AccountType.CITYBUCKS to 78.90,
+            AccountType.LAUNDRY to 12.34,
+            AccountType.MEALSWIPES to 4.20
+        ),
         loading = false,
         onLoginPressed = {},
         onSuccess = {},
@@ -98,8 +96,6 @@ private fun ProfileLoginScreenPreview() = EateryPreview {
         onBackClick = {},
         onModalHidden = {},
         accountFilter = AccountType.BRBS,
-        checkAccount = { null },
-        checkMealPlan = { null },
         onSettingsClicked = {},
         getTransactionsOfType = { _, _ -> emptyList() },
         updateAccountFilter = {},
