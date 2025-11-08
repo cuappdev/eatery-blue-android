@@ -256,14 +256,9 @@ fun SettingsScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(bottom = 34.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                            horizontalArrangement = Arrangement.End,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "Logged in as ${state.user.userName!!.substringBefore('@')}",
-                                style = EateryBlueTypography.h5,
-                                color = GrayFive
-                            )
                             Button(
                                 onClick = {
                                     loginViewModel.onLogoutPressed()

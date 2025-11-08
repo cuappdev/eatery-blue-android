@@ -16,7 +16,6 @@ data class User(
     @Json(name = "brb_account_name") val brbAccountName: String = "",
     @Json(name = "city_bucks_account_name") val cityBucksAccountName: String = "",
     @Json(name = "laundry_account_name") val laundryAccountName: String = "",
-    @Json(name = "userName") val userName: String = "",
     var accounts: List<Account>? = null,
     var transactions: List<Transaction>? = listOf()
 )
