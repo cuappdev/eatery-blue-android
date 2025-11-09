@@ -40,6 +40,7 @@ data class Eatery(
     @Json(name = "wait_times") val waitTimes: List<WaitTimeDay>? = null,
     @Json(name = "alerts") val alerts: List<Alert>? = null,
 ) {
+    // todo - investigate unused methods
     fun getWalkTimes(): Int? {
         val currentLocation = LocationHandler.currentLocation.value
         val results = floatArrayOf(0f)
@@ -168,7 +169,7 @@ data class Eatery(
      * for louies, it returns [("General",some string duration)]
      * Note, string duration are in the format "11:00 AM - 2:30 PM"
      */
-    fun getTypeMeal(currSelectedDay: DayOfWeek): List<Pair<String, String>>? {
+    fun getTypeMeal(currSelectedDay: DayOfWeek): List<Pair<String, String>> {
         val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
 
         val uniqueMeals = LinkedHashMap<String, String>()
@@ -207,7 +208,6 @@ data class Eatery(
     fun getSelectedDayMeal(meal: MealFilter, day: Int): List<Event>? {
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())
-//        Log.d(name, events?.filter { currentDay.dayOfYear == it.startTime?.dayOfYear }.toString())
         return events?.filter { event ->
             currentDay.dayOfYear == event.startTime?.dayOfYear && meal.text.contains(event.description)
         }
@@ -297,14 +297,12 @@ data class Eatery(
      * e.g. For Oken, {Monday -> ["11:00 AM - 2:30 PM", "4:30 PM - 9:00 PM"], Sunday -> "Closed"}
      */
     private fun operatingHours(): Map<DayOfWeek, MutableList<String>> {
-        var dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
+        val dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
 
         events?.forEach { event ->
             val dayOfWeek = event.startTime?.dayOfWeek
             val openTime = event.startTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
             val closeTime = event.endTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
-//            Log.d("event", event.toString())
-
             val timeString = "$openTime - $closeTime"
 
             if (dayOfWeek != null && dailyHours[dayOfWeek]?.none { it.contains(timeString) } != false) {
@@ -312,7 +310,7 @@ data class Eatery(
             }
         }
 
-        DayOfWeek.values().forEach { dayOfWeek ->
+        DayOfWeek.entries.forEach { dayOfWeek ->
             dailyHours.computeIfAbsent(dayOfWeek) { mutableListOf("Closed") }
         }
 
@@ -329,7 +327,7 @@ data class Eatery(
      * day(s) mapped to opening hours.
      */
     fun formatOperatingHours(): List<Pair<String, List<String>>> {
-        var dailyHours = operatingHours()
+        val dailyHours = operatingHours()
 
         val groupedHours = dailyHours.entries.groupBy({ it.value }, { it.key })
 
@@ -390,7 +388,7 @@ data class Eatery(
             }
         }
 
-        var formattedHoursList = formattedHours.toList().sortedBy { entry ->
+        val formattedHoursList = formattedHours.toList().sortedBy { entry ->
             val firstDay = entry.first.split(" to ", " ", limit = 2).first()
             dayOrder[firstDay] ?: Int.MAX_VALUE
         }

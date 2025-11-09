@@ -1,3 +1,5 @@
+@file:Suppress("AddExplicitTargetToParameterAnnotation")
+
 package com.cornellappdev.android.eatery.data.models
 
 import com.squareup.moshi.Json
@@ -5,20 +7,13 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class User(
-    @Json(name = "id") val id: Long = 0,
-    @Json(name = "device_id") val deviceId: String = "",
-    @Json(name = "fcm_token") val fcmToken: String = "",
     @Json(name = "favorite_eateries") val favoriteEateries: List<Int> = emptyList(),
     @Json(name = "favorite_items") val favoriteItems: List<String> = emptyList(),
     @Json(name = "brb_balance") val brbBalance: Double = 0.0,
     @Json(name = "city_bucks_balance") val cityBucksBalance: Double = 0.0,
     @Json(name = "laundry_balance") val laundryBalance: Double = 0.0,
-    @Json(name = "brb_account_name") val brbAccountName: String = "",
-    @Json(name = "city_bucks_account_name") val cityBucksAccountName: String = "",
-    @Json(name = "laundry_account_name") val laundryAccountName: String = "",
-    @Json(name = "userName") val userName: String = "",
-    var accounts: List<Account>? = null,
-    var transactions: List<Transaction>? = listOf()
+    @Json(name = "transactions") val transactions: List<Transaction>? = listOf(),
+    @Json(name = "meal_swipes") val mealSwipes: Int? = null // todo - backend should make this
 )
 
 @JsonClass(generateAdapter = true)
@@ -37,40 +32,69 @@ data class AuthorizedUser(
 )
 
 @JsonClass(generateAdapter = true)
+data class Accounts(
+    @Json(name = "brb") val brbBalance: Account? = null,
+    @Json(name = "city_bucks") val cityBucksBalance: Account? = null,
+    @Json(name = "laundry") val laundryBalance: Account? = null
+)
+
+@JsonClass(generateAdapter = true)
 data class Account(
-    @Json(name = "accountDisplayName") val type: AccountType? = null,
-    @Json(name = "balance") val balance: Double? = null
+    @Json(name = "name") val name: String = "",
+    @Json(name = "balance") val balance: Double = 0.0
+)
+
+@JsonClass(generateAdapter = true)
+data class Transactions(
+    @Json(name = "transactions") val transactions: List<Transaction> = emptyList()
 )
 
 @JsonClass(generateAdapter = true)
 data class Transaction(
-    @Json(name = "transactionId") val id: String? = null,
-    @Json(name = "amount") val amount: Double? = null,
-    @Json(name = "resultingBalance") val resultingBalance: Double? = null,
-    @Json(name = "postedDate") val date: String? = null,
-    // make this TransactionType later
-    @Json(name = "transactionType") val transactionType: Int? = null,
-    @Json(name = "accountName") val accountType: AccountType? = null,
-    @Json(name = "locationName") val location: String? = null,
+    @Json(name = "amount") val amount: Double = 0.0,
+    @Json(name = "accountName") val accountType: AccountType = AccountType.OTHER,
+    @Json(name = "date") val date: String = "",
+    @Json(name = "location") val location: String = "",
+    @Json(name = "transactionType") val transactionType: TransactionType = TransactionType.NOOP // todo - backend should give this
 )
 
-enum class AccountType {
-    // MEALSWIPES is used for transaction history filtering, only. For anything else, use the actual
-    // meal plan types in the block below (OFF_CAMPUS, BEAR_TRADITIONAL, etc.).
-    LAUNDRY,
-    MEALSWIPES,
+/**
+ * Categories for transactions used for filtering. More general than AccountType.
+ */
+enum class TransactionAccountType {
+    MEAL_SWIPES,
     BRBS,
-    CITYBUCKS,
+    CITY_BUCKS,
+    LAUNDRY
+}
+
+/**
+ * Specific account types as they show up in the backend.
+ */
+enum class AccountType {
+    LAUNDRY,
+    BRBS,
+    CITY_BUCKS,
     OFF_CAMPUS,
     BEAR_TRADITIONAL,
     UNLIMITED,
     BEAR_BASIC,
     BEAR_CHOICE,
-    HOUSE_MEALPLAN,
+    HOUSE_MEAL_PLAN,
     HOUSE_AFFILIATE,
     FLEX,
     JUST_BUCKS,
     OTHER
+    // todo - are there more?
+}
+
+fun AccountType.toTransactionAccountType(): TransactionAccountType {
+    return when (this) {
+        AccountType.BRBS -> TransactionAccountType.BRBS
+        AccountType.CITY_BUCKS -> TransactionAccountType.CITY_BUCKS
+        AccountType.LAUNDRY -> TransactionAccountType.LAUNDRY
+        else -> TransactionAccountType.MEAL_SWIPES
+    }
 }
 
 enum class TransactionType(val value: Int) {

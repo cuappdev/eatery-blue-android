@@ -9,6 +9,11 @@ import javax.inject.Singleton
 
 @Singleton
 class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
+    /**
+     * The currently loaded user. Null if no user is logged in.
+     */
+    var loadedUser: User? = null
+
     suspend fun sendReport(issue: String, report: String, eateryID: Int?): Any =
         networkApi.sendReport(
             report = ReportSendBody(
@@ -17,19 +22,31 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
             )
         )
 
+    /**
+     * Fetches the user from backend.
+     */
     suspend fun getUser(
         sessionId: String,
         deviceId: String,
         fcmToken: String
     ): User {
+        val bearerToken = "Bearer $sessionId"
         val authorizedUser = networkApi.authorizeUser(
-            sessionId = "Bearer $sessionId",
+            sessionId = bearerToken,
             loginRequest = LoginRequest(deviceId = deviceId, pin = 1234, fcmToken = fcmToken)
         )
-        return networkApi.getUserAccounts(
-            sessionId = "Bearer $sessionId",
+        // load accounts in case needed
+        networkApi.getUserAccounts(
+            sessionId = bearerToken,
             user = authorizedUser
         )
+        val transactions = networkApi.getUserTransactions(
+            sessionId = bearerToken,
+            user = authorizedUser
+        ).transactions
+        val userWithData = networkApi.getUserData(
+            id = authorizedUser.id
+        ).copy(transactions = transactions)
+        return userWithData
     }
-
 }
