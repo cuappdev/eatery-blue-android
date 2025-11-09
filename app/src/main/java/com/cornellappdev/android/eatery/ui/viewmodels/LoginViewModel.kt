@@ -3,12 +3,13 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.android.eatery.data.models.AccountType
+import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.Transaction
+import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
+import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
-import com.cornellappdev.android.eatery.ui.screens.CurrentUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,27 +40,28 @@ class LoginViewModel @Inject constructor(
         data class Account(
             val user: User, // Contains all user data.
             var query: String, // Search bar query.
-            var accountFilter: AccountType // Search bar filter.
+            var accountFilter: TransactionAccountType
         ) : State()
 
-        fun getBalanceMap(): Map<AccountType, Double?> {
-            if (this !is Account) return mapOf()
-            val balanceMap = mutableMapOf<AccountType, Double?>()
-            this.user.accounts?.forEach { account ->
-                if (account.type != null) {
-                    balanceMap[account.type] = account.balance
-                }
-            }
-            return balanceMap
+        fun getBalances(): AccountBalances {
+            if (this !is Account) return AccountBalances()
+            return AccountBalances(
+                brbBalance = this.user.brbBalance,
+                cityBucksBalance = this.user.cityBucksBalance,
+                laundryBalance = this.user.laundryBalance,
+                mealSwipes = this.user.mealSwipes
+            )
         }
     }
 
     private var _state = MutableStateFlow<State>(
-        if (CurrentUser.user == null) {
-            State.Login()
-        } else {
-            State.Account(CurrentUser.user!!, "", AccountType.BRBS)
-        }
+        userRepository.loadedUser?.let {
+            State.Account(
+                user = it,
+                query = "",
+                accountFilter = TransactionAccountType.BRBS
+            )
+        } ?: State.Login()
     )
 
     // Convert the state to a flow that can be updated by screens that use the LoginViewModel
@@ -73,7 +75,7 @@ class LoginViewModel @Inject constructor(
         _state.value = State.Login()
     }
 
-    fun updateAccountFilter(newAccountType: AccountType) {
+    fun updateAccountFilter(newAccountType: TransactionAccountType) {
         val currState = _state.value
         if (currState !is State.Account) return
 
@@ -88,15 +90,25 @@ class LoginViewModel @Inject constructor(
         _state.value = newState
     }
 
-    fun getTransactionsOfType(accountType: AccountType, query: String): List<Transaction> {
+    fun getFilteredTransactions(
+        accountType: TransactionAccountType,
+        query: String
+    ): List<Transaction> {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-        if (_state.value !is State.Account || CurrentUser.user == null) return listOf()
-        return CurrentUser.user!!.transactions?.filter { transaction ->
-            transaction.accountType == accountType
-                    && LocalDateTime.parse(transaction.date, inputFormatter) >= LocalDateTime.now()
-                .minusDays(30)
-                    && transaction.location!!.lowercase().contains(query.lowercase())
-        } ?: listOf()
+        userRepository.loadedUser?.let {
+            if (_state.value !is State.Account) return emptyList()
+            return it.transactions?.filter { transaction ->
+                val matchesAccountType =
+                    transaction.accountType.toTransactionAccountType() == accountType
+                val pastThirtyDays = LocalDateTime.parse(
+                    transaction.date,
+                    inputFormatter
+                ) >= LocalDateTime.now().minusDays(30)
+                val matchesQuery = transaction.location.lowercase().contains(query.lowercase())
+                matchesAccountType && pastThirtyDays && matchesQuery
+            } ?: emptyList()
+        }
+        return emptyList()
     }
 
     fun onLoginPressed() = updateLoginLoadingState(true)
@@ -116,7 +128,7 @@ class LoginViewModel @Inject constructor(
         val newState = State.Login()
         _state.value = newState
         viewModelScope.launch {
-            CurrentUser.user = null
+            userRepository.loadedUser = null
             userPreferencesRepository.setIsLoggedIn(false)
             userPreferencesRepository.saveLoginInfo("", "")
         }
@@ -147,7 +159,7 @@ class LoginViewModel @Inject constructor(
             val deviceId = userPreferencesRepository.getDeviceId()!!
             Log.d("debug", "sessionId: $sessionId, deviceId: $deviceId, fcmToken: $fcmToken")
             val user = userRepository.getUser(sessionId, deviceId, fcmToken)
-            CurrentUser.user = user
+            userRepository.loadedUser = user
             if (currState is State.Login) {
                 userPreferencesRepository.saveLoginInfo(sessionId, currState.password)
                 userPreferencesRepository.setIsLoggedIn(true)
@@ -155,7 +167,7 @@ class LoginViewModel @Inject constructor(
             val newState = State.Account(
                 user = user,
                 query = "",
-                accountFilter = AccountType.BRBS
+                accountFilter = TransactionAccountType.BRBS
             )
             _state.value = newState
         } catch (e: Exception) {

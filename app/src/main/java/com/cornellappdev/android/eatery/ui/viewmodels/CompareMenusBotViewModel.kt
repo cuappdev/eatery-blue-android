@@ -26,8 +26,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CompareMenusBotViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository,
+    userPreferencesRepository: UserPreferencesRepository,
+    eateryRepository: EateryRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
 
@@ -69,7 +69,7 @@ class CompareMenusBotViewModel @Inject constructor(
             userPreferencesRepository.favoritesFlow,
             filtersFlow,
             selectedEateriesFlow
-        ) { eateriesApiResponse, favorites, filters, selected ->
+        ) { eateriesApiResponse, _, filters, selected ->
             when (eateriesApiResponse) {
                 is EateryApiResponse.Success -> {
                     _compareMenusUiState.update { currentState ->

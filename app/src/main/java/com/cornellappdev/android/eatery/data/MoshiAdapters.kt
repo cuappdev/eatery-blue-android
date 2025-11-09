@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.cornellappdev.android.eatery.data
 
 import com.cornellappdev.android.eatery.data.models.AccountType
@@ -116,16 +118,12 @@ class AccountTypeAdapter {
                 "brb"
             }
 
-            AccountType.CITYBUCKS -> {
+            AccountType.CITY_BUCKS -> {
                 "city bucks"
             }
 
             AccountType.LAUNDRY -> {
                 "laundry"
-            }
-
-            AccountType.MEALSWIPES -> {
-                "meal plan"
             }
 
             else -> {
@@ -155,7 +153,7 @@ class AccountTypeAdapter {
         return if (accountName.contains("brb", ignoreCase = true)) {
             AccountType.BRBS
         } else if (accountName.contains("city bucks", ignoreCase = true)) {
-            AccountType.CITYBUCKS
+            AccountType.CITY_BUCKS
         } else if (accountName.contains("laundry", ignoreCase = true)) {
             AccountType.LAUNDRY
         } else {

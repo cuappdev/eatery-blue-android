@@ -1,10 +1,12 @@
 package com.cornellappdev.android.eatery.data
 
+import com.cornellappdev.android.eatery.data.models.Accounts
 import com.cornellappdev.android.eatery.data.models.AuthorizedUser
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.GetApiResponse
 import com.cornellappdev.android.eatery.data.models.LoginRequest
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
+import com.cornellappdev.android.eatery.data.models.Transactions
 import com.cornellappdev.android.eatery.data.models.User
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -37,5 +39,16 @@ interface NetworkApi {
     suspend fun getUserAccounts(
         @Header("Authorization") sessionId: String,
         @Body user: AuthorizedUser
+    ): Accounts
+
+    @POST("/user/transactions/")
+    suspend fun getUserTransactions(
+        @Header("Authorization") sessionId: String,
+        @Body user: AuthorizedUser
+    ): Transactions
+
+    @GET("/user/{id}/")
+    suspend fun getUserData(
+        @Path("id") id: Long
     ): User
 }
