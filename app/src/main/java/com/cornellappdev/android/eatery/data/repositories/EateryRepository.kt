@@ -79,24 +79,27 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      * Refreshes the data for the current screen and resets all other stale cache data.
      */
     fun refresh() {
-        // Re-ping based on current screen and clear all other caches.
+        val emptyEateryMap =
+            emptyMap<Int, EateryApiResponse<Eatery>>().withDefault { EateryApiResponse.Error }
+        val emptyEateriesMap =
+            emptyMap<Int, EateryApiResponse<List<Eatery>>>().withDefault { EateryApiResponse.Error }
         when (currentScreen) {
             Screen.HOME -> {
                 pingHomeEateries()
-                eateryDetailsCache.value = emptyMap()
-                upcomingEateriesCache.value = emptyMap()
+                eateryDetailsCache.value = emptyEateryMap
+                upcomingEateriesCache.value = emptyEateriesMap
             }
 
             Screen.DETAILS -> lastEateryPinged?.let {
-                eateryDetailsCache.value = emptyMap()
+                eateryDetailsCache.value = emptyEateryMap
                 pingEatery(it)
-                upcomingEateriesCache.value = emptyMap()
+                upcomingEateriesCache.value = emptyEateriesMap
             }
 
             Screen.UPCOMING -> lastDayRequested?.let {
-                upcomingEateriesCache.value = emptyMap()
+                upcomingEateriesCache.value = emptyEateriesMap
                 pingUpcomingMenu(it)
-                eateryDetailsCache.value = emptyMap()
+                eateryDetailsCache.value = emptyEateryMap
             }
         }
     }
