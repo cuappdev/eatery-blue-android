@@ -15,9 +15,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
 
 /**
  * Dietary widgets that are displayed at the bottom left corner of Eatery Card

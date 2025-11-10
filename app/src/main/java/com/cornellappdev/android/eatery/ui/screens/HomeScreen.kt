@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.screens
 
-
 import android.Manifest
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -72,7 +71,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -117,11 +116,55 @@ fun HomeScreen(
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
     onNotificationsClick: () -> Unit
 ) {
+    HomeScreenContent(
+        favorites = homeViewModel.favoriteEateries.collectAsState().value,
+        nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value,
+        eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value,
+        selectedFilters = homeViewModel.filtersFlow.collectAsState().value,
+        homeScreenFilters = homeViewModel.homeScreenFilters,
+        showBottomBar = showBottomBar,
+        permissionReqDialogFirstTimeShown = FirstTimeShown.firstTimeShown,
+        onSearchClick = onSearchClick,
+        onEateryClick = onEateryClick,
+        onFavoriteExpand = onFavoriteExpand,
+        onCompareMenusClick = onCompareMenusClick,
+        onNotificationsClick = onNotificationsClick,
+        addPaymentMethodFilters = homeViewModel::addPaymentMethodFilters,
+        addFavorite = homeViewModel::addFavorite,
+        removeFavorite = homeViewModel::removeFavorite,
+        onToggleFilterPressed = homeViewModel::onToggleFilterPressed,
+        onResetFiltersClicked = homeViewModel::onResetFiltersClicked,
+        pingEateries = homeViewModel::pingEateries,
+        getNotificationFlowCompleted = homeViewModel::getNotificationFlowCompleted,
+        setNotificationFlowCompleted = homeViewModel::setNotificationFlowCompleted
+    )
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun HomeScreenContent(
+    favorites: List<Eatery>,
+    nearestEateries: List<Eatery>,
+    eateriesApiResponse: EateryApiResponse<List<Eatery>>,
+    selectedFilters: List<Filter>,
+    homeScreenFilters: List<Filter>,
+    showBottomBar: MutableState<Boolean>,
+    permissionReqDialogFirstTimeShown: Boolean,
+    onSearchClick: () -> Unit,
+    onEateryClick: (eatery: Eatery) -> Unit,
+    onFavoriteExpand: () -> Unit,
+    onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+    onNotificationsClick: () -> Unit,
+    addPaymentMethodFilters: (List<Filter>) -> Unit,
+    addFavorite: (Int?) -> Unit,
+    removeFavorite: (Int?) -> Unit,
+    onToggleFilterPressed: (Filter) -> Unit,
+    onResetFiltersClicked: () -> Unit,
+    pingEateries: () -> Unit,
+    getNotificationFlowCompleted: () -> Boolean,
+    setNotificationFlowCompleted: (Boolean) -> Unit
+) {
     val context = LocalContext.current
-    val favorites = homeViewModel.favoriteEateries.collectAsState().value
-    val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
-    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
-    val filters = homeViewModel.filtersFlow.collectAsState().value
     val notificationPermissionState =
         rememberMultiplePermissionsState(
             permissions = listOf(
@@ -148,7 +191,7 @@ fun HomeScreen(
         DisposableEffect(Unit) {
             onDispose {
                 // Handles the case where filters reset as well (by adding an empty list).
-                homeViewModel.addPaymentMethodFilters(selectedPaymentMethodFilters)
+                addPaymentMethodFilters(selectedPaymentMethodFilters)
             }
         }
     }
@@ -224,33 +267,31 @@ fun HomeScreen(
                             eateriesApiResponse = eateriesApiResponse,
                             favorites = favorites,
                             nearestEateries = nearestEateries,
-                            selectedFilters = filters,
+                            selectedFilters = selectedFilters,
                             onFavoriteClick = { eatery, favorite ->
                                 if (favorite) {
-                                    homeViewModel.addFavorite(eatery.id)
+                                    addFavorite(eatery.id)
                                 } else {
-                                    homeViewModel.removeFavorite(eatery.id)
+                                    removeFavorite(eatery.id)
                                 }
                             },
-                            onFilterClicked = homeViewModel::onToggleFilterPressed,
-                            onResetFilters = homeViewModel::onResetFiltersClicked,
-                            filters = homeViewModel.homeScreenFilters,
+                            onFilterClicked = onToggleFilterPressed,
+                            onResetFilters = onResetFiltersClicked,
+                            filters = homeScreenFilters,
                             isGridView = isGridView,
                             onListClick = { isGridView = false },
                             onGridClick = { isGridView = true },
                             onNotificationsClick = onNotificationsClick,
-                            onReload = homeViewModel::pingEateries
+                            onReload = pingEateries
                         )
                     }
                 )
 
-                if (FirstTimeShown.firstTimeShown) {
+                if (permissionReqDialogFirstTimeShown) {
                     PermissionRequestDialog(
                         showBottomBar = showBottomBar,
-                        notificationFlowStatus = homeViewModel.getNotificationFlowCompleted(),
-                        updateNotificationFlowStatus = {
-                            homeViewModel.setNotificationFlowCompleted(it)
-                        }
+                        notificationFlowStatus = getNotificationFlowCompleted(),
+                        updateNotificationFlowStatus = setNotificationFlowCompleted
                     )
                 }
             }
@@ -532,7 +573,8 @@ private fun LazyListScope.regularContent(
                         },
                         onFavoriteClick = {
                             onFavoriteClick(eatery, it)
-                        }
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         onEateryClick(it)
                     }
@@ -623,7 +665,8 @@ private fun LazyListScope.regularContent(
                                 style = EateryCardStyle.GRID_VIEW,
                                 selectEatery = { selectedEatery ->
                                     onEateryClick(selectedEatery)
-                                }
+                                },
+                                modifier = Modifier.fillMaxWidth()
                             )
 
                         }
@@ -646,7 +689,8 @@ private fun LazyListScope.regularContent(
                         },
                         onFavoriteClick = {
                             onFavoriteClick(eatery, it)
-                        }
+                        },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         onEateryClick(it)
                     }
@@ -767,7 +811,7 @@ private fun HomeMainHeader(
             .clickable {
                 onSearchClick()
             },
-        onCancelClicked = {},
+        onCancelClicked = {}, // todo - better cancel behavior
         enabled = false
     )
     FilterRow(
@@ -778,6 +822,41 @@ private fun HomeMainHeader(
     )
 }
 
+@Preview
+@Composable
+private fun HomePreview() = EateryPreview {
+    val showBottomBar = remember { mutableStateOf(false) }
+    HomeScreenContent(
+        favorites = emptyList(),
+        nearestEateries = emptyList(),
+        eateriesApiResponse = EateryApiResponse.Success(emptyList()),
+        selectedFilters = emptyList(),
+        homeScreenFilters = listOf(
+            Filter.FromEateryFilter.North,
+            Filter.FromEateryFilter.West,
+            Filter.FromEateryFilter.Central,
+            Filter.FromEateryFilter.Swipes,
+            Filter.FromEateryFilter.BRB,
+            Filter.RequiresFavoriteEateries.Favorites,
+            Filter.FromEateryFilter.Under10,
+        ),
+        showBottomBar = showBottomBar,
+        permissionReqDialogFirstTimeShown = false,
+        onSearchClick = {},
+        onEateryClick = {},
+        onFavoriteExpand = {},
+        onCompareMenusClick = {},
+        onNotificationsClick = {},
+        addPaymentMethodFilters = {},
+        addFavorite = {},
+        removeFavorite = {},
+        onToggleFilterPressed = {},
+        onResetFiltersClicked = {},
+        pingEateries = {},
+        getNotificationFlowCompleted = { true },
+        setNotificationFlowCompleted = {}
+    )
+}
 
 /**
  * Keeps track of when app navigates away from HomeScreen so PermissionRequestDialog

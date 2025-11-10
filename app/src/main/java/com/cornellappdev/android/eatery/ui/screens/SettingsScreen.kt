@@ -16,10 +16,10 @@ import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Gavel
-import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
@@ -225,7 +225,7 @@ fun SettingsScreen(
                 SettingsOption(
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Outlined.HelpOutline,
+                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
                             contentDescription = "Support",
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
@@ -239,7 +239,7 @@ fun SettingsScreen(
                         )
                     },
                     title = "Support",
-                    description = "Report issues and contact Cornell Appdev",
+                    description = "Report issues and contact Cornell AppDev",
                     onClick = {
                         destinations[Routes.SUPPORT]?.invoke()
                     }
@@ -271,8 +271,8 @@ fun SettingsScreen(
                                 )
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Logout,
-                                    contentDescription = Icons.Default.Logout.name,
+                                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                                    contentDescription = Icons.AutoMirrored.Filled.Logout.name,
                                 )
                                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                 Text(

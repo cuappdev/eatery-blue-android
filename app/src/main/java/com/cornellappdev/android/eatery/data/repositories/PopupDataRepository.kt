@@ -21,8 +21,8 @@ class PopupDataRepository @Inject constructor(
     val lastShowedRatingPopupFlow = userPreferencesStore.data.map {
         with(it.lastShowedRatingPopup) {
             // Default value should be min local date
-            if (year == 0) java.time.LocalDate.MIN else
-                java.time.LocalDate.now().withYear(year).withDayOfMonth(day)
+            if (year == 0) LocalDate.MIN else
+                LocalDate.now().withYear(year).withDayOfMonth(day)
         }
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, LocalDate.MIN)
 

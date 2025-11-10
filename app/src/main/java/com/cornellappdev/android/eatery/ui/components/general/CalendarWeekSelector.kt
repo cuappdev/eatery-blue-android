@@ -72,7 +72,7 @@ fun CalendarWeekSelector(
                         .then(
                             when {
                                 eateryDetail && closedDays?.contains(dayNames[i]) == true -> Modifier
-                                !eateryDetail || (eateryDetail && closedDays?.contains(dayNames[i]) == false) -> Modifier.clickable(
+                                !eateryDetail || (closedDays?.contains(dayNames[i]) == false) -> Modifier.clickable(
                                     indication = null,
                                     interactionSource = MutableInteractionSource()
                                 ) { onClick(i) }
@@ -86,9 +86,9 @@ fun CalendarWeekSelector(
                         modifier = Modifier
                             .size(size = (34 * size).dp)
                             .alpha(size),
-                        color = when {
-                            i == currSelectedDay && currSelectedDay == 0 -> EateryBlue
-                            i == currSelectedDay || i == selectedDay -> GrayFive
+                        color = when (i) {
+                            currSelectedDay if currSelectedDay == 0 -> EateryBlue
+                            currSelectedDay, selectedDay -> GrayFive
                             else -> GrayFive
                         },
                         shape = CircleShape
@@ -100,7 +100,7 @@ fun CalendarWeekSelector(
                             closedDays?.contains(dayNames[i]) == true -> GrayThree
                             i != currSelectedDay && i == 0 -> EateryBlue
                             i != currSelectedDay && i == selectedDay -> Color.Black
-                            i == currSelectedDay || i == selectedDay -> Color.White
+                            i == currSelectedDay -> Color.White
                             else -> Color.Black
                         },
                         style = EateryBlueTypography.h6,

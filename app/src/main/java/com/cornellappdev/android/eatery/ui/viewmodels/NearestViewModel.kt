@@ -19,7 +19,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class NearestViewModel @Inject constructor(
-    private val eateryRepository: EateryRepository,
+    eateryRepository: EateryRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     /**

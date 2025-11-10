@@ -89,10 +89,10 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setIsLoggedIn(isLoggdIn: Boolean) {
+    suspend fun setIsLoggedIn(isLoggedIn: Boolean) {
         userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
-                .setIsLoggedIn(isLoggdIn)
+                .setIsLoggedIn(isLoggedIn)
                 .build()
         }
     }

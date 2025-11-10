@@ -49,7 +49,7 @@ fun PaymentMethodsAvailable(
 ) {
     val paymentMethodsAvailableText = buildAnnotatedString {
         append("Pay with ")
-        if (selectedPaymentMethods.containsAll(PaymentMethodsAvailable.values().toList())) {
+        if (selectedPaymentMethods.containsAll(PaymentMethodsAvailable.entries)) {
             append("all payment methods")
         } else {
             selectedPaymentMethods.forEachIndexed { index, paymentMethod ->
@@ -67,7 +67,7 @@ fun PaymentMethodsAvailable(
     }
 
     val inlineContentMap =
-        PaymentMethodsAvailable.values().associate { paymentMethod ->
+        PaymentMethodsAvailable.entries.associate { paymentMethod ->
             paymentMethod.name to InlineTextContent(
                 Placeholder(18.sp, 18.sp, PlaceholderVerticalAlign.TextCenter)
             ) {

@@ -85,7 +85,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
             ReportBottomSheet(
                 issue = issue,
                 eateryid = null,
-                sendReport = { issue, report, eateryid ->
+                sendReport = { issue, report, _ ->
                     supportViewModel.sendReport(issue, report)
                 }) {
                 coroutineScope.launch {

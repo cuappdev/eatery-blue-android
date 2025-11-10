@@ -201,7 +201,7 @@ private fun ColumnScope.MainScrollableContent(
                 EateryCard(
                     eatery = eatery,
                     isFavorite = true,
-                    modifier = Modifier.animateItemPlacement(),
+                    modifier = Modifier.animateItem(),
                     onFavoriteClick = {
                         if (!it) {
                             removeFavorite(eatery.id)
@@ -219,7 +219,7 @@ private fun ColumnScope.MainScrollableContent(
             items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
                 ItemFavoritesCard(
                     itemFavoritesCardViewState,
-                    modifier = Modifier.animateItemPlacement(),
+                    modifier = Modifier.animateItem(),
                     onFavoriteClick = {
                         removeFavoriteMenuItem(
                             itemFavoritesCardViewState.itemName

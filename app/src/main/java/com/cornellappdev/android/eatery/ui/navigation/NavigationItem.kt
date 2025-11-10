@@ -91,5 +91,5 @@ enum class Routes(override var route: String) : NavUnit {
     LEGAL("legal"),
     PRIVACY("privacy"),
     SUPPORT("support"),
-    COMPAREMENUS("compare_menus")
+    COMPARE_MENUS("compare_menus")
 }

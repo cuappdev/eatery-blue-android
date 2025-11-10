@@ -23,9 +23,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
 fun FilterRow(
@@ -91,4 +93,23 @@ fun FilterButton(
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun FilterRowPreview() = EateryPreview {
+    val sampleFilters = listOf(
+        Filter.FromEateryFilter.North,
+        Filter.FromEateryFilter.West,
+        Filter.FromEateryFilter.Central,
+        Filter.FromEateryFilter.Swipes,
+        Filter.FromEateryFilter.BRB,
+        Filter.RequiresFavoriteEateries.Favorites,
+        Filter.FromEateryFilter.Under10,
+    )
+    FilterRow(
+        filters = sampleFilters,
+        currentFiltersSelected = sampleFilters.take(2),
+        onFilterClicked = {}
+    )
 }

@@ -32,7 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -77,8 +77,7 @@ fun EateryCard(
     eatery: Eatery,
     isFavorite: Boolean,
     onFavoriteClick: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-        .fillMaxWidth(),
+    modifier: Modifier = Modifier,
     style: EateryCardStyle = EateryCardStyle.DEFAULT,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
@@ -260,7 +259,7 @@ fun GridViewFavoriteWidget(
             .size(40.dp)
             .clickable(
                 interactionSource = interactionSource,
-                indication = rememberRipple(radius = 20.dp),
+                indication = ripple(radius = 20.dp),
                 onClick = onClick
             ),
         shape = CircleShape,

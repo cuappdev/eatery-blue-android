@@ -1,7 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,12 +27,6 @@ import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.shimmer
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun MainLoading() {
-
-}
 
 @Composable
 fun FilterItem(width: Dp, modifier: Modifier = Modifier) {
@@ -137,7 +131,7 @@ sealed class MainLoadingItem {
 
                 is EaterySectionList -> {
                     CompositionLocalProvider(
-                        LocalOverscrollConfiguration provides null
+                        LocalOverscrollFactory provides null
                     ) {
                         Row(
                             modifier = Modifier

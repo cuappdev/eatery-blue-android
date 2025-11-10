@@ -421,7 +421,7 @@ private fun AccountPageHeader(
 
 @Composable
 private fun TransactionRow(transaction: Transaction, isMealSwipes: Boolean) {
-    val dateText = FormatDate(transaction.date)
+    val dateText = formatDate(transaction.date)
     Row(
         modifier = Modifier
             .height(64.dp)
@@ -476,8 +476,7 @@ private fun TransactionRow(transaction: Transaction, isMealSwipes: Boolean) {
     )
 }
 
-@Composable
-private fun FormatDate(dateString: String): String {
+private fun formatDate(dateString: String): String {
     val inputFormatter =
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")

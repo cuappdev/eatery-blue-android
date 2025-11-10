@@ -27,9 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
@@ -40,15 +38,11 @@ import com.google.accompanist.pager.rememberPagerState
 fun OnboardingCarousel(
     fadePage: Boolean,
     onSkipClicked: () -> Unit,
-    onLoginSuccess: (User) -> Unit,
-    onLoginError: () -> Unit = {},
     onProceed: () -> Unit = {}
 ) {
     val headerPagerState = rememberPagerState()
     val phonePagerState = rememberPagerState()
     val iconPagerState = rememberPagerState()
-
-    val navController = rememberAnimatedNavController()
 
     // Takes in the phone's pager position and properly moves the header
     // along with it every time the state changes.

@@ -1,9 +1,5 @@
 package com.cornellappdev.android.eatery.ui.viewmodels.state
 
-import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse.Error
-import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse.Pending
-import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse.Success
-
 /**
  * Represents the state of an api response fetching data of type [T].
  * Can be: [Pending], which represents the call still loading in, [Error], which represents the

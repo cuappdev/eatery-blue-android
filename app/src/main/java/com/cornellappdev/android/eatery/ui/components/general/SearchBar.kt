@@ -10,12 +10,12 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -81,35 +82,39 @@ fun SearchBar(
                 fontSize = 14.sp
             )
         ) { innerTextField ->
-            Surface(shape = RoundedCornerShape(8.dp), color = GrayZero) {
-                TextFieldDefaults.TextFieldDecorationBox(
+            TextFieldDefaults.DecorationBox(
                     value = searchText,
                     innerTextField = innerTextField,
-                    singleLine = true,
-                    interactionSource = interactionSource,
-                    contentPadding = PaddingValues(0.dp),
-                    leadingIcon = {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = GrayFive
-                        )
-
-                    },
-                    placeholder = {
-                        Text(
-                            text = placeholderText,
-                            color = GrayFive
-                        )
-                    },
-                    colors = TextFieldDefaults.textFieldColors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
                     enabled = enabled,
+                singleLine = true,
                     visualTransformation = VisualTransformation.None,
+                interactionSource = interactionSource,
+                contentPadding = PaddingValues(0.dp),
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = "Search",
+                        tint = GrayFive
+                    )
+
+                },
+                placeholder = {
+                    Text(
+                        text = placeholderText,
+                        color = GrayFive
+                    )
+                },
+                colors = TextFieldDefaults.colors(
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                container = {
+                    Surface(
+                        color = GrayZero,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {}
+                }
                 )
-            }
         }
 
         if (showCancel) {
@@ -128,4 +133,16 @@ fun SearchBar(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun SearchBarPreview() {
+    var text by remember { mutableStateOf("") }
+    SearchBar(
+        searchText = text,
+        onSearchTextChange = { text = it },
+        placeholderText = "Search Eateries",
+        onCancelClicked = {}
+    )
 }

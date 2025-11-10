@@ -48,7 +48,7 @@ fun encryptData(alias: String, data: String): String {
 
 fun decryptData(alias: String, data: String): String {
     // Takes in data, gets the IV as a ByteArray.
-    val ivString = Base64.decode(data.substring(0, data.indexOf("||")), Base64.NO_WRAP)
+    val ivString = Base64.decode(data.substringBefore("||"), Base64.NO_WRAP)
 
     // Get the actually encrypted part as a ByteArray.
     val encryptedData = Base64.decode(data.substring(data.indexOf("||") + 2), Base64.NO_WRAP)

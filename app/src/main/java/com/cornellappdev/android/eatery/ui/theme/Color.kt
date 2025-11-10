@@ -26,18 +26,18 @@ val Black = Color(0xFF050505)
  */
 fun colorInterp(fraction: Float, color1: Color, color2: Color): Color {
     val fractionToUse = fraction.coerceIn(0f, 1f)
-    val HSV1 = FloatArray(3)
-    val HSV2 = FloatArray(3)
-    android.graphics.Color.colorToHSV(color1.toArgb(), HSV1)
-    android.graphics.Color.colorToHSV(color2.toArgb(), HSV2)
+    val hsv1 = FloatArray(3)
+    val hsv2 = FloatArray(3)
+    android.graphics.Color.colorToHSV(color1.toArgb(), hsv1)
+    android.graphics.Color.colorToHSV(color2.toArgb(), hsv2)
 
     for (i in 0..2) {
-        HSV2[i] = interpolate(fractionToUse, HSV1[i], HSV2[i])
+        hsv2[i] = interpolate(fractionToUse, hsv1[i], hsv2[i])
     }
     return Color.hsv(
-        HSV2[0],
-        HSV2[1],
-        HSV2[2],
+        hsv2[0],
+        hsv2[1],
+        hsv2[2],
         interpolate(fractionToUse, color1.alpha, color2.alpha)
     )
 }

@@ -81,6 +81,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
+import kotlin.math.max
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -124,8 +125,8 @@ fun CompareMenusScreen(
                 .height(1.dp)
         )
         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-        val firstPagerState = rememberPagerState()
-        val secondPagerState = rememberPagerState()
+        val firstPagerState = rememberPagerState(pageCount = { eateries.size })
+        val secondPagerState = rememberPagerState(pageCount = { eateries.size })
 
         val scrollingFollowingPair by remember {
             derivedStateOf {
@@ -144,7 +145,7 @@ fun CompareMenusScreen(
                     val divideAndRemainder = BigDecimal.valueOf(pagePart.toDouble())
                         .divideAndRemainder(BigDecimal.ONE)
                     val pageOffsetFraction =
-                        if (divideAndRemainder[1].toFloat() > 0.5f) 0.5f else Math.max(
+                        if (divideAndRemainder[1].toFloat() > 0.5f) 0.5f else max(
                             -0.5f,
                             divideAndRemainder[1].toFloat()
                         )
@@ -175,11 +176,11 @@ fun CompareMenusScreen(
                             ReportBottomSheet(
                                 issue = issue,
                                 eateryid = it,
-                                sendReport = { issue, report, eateryid ->
+                                sendReport = { issue, report, eateryId ->
                                     compareMenusViewModel.sendReport(
                                         issue,
                                         report,
-                                        eateryid
+                                        eateryId
                                     )
                                 }) {
                                 coroutineScope.launch {
@@ -198,7 +199,6 @@ fun CompareMenusScreen(
                     eateries,
                     firstPagerState,
                     events,
-                    sheetContent,
                     coroutineScope,
                     modalBottomSheetState,
                     onEateryClick
@@ -221,14 +221,11 @@ private fun MenuPager(
     eateries: List<Eatery>,
     firstPagerState: PagerState,
     events: List<Event?>,
-    sheetContent: BottomSheetContent,
     coroutineScope: CoroutineScope,
     modalBottomSheetState: ModalBottomSheetState,
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    var sheetContent1 = sheetContent
     HorizontalPager(
-        pageCount = eateries.size,
         state = firstPagerState,
         modifier = Modifier.fillMaxHeight(0.92f),
         flingBehavior = PagerDefaults.flingBehavior(
@@ -268,7 +265,6 @@ private fun MenuPager(
                             .padding(vertical = 12.dp)
                             .weight(1f, true)
                             .clickable {
-                                sheetContent1 = BottomSheetContent.HOURS
                                 coroutineScope.launch {
                                     modalBottomSheetState.show()
                                 }
@@ -486,7 +482,6 @@ private fun TitlePager(
     secondPagerState: PagerState
 ) {
     HorizontalPager(
-        pageCount = eateries.size,
         state = secondPagerState,
         modifier = Modifier
             .fillMaxSize()

@@ -242,7 +242,7 @@ fun PaymentsBlob() {
 
 @Preview(showBackground = true)
 @Composable
-fun show() {
+fun EateryDetailLoadingPreview() {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     EateryDetailLoadingScreen(shimmer)
 }

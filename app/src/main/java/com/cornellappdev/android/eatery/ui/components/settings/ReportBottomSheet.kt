@@ -100,7 +100,7 @@ fun ReportBottomSheet(
                     Spacer(Modifier.weight(1f, true))
                 }
 
-                IssueBottomSheet(Issue.values(), setSelectedIssue) {
+                IssueBottomSheet(Issue.entries.toTypedArray(), setSelectedIssue) {
                     coroutineScope.launch {
                         modalBottomSheetState.hide()
                     }
@@ -209,7 +209,7 @@ fun ReportBottomSheet(
                         ),
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Sentences,
-                            autoCorrect = false,
+                            autoCorrectEnabled = false
                         ),
                     ) { innerTextField ->
                         Surface(shape = RoundedCornerShape(8.dp), color = GrayZero) {

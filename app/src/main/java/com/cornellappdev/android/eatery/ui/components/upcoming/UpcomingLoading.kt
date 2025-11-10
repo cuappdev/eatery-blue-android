@@ -1,7 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.upcoming
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -108,7 +108,7 @@ sealed class UpcomingLoadingItem {
 
                 is EaterySectionList -> {
                     CompositionLocalProvider(
-                        LocalOverscrollConfiguration provides null
+                        LocalOverscrollFactory provides null
                     ) {
                         Column(
                             modifier = Modifier

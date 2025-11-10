@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,7 +27,7 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,11 +49,8 @@ import com.cornellappdev.android.eatery.util.AppIcon
 import com.cornellappdev.android.eatery.util.changeIcon
 import com.cornellappdev.android.eatery.util.currentIcon
 import com.cornellappdev.android.eatery.util.iconMap
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppIconBottomSheet(hide: () -> Unit) {
     val context = LocalContext.current
@@ -83,11 +78,12 @@ fun AppIconBottomSheet(hide: () -> Unit) {
                 Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
             }
         }
-        val pagerState = androidx.compose.foundation.pager.rememberPagerState()
+        val pagerState = androidx.compose.foundation.pager.rememberPagerState(
+            pageCount = { 2 }
+        )
         androidx.compose.foundation.pager.HorizontalPager(
-            pageCount = 2,
             state = pagerState,
-            modifier = Modifier.offset(x = -8.dp)
+            modifier = Modifier.offset(x = (-8).dp)
         ) {
             Column {
                 when (it) {
@@ -195,7 +191,7 @@ fun AppIconButton(
                     .size(72.dp)
                     .clickable(
                         interactionSource = interactionSource,
-                        indication = rememberRipple()
+                        indication = ripple()
                     ) {
                         setSelectedAppIcon(appIcon)
                     }

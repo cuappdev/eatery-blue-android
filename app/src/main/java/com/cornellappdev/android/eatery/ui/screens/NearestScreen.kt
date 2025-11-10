@@ -43,7 +43,7 @@ fun NearestScreen(
     nearestViewModel: NearestViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    val shimmer = rememberShimmer(ShimmerBounds.View)
+    rememberShimmer(ShimmerBounds.View)
     val nearestEateries = nearestViewModel.nearestEateries.collectAsState().value
     val favorites = nearestViewModel.favoriteEateries.collectAsState().value
 
@@ -108,7 +108,9 @@ fun NearestScreen(
                         isFavorite = favorites.contains(eatery),
                         onFavoriteClick = {
                             nearestViewModel.setFavorite(eatery.id, it)
-                        }) {
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         onEateryClick(it)
                     }
                 }
