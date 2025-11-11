@@ -93,6 +93,22 @@ fun CompareMenusScreen(
 
     val eateries by compareMenusViewModel.eateryFlow.collectAsState()
     val events by compareMenusViewModel.eventFlow.collectAsState()
+    if (eateries.size < 2) {
+        // todo - error state
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(GrayZero),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Not enough eateries to compare.",
+                style = EateryBlueTypography.h5,
+                fontWeight = FontWeight(600)
+            )
+        }
+        return
+    }
     val modalBottomSheetState =
         rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
