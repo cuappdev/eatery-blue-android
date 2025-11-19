@@ -298,7 +298,6 @@ fun HomeScreenContent(
         })
 }
 
-@Composable
 @OptIn(ExperimentalMaterialApi::class)
 private fun SheetContent(
     sheetContent: BottomSheetContent,

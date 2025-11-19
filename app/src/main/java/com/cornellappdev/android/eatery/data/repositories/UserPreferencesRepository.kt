@@ -58,7 +58,7 @@ class UserPreferencesRepository @Inject constructor(
     fun setFavorite(eateryId: Int, isFavorite: Boolean) {
         CoroutineScope(Dispatchers.IO).launch {
             userPreferencesStore.updateData { currentPreferences ->
-                // There's no set data structure for protobuffs, so if the ID isn't in the map then
+                // There's no set data structure for protobuf, so if the ID isn't in the map then
                 // it isn't a favorite (hence the removal instead of making false)
                 if (isFavorite) {
                     currentPreferences.toBuilder().putFavorites(eateryId, true).build()

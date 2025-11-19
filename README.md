@@ -18,7 +18,9 @@ From Android Studio:
 3. Fill in the keystore information *(you only need to do this once manually and then let Android Studio remember it)*
 
 ## Maintainers
-This project is maintained by the [Android Team @ Cornell Appdev](https://www.cornellappdev.com/team)
+
+This project is maintained by
+the [Android Team @ Cornell AppDev](https://www.cornellappdev.com/team)
 
 <details open>
 <summary><b>Current Roster</b></summary>

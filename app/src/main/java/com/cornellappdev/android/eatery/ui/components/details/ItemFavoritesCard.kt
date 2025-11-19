@@ -1,3 +1,5 @@
+package com.cornellappdev.android.eatery.ui.components.details
+
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke

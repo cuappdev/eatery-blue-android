@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.screens
 
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
@@ -79,6 +78,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -470,9 +470,8 @@ fun EateryDetailScreen(
                                                     } else {
                                                         val openPlayIntent =
                                                             Intent(Intent.ACTION_VIEW).apply {
-                                                                data = Uri.parse(
-                                                                    "https://play.google.com/store/apps/details?id=com.cbord.get"
-                                                                )
+                                                                data =
+                                                                    "https://play.google.com/store/apps/details?id=com.cbord.get".toUri()
                                                                 setPackage("com.android.vending")
                                                             }
                                                         context.startActivity(openPlayIntent)
@@ -502,7 +501,7 @@ fun EateryDetailScreen(
                                                 val mapIntent =
                                                     Intent(Intent.ACTION_VIEW).apply {
                                                         data =
-                                                            Uri.parse("google.navigation:q=${eatery.latitude},${eatery.longitude}&mode=w")
+                                                            "google.navigation:q=${eatery.latitude},${eatery.longitude}&mode=w".toUri()
                                                         setPackage("com.google.android.apps.maps")
                                                     }
                                                 context.startActivity(mapIntent)
@@ -700,7 +699,7 @@ fun EateryDetailScreen(
                                         )
                                     }
                                     eatery.getTypeMeal(viewState.weekdayIndex.fromOffsetToDayOfWeek())
-                                        .takeIf { it?.size?.let { s -> s > 1 } == true }
+                                        .takeIf { it.size.let { s -> s > 1 } == true }
                                         ?.map { it.first }
                                         ?.let { mealTypes ->
                                             item {

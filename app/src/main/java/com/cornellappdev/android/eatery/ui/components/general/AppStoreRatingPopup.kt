@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.components.general
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -31,7 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -43,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat.startActivity
+import androidx.core.net.toUri
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -68,7 +68,7 @@ fun AppStoreRatingPopup(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () -> Unit) {
-    var rating by remember { mutableStateOf(0) }
+    var rating by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
     val packageName = context.packageName
 
@@ -84,15 +84,15 @@ private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () ->
                         startActivity(
                             context, Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("market://details?id=$packageName")
+                                "market://details?id=$packageName".toUri()
                             ), null
                         )
-                    } catch (e: ActivityNotFoundException) {
+                    } catch (_: ActivityNotFoundException) {
                         startActivity(
                             context,
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                                "https://play.google.com/store/apps/details?id=$packageName".toUri()
                             ),
                             null
                         )

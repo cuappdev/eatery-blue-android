@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -86,8 +87,8 @@ fun EateryMenusBottomSheet(
         }
         dayNames.add(dayName)
     }
-    var selectedDay by remember { mutableStateOf(weekDayIndex) }
-    var currSelectedDay by remember { mutableStateOf(selectedDay) }
+    var selectedDay by remember { mutableIntStateOf(weekDayIndex) }
+    var currSelectedDay by remember { mutableIntStateOf(selectedDay) }
 
     val closedDays: List<DayOfWeek> = eatery.getClosedDays()
     val closedDaysStrings: List<String> = closedDays.map { dayOfWeek ->
@@ -147,7 +148,7 @@ fun EateryMenusBottomSheet(
                 days = days,
                 onClick = { i ->
                     currSelectedDay = i
-                    selectedMealType = mealTypes?.firstOrNull()?.first ?: ""
+                    selectedMealType = mealTypes.firstOrNull()?.first ?: ""
                 },
                 modifier = Modifier.padding(bottom = 12.dp),
                 closedDays = closedDaysStrings,
@@ -235,12 +236,10 @@ fun EateryMenusBottomSheet(
                 Button(
                     onClick = {
                         selectedDay = currSelectedDay
-                        if (mealTypes != null) {
-                            onShowMenuClick(
-                                currSelectedDay,
-                                selectedMealType,
-                                mealTypes.indexOfFirst { it.first == selectedMealType })
-                        }
+                        onShowMenuClick(
+                            currSelectedDay,
+                            selectedMealType,
+                            mealTypes.indexOfFirst { it.first == selectedMealType })
                         onDismiss()
                     },
                     modifier = Modifier
