@@ -50,6 +50,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
@@ -66,7 +67,7 @@ import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
-import kotlinx.coroutines.CoroutineScope
+import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -129,7 +130,6 @@ fun AccountPage(
             onSettingsClicked,
             accountTypeBalance,
             accountFilter,
-            coroutineScope,
             showBottomSheet = modalBottomSheetState::show,
             filterText,
             setFilterText = { filterText = it },
@@ -150,7 +150,6 @@ private fun AccountPageContent(
     onSettingsClicked: () -> Unit,
     accountTypeBalance: AccountBalances,
     accountFilter: TransactionAccountType,
-    coroutineScope: CoroutineScope,
     showBottomSheet: suspend () -> Unit,
     filterText: String,
     setFilterText: (String) -> Unit,
@@ -233,7 +232,6 @@ private fun AccountPageContent(
                 TransactionsHeader(
                     accountFilter,
                     setSheetContent,
-                    coroutineScope,
                     showBottomSheet,
                     filterText,
                     setFilterText
@@ -254,15 +252,50 @@ private fun AccountPageContent(
     }
 }
 
+@Preview
+@Composable
+private fun AccountPagePreview() = EateryPreview {
+    AccountPageContent(
+        onSettingsClicked = {},
+        accountTypeBalance = AccountBalances(
+            brbBalance = 25.50,
+            cityBucksBalance = 10.75,
+            laundryBalance = 5.00,
+            mealSwipes = 42
+        ),
+        accountFilter = TransactionAccountType.BRBS,
+        showBottomSheet = {},
+        filterText = "",
+        setFilterText = {},
+        getTransactionsOfType = { _, _ ->
+            listOf(
+                Transaction(
+                    date = "2023-10-01T12:30:00.000Z",
+                    location = "Cafe Jennie",
+                    amount = 5.25,
+                    transactionType = TransactionType.SPEND
+                ),
+                Transaction(
+                    date = "2023-10-02T14:00:00.000Z",
+                    location = "Morrison Dining",
+                    amount = 15.00,
+                    transactionType = TransactionType.DEPOSIT
+                )
+            )
+        },
+        setSheetContent = {}
+    )
+}
+
 @Composable
 private fun TransactionsHeader(
     accountFilter: TransactionAccountType,
     setSheetContent: (BottomSheetContent) -> Unit,
-    coroutineScope: CoroutineScope,
     showBottomSheet: suspend () -> Unit,
     filterText: String,
     setFilterText: ((String) -> Unit)
 ) {
+    val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .background(color = Color.White)

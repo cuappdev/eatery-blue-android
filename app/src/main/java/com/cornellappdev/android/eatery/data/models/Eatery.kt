@@ -19,7 +19,6 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.Date
 
 @JsonClass(generateAdapter = true)
@@ -57,29 +56,6 @@ data class Eatery(
         return ((results[0] / AVERAGE_WALK_SPEED) / 60).toInt()
     }
 
-    fun getWaitTimes(): String? {
-        if (waitTimes.isNullOrEmpty())
-            return null
-
-        val waitTimeDay = waitTimes.find { waitTimeDay ->
-            // checks if today is the right day
-            waitTimeDay.canonicalDate
-                ?.toInstant()
-                ?.truncatedTo(ChronoUnit.DAYS)
-                ?.equals(Date().toInstant().truncatedTo(ChronoUnit.DAYS)) ?: true
-        }?.data
-
-        val waitTimes: WaitTimeData? = waitTimeDay?.find { waitTimeData ->
-            waitTimeData.timestamp?.isBefore(LocalDateTime.now()) == true
-        }
-
-        return if (waitTimes != null) {
-            "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)}"
-        } else {
-            null
-        }
-    }
-
 
     private fun getTodaysEvents(): List<Event> {
         val currentTime = LocalDateTime.now()
@@ -110,18 +86,6 @@ data class Eatery(
         }
 
         return todayEvents
-    }
-
-    /**
-     * Returns the currently active event, or null if no event is active.
-     *
-     * Example: At 1 PM, Morrison will return the lunch event.
-     */
-    fun getCurrentEvent(): Event? {
-        return getTodaysEvents().find {
-            it.startTime?.isBefore(LocalDateTime.now()) ?: true
-                    && it.endTime?.isAfter(LocalDateTime.now()) ?: true
-        }
     }
 
     /**
@@ -237,16 +201,6 @@ data class Eatery(
 
     fun isClosed(): Boolean {
         return getOpenUntil() == null
-    }
-
-    fun isClosingInTen(): Boolean {
-        val currentTime = LocalDateTime.now()
-        val currentEvents = getCurrentEvents()
-        if (currentEvents.isEmpty())
-            return false
-
-        val endTime = currentEvents.first().endTime ?: return false
-        return currentTime.plusMinutes(10).isAfter(endTime)
     }
 
     /**

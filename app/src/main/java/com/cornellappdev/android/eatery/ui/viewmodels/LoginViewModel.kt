@@ -55,13 +55,14 @@ class LoginViewModel @Inject constructor(
     }
 
     private var _state = MutableStateFlow<State>(
-        userRepository.loadedUser?.let {
-            State.Account(
-                user = it,
-                query = "",
-                accountFilter = TransactionAccountType.BRBS
-            )
-        } ?: State.Login()
+        userRepository.loadedUser.value
+            ?.let {
+                State.Account(
+                    user = it,
+                    query = "",
+                    accountFilter = TransactionAccountType.BRBS
+                )
+            } ?: State.Login()
     )
 
     // Convert the state to a flow that can be updated by screens that use the LoginViewModel
@@ -95,7 +96,7 @@ class LoginViewModel @Inject constructor(
         query: String
     ): List<Transaction> {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-        userRepository.loadedUser?.let {
+        userRepository.loadedUser.value?.let {
             if (_state.value !is State.Account) return emptyList()
             return it.transactions?.filter { transaction ->
                 val matchesAccountType =
@@ -128,7 +129,7 @@ class LoginViewModel @Inject constructor(
         val newState = State.Login()
         _state.value = newState
         viewModelScope.launch {
-            userRepository.loadedUser = null
+            userRepository.logout()
             userPreferencesRepository.setIsLoggedIn(false)
             userPreferencesRepository.saveLoginInfo("", "")
         }
@@ -159,7 +160,6 @@ class LoginViewModel @Inject constructor(
             val deviceId = userPreferencesRepository.getDeviceId()!!
             Log.d("debug", "sessionId: $sessionId, deviceId: $deviceId, fcmToken: $fcmToken")
             val user = userRepository.getUser(sessionId, deviceId, fcmToken)
-            userRepository.loadedUser = user
             if (currState is State.Login) {
                 userPreferencesRepository.saveLoginInfo(sessionId, currState.password)
                 userPreferencesRepository.setIsLoggedIn(true)

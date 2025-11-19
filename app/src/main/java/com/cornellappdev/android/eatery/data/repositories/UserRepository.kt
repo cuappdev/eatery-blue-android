@@ -4,15 +4,21 @@ import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.LoginRequest
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.User
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
+    private val _loadedUser: MutableStateFlow<User?> = MutableStateFlow(null)
+
     /**
      * The currently loaded user. Null if no user is logged in.
      */
-    var loadedUser: User? = null
+    val loadedUser: StateFlow<User?> = _loadedUser.asStateFlow()
+
 
     suspend fun sendReport(issue: String, report: String, eateryID: Int?): Any =
         networkApi.sendReport(
@@ -47,6 +53,11 @@ class UserRepository @Inject constructor(private val networkApi: NetworkApi) {
         val userWithData = networkApi.getUserData(
             id = authorizedUser.id
         ).copy(transactions = transactions)
+        _loadedUser.value = userWithData
         return userWithData
+    }
+
+    fun logout() {
+        _loadedUser.value = null
     }
 }

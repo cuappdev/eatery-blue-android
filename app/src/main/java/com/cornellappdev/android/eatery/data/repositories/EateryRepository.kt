@@ -71,7 +71,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
             try {
                 val eateries = getAllEateries()
                 _eateryFlow.value = EateryApiResponse.Success(eateries)
-                eateryApiCache.update { _ ->
+                eateryApiCache.update {
                     eateries.filter { it.id != null }
                         .associate { it.id!! to EateryApiResponse.Success(it) }
                         .withDefault { EateryApiResponse.Error }

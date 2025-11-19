@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -137,7 +138,7 @@ class UserPreferencesRepository @Inject constructor(
     }
 
     suspend fun getDeviceId(): String? {
-        val id: String? = userPreferencesFlow.first().deviceId
+        val id: String? = userPreferencesFlow.firstOrNull()?.deviceId
         return if (id.isNullOrEmpty()) null else id
     }
 }
