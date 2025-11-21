@@ -16,6 +16,48 @@ val Red = Color(0xFFF2655D)
 val Green = Color(0xFF63C774)
 val Yellow = Color(0xFFFEC50E)
 val Orange = Color(0xFFFF990E)
+// Error colors
+val ErrorLight = Color(0xFFF2655D)
+val ErrorDark = Color(0xFFF2655D)
+
+// Success colors
+val SuccessLight = Color(0xFF63C774)
+val SuccessDark = Color(0xFF76CE85)
+
+// Background colors
+val BgDefaultLight = Color(0xFFFFFFFF)
+val BgDefaultDark = Color(0xFF141414)
+
+val BgSecondaryLight = Color(0xFF4A90E2)
+val BgSecondaryDark = Color(0xFF609EE6)
+
+val BgDefault10Light = Color(0x1AFFFFFF)  // FFFFFF with 10% opacity
+val BgDefault10Dark = Color(0x1A141414)   // 141414 with 10% opacity
+
+val BgDefault92Light = Color(0xEBFFFFFF)  // FFFFFF with 92% opacity
+val BgDefault92Dark = Color(0xEB141414)   // 141414 with 92% opacity
+
+val BgSurfaceLight = Color(0xFFFAFAFA)
+val BgSurfaceDark = Color(0xFF121212)
+
+// Text colors
+val TextPrimaryLight = Color(0xFF050505)
+val TextPrimaryDark = Color(0xFFFFFFFF)
+
+val TextSecondaryLight = Color(0xFF586069)
+val TextSecondaryDark = Color(0xFF9EA8B5)
+
+// Accent colors
+val AccentPrimaryLight = Color(0xFFEFF1F4)
+val AccentPrimaryDark = Color(0xFF272727)
+
+val AccentPressedLight = Color(0xFFE8EFF8)
+val AccentPressedDark = Color(0xFF1C1C1C)
+
+// Border colors
+val BorderDefaultLight = Color(0xFFE1E4E8)
+val BorderDefaultDark = Color(0xFF282828)
+
 
 /**
  * Interpolates a color between [color1] and [color2] by choosing a color a [fraction] in between.

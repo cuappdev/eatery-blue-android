@@ -9,6 +9,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.ui.navigation.NavigationSetup
+import com.cornellappdev.android.eatery.ui.theme.AppColorTheme
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             LockScreenOrientation()
 
-            androidx.compose.material3.MaterialTheme(typography = typography) {
+            AppColorTheme {
                 NavigationSetup(hasOnboarded)
             }
         }

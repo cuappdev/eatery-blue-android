@@ -92,6 +92,7 @@ import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.EateryPreview
@@ -117,6 +118,7 @@ fun HomeScreen(
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
     onNotificationsClick: () -> Unit
 ) {
+    val colors = currentColors
     val context = LocalContext.current
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
     val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
@@ -197,7 +199,7 @@ fun HomeScreen(
         content = { paddingValues ->
             Box(
                 modifier = Modifier
-                    .background(Color.White)
+                    .background(colors.backgroundDefault)
                     .padding(paddingValues)
             ) {
                 ModalBottomSheetLayout(
