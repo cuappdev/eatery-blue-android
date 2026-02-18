@@ -25,7 +25,7 @@ data class MenuCategoryViewState(
     val items: List<MenuItemViewState>
 ) {
     fun toMenuCategory() = MenuCategory(
-        category = category,
+        name = category,
         items = items.map { it.toMenuItem() }
     )
 }

@@ -132,7 +132,8 @@ fun MealBottomSheet(
             .height(1.dp)
             .background(GrayZero, CircleShape)
     )
-    Row(horizontalArrangement = Arrangement.SpaceBetween,
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
@@ -182,7 +183,8 @@ fun MealBottomSheet(
             .height(1.dp)
             .background(GrayZero, CircleShape)
     )
-    Row(horizontalArrangement = Arrangement.SpaceBetween,
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
@@ -230,7 +232,8 @@ fun MealBottomSheet(
             .height(1.dp)
             .background(GrayZero, CircleShape)
     )
-    Row(horizontalArrangement = Arrangement.SpaceBetween,
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
             .clickable {

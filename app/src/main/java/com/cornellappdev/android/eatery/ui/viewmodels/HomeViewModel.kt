@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
@@ -28,7 +29,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository
+    private val eateryRepository: EateryRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
 
@@ -54,14 +56,18 @@ class HomeViewModel @Inject constructor(
      */
     val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
         combine(
-            eateryRepository.homeEateryFlow,
+            eateryRepository.eateryFlow,
             _filtersFlow,
-            userPreferencesRepository.favoritesFlow
-        ) { apiResponse, filters, favorites ->
+            userRepository.favoriteEateriesFlow
+        ) { apiResponse, filters, favoriteEateries ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> EateryApiResponse.Error
                 is EateryApiResponse.Pending -> EateryApiResponse.Pending
                 is EateryApiResponse.Success -> {
+                    val eateries = apiResponse.data
+                    val favoriteEateryIds =
+                        eateries.filter { it.id != null }
+                            .associate { it.id!! to (it.name in favoriteEateries) }
                     EateryApiResponse.Success(
                         apiResponse.data.filter { eatery ->
                             Filter.passesSelectedFilters(
@@ -69,7 +75,7 @@ class HomeViewModel @Inject constructor(
                                 selectedFilters = filters,
                                 filterData = FilterData(
                                     eatery,
-                                    favoriteEateryIds = favorites
+                                    favoriteEateryIds = favoriteEateryIds
                                 )
                             )
                         }.sortedBy { eatery ->
@@ -87,15 +93,15 @@ class HomeViewModel @Inject constructor(
      */
     val favoriteEateries =
         combine(
-            eateryRepository.homeEateryFlow,
-            userPreferencesRepository.favoritesFlow
+            eateryRepository.eateryFlow,
+            userRepository.favoriteEateriesFlow
         ) { apiResponse, favorites ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> listOf()
                 is EateryApiResponse.Pending -> listOf()
                 is EateryApiResponse.Success -> {
                     apiResponse.data.filter {
-                        favorites[it.id] == true
+                        it.name in favorites
                     }
                         .sortedBy { it.name }
                         .sortedBy { it.isClosed() }
@@ -148,14 +154,16 @@ class HomeViewModel @Inject constructor(
         _filtersFlow.update { emptyList() }
     }
 
-    fun addFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, true)
+    fun addFavoriteEatery(eateryId: Int) {
+        viewModelScope.launch {
+            userRepository.addFavoriteEatery(eateryId)
+        }
     }
 
-    fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, false)
+    fun removeFavoriteEatery(eateryId: Int) {
+        viewModelScope.launch {
+            userRepository.removeFavoriteEatery(eateryId)
+        }
     }
 
     fun getNotificationFlowCompleted() = runBlocking {

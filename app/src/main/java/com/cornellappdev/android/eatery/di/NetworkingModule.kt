@@ -2,8 +2,16 @@ package com.cornellappdev.android.eatery.di
 
 import android.util.Log
 import com.cornellappdev.android.eatery.BuildConfig
-import com.cornellappdev.android.eatery.data.*
+import com.cornellappdev.android.eatery.data.AccountTypeAdapter
+import com.cornellappdev.android.eatery.data.DateAdapter
+import com.cornellappdev.android.eatery.data.DateTimeAdapter
+import com.cornellappdev.android.eatery.data.NetworkApi
+import com.cornellappdev.android.eatery.data.ReportAdapter
+import com.cornellappdev.android.eatery.data.TimestampAdapter
+import com.cornellappdev.android.eatery.data.TransactionTypeAdapter
+import com.cornellappdev.android.eatery.data.models.PaymentMethod
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapters.EnumJsonAdapter
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
@@ -43,6 +51,10 @@ object NetworkModule {
         .add(AccountTypeAdapter())
         .add(KotlinJsonAdapterFactory())
         .add(ReportAdapter())
+        .add(
+            PaymentMethod::class.java, EnumJsonAdapter.create(PaymentMethod::class.java)
+                .withUnknownFallback(PaymentMethod.UNKNOWN)
+        )
         .build()
 
     @Singleton

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository
+    private val eateryRepository: EateryRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
 
@@ -55,9 +57,9 @@ class SearchViewModel @Inject constructor(
      * A flow of the eateries that should show up with the current query.
      */
     val searchResultEateries = combine(
-        eateryRepository.homeEateryFlow,
+        eateryRepository.eateryFlow,
         filtersFlow,
-        userPreferencesRepository.favoritesFlow,
+        userRepository.favoriteEateriesFlow,
         _searchFlow
     ) { eateryApiResponse, filters, favorites, searchQuery ->
         when (eateryApiResponse) {
@@ -65,13 +67,14 @@ class SearchViewModel @Inject constructor(
             is EateryApiResponse.Pending -> EateryApiResponse.Pending
             is EateryApiResponse.Success -> {
                 EateryApiResponse.Success(
-                    eateryApiResponse.data.sortedBy { it.isClosed() }.filter {
+                    eateryApiResponse.data.sortedBy { it.isClosed() }.filter { eatery ->
                         Filter.passesSelectedFilters(
                             searchScreenFilters, filters, FilterData(
-                                eatery = it,
-                                favoriteEateryIds = favorites
+                                eatery = eatery,
+                                favoriteEateryIds = eateryApiResponse.data.filter { it.id != null }
+                                    .associate { it.id!! to (it.name in favorites) }
                             )
-                        ) && it.passesSearch(searchQuery)
+                        ) && eatery.passesSearch(searchQuery)
                     })
             }
         }
@@ -88,15 +91,15 @@ class SearchViewModel @Inject constructor(
      */
     val favoriteEateries =
         combine(
-            eateryRepository.homeEateryFlow,
-            userPreferencesRepository.favoritesFlow
+            eateryRepository.eateryFlow,
+            userRepository.favoriteEateriesFlow
         ) { apiResponse, favorites ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> listOf()
                 is EateryApiResponse.Pending -> listOf()
                 is EateryApiResponse.Success -> {
                     apiResponse.data.filter {
-                        favorites[it.id] == true
+                        it.name in favorites
                     }
                 }
             }
@@ -132,13 +135,19 @@ class SearchViewModel @Inject constructor(
     }
 
     fun addFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, true)
+        if (eateryId != null) {
+            viewModelScope.launch {
+                userRepository.addFavoriteEatery(eateryId)
+            }
+        }
     }
 
     fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, false)
+        if (eateryId != null) {
+            viewModelScope.launch {
+                userRepository.removeFavoriteEatery(eateryId)
+            }
+        }
     }
 
     fun addRecentSearch(eateryId: Int?) = viewModelScope.launch {

@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
-import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
@@ -26,7 +25,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CompareMenusBotViewModel @Inject constructor(
-    userPreferencesRepository: UserPreferencesRepository,
     eateryRepository: EateryRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
@@ -48,7 +46,7 @@ class CompareMenusBotViewModel @Inject constructor(
     private var firstEatery: Eatery? = null
 
     val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
-        eateryRepository.homeEateryFlow.map { apiResponse ->
+        eateryRepository.eateryFlow.map { apiResponse ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> EateryApiResponse.Error
                 is EateryApiResponse.Pending -> EateryApiResponse.Pending
@@ -66,10 +64,9 @@ class CompareMenusBotViewModel @Inject constructor(
     init {
         combine(
             eateryFlow,
-            userPreferencesRepository.favoritesFlow,
             filtersFlow,
             selectedEateriesFlow
-        ) { eateriesApiResponse, _, filters, selected ->
+        ) { eateriesApiResponse, filters, selected ->
             when (eateriesApiResponse) {
                 is EateryApiResponse.Success -> {
                     _compareMenusUiState.update { currentState ->

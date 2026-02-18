@@ -226,10 +226,12 @@ fun HomeScreen(
                             nearestEateries = nearestEateries,
                             selectedFilters = filters,
                             onFavoriteClick = { eatery, favorite ->
-                                if (favorite) {
-                                    homeViewModel.addFavorite(eatery.id)
-                                } else {
-                                    homeViewModel.removeFavorite(eatery.id)
+                                if (eatery.id != null) {
+                                    if (favorite) {
+                                        homeViewModel.addFavoriteEatery(eatery.id)
+                                    } else {
+                                        homeViewModel.removeFavoriteEatery(eatery.id)
+                                    }
                                 }
                             },
                             onFilterClicked = homeViewModel::onToggleFilterPressed,

@@ -11,23 +11,21 @@ message UserPreferences {
   map<int32, bool> favorites = 3;
 
   bool isLoggedIn = 4;
+  string sessionId = 5;
+  repeated int32 recentSearches = 6;
 
-  string username = 5;
+  bool analyticsDisabled = 7;
 
-  // Must be encrypted / decrypted.
-  string password = 6;
+  Date lastShowedRatingPopup = 8;
 
-  repeated int32 recentSearches = 7;
+  int32 minDaysBetweenRatingShow = 9;
 
-  bool analyticsDisabled = 8;
+  map<string, bool> itemFavorites = 10;
 
-  Date lastShowedRatingPopup = 9;
-
-  int32 minDaysBetweenRatingShow = 10;
-
-  map<string, bool> itemFavorites = 11;
-
-  string deviceId = 12;
+  string deviceId = 11;
+  string accessToken = 12;
+  string refreshToken = 13;
+  int32 pin = 14;
 
   //  repeated int32 recentSearches = 2;
   //  string username = 3;

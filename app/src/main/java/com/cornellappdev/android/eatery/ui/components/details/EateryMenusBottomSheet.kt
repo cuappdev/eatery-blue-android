@@ -95,9 +95,9 @@ fun EateryMenusBottomSheet(
     }
 
     val selectedDayOfWeek = DayOfWeek.of(dayWeeks[currSelectedDay])
-    val mealTypes: List<Pair<String, String>>? = eatery.getTypeMeal(selectedDayOfWeek)
+    val mealTypes: List<Pair<String, String>> = eatery.getTypeMeal(selectedDayOfWeek)
     var selectedMealType by remember {
-        mutableStateOf(mealTypes?.get(mealType)?.first ?: "")
+        mutableStateOf(mealTypes[mealType].first)
     }
 
     Card(
@@ -147,7 +147,7 @@ fun EateryMenusBottomSheet(
                 days = days,
                 onClick = { i ->
                     currSelectedDay = i
-                    selectedMealType = mealTypes?.firstOrNull()?.first ?: ""
+                    selectedMealType = mealTypes.firstOrNull()?.first ?: ""
                 },
                 modifier = Modifier.padding(bottom = 12.dp),
                 closedDays = closedDaysStrings,
@@ -162,72 +162,66 @@ fun EateryMenusBottomSheet(
                     .padding(top = 12.dp, bottom = 12.dp)
                     .fillMaxWidth()
             ) {
-                if (mealTypes != null && mealTypes.size > 1) {
+                if (mealTypes.size > 1) {
                     mealTypes.forEachIndexed { index, (description, duration) ->
-                        if (description != null && duration != null) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = description,
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight(600),
-                                        color = Color.Black,
-                                        modifier = Modifier.padding(bottom = 2.dp)
-                                    )
-                                    Text(
-                                        text = duration,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight(600),
-                                        color = Color.Gray
-                                    )
-                                }
-                                IconButton(onClick = { selectedMealType = description }) {
-                                    if (selectedMealType == description) {
-                                        Box(
-                                            contentAlignment = Alignment.Center,
-                                            modifier = Modifier
-                                                .size(26.dp)
-                                                .background(Color.Black, CircleShape)
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Check,
-                                                contentDescription = "Selected",
-                                                tint = Color.White,
-                                                modifier = Modifier.fillMaxSize(0.7f)
-                                            )
-                                        }
-                                    } else {
-                                        Box(
-                                            contentAlignment = Alignment.Center,
-                                            modifier = Modifier
-                                                .size(26.dp)
-                                                .background(Color.White, CircleShape)
-                                                .border(2.dp, Color.Black, CircleShape)
-                                        ) {
-                                        }
-                                    }
-                                }
-
-                            }
-                            if (mealTypes.lastIndex != index) {
-                                Spacer(
-                                    modifier = Modifier
-                                        .padding(top = 12.dp, bottom = 12.dp)
-                                        .fillMaxWidth()
-                                        .height(1.dp)
-                                        .background(GrayZero, CircleShape)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = description,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight(600),
+                                    color = Color.Black,
+                                    modifier = Modifier.padding(bottom = 2.dp)
+                                )
+                                Text(
+                                    text = duration,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight(600),
+                                    color = Color.Gray
                                 )
                             }
+                            IconButton(onClick = { selectedMealType = description }) {
+                                if (selectedMealType == description) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .size(26.dp)
+                                            .background(Color.Black, CircleShape)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = "Selected",
+                                            tint = Color.White,
+                                            modifier = Modifier.fillMaxSize(0.7f)
+                                        )
+                                    }
+                                } else {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier
+                                            .size(26.dp)
+                                            .background(Color.White, CircleShape)
+                                            .border(2.dp, Color.Black, CircleShape)
+                                    ) {
+                                    }
+                                }
+                            }
+                        }
+                        if (mealTypes.lastIndex != index) {
+                            Spacer(
+                                modifier = Modifier
+                                    .padding(top = 12.dp, bottom = 12.dp)
+                                    .fillMaxWidth()
+                                    .height(1.dp)
+                                    .background(GrayZero, CircleShape)
+                            )
                         }
                     }
                 }
             }
-
-
-//            Spacer(modifier = Modifier.height(12.dp))
 
             // Show menu and reset menu buttons
             Column(
@@ -237,12 +231,10 @@ fun EateryMenusBottomSheet(
                 Button(
                     onClick = {
                         selectedDay = currSelectedDay
-                        if (mealTypes != null) {
-                            onShowMenuClick(
-                                currSelectedDay,
-                                selectedMealType,
-                                mealTypes.indexOfFirst { it.first == selectedMealType })
-                        }
+                        onShowMenuClick(
+                            currSelectedDay,
+                            selectedMealType,
+                            mealTypes.indexOfFirst { it.first == selectedMealType })
                         onDismiss()
                     },
                     modifier = Modifier
@@ -259,7 +251,8 @@ fun EateryMenusBottomSheet(
                         color = Color.White
                     )
                 }
-                ClickableText(modifier = Modifier.padding(top = 12.dp),
+                ClickableText(
+                    modifier = Modifier.padding(top = 12.dp),
                     text = AnnotatedString("Reset"),
                     style = TextStyle(
                         fontSize = 14.sp,

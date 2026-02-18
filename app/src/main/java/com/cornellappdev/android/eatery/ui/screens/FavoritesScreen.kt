@@ -136,7 +136,7 @@ fun FavoritesScreen(
                     toggleEateryFilter = favoriteViewModel::toggleEateryFilter,
                     toggleItemFilter = favoriteViewModel::toggleItemFilter,
                     removeFavorite = favoriteViewModel::removeFavorite,
-                    removeFavoriteMenuItem = favoriteViewModel::removeFavoriteMenuItem,
+                    removeFavoriteMenuItem = favoriteViewModel::toggleFavoriteMenuItem,
                 )
             }
         }

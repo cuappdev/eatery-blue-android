@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
-import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
@@ -34,7 +33,7 @@ sealed class EateryDetailViewState {
         val weekdayIndex: Int,
     ) : EateryDetailViewState() {
         val mealTypeIndex: Int = eatery.getTypeMeal(weekdayIndex.fromOffsetToDayOfWeek())
-            ?.indexOfFirst { it.first == mealToShow.description }?.coerceAtLeast(0) ?: 0
+            .indexOfFirst { it.first == mealToShow.description }.coerceAtLeast(0)
     }
 
     data class Error(val message: String) : EateryDetailViewState()
@@ -48,9 +47,9 @@ data class MealViewState(
     val description: String?,
 ) {
     fun toEvent() = Event(
-        description = description,
-        startTime = startTime,
-        endTime = endTime,
+        type = description,
+        startTimestamp = startTime,
+        endTimestamp = endTime,
         menu = menu?.map { it.toMenuCategory() }?.toMutableList()
     )
 }
@@ -59,7 +58,6 @@ data class MealViewState(
 @HiltViewModel
 class EateryDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val userPreferencesRepository: UserPreferencesRepository,
     eateryRepository: EateryRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
@@ -95,8 +93,8 @@ class EateryDetailViewModel @Inject constructor(
      */
     private fun openEatery() {
         combine(
-            userPreferencesRepository.favoritesFlow,
-            userPreferencesRepository.favoriteItemsFlow,
+            userRepository.favoriteEateriesFlow,
+            userRepository.favoriteItemsFlow,
             eateryFlow,
             userSelectedMeal
         ) { favoriteEateries, favoriteItems, eatery, userSelectedMeal ->
@@ -114,22 +112,22 @@ class EateryDetailViewModel @Inject constructor(
 
                     EateryDetailViewState.Loaded(
                         mealToShow = MealViewState(
-                            currentMeal?.startTime,
-                            currentMeal?.endTime,
+                            currentMeal?.startTimestamp,
+                            currentMeal?.endTimestamp,
                             currentMeal?.menu?.map { menu ->
                                 MenuCategoryViewState(
-                                    menu.category ?: "",
+                                    menu.name ?: "",
                                     menu.items?.map { menuItem ->
                                         MenuItemViewState(
                                             item = menuItem,
-                                            isFavorite = favoriteItems[menuItem.name] == true
+                                            isFavorite = menuItem.name in favoriteItems
                                         )
                                     } ?: emptyList()
                                 )
                             },
-                            description = currentMeal?.description
+                            description = currentMeal?.type
                         ),
-                        isFavorite = favoriteEateries[eateryId] == true,
+                        isFavorite = eatery.data.name in favoriteEateries,
                         eatery = eatery.data,
                         weekdayIndex = (it as? EateryDetailViewState.Loaded)?.weekdayIndex ?: 0
                     )
@@ -141,7 +139,13 @@ class EateryDetailViewModel @Inject constructor(
     fun toggleFavorite() {
         when (val eateryState = eateryDetailViewState.value) {
             is EateryDetailViewState.Loaded -> {
-                userPreferencesRepository.setFavorite(eateryId, !eateryState.isFavorite)
+                viewModelScope.launch {
+                    if (eateryState.isFavorite) {
+                        userRepository.removeFavoriteEatery(eateryId)
+                    } else {
+                        userRepository.addFavoriteEatery(eateryId)
+                    }
+                }
             }
 
             else -> {
@@ -155,7 +159,11 @@ class EateryDetailViewModel @Inject constructor(
      */
     fun toggleFavoriteMenuItem(menuItem: String) {
         viewModelScope.launch {
-            userPreferencesRepository.toggleFavoriteMenuItem(menuItem)
+            if (menuItem in userRepository.favoriteItemsFlow.value) {
+                userRepository.removeFavoriteItem(menuItem)
+            } else {
+                userRepository.addFavoriteItem(menuItem)
+            }
         }
     }
 

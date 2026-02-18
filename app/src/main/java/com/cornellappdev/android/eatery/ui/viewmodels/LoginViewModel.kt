@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.AccountBalances
@@ -8,21 +7,17 @@ import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
-import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
 
@@ -69,11 +64,11 @@ class LoginViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        getSavedLoginInfo()
-    }
-
-    fun resetLogin() {
-        _state.value = State.Login()
+        viewModelScope.launch {
+            if (userRepository.isLoggedIn()) {
+                getFinancials()
+            }
+        }
     }
 
     fun updateAccountFilter(newAccountType: TransactionAccountType) {
@@ -128,63 +123,50 @@ class LoginViewModel @Inject constructor(
     fun onLogoutPressed() {
         val newState = State.Login()
         _state.value = newState
-        viewModelScope.launch {
-            userRepository.logout()
-            userPreferencesRepository.setIsLoggedIn(false)
-            userPreferencesRepository.saveLoginInfo("", "")
-        }
-    }
-
-    private fun getSavedLoginInfo() = viewModelScope.launch {
-        if (userPreferencesRepository.getIsLoggedIn()) {
-            val loginInfo = userPreferencesRepository.fetchLoginInfo()
-            getUser(loginInfo.first)
-        }
+        viewModelScope.launch { userRepository.logout() }
     }
 
     fun onLoginWebViewSuccess(sessionId: String) {
-        getUser(sessionId)
+        viewModelScope.launch {
+            linkGETAccount(sessionId)
+            getFinancials()
+        }
     }
 
     /**
      * Fetches user data given [sessionId] and updates the state and user preferences.
      */
-    private fun getUser(sessionId: String) = viewModelScope.launch {
-        val currState = _state.value
-        if (userPreferencesRepository.getDeviceId() == null) {
-            userPreferencesRepository.setDeviceId(UUID.randomUUID())
-        }
+    private suspend fun linkGETAccount(sessionId: String) {
         try {
-            val fcmToken =
-                com.google.firebase.messaging.FirebaseMessaging.getInstance().token.await()
-            val deviceId = userPreferencesRepository.getDeviceId()!!
-            Log.d("debug", "sessionId: $sessionId, deviceId: $deviceId, fcmToken: $fcmToken")
-            val user = userRepository.getUser(sessionId, deviceId, fcmToken)
-            if (currState is State.Login) {
-                userPreferencesRepository.saveLoginInfo(sessionId, currState.password)
-                userPreferencesRepository.setIsLoggedIn(true)
-            }
-            val newState = State.Account(
-                user = user,
-                query = "",
-                accountFilter = TransactionAccountType.BRBS
-            )
-            _state.value = newState
+            userRepository.linkGETAccount(sessionId)
         } catch (e: Exception) {
-            // todo - error state
+            // todo error state
             val currState = _state.value
             if (currState is State.Login) {
-                val newState = State.Login(
-                    netID = currState.netID,
-                    password = currState.password,
+                val newState = currState.copy(
                     failureMessage = e.stackTraceToString(),
                     loading = false
                 )
                 _state.value = newState
             }
-            userPreferencesRepository.saveLoginInfo("", "")
-            userPreferencesRepository.setIsLoggedIn(false)
         }
+    }
+
+    suspend fun getFinancials() {
+        val financials = userRepository.getFinancials()
+        val newState = State.Account(
+            // todo null states should be handled
+            user = User(
+                brbBalance = financials.accounts?.brbBalance?.balance,
+                cityBucksBalance = financials.accounts?.cityBucksBalance?.balance,
+                laundryBalance = financials.accounts?.laundryBalance?.balance,
+                transactions = financials.transactions?.transactions,
+//                mealSwipes = financials.accounts?. todo - mealswipes
+            ),
+            query = "",
+            accountFilter = TransactionAccountType.BRBS
+        )
+        _state.value = newState
     }
 }
 
