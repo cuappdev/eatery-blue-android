@@ -320,9 +320,9 @@ fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCar
             Text(
                 modifier = Modifier.padding(top = 2.dp),
                 text =
-                if (openUntil == null) "Closed"
-                else if (eatery.isClosingSoon()) "Closing at $openUntil"
-                else ("Open until $openUntil"),
+                    if (openUntil == null) "Closed"
+                    else if (eatery.isClosingSoon()) "Closing at $openUntil"
+                    else ("Open until $openUntil"),
                 style = EateryBlueTypography.subtitle2,
                 color = if (openUntil == null) Red
                 else if (eatery.isClosingSoon()) Yellow
@@ -382,7 +382,7 @@ fun DotSeparator() {
 
 @Composable
 fun EateryMenuSummary(eatery: Eatery) {
-    if (eatery.paymentAcceptsMealSwipes == true) {
+    if (eatery.acceptsMealSwipes()) {
         DotSeparator()
         Text(
             text = "Meal swipes allowed",
@@ -390,8 +390,8 @@ fun EateryMenuSummary(eatery: Eatery) {
             color = EateryBlue,
             style = EateryBlueTypography.subtitle2
         )
-    } else if (eatery.paymentAcceptsBrbs == false &&
-        eatery.paymentAcceptsCash == true
+    } else if (!eatery.acceptsBRB() &&
+        (eatery.acceptsCash() || eatery.acceptsCard())
     ) {
         DotSeparator()
         Text(

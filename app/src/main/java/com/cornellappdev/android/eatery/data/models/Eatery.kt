@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.Color
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
 import com.cornellappdev.android.eatery.util.Constants.AVERAGE_WALK_SPEED
 import com.cornellappdev.android.eatery.util.LocationHandler
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,28 +18,34 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class Eatery(
-    @Json(name = "id") val id: Int? = null,
-    @Json(name = "name") val name: String? = null,
-    @Json(name = "menu_summary") val menuSummary: String? = null,
-    @Json(name = "image_url") val imageUrl: String? = null,
-    @Json(name = "location") val location: String? = null,
-    @Json(name = "campus_area") val campusArea: String? = null,
-    @Json(name = "online_order_url") val onlineOrderUrl: String? = null,
-    @Json(name = "latitude") val latitude: Float? = null,
-    @Json(name = "longitude") val longitude: Float? = null,
-    @Json(name = "payment_accepts_meal_swipes") val paymentAcceptsMealSwipes: Boolean? = null,
-    @Json(name = "payment_accepts_brbs") val paymentAcceptsBrbs: Boolean? = null,
-    @Json(name = "payment_accepts_cash") val paymentAcceptsCash: Boolean? = null,
-    @Json(name = "events") val events: List<Event>? = null,
-    @Json(name = "wait_times") val waitTimes: List<WaitTimeDay>? = null,
-    @Json(name = "alerts") val alerts: List<Alert>? = null,
+    val id: Int? = null,
+    val cornellId: Int? = null,
+    val announcements: List<String>? = null,
+    val name: String? = null,
+    val shortName: String? = null,
+    val about: String? = null,
+    val shortAbout: String? = null,
+    val cornellDining: Boolean? = null,
+    val menuSummary: String? = null,
+    val imageUrl: String? = null,
+    val campusArea: String? = null,
+    val onlineOrderUrl: String? = null,
+    val contactPhone: String? = null,
+    val contactEmail: String? = null,
+    val latitude: Float? = null,
+    val longitude: Float? = null,
+    val location: String? = null,
+    val paymentMethods: List<PaymentMethod>? = null,
+    val eateryTypes: List<String>? = null,
+    val createdAt: LocalDateTime? = null,
+    val events: List<Event>? = null,
+    val waitTimes: List<WaitTimeDay>? = null,
+    val alerts: List<Alert>? = null,
 ) {
-    // todo - investigate unused methods
     fun getWalkTimes(): Int? {
         val currentLocation = LocationHandler.currentLocation.value
         val results = floatArrayOf(0f)
@@ -57,29 +62,6 @@ data class Eatery(
         return ((results[0] / AVERAGE_WALK_SPEED) / 60).toInt()
     }
 
-    fun getWaitTimes(): String? {
-        if (waitTimes.isNullOrEmpty())
-            return null
-
-        val waitTimeDay = waitTimes.find { waitTimeDay ->
-            // checks if today is the right day
-            waitTimeDay.canonicalDate
-                ?.toInstant()
-                ?.truncatedTo(ChronoUnit.DAYS)
-                ?.equals(Date().toInstant().truncatedTo(ChronoUnit.DAYS)) ?: true
-        }?.data
-
-        val waitTimes: WaitTimeData? = waitTimeDay?.find { waitTimeData ->
-            waitTimeData.timestamp?.isBefore(LocalDateTime.now()) == true
-        }
-
-        return if (waitTimes != null) {
-            "${waitTimes.waitTimeLow?.div(60)}-${waitTimes.waitTimeHigh?.div(60)}"
-        } else {
-            null
-        }
-    }
-
 
     private fun getTodaysEvents(): List<Event> {
         val currentTime = LocalDateTime.now()
@@ -87,17 +69,17 @@ data class Eatery(
             return listOf()
 
         val todayEvents = events.filter { event ->
-            currentTime.dayOfYear == event.startTime?.dayOfYear
-        }.sortedBy { it.startTime }
+            currentTime.dayOfYear == event.startTimestamp?.dayOfYear
+        }.sortedBy { it.startTimestamp }
         // is sorting them here too slow?
         todayEvents.forEach { event ->
             var i = 0
             val chefs: MutableList<MenuCategory> = mutableListOf()
             event.menu?.forEach { menuCategory ->
-                if (menuCategory.category != null && menuCategory.category == "Chef's Table") {
+                if (menuCategory.name != null && menuCategory.name == "Chef's Table") {
                     val chef = event.menu[i]
                     chefs.add(chef)
-                } else if (menuCategory.category != null && menuCategory.category == "Chef's Table - Sides") {
+                } else if (menuCategory.name != null && menuCategory.name == "Chef's Table - Sides") {
                     val chef = event.menu[i]
                     chefs.add(0, chef)
                 }
@@ -113,18 +95,6 @@ data class Eatery(
     }
 
     /**
-     * Returns the currently active event, or null if no event is active.
-     *
-     * Example: At 1 PM, Morrison will return the lunch event.
-     */
-    fun getCurrentEvent(): Event? {
-        return getTodaysEvents().find {
-            it.startTime?.isBefore(LocalDateTime.now()) ?: true
-                    && it.endTime?.isAfter(LocalDateTime.now()) ?: true
-        }
-    }
-
-    /**
      * Returns the event that should be displayed at the Ithaca local time
      * If there is currently a meal going on, that is displayed
      * If no meal is going on, the next meal is displayed
@@ -137,9 +107,10 @@ data class Eatery(
         val now = LocalDateTime.now()
         val todayEvents = getTodaysEvents()
         val currentEvent = todayEvents.find { event ->
-            (event.startTime?.isBefore(now) ?: true) && (event.endTime?.isAfter(now) ?: true)
+            (event.startTimestamp?.isBefore(now) ?: true) && (event.endTimestamp?.isAfter(now)
+                ?: true)
         }
-        return currentEvent ?: todayEvents.find { it.startTime?.isAfter(now) ?: true }
+        return currentEvent ?: todayEvents.find { it.startTimestamp?.isAfter(now) ?: true }
         ?: todayEvents.lastOrNull()
     }
 
@@ -154,8 +125,8 @@ data class Eatery(
         val targetDate = LocalDate.now().plusDays(dayIndex.toLong())
 
         val ans = events?.find {
-            it.description.equals(mealDescription, ignoreCase = true) &&
-                    (it.startTime?.toLocalDate()?.isEqual(targetDate) == true)
+            it.type.equals(mealDescription, ignoreCase = true) &&
+                    (it.startTimestamp?.toLocalDate()?.isEqual(targetDate) == true)
         }
         return ans
     }
@@ -174,11 +145,11 @@ data class Eatery(
 
         val uniqueMeals = LinkedHashMap<String, String>()
 
-        events?.filter { it.startTime?.dayOfWeek == currSelectedDay }
+        events?.filter { it.startTimestamp?.dayOfWeek == currSelectedDay }
             ?.forEach { event ->
-                val description = event.description
-                val startTime = event.startTime
-                val endTime = event.endTime
+                val description = event.type
+                val startTime = event.startTimestamp
+                val endTime = event.endTimestamp
                 if (description != null && startTime != null && endTime != null && !uniqueMeals.containsKey(
                         description
                     )
@@ -209,7 +180,7 @@ data class Eatery(
         var currentDay = LocalDate.now()
         currentDay = currentDay.plusDays(day.toLong())
         return events?.filter { event ->
-            currentDay.dayOfYear == event.startTime?.dayOfYear && meal.text.contains(event.description)
+            currentDay.dayOfYear == event.startTimestamp?.dayOfYear && meal.text.contains(event.type)
         }
     }
 
@@ -219,9 +190,9 @@ data class Eatery(
             return listOf()
 
         return events.filter { event ->
-            (currentTime.isAfter(event.startTime) || currentTime.isEqual(event.startTime)) && (currentTime.isBefore(
-                event.endTime
-            ) || currentTime.isEqual(event.endTime))
+            (currentTime.isAfter(event.startTimestamp) || currentTime.isEqual(event.startTimestamp)) && (currentTime.isBefore(
+                event.endTimestamp
+            ) || currentTime.isEqual(event.endTimestamp))
         }
     }
 
@@ -231,22 +202,12 @@ data class Eatery(
         if (currentEvents.isEmpty())
             return null
 
-        val endTime = currentEvents.first().endTime ?: return null
+        val endTime = currentEvents.first().endTimestamp ?: return null
         return "${endTime.format(DateTimeFormatter.ofPattern("K:mm a"))}"
     }
 
     fun isClosed(): Boolean {
         return getOpenUntil() == null
-    }
-
-    fun isClosingInTen(): Boolean {
-        val currentTime = LocalDateTime.now()
-        val currentEvents = getCurrentEvents()
-        if (currentEvents.isEmpty())
-            return false
-
-        val endTime = currentEvents.first().endTime ?: return false
-        return currentTime.plusMinutes(10).isAfter(endTime)
     }
 
     /**
@@ -260,7 +221,7 @@ data class Eatery(
         if (currentEvents.isEmpty())
             return false
 
-        val endTime = currentEvents.first().endTime
+        val endTime = currentEvents.first().endTimestamp
         val timeBuffer: Long = Duration.between(currentTime, endTime).toMinutes()
 
         return timeBuffer < minutes
@@ -271,7 +232,7 @@ data class Eatery(
         val currentEvents = getCurrentEvents()
         if (currentEvents.isEmpty())
             return null
-        val endTime = currentEvents.first().endTime ?: return null
+        val endTime = currentEvents.first().endTimestamp ?: return null
         var timeBuffer: Long = Duration.between(currentTime, endTime).toMinutes()
 
         return flow {
@@ -290,6 +251,22 @@ data class Eatery(
         )
     }
 
+    fun acceptsMealSwipes(): Boolean = paymentMethods?.contains(PaymentMethod.MEAL_SWIPE) ?: false
+
+    fun acceptsCard(): Boolean = paymentMethods?.contains(PaymentMethod.CARD) ?: false
+
+    fun acceptsCash(): Boolean = paymentMethods?.contains(PaymentMethod.CASH) ?: false
+
+    fun acceptsBRB(): Boolean = paymentMethods?.contains(PaymentMethod.BRB) ?: false
+
+//    fun acceptsMealSwipes(): Boolean = paymentMethods?.contains("MEAL_SWIPE") ?: false
+//
+//    fun acceptsCard(): Boolean = paymentMethods?.contains("CARD") ?: false
+//
+//    fun acceptsCash(): Boolean = paymentMethods?.contains("CASH") ?: false
+//
+//    fun acceptsBRB(): Boolean = paymentMethods?.contains("BRB") ?: false
+
     /**
      * Private helper function that returns a map of the day of week that a eatery is open
      * to the opening time(s) or closed status (these are strings)
@@ -300,9 +277,9 @@ data class Eatery(
         val dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
 
         events?.forEach { event ->
-            val dayOfWeek = event.startTime?.dayOfWeek
-            val openTime = event.startTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
-            val closeTime = event.endTime?.format(DateTimeFormatter.ofPattern("h:mm a"))
+            val dayOfWeek = event.startTimestamp?.dayOfWeek
+            val openTime = event.startTimestamp?.format(DateTimeFormatter.ofPattern("h:mm a"))
+            val closeTime = event.endTimestamp?.format(DateTimeFormatter.ofPattern("h:mm a"))
             val timeString = "$openTime - $closeTime"
 
             if (dayOfWeek != null && dailyHours[dayOfWeek]?.none { it.contains(timeString) } != false) {
@@ -435,53 +412,73 @@ data class Eatery(
 
 @JsonClass(generateAdapter = true)
 data class Alert(
-    @Json(name = "id") val id: Int? = null,
-    @Json(name = "description") val description: String? = null,
-    @Json(name = "start_timestamp") val startTime: LocalDateTime? = null,
-    @Json(name = "end_timestamp") val endTime: LocalDateTime? = null
+    val id: Int? = null,
+    val description: String? = null,
+    val startTimestamp: LocalDateTime? = null,
+    val endTimestamp: LocalDateTime? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class WaitTimeDay(
-    @Json(name = "canonical_date") val canonicalDate: Date? = null,
-    @Json(name = "data") val data: List<WaitTimeData>? = null
+    val canonicalDate: Date? = null,
+    val data: List<WaitTimeData>? = null
 )
 
 
 @JsonClass(generateAdapter = true)
 data class WaitTimeData(
-    @Json(name = "timestamp") val timestamp: LocalDateTime? = null,
-    @Json(name = "wait_time_low") val waitTimeLow: Int? = null,
-    @Json(name = "wait_time_expected") val waitTimeExpected: Int? = null,
-    @Json(name = "wait_time_high") val waitTimeHigh: Int? = null
+    val timestamp: LocalDateTime? = null,
+    val waitTimeLow: Int? = null,
+    val waitTimeExpected: Int? = null,
+    val waitTimeHigh: Int? = null
 )
+
+@JsonClass(generateAdapter = true)
+enum class PaymentMethod {
+    CASH,
+    MEAL_SWIPE,
+    CARD,
+    BRB,
+    FREE,
+    UNKNOWN
+}
 
 
 @JsonClass(generateAdapter = true)
 data class Event(
-    @Json(name = "id") val id: Int? = null,
+    val id: Int? = null,
     /**
-     * Descriptions tend to be "Lunch", "Dinner", etc..
+     * "Lunch", "Dinner", etc…
      */
-    @Json(name = "event_description") val description: String? = null,
-    @Json(name = "start") val startTime: LocalDateTime? = null,
-    @Json(name = "end") val endTime: LocalDateTime? = null,
-    @Json(name = "menu") val menu: MutableList<MenuCategory>? = null
-)
+    val type: String? = null,
+    val startTimestamp: LocalDateTime? = null,
+    val endTimestamp: LocalDateTime? = null,
+    val upvotes: Int? = null,
+    val downvotes: Int? = null,
+    val createdAt: LocalDateTime? = null,
+    val eateryId: Int? = null,
+    val menu: MutableList<MenuCategory>? = null,
+
+    )
 
 @JsonClass(generateAdapter = true)
 data class MenuCategory(
-    @Json(name = "id") val id: Int? = null,
-    @Json(name = "category") val category: String? = null,
-    @Json(name = "event") val event: Int? = null,
-    @Json(name = "items") val items: List<MenuItem>? = null
+    val id: Int? = null,
+    val name: String? = null,
+    val createdAt: LocalDateTime? = null,
+    val eventId: Int? = null,
+    val items: List<MenuItem>? = null,
 )
 
 @JsonClass(generateAdapter = true)
 data class MenuItem(
-    @Json(name = "id") val id: Int? = null,
-    @Json(name = "category") val category: Int? = null,
-    @Json(name = "name") val name: String? = null,
+    val id: Int? = null,
+    val name: String? = null,
+    val basePrice: Double? = null,
+    val createdAt: LocalDateTime? = null,
+    val categoryId: Int? = null,
+    val dietaryPreferences: List<String>? = null,
+    val allergens: List<String>? = null
 )
 
 data class EateryStatus(

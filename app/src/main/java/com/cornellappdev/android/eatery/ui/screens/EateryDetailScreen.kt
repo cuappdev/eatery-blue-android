@@ -319,9 +319,9 @@ fun EateryDetailScreen(
 
 
                         paymentMethods.apply {
-                            if (eatery.paymentAcceptsCash == true) add(PaymentMethodsAvailable.CASH)
-                            if (eatery.paymentAcceptsBrbs == true) add(PaymentMethodsAvailable.BRB)
-                            if (eatery.paymentAcceptsMealSwipes == true) add(
+                            if (eatery.acceptsCash()) add(PaymentMethodsAvailable.CASH)
+                            if (eatery.acceptsBRB()) add(PaymentMethodsAvailable.BRB)
+                            if (eatery.acceptsMealSwipes()) add(
                                 PaymentMethodsAvailable.SWIPES
                             )
                         }
@@ -457,7 +457,7 @@ fun EateryDetailScreen(
                                             .fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceEvenly
                                     ) {
-                                        if (eatery.paymentAcceptsMealSwipes == false) {
+                                        if (!eatery.acceptsMealSwipes()) {
                                             Button(
                                                 onClick = {
                                                     val getAppIntent =
@@ -508,7 +508,7 @@ fun EateryDetailScreen(
                                                 context.startActivity(mapIntent)
                                             },
                                             shape = RoundedCornerShape(100),
-                                            modifier = if (eatery.paymentAcceptsMealSwipes == false) Modifier else Modifier
+                                            modifier = if (!eatery.acceptsMealSwipes()) Modifier else Modifier
                                                 .fillMaxWidth()
                                                 .padding(horizontal = 15.dp),
                                             colors = ButtonDefaults.buttonColors(
@@ -700,7 +700,7 @@ fun EateryDetailScreen(
                                         )
                                     }
                                     eatery.getTypeMeal(viewState.weekdayIndex.fromOffsetToDayOfWeek())
-                                        .takeIf { it?.size?.let { s -> s > 1 } == true }
+                                        .takeIf { it.size > 1 }
                                         ?.map { it.first }
                                         ?.let { mealTypes ->
                                             item {
@@ -825,7 +825,6 @@ fun EateryDetailScreen(
                                     )
                                     EateryDetailsStickyHeader(
                                         nextEvent.toEvent(),
-                                        eatery,
                                         filterText,
                                         fullMenuList,
                                         listState,
@@ -877,14 +876,14 @@ private fun LazyListScope.menuHeadingItem(
                         .toReadableFullName(),
                     style = EateryBlueTypography.h4,
                 )
-                if (nextEvent.startTime != null && nextEvent.endTime != null) {
+                if (nextEvent.startTimestamp != null && nextEvent.endTimestamp != null) {
                     Text(
                         text = "${
-                            nextEvent.startTime.format(
+                            nextEvent.startTimestamp.format(
                                 DateTimeFormatter.ofPattern("h:mm a")
                             )
                         } - ${
-                            nextEvent.endTime.format(
+                            nextEvent.endTimestamp.format(
                                 DateTimeFormatter.ofPattern("h:mm a")
                             )
                         }",

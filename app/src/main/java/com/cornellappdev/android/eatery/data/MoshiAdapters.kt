@@ -87,14 +87,9 @@ class DateTimeAdapter {
     }
 
     @FromJson
-    fun fromJson(dateTime: Long): LocalDateTime {
-        try {
-            val instant = Instant.ofEpochSecond(dateTime)
-            return LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-        return LocalDateTime.MIN
+    fun fromJson(dateTime: String): LocalDateTime {
+        val x = LocalDateTime.ofInstant(Instant.parse(dateTime), ZoneId.systemDefault())
+        return x
     }
 }
 

@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -49,7 +48,6 @@ import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -165,7 +163,6 @@ fun SetupNavHost(
     hasOnboarded: Boolean,
     navController: NavHostController,
     showBottomBar: MutableState<Boolean>,
-    loginViewModel: LoginViewModel = hiltViewModel(),
 ) {
     AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
 
@@ -297,10 +294,6 @@ fun SetupNavHost(
             },
             exitTransition = {
                 webViewEnabled = false
-                if (loginViewModel.state.value is LoginViewModel.State.Login) {
-                    // not yet logged in, so reset.
-                    loginViewModel.resetLogin()
-                }
                 fadeOut(
                     animationSpec = tween(durationMillis = 500)
                 )
@@ -308,13 +301,11 @@ fun SetupNavHost(
             // need this for when user navigates from profile to itself
             // since no guarantee of order between enterTransition and exitTransition
             webViewEnabled = true
+
             ProfileScreen(
-                loginViewModel = loginViewModel,
                 onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
                 webViewEnabled = true,
-                onBackClick = {
-                    navController.popBackStack()
-                }
+                onBackClick = navController::popBackStack
             )
         }
         composable(
@@ -349,7 +340,7 @@ fun SetupNavHost(
                         }
                     }
                 ),
-                loginViewModel = loginViewModel
+//                loginViewModel = loginViewModel
             )
 
         }

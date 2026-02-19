@@ -7,7 +7,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
-import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.navigation.NavigationSetup
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
 import dagger.hilt.android.AndroidEntryPoint
@@ -17,17 +17,15 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
-    lateinit var userPreferences: UserPreferencesRepository
+    lateinit var eateryRepository: EateryRepository
 
     @Inject
-    lateinit var eateryRepository: EateryRepository
+    lateinit var userRepository: UserRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val hasOnboarded = runBlocking {
-            return@runBlocking userPreferences.getHasOnboarded()
-        }
+        val hasOnboarded = runBlocking { userRepository.hasOnboarded() }
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -46,5 +44,17 @@ class MainActivity : ComponentActivity() {
             }
         }
         lifecycle.addObserver(dataRefresher)
+        runBlocking {
+            configureTokens()
+            // todo - uncomment when backend finishes favorites
+//            userRepository.updateFavorites()
+        }
+    }
+
+    private suspend fun configureTokens() {
+        if (!userRepository.hasLaunchedBefore()) {
+            userRepository.registerDevice()
+        }
+        userRepository.getTokens()
     }
 }

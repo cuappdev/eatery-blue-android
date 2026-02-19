@@ -35,7 +35,7 @@ fun AlertsSection(eatery: Eatery) {
     ) {
 
         eatery.alerts?.forEach {
-            if (!it.description.isNullOrBlank() && it.startTime?.isBefore(LocalDateTime.now()) == true && it.endTime?.isAfter(
+            if (!it.description.isNullOrBlank() && it.startTimestamp?.isBefore(LocalDateTime.now()) == true && it.endTimestamp?.isAfter(
                     LocalDateTime.now()
                 ) == true
             ) Surface(

@@ -257,7 +257,7 @@ private fun MenuPager(
             val currentEvent = events[page]
             val fullMenuList = mutableListOf<String>()
             currentEvent?.menu?.forEach { category ->
-                category.category?.let { fullMenuList.add(it) }
+                category.name?.let { fullMenuList.add(it) }
                 category.items?.forEach { item ->
                     item.name?.let { fullMenuList.add(it) }
                 }
@@ -328,7 +328,6 @@ private fun MenuPager(
 
                 EateryDetailsStickyHeader(
                     currentEvent,
-                    eateries[page],
                     "",
                     fullMenuList,
                     listState,
@@ -363,7 +362,7 @@ private fun MenuPager(
                             currentEvent.menu?.forEach { category ->
                                 item {
                                     Text(
-                                        text = category.category ?: "Category",
+                                        text = category.name ?: "Category",
                                         style = EateryBlueTypography.h5,
                                         modifier = Modifier.padding(
                                             horizontal = 16.dp,

@@ -6,30 +6,87 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
+data class DeviceId(
+    @Json(name = "deviceUuid") val deviceId: String
+)
+
+@JsonClass(generateAdapter = true)
+data class AuthTokens(
+    @Json(name = "accessToken") val accessToken: String? = null,
+    @Json(name = "refreshToken") val refreshToken: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class RefreshRequest(
+    @Json(name = "deviceUuid") val deviceId: String,
+    @Json(name = "refreshToken") val refreshToken: String
+)
+
+@JsonClass(generateAdapter = true)
+data class FcmToken(
+    @Json(name = "token") val fcmToken: String
+)
+
+@JsonClass(generateAdapter = true)
+data class FavoriteItem(
+    @Json(name = "name") val item: String
+)
+
+@JsonClass(generateAdapter = true)
+data class FavoriteEatery(
+    @Json(name = "eateryId") val eateryId: Int
+)
+
+@JsonClass(generateAdapter = true)
+data class FavoritesResponse(
+    @Json(name = "matches") val matches: List<Match>? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class Match(
+    @Json(name = "eateryName") val eateryName: String? = null,
+    @Json(name = "items") val items: List<Item>? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class Item(
+    @Json(name = "name") val name: String? = null,
+    @Json(name = "events") val events: List<String>? = null
+)
+
+@JsonClass(generateAdapter = true)
 data class User(
     @Json(name = "favorite_eateries") val favoriteEateries: List<Int> = emptyList(),
     @Json(name = "favorite_items") val favoriteItems: List<String> = emptyList(),
-    @Json(name = "brb_balance") val brbBalance: Double = 0.0,
-    @Json(name = "city_bucks_balance") val cityBucksBalance: Double = 0.0,
-    @Json(name = "laundry_balance") val laundryBalance: Double = 0.0,
-    @Json(name = "transactions") val transactions: List<Transaction>? = listOf(),
+    @Json(name = "brb_balance") val brbBalance: Double? = null,
+    @Json(name = "city_bucks_balance") val cityBucksBalance: Double? = null,
+    @Json(name = "laundry_balance") val laundryBalance: Double? = null,
+    @Json(name = "transactions") val transactions: List<Transaction>? = emptyList(),
     @Json(name = "meal_swipes") val mealSwipes: Int? = null // todo - backend should make this
 )
 
 @JsonClass(generateAdapter = true)
 data class LoginRequest(
-    @Json(name = "device_id") val deviceId: String = "",
-    @Json(name = "fcm_token") val fcmToken: String = "",
-    @Json(name = "pin") val pin: Int = 0
+    @Json(name = "pin") val pin: Int,
+    @Json(name = "sessionId") val sessionId: String,
 )
 
 @JsonClass(generateAdapter = true)
-data class AuthorizedUser(
-    @Json(name = "id") val id: Long = 0,
-    @Json(name = "device_id") val deviceId: String = "",
-    @Json(name = "fcm_token") val fcmToken: String = "",
-    @Json(name = "pin") val pin: Int = 0
+data class LoginPIN(
+    @Json(name = "pin") val pin: Int
 )
+
+@JsonClass(generateAdapter = true)
+data class SessionID(
+    @Json(name = "sessionId") val sessionId: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class Financials(
+    @Json(name = "accounts") val accounts: Accounts? = null,
+    @Json(name = "transactions") val transactions: Transactions? = null
+)
+
 
 @JsonClass(generateAdapter = true)
 data class Accounts(

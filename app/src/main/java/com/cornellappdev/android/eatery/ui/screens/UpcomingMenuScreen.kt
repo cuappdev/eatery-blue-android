@@ -290,7 +290,8 @@ private fun UpcomingFilterRow(
                     selected = true,
                     text = when (mealFilter) {
                         MealFilter.LATE_DINNER -> "Late Dinner"
-                        else -> mealFilter.text.first()
+                        else -> mealFilter.text.first().lowercase()
+                            .replaceFirstChar { c -> if (c.isLowerCase()) c.titlecase() else c.toString() }
                     },
                     icon = Icons.Default.ExpandMore
                 )

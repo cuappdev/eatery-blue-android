@@ -4,6 +4,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
@@ -16,7 +17,7 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ProfileScreen(
-    loginViewModel: LoginViewModel,
+    loginViewModel: LoginViewModel = hiltViewModel(),
     onSettingsClicked: () -> Unit,
     webViewEnabled: Boolean,
     onBackClick: () -> Unit
