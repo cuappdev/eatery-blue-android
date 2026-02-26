@@ -31,9 +31,7 @@ android {
             useSupportLibrary true
         }
 
-        buildConfigField("String", "GET_BACKEND_URL", secretsProperties['GET_BACKEND_URL'])
         buildConfigField("String", "SESSIONID_WEBVIEW_URL", secretsProperties['SESSIONID_WEBVIEW_URL'])
-        buildConfigField("String", "CORNELL_INSTITUTION_ID", secretsProperties['CORNELL_INSTITUTION_ID'])
     }
 
     buildTypes {
