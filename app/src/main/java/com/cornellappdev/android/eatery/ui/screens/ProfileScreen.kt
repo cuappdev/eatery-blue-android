@@ -23,6 +23,8 @@ fun ProfileScreen(
     onBackClick: () -> Unit
 ) {
     val state = loginViewModel.state.collectAsState().value
+    val filteredTransactions =
+        loginViewModel.filteredTransactionsFlow.collectAsState(initial = emptyList()).value
     ProfileScreenContent(
         isLoginState = state is LoginViewModel.State.Login,
         accountTypeBalance = state.getBalances(),
@@ -34,8 +36,8 @@ fun ProfileScreen(
         onModalHidden = loginViewModel::onLoginExited,
         onSettingsClicked = onSettingsClicked,
         accountFilter = if (state is LoginViewModel.State.Account) state.accountFilter else TransactionAccountType.BRBS,
-
-        getTransactionsOfType = loginViewModel::getFilteredTransactions,
+        filteredTransactions = filteredTransactions,
+        onQueryChanged = loginViewModel::setQuery,
         updateAccountFilter = loginViewModel::updateAccountFilter
     )
 }
@@ -52,7 +54,8 @@ private fun ProfileScreenContent(
     onModalHidden: () -> Unit,
     accountFilter: TransactionAccountType,
     onSettingsClicked: () -> Unit,
-    getTransactionsOfType: (TransactionAccountType, String) -> List<Transaction>,
+    filteredTransactions: List<Transaction>,
+    onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
 ) {
     if (isLoginState) {
@@ -69,7 +72,8 @@ private fun ProfileScreenContent(
             accountFilter = accountFilter,
             accountTypeBalance = accountTypeBalance,
             onSettingsClicked = onSettingsClicked,
-            getTransactionsOfType = getTransactionsOfType,
+            filteredTransactions = filteredTransactions,
+            onQueryChanged = onQueryChanged,
             updateAccountFilter = updateAccountFilter
         )
     }
@@ -100,7 +104,8 @@ private fun ProfileLoginScreenPreview() = EateryPreview {
         onModalHidden = {},
         accountFilter = TransactionAccountType.BRBS,
         onSettingsClicked = {},
-        getTransactionsOfType = { _, _ -> emptyList() },
+        filteredTransactions = emptyList(),
+        onQueryChanged = {},
         updateAccountFilter = {},
     )
 }

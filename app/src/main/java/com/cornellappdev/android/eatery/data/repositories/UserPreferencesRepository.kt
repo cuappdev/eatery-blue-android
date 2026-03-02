@@ -106,6 +106,7 @@ class UserPreferencesRepository @Inject constructor(
         setPref { setPin(pin) }
     }
 
+    suspend fun getSessionId(): String = userPreferencesFlow.first().sessionId
     suspend fun setSessionId(sessionId: String) {
         setPref { setSessionId(sessionId) }
     }

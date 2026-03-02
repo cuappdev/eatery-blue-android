@@ -9,6 +9,7 @@ import com.cornellappdev.android.eatery.data.models.LoginPIN
 import com.cornellappdev.android.eatery.data.models.LoginRequest
 import com.cornellappdev.android.eatery.data.models.RefreshRequest
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
+import com.cornellappdev.android.eatery.data.models.SessionID
 import com.cornellappdev.android.eatery.data.models.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -145,7 +146,7 @@ class UserRepository @Inject constructor(
         tryRequest {
             networkApi.authorizeUser(
                 accessToken = getAccessToken(),
-                loginRequest = LoginRequest(pin, sessionId)
+                loginRequest = LoginRequest(pin.toString(), sessionId)
             )
         }
     }
@@ -154,13 +155,16 @@ class UserRepository @Inject constructor(
         var financials: Financials
         try {
             financials = networkApi.getFinancials(
-                accessToken = getAccessToken()
+                accessToken = getAccessToken(),
+                sessionId = SessionID(userPreferencesRepository.getSessionId())
             )
         } catch (_: Exception) {
-            val pin =
-                userPreferencesRepository.getPin()
+            val pin = userPreferencesRepository.getPin()
             refreshLogin(pin = pin)
-            financials = networkApi.getFinancials(accessToken = getAccessToken())
+            financials = networkApi.getFinancials(
+                accessToken = getAccessToken(),
+                sessionId = SessionID(userPreferencesRepository.getSessionId())
+            )
         }
         financials
     }
@@ -168,14 +172,18 @@ class UserRepository @Inject constructor(
     suspend fun isLoggedIn(): Boolean = userPreferencesRepository.getIsLoggedIn()
 
     /**
-     * Refreshes GET sessionID and returns it.
+     * Refreshes GET sessionID.
      */
     suspend fun refreshLogin(pin: Int) = tryRequest {
         val newSessionId = networkApi.refreshAuthorizedUser(
             accessToken = getAccessToken(),
-            loginPIN = LoginPIN(pin)
-        ).toString()
-        userPreferencesRepository.setSessionId(newSessionId)
+            loginPIN = LoginPIN(pin.toString())
+        ).sessionId
+        if (newSessionId == null) {
+            // todo - handle
+        } else {
+            userPreferencesRepository.setSessionId(newSessionId)
+        }
     }
 
     suspend fun logout() {
@@ -197,6 +205,7 @@ class UserRepository @Inject constructor(
                 refreshTokens()
                 return request()
             } catch (e: Exception) {
+                // todo - pass in handler
                 throw e
             }
         }
@@ -232,6 +241,7 @@ class UserRepository @Inject constructor(
      * Gets access token with Bearer prefix assuming device has been registered
      */
     private suspend fun getAccessToken(): String =
-        "Bearer ${userPreferencesRepository.getAccessToken()!!}"
+        prependBearer(userPreferencesRepository.getAccessToken()!!)
 
+    private fun prependBearer(str: String) = "Bearer $str"
 }

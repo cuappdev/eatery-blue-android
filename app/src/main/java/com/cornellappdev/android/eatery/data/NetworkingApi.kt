@@ -101,9 +101,10 @@ interface NetworkApi {
         @Body loginPIN: LoginPIN
     ): SessionID
 
-    @GET("/financials")
+    @POST("/financials")
     suspend fun getFinancials(
-        @Header("Authorization") accessToken: String
+        @Header("Authorization") accessToken: String,
+        @Body sessionId: SessionID
     ): Financials
 
     @GET("/user/favorites/matches")

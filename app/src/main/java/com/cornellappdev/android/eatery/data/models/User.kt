@@ -67,13 +67,13 @@ data class User(
 
 @JsonClass(generateAdapter = true)
 data class LoginRequest(
-    @Json(name = "pin") val pin: Int,
+    @Json(name = "pin") val pin: String,
     @Json(name = "sessionId") val sessionId: String,
 )
 
 @JsonClass(generateAdapter = true)
 data class LoginPIN(
-    @Json(name = "pin") val pin: Int
+    @Json(name = "pin") val pin: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -84,7 +84,7 @@ data class SessionID(
 @JsonClass(generateAdapter = true)
 data class Financials(
     @Json(name = "accounts") val accounts: Accounts? = null,
-    @Json(name = "transactions") val transactions: Transactions? = null
+    @Json(name = "transactions") val transactions: List<Transaction>? = null
 )
 
 
@@ -102,13 +102,9 @@ data class Account(
 )
 
 @JsonClass(generateAdapter = true)
-data class Transactions(
-    @Json(name = "transactions") val transactions: List<Transaction> = emptyList()
-)
-
-@JsonClass(generateAdapter = true)
 data class Transaction(
     @Json(name = "amount") val amount: Double = 0.0,
+    val tenderId: Int? = 0,
     @Json(name = "accountName") val accountType: AccountType = AccountType.OTHER,
     @Json(name = "date") val date: String = "",
     @Json(name = "location") val location: String = "",

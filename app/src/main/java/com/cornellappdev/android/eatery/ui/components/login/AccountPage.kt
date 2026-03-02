@@ -82,10 +82,15 @@ fun AccountPage(
     accountFilter: TransactionAccountType,
     accountTypeBalance: AccountBalances,
     onSettingsClicked: () -> Unit,
-    getTransactionsOfType: (TransactionAccountType, String) -> List<Transaction>,
+    filteredTransactions: List<Transaction>,
+    onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
 ) {
     var filterText by remember { mutableStateOf("") }
+    val onFilterTextChanged = { newText: String ->
+        filterText = newText
+        onQueryChanged(newText)
+    }
     val modalBottomSheetState =
         rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
@@ -132,20 +137,20 @@ fun AccountPage(
             accountFilter,
             showBottomSheet = modalBottomSheetState::show,
             filterText,
-            setFilterText = { filterText = it },
-            getTransactionsOfType,
+            setFilterText = onFilterTextChanged,
+            filteredTransactions,
             setSheetContent = { sheetContent = it },
         )
 
     }
 }
 
-@Composable
 @OptIn(
     ExperimentalMaterialApi::class,
     ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class
 )
+@Composable
 private fun AccountPageContent(
     onSettingsClicked: () -> Unit,
     accountTypeBalance: AccountBalances,
@@ -153,7 +158,7 @@ private fun AccountPageContent(
     showBottomSheet: suspend () -> Unit,
     filterText: String,
     setFilterText: (String) -> Unit,
-    getTransactionsOfType: (TransactionAccountType, String) -> List<Transaction>,
+    filteredTransactions: List<Transaction>,
     setSheetContent: (BottomSheetContent) -> Unit
 ) {
     val innerListState = rememberLazyListState()
@@ -237,12 +242,7 @@ private fun AccountPageContent(
                     setFilterText
                 )
             }
-            items(
-                getTransactionsOfType(
-                    accountFilter,
-                    filterText
-                )
-            ) {
+            items(filteredTransactions) {
                 TransactionRow(
                     transaction = it,
                     isMealSwipes = accountFilter == TransactionAccountType.MEAL_SWIPES
@@ -267,22 +267,20 @@ private fun AccountPagePreview() = EateryPreview {
         showBottomSheet = {},
         filterText = "",
         setFilterText = {},
-        getTransactionsOfType = { _, _ ->
-            listOf(
-                Transaction(
-                    date = "2023-10-01T12:30:00.000Z",
-                    location = "Cafe Jennie",
-                    amount = 5.25,
-                    transactionType = TransactionType.SPEND
-                ),
-                Transaction(
-                    date = "2023-10-02T14:00:00.000Z",
-                    location = "Morrison Dining",
-                    amount = 15.00,
-                    transactionType = TransactionType.DEPOSIT
-                )
+        filteredTransactions = listOf(
+            Transaction(
+                date = "2023-10-01T12:30:00.000Z",
+                location = "Cafe Jennie",
+                amount = 5.25,
+                transactionType = TransactionType.SPEND
+            ),
+            Transaction(
+                date = "2023-10-02T14:00:00.000Z",
+                location = "Morrison Dining",
+                amount = 15.00,
+                transactionType = TransactionType.DEPOSIT
             )
-        },
+        ),
         setSheetContent = {}
     )
 }
@@ -454,7 +452,7 @@ private fun AccountPageHeader(
 
 @Composable
 private fun TransactionRow(transaction: Transaction, isMealSwipes: Boolean) {
-    val dateText = FormatDate(transaction.date)
+    val dateText = formatDate(transaction.date)
     Row(
         modifier = Modifier
             .height(64.dp)
@@ -509,8 +507,7 @@ private fun TransactionRow(transaction: Transaction, isMealSwipes: Boolean) {
     )
 }
 
-@Composable
-private fun FormatDate(dateString: String): String {
+private fun formatDate(dateString: String): String {
     val inputFormatter =
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
     val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")

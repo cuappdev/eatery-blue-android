@@ -9,8 +9,10 @@ import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -60,7 +62,6 @@ class LoginViewModel @Inject constructor(
             } ?: State.Login()
     )
 
-    // Convert the state to a flow that can be updated by screens that use the LoginViewModel
     val state = _state.asStateFlow()
 
     init {
@@ -71,29 +72,23 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun updateAccountFilter(newAccountType: TransactionAccountType) {
-        val currState = _state.value
-        if (currState !is State.Account) return
+    private val _queryFlow = MutableStateFlow("")
 
-        // currState is a Login state (expected).
-        val newState = State.Account(
-            currState.user,
-            "",
-            newAccountType
-        )
-
-        // Send the new netID Login state down.
-        _state.value = newState
+    fun setQuery(query: String) {
+        _queryFlow.value = query
     }
 
-    fun getFilteredTransactions(
-        accountType: TransactionAccountType,
-        query: String
-    ): List<Transaction> {
-        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-        userRepository.loadedUser.value?.let {
-            if (_state.value !is State.Account) return emptyList()
-            return it.transactions?.filter { transaction ->
+    private val _accountTypeFilterFlow = MutableStateFlow(TransactionAccountType.BRBS)
+
+    fun updateAccountFilter(newAccountType: TransactionAccountType) {
+        _accountTypeFilterFlow.value = newAccountType
+    }
+
+    val filteredTransactionsFlow: Flow<List<Transaction>> =
+        combine(_state, _queryFlow, _accountTypeFilterFlow) { state, query, accountType ->
+            if (state !is State.Account) return@combine emptyList()
+            val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+            state.user.transactions?.filter { transaction ->
                 val matchesAccountType =
                     transaction.accountType.toTransactionAccountType() == accountType
                 val pastThirtyDays = LocalDateTime.parse(
@@ -104,8 +99,6 @@ class LoginViewModel @Inject constructor(
                 matchesAccountType && pastThirtyDays && matchesQuery
             } ?: emptyList()
         }
-        return emptyList()
-    }
 
     fun onLoginPressed() = updateLoginLoadingState(true)
 
@@ -160,7 +153,7 @@ class LoginViewModel @Inject constructor(
                 brbBalance = financials.accounts?.brbBalance?.balance,
                 cityBucksBalance = financials.accounts?.cityBucksBalance?.balance,
                 laundryBalance = financials.accounts?.laundryBalance?.balance,
-                transactions = financials.transactions?.transactions,
+                transactions = financials.transactions,
 //                mealSwipes = financials.accounts?. todo - mealswipes
             ),
             query = "",
