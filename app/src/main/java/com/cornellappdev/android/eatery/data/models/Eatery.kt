@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
 import com.cornellappdev.android.eatery.util.Constants.AVERAGE_WALK_SPEED
 import com.cornellappdev.android.eatery.util.LocationHandler
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,8 +23,7 @@ import java.util.Date
 
 @JsonClass(generateAdapter = true)
 data class Eatery(
-    val id: Int? = null,
-    val cornellId: Int? = null,
+    @Json(name = "cornellId") val id: Int? = null,
     val announcements: List<String>? = null,
     val name: String? = null,
     val shortName: String? = null,

@@ -3,7 +3,6 @@ package com.cornellappdev.android.eatery.data.models
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
-// todo - update these
 @JsonClass(generateAdapter = true)
 data class GetApiResponse<T>(
     @Json(name = "response") val response: T? = null,

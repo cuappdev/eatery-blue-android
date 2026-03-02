@@ -234,7 +234,8 @@ fun EateryDetailScreen(
 
                                 BottomSheetContent.REPORT -> {
                                     eatery.id?.let {
-                                        ReportBottomSheet(issue = issue,
+                                        ReportBottomSheet(
+                                            issue = issue,
                                             eateryid = it,
                                             sendReport = { issue, report, eateryid ->
                                                 eateryDetailViewModel.sendReport(
@@ -580,9 +581,9 @@ fun EateryDetailScreen(
                                             Text(
                                                 modifier = Modifier.padding(top = 2.dp),
                                                 text =
-                                                if (openUntil == null) "Closed"
-                                                else if (eatery.isClosingSoon()) "Closing at $openUntil"
-                                                else ("Open until $openUntil"),
+                                                    if (openUntil == null) "Closed"
+                                                    else if (eatery.isClosingSoon()) "Closing at $openUntil"
+                                                    else ("Open until $openUntil"),
                                                 style = TextStyle(
                                                     fontWeight = FontWeight.SemiBold,
                                                     fontSize = 16.sp
@@ -675,7 +676,8 @@ fun EateryDetailScreen(
                                             }
                                         })
                                     item {
-                                        SearchBar(searchText = filterText,
+                                        SearchBar(
+                                            searchText = filterText,
                                             onSearchTextChange = {
                                                 eateryDetailViewModel.setSearchQuery(
                                                     it

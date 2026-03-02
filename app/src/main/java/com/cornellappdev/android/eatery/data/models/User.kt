@@ -34,7 +34,7 @@ data class FavoriteItem(
 
 @JsonClass(generateAdapter = true)
 data class FavoriteEatery(
-    @Json(name = "eateryId") val eateryId: Int
+    @Json(name = "cornellId") val eateryId: Int
 )
 
 @JsonClass(generateAdapter = true)

@@ -171,6 +171,7 @@ class UserRepository @Inject constructor(
 
     suspend fun setIsLoggedIn(isLoggedIn: Boolean) =
         userPreferencesRepository.setIsLoggedIn(isLoggedIn)
+
     suspend fun isLoggedIn(): Boolean = userPreferencesRepository.getIsLoggedIn()
 
     /**

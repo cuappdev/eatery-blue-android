@@ -53,37 +53,37 @@ interface NetworkApi {
     * E.g., Authorization: Bearer a97syd9a77asydan9s
     * */
 
-    @POST("/user/fcm-token")
+    @POST("/users/fcm-token")
     suspend fun enableNotifications(
         @Header("Authorization") accessToken: String,
         @Body token: FcmToken
     )
 
-    @DELETE("/user/fcm-token")
+    @DELETE("/users/fcm-token")
     suspend fun disableNotifications(
         @Header("Authorization") accessToken: String,
         @Body token: FcmToken
     )
 
-    @POST("/user/favorites/items")
+    @POST("/users/favorites/items")
     suspend fun addFavoriteItem(
         @Header("Authorization") accessToken: String,
         @Body item: FavoriteItem
     )
 
-    @DELETE("/user/favorites/items")
+    @DELETE("/users/favorites/items")
     suspend fun deleteFavoriteItem(
         @Header("Authorization") accessToken: String,
         @Body item: FavoriteItem
     )
 
-    @POST("/user/favorites/eateries")
+    @POST("/users/favorites/eateries")
     suspend fun addFavoriteEatery(
         @Header("Authorization") accessToken: String,
         @Body eatery: FavoriteEatery
     )
 
-    @DELETE("/user/favorites/eateries")
+    @DELETE("/users/favorites/eateries")
     suspend fun deleteFavoriteEatery(
         @Header("Authorization") accessToken: String,
         @Body eatery: FavoriteEatery
@@ -107,7 +107,7 @@ interface NetworkApi {
         @Body sessionId: SessionID
     ): Financials
 
-    @GET("/user/favorites/matches")
+    @GET("/users/favorites/matches")
     suspend fun getFavoriteMatches(
         @Header("Authorization") accessToken: String,
     ): FavoritesResponse
