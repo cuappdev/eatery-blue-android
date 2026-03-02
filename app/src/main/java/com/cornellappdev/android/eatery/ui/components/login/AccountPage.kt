@@ -69,7 +69,7 @@ import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
@@ -508,12 +508,21 @@ private fun TransactionRow(transaction: Transaction, isMealSwipes: Boolean) {
 }
 
 private fun formatDate(dateString: String): String {
-    val inputFormatter =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-    val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
-    val dateTime = LocalDateTime.parse(dateString, inputFormatter)
-    val dateText = outputFormatter.format(dateTime)
-    return dateText ?: ""
+    return try {
+        // Parse timezone-aware string like "2026-03-02T01:56:45.000+0000"
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+        val zonedDateTime = ZonedDateTime.parse(dateString, inputFormatter)
+
+        // Convert to system's local timezone
+        val localZonedDateTime = zonedDateTime.withZoneSameInstant(java.time.ZoneId.systemDefault())
+        val localDateTime = localZonedDateTime.toLocalDateTime()
+
+        val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
+        outputFormatter.format(localDateTime)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    }
 }
 
 private fun Double.epsilonEqual(other: Double): Boolean {

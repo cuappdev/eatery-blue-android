@@ -104,7 +104,7 @@ data class Account(
 @JsonClass(generateAdapter = true)
 data class Transaction(
     @Json(name = "amount") val amount: Double = 0.0,
-    val tenderId: Int? = 0,
+    val tenderId: String? = "",
     @Json(name = "accountName") val accountType: AccountType = AccountType.OTHER,
     @Json(name = "date") val date: String = "",
     @Json(name = "location") val location: String = "",
