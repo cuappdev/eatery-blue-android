@@ -96,9 +96,14 @@ class UserPreferencesRepository @Inject constructor(
         setPref { setRefreshToken(refreshToken) }
     }
 
-    suspend fun getIsLoggedIn(): Boolean = userPreferencesFlow.firstOrNull()?.isLoggedIn ?: false
+    suspend fun getIsLoggedIn(): Boolean {
+        val flow = userPreferencesFlow.firstOrNull()
+        return flow?.isLoggedIn ?: false
+    }
 
-    suspend fun setIsLoggedIn(loggedIn: Boolean) = setPref { setIsLoggedIn(loggedIn) }
+    suspend fun setIsLoggedIn(loggedIn: Boolean) = setPref {
+        setIsLoggedIn(loggedIn)
+    }
 
     suspend fun getPin(): Int = userPreferencesFlow.first().pin
 

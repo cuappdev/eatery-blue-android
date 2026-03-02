@@ -132,6 +132,7 @@ class LoginViewModel @Inject constructor(
     private suspend fun linkGETAccount(sessionId: String) {
         try {
             userRepository.linkGETAccount(sessionId)
+            userRepository.setIsLoggedIn(true)
         } catch (e: Exception) {
             // todo error state
             val currState = _state.value
