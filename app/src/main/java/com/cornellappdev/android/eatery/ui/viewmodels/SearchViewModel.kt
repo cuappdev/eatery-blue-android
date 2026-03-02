@@ -134,19 +134,15 @@ class SearchViewModel @Inject constructor(
         return nameMatch || menuMatch
     }
 
-    fun addFavorite(eateryId: Int?) {
-        if (eateryId != null) {
-            viewModelScope.launch {
-                userRepository.addFavoriteEatery(eateryId)
-            }
+    fun addFavorite(eateryId: Int, eateryName: String) {
+        viewModelScope.launch {
+            userRepository.addFavoriteEatery(eateryId, eateryName)
         }
     }
 
-    fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null) {
-            viewModelScope.launch {
-                userRepository.removeFavoriteEatery(eateryId)
-            }
+    fun removeFavorite(eateryId: Int, eateryName: String) {
+        viewModelScope.launch {
+            userRepository.removeFavoriteEatery(eateryId, eateryName)
         }
     }
 

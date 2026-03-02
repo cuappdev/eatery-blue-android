@@ -154,15 +154,15 @@ class HomeViewModel @Inject constructor(
         _filtersFlow.update { emptyList() }
     }
 
-    fun addFavoriteEatery(eateryId: Int) {
+    fun addFavoriteEatery(eateryId: Int, eateryName: String) {
         viewModelScope.launch {
-            userRepository.addFavoriteEatery(eateryId)
+            userRepository.addFavoriteEatery(eateryId, eateryName)
         }
     }
 
-    fun removeFavoriteEatery(eateryId: Int) {
+    fun removeFavoriteEatery(eateryId: Int, eateryName: String) {
         viewModelScope.launch {
-            userRepository.removeFavoriteEatery(eateryId)
+            userRepository.removeFavoriteEatery(eateryId, eateryName)
         }
     }
 

@@ -5,18 +5,19 @@ import com.cornellappdev.android.eatery.data.models.DeviceId
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.FavoriteEatery
 import com.cornellappdev.android.eatery.data.models.FavoriteItem
-import com.cornellappdev.android.eatery.data.models.FavoritesResponse
 import com.cornellappdev.android.eatery.data.models.FcmToken
 import com.cornellappdev.android.eatery.data.models.Financials
 import com.cornellappdev.android.eatery.data.models.GetApiResponse
 import com.cornellappdev.android.eatery.data.models.LoginPIN
 import com.cornellappdev.android.eatery.data.models.LoginRequest
+import com.cornellappdev.android.eatery.data.models.Match
 import com.cornellappdev.android.eatery.data.models.RefreshRequest
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.SessionID
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -71,7 +72,7 @@ interface NetworkApi {
         @Body item: FavoriteItem
     )
 
-    @DELETE("/users/favorites/items")
+    @HTTP(method = "DELETE", path = "/users/favorites/items", hasBody = true)
     suspend fun deleteFavoriteItem(
         @Header("Authorization") accessToken: String,
         @Body item: FavoriteItem
@@ -83,7 +84,7 @@ interface NetworkApi {
         @Body eatery: FavoriteEatery
     )
 
-    @DELETE("/users/favorites/eateries")
+    @HTTP(method = "DELETE", path = "/users/favorites/eateries", hasBody = true)
     suspend fun deleteFavoriteEatery(
         @Header("Authorization") accessToken: String,
         @Body eatery: FavoriteEatery
@@ -110,5 +111,5 @@ interface NetworkApi {
     @GET("/users/favorites/matches")
     suspend fun getFavoriteMatches(
         @Header("Authorization") accessToken: String,
-    ): FavoritesResponse
+    ): List<Match>
 }

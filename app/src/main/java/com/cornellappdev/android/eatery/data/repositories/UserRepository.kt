@@ -14,6 +14,7 @@ import com.cornellappdev.android.eatery.data.models.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -85,10 +86,9 @@ class UserRepository @Inject constructor(
 
     suspend fun updateFavorites() {
         val accessPhrase = getAccessToken()
-        val favoritesResponse = tryRequest {
+        val matches = tryRequest {
             networkApi.getFavoriteMatches(accessToken = accessPhrase)
         }
-        val matches = favoritesResponse.matches ?: return
         _favoritesEateriesFlow.value = matches.mapNotNull { it.eateryName }
         _favoriteItemsFlow.value = run {
             val items: MutableList<String> = mutableListOf()
@@ -116,6 +116,9 @@ class UserRepository @Inject constructor(
             accessToken = getAccessToken(),
             item = FavoriteItem(item = name)
         )
+        _favoriteItemsFlow.update { currentItems ->
+            if (name !in currentItems) currentItems + name else currentItems
+        }
     }
 
     suspend fun removeFavoriteItem(name: String) = tryRequest {
@@ -123,20 +126,29 @@ class UserRepository @Inject constructor(
             accessToken = getAccessToken(),
             item = FavoriteItem(name)
         )
+        _favoriteItemsFlow.update { currentItems ->
+            currentItems.filter { it != name }
+        }
     }
 
-    suspend fun addFavoriteEatery(id: Int) = tryRequest {
+    suspend fun addFavoriteEatery(id: Int, eateryName: String) = tryRequest {
         networkApi.addFavoriteEatery(
             accessToken = getAccessToken(),
             eatery = FavoriteEatery(id),
         )
+        _favoritesEateriesFlow.update { currentEateries ->
+            if (eateryName !in currentEateries) currentEateries + eateryName else currentEateries
+        }
     }
 
-    suspend fun removeFavoriteEatery(id: Int) = tryRequest {
+    suspend fun removeFavoriteEatery(id: Int, eateryName: String) = tryRequest {
         networkApi.deleteFavoriteEatery(
             accessToken = getAccessToken(),
             eatery = FavoriteEatery(id)
         )
+        _favoritesEateriesFlow.update { currentEateries ->
+            currentEateries.filter { it != eateryName }
+        }
     }
 
     suspend fun linkGETAccount(sessionId: String) {

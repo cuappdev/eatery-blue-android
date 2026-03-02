@@ -62,14 +62,12 @@ class NearestViewModel @Inject constructor(
     /**
      * Changes the favorite status of the given eatery.
      */
-    fun setFavorite(eateryId: Int?, favorite: Boolean) {
-        if (eateryId != null) {
-            viewModelScope.launch {
-                if (favorite) {
-                    userRepository.addFavoriteEatery(eateryId)
-                } else {
-                    userRepository.removeFavoriteEatery(eateryId)
-                }
+    fun setFavorite(eateryId: Int, eateryName: String, favorite: Boolean) {
+        viewModelScope.launch {
+            if (favorite) {
+                userRepository.addFavoriteEatery(eateryId, eateryName)
+            } else {
+                userRepository.removeFavoriteEatery(eateryId, eateryName)
             }
         }
     }

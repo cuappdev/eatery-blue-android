@@ -46,8 +46,7 @@ class MainActivity : ComponentActivity() {
         lifecycle.addObserver(dataRefresher)
         runBlocking {
             configureTokens()
-            // todo - uncomment when backend finishes favorites
-//            userRepository.updateFavorites()
+            userRepository.updateFavorites()
         }
     }
 

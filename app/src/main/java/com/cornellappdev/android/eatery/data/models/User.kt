@@ -38,11 +38,6 @@ data class FavoriteEatery(
 )
 
 @JsonClass(generateAdapter = true)
-data class FavoritesResponse(
-    @Json(name = "matches") val matches: List<Match>? = null
-)
-
-@JsonClass(generateAdapter = true)
 data class Match(
     @Json(name = "eateryName") val eateryName: String? = null,
     @Json(name = "items") val items: List<Item>? = null
@@ -50,8 +45,8 @@ data class Match(
 
 @JsonClass(generateAdapter = true)
 data class Item(
-    @Json(name = "name") val name: String? = null,
-    @Json(name = "events") val events: List<String>? = null
+    val name: String? = null,
+    val events: List<String>? = null
 )
 
 @JsonClass(generateAdapter = true)

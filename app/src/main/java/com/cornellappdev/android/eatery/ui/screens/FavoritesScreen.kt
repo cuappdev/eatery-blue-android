@@ -153,7 +153,7 @@ private fun ColumnScope.MainScrollableContent(
     onEateryClick: (eatery: Eatery) -> Unit,
     toggleEateryFilter: (filter: Filter.FromEateryFilter) -> Unit,
     toggleItemFilter: (filter: Filter) -> Unit,
-    removeFavorite: (eateryId: Int?) -> Unit,
+    removeFavorite: (eateryId: Int, eateryName: String) -> Unit,
     removeFavoriteMenuItem: (menuItem: String) -> Unit,
 ) {
     LazyColumn(
@@ -204,7 +204,11 @@ private fun ColumnScope.MainScrollableContent(
                     modifier = Modifier.animateItemPlacement(),
                     onFavoriteClick = {
                         if (!it) {
-                            removeFavorite(eatery.id)
+                            eatery.id?.let { id ->
+                                eatery.name?.let { name ->
+                                    removeFavorite(id, name)
+                                }
+                            }
                         }
                     }) {
                     onEateryClick(it)

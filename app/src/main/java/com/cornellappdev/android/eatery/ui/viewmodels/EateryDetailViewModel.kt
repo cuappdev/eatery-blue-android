@@ -139,11 +139,12 @@ class EateryDetailViewModel @Inject constructor(
     fun toggleFavorite() {
         when (val eateryState = eateryDetailViewState.value) {
             is EateryDetailViewState.Loaded -> {
+                val eateryName = eateryState.eatery.name ?: return
                 viewModelScope.launch {
                     if (eateryState.isFavorite) {
-                        userRepository.removeFavoriteEatery(eateryId)
+                        userRepository.removeFavoriteEatery(eateryId, eateryName)
                     } else {
-                        userRepository.addFavoriteEatery(eateryId)
+                        userRepository.addFavoriteEatery(eateryId, eateryName)
                     }
                 }
             }

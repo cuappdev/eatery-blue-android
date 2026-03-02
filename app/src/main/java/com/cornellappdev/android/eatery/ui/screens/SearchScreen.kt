@@ -260,10 +260,18 @@ fun SearchScreen(
                                             favoriteEatery.id == eatery.id
                                         },
                                         onFavoriteClick = {
-                                            if (it) {
-                                                searchViewModel.addFavorite(eatery.id)
-                                            } else {
-                                                searchViewModel.removeFavorite(eatery.id)
+                                            if (eatery.id != null && eatery.name != null) {
+                                                if (it) {
+                                                    searchViewModel.addFavorite(
+                                                        eatery.id,
+                                                        eatery.name
+                                                    )
+                                                } else {
+                                                    searchViewModel.removeFavorite(
+                                                        eatery.id,
+                                                        eatery.name
+                                                    )
+                                                }
                                             }
                                         }) {
                                         searchViewModel.addRecentSearch(it.id)
@@ -290,10 +298,12 @@ fun SearchScreen(
                                     favoriteEatery.id == eatery.id
                                 },
                                 onFavoriteClick = {
-                                    if (it) {
-                                        searchViewModel.addFavorite(eatery.id)
-                                    } else {
-                                        searchViewModel.removeFavorite(eatery.id)
+                                    if (eatery.id != null && eatery.name != null) {
+                                        if (it) {
+                                            searchViewModel.addFavorite(eatery.id, eatery.name)
+                                        } else {
+                                            searchViewModel.removeFavorite(eatery.id, eatery.name)
+                                        }
                                     }
                                 }) {
                                 searchViewModel.addRecentSearch(it.id)

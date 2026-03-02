@@ -69,17 +69,22 @@ class FavoritesViewModel @Inject constructor(
      */
     val favoritesScreenViewState: StateFlow<FavoritesScreenViewState> = combine(
         eateryRepository.eateryFlow,
+        userRepository.favoriteEateriesFlow,
         userRepository.favoriteItemsFlow,
         selectedEateryFiltersFlow,
         selectedItemFiltersFlow
-    ) { apiResponse, favoriteItems, selectedEateryFilters, selectedItemFilters ->
+    ) { apiResponse, favoriteEateries, favoriteItems, selectedEateryFilters, selectedItemFilters ->
         when (apiResponse) {
             is EateryApiResponse.Error -> FavoritesScreenViewState.Error
             is EateryApiResponse.Pending -> FavoritesScreenViewState.Loading
             is EateryApiResponse.Success -> {
                 val allEateries = apiResponse.data
 
-                val filteredEateries = apiResponse.data.filter {
+                val favoriteEateryObjects = allEateries.filter { eatery ->
+                    eatery.name in favoriteEateries
+                }
+
+                val filteredEateries = favoriteEateryObjects.filter {
                     Filter.passesSelectedFilters(
                         allEateryFilters, selectedEateryFilters, FilterData(
                             eatery = it,
@@ -89,7 +94,7 @@ class FavoritesViewModel @Inject constructor(
 
                 val menuItemsToEateries: Map<String, List<Eatery>> =
                     favoriteItems.associateWith { itemName ->
-                        allEateries.filter { eatery ->
+                        favoriteEateryObjects.filter { eatery ->
                             val todayEvents = eatery.events?.filter {
                                 (it.endTimestamp ?: LocalDateTime.MAX) < LocalDateTime.now()
                                     .withHour(23)
@@ -165,12 +170,10 @@ class FavoritesViewModel @Inject constructor(
     }
 
     fun toggleFavoriteMenuItem(menuItemName: String) = viewModelScope.launch {
-        viewModelScope.launch {
-            if (menuItemName in userRepository.favoriteItemsFlow.value) {
-                userRepository.removeFavoriteItem(menuItemName)
-            } else {
-                userRepository.addFavoriteItem(menuItemName)
-            }
+        if (menuItemName in userRepository.favoriteItemsFlow.value) {
+            userRepository.removeFavoriteItem(menuItemName)
+        } else {
+            userRepository.addFavoriteItem(menuItemName)
         }
     }
 
@@ -186,11 +189,9 @@ class FavoritesViewModel @Inject constructor(
         }
     }
 
-    fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null) {
-            viewModelScope.launch {
-                userRepository.removeFavoriteEatery(eateryId)
-            }
+    fun removeFavorite(eateryId: Int, eateryName: String) {
+        viewModelScope.launch {
+            userRepository.removeFavoriteEatery(eateryId, eateryName)
         }
     }
 }
