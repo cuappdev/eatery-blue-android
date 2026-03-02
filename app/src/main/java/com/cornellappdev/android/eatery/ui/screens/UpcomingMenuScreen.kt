@@ -288,10 +288,7 @@ private fun UpcomingFilterRow(
                         }
                     },
                     selected = true,
-                    text = when (mealFilter) {
-                        MealFilter.LATE_DINNER -> "Late Dinner"
-                        else -> mealFilter.text.first()
-                    },
+                    text = mealFilter.displayName,
                     icon = Icons.Default.ExpandMore
                 )
             }

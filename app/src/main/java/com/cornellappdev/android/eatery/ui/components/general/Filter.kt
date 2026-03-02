@@ -170,4 +170,8 @@ enum class MealFilter(val text: List<String>, val endTimes: Float) {
     LUNCH(listOf("LUNCH", "BRUNCH", "LATE_LUNCH"), 16f),
     DINNER(listOf("DINNER"), 20.5f),
     LATE_DINNER(listOf("LATE_NIGHT"), 22.5f);
+
+    val displayName: String
+        get() = name.split('_')
+            .joinToString(" ") { it.lowercase().replaceFirstChar { char -> char.uppercase() } }
 }
