@@ -113,10 +113,13 @@ class LoginViewModel @Inject constructor(
 
     }
 
-    fun onLogoutPressed() {
+    fun onLogoutPressed(onDone: () -> Unit = {}) {
         val newState = State.Login()
         _state.value = newState
-        viewModelScope.launch { userRepository.logout() }
+        viewModelScope.launch {
+            userRepository.logout()
+            onDone()
+        }
     }
 
     fun onLoginWebViewSuccess(sessionId: String) {

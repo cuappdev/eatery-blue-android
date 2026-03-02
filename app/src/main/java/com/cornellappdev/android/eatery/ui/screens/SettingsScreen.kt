@@ -262,8 +262,9 @@ fun SettingsScreen(
                         ) {
                             Button(
                                 onClick = {
-                                    loginViewModel.onLogoutPressed()
-                                    destinations[Routes.PROFILE]?.invoke()
+                                    loginViewModel.onLogoutPressed(onDone = {
+                                        destinations[Routes.PROFILE]?.invoke()
+                                    })
                                 },
                                 shape = RoundedCornerShape(25.dp),
                                 colors = ButtonDefaults.buttonColors(
