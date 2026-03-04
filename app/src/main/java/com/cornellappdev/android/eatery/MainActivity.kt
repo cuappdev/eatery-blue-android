@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity() {
         runBlocking {
             configureTokens()
             userRepository.updateFavorites()
+            userRepository.markTokensAsConfigured()
         }
     }
 

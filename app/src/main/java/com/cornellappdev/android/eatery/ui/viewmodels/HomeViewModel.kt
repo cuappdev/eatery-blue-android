@@ -177,4 +177,12 @@ class HomeViewModel @Inject constructor(
     fun pingEateries() {
         eateryRepository.pingEateries()
     }
+
+    fun updateFavoritesIfConfigured() {
+        if (userRepository.tokensConfiguredFlow.value) {
+            viewModelScope.launch {
+                userRepository.updateFavorites()
+            }
+        }
+    }
 }

@@ -47,6 +47,13 @@ class UserRepository @Inject constructor(
      */
     val favoriteItemsFlow: StateFlow<List<String>> = _favoriteItemsFlow.asStateFlow()
 
+    private val _tokensConfiguredFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    /**
+     * A [StateFlow] that emits whether configureTokens() has completed successfully.
+     */
+    val tokensConfiguredFlow: StateFlow<Boolean> = _tokensConfiguredFlow.asStateFlow()
+
     suspend fun hasLaunchedBefore(): Boolean = userPreferencesRepository.getDeviceId() != null
 
     suspend fun getDeviceId(): String {
@@ -82,6 +89,10 @@ class UserRepository @Inject constructor(
         } else {
             throw Exception("Refresh token is null")
         }
+    }
+
+    fun markTokensAsConfigured() {
+        _tokensConfiguredFlow.value = true
     }
 
     suspend fun updateFavorites() {

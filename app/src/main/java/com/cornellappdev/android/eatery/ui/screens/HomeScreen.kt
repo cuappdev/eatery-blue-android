@@ -134,6 +134,10 @@ fun HomeScreen(
         LocationHandler.instantiate(context)
     }
 
+    LaunchedEffect(Unit) {
+        homeViewModel.updateFavoritesIfConfigured()
+    }
+
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
