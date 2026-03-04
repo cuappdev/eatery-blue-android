@@ -74,7 +74,7 @@ sealed class Filter(open val text: String) {
 
         data object Under10 : FromEateryFilter(text = "Under 10 min") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
-                eatery.getWalkTimes()?.let { it <= 10 } == true
+                eatery.getWalkTimeInMinutes()?.let { it <= 10 } == true
         }
 
         data object Swipes : FromEateryFilter(text = "Swipes") {

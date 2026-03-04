@@ -340,24 +340,7 @@ fun SetupNavHost(
                         }
                     }
                 ),
-//                loginViewModel = loginViewModel
             )
-
-        }
-        composable(
-            route = Routes.ACCOUNT.route,
-            enterTransition = {
-                fadeIn(
-                    initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 500)
-                )
-            },
-            exitTransition = {
-                fadeOut(
-                    animationSpec = tween(durationMillis = 500)
-                )
-            }) { backStackEntry ->
-            // TODO account page
         }
         composable(
             route = Routes.ABOUT.route,

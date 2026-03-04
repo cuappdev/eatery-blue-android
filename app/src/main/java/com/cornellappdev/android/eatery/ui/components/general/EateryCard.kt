@@ -293,7 +293,7 @@ fun EateryCardPrimaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardS
 @Composable
 fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardStyle.DEFAULT) {
     if (style != EateryCardStyle.COMPACT) {
-        val walkText = eatery.getWalkTimes()?.let {
+        val walkText = eatery.getWalkTimeInMinutes()?.let {
             "${if (it > 0) it else "< 1"} min walk"
         }
         Row(

@@ -22,3 +22,11 @@ fun DayOfWeek.toReadableShortName(): String = when (this) {
  * Example: If day of the week is Monday, and the offset is 1, it would return Tuesday
  */
 fun Int.fromOffsetToDayOfWeek(): DayOfWeek = LocalDate.now().plusDays(this.toLong()).dayOfWeek
+
+/**
+ * Converts meal type strings from the API (e.g., "BREAKFAST", "LATE_DINNER") to display names
+ * (e.g., "Breakfast", "Late Dinner")
+ */
+fun String.toMealTypeDisplayName(): String =
+    split('_')
+        .joinToString(" ") { it.lowercase().replaceFirstChar { char -> char.uppercase() } }

@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.data.models
 
 import android.location.Location
 import androidx.compose.ui.graphics.Color
-import com.cornellappdev.android.eatery.ui.components.general.MealFilter
 import com.cornellappdev.android.eatery.util.Constants.AVERAGE_WALK_SPEED
 import com.cornellappdev.android.eatery.util.LocationHandler
 import com.squareup.moshi.Json
@@ -46,7 +45,7 @@ data class Eatery(
     val waitTimes: List<WaitTimeDay>? = null,
     val alerts: List<Alert>? = null,
 ) {
-    fun getWalkTimes(): Int? {
+    fun getWalkTimeInMinutes(): Int? {
         val currentLocation = LocationHandler.currentLocation.value
         val results = floatArrayOf(0f)
         if (latitude == null || longitude == null || currentLocation == null) {
@@ -114,7 +113,6 @@ data class Eatery(
         ?: todayEvents.lastOrNull()
     }
 
-
     /**
      * @returns the event that makes the day index and mealDescription
      *
@@ -140,9 +138,8 @@ data class Eatery(
      * for louies, it returns [("General",some string duration)]
      * Note, string duration are in the format "11:00 AM - 2:30 PM"
      */
-    fun getTypeMeal(currSelectedDay: DayOfWeek): List<Pair<String, String>> {
+    fun getTypeMeal(currSelectedDay: DayOfWeek): List<MealTime> {
         val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
-
         val uniqueMeals = LinkedHashMap<String, String>()
 
         events?.filter { it.startTimestamp?.dayOfWeek == currSelectedDay }
@@ -160,7 +157,7 @@ data class Eatery(
                 }
             }
 
-        return uniqueMeals.toList()
+        return uniqueMeals.map { (description, duration) -> MealTime(description, duration) }
     }
 
     /**
@@ -173,14 +170,6 @@ data class Eatery(
             "Closed" in times
         }.map { (day, _) ->
             day
-        }
-    }
-
-    fun getSelectedDayMeal(meal: MealFilter, day: Int): List<Event>? {
-        var currentDay = LocalDate.now()
-        currentDay = currentDay.plusDays(day.toLong())
-        return events?.filter { event ->
-            currentDay.dayOfYear == event.startTimestamp?.dayOfYear && meal.text.contains(event.type)
         }
     }
 
@@ -206,9 +195,7 @@ data class Eatery(
         return "${endTime.format(DateTimeFormatter.ofPattern("K:mm a"))}"
     }
 
-    fun isClosed(): Boolean {
-        return getOpenUntil() == null
-    }
+    fun isClosed(): Boolean = getOpenUntil() == null
 
     /**
      * Returns true if the eatery has a current event and that event is ending within [minutes].
@@ -259,21 +246,13 @@ data class Eatery(
 
     fun acceptsBRB(): Boolean = paymentMethods?.contains(PaymentMethod.BRB) ?: false
 
-//    fun acceptsMealSwipes(): Boolean = paymentMethods?.contains("MEAL_SWIPE") ?: false
-//
-//    fun acceptsCard(): Boolean = paymentMethods?.contains("CARD") ?: false
-//
-//    fun acceptsCash(): Boolean = paymentMethods?.contains("CASH") ?: false
-//
-//    fun acceptsBRB(): Boolean = paymentMethods?.contains("BRB") ?: false
-
     /**
      * Private helper function that returns a map of the day of week that a eatery is open
      * to the opening time(s) or closed status (these are strings)
      *
      * e.g. For Oken, {Monday -> ["11:00 AM - 2:30 PM", "4:30 PM - 9:00 PM"], Sunday -> "Closed"}
      */
-    private fun operatingHours(): Map<DayOfWeek, MutableList<String>> {
+    private fun operatingHours(): Map<DayOfWeek, List<String>> {
         val dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
 
         events?.forEach { event ->
@@ -323,7 +302,6 @@ data class Eatery(
         "Thursday" to 5,
         "Friday" to 6,
         "Saturday" to 7
-
     )
 
     /**
@@ -339,7 +317,7 @@ data class Eatery(
      * together; then, these groups, along with days with unique opening times compared
      * to its neighbor days, are each mapped to the corresponding opening times
      */
-    private fun groupedHoursFormatHelper(groupedHours: Map<MutableList<String>, List<DayOfWeek>>): List<Pair<String, List<String>>> {
+    private fun groupedHoursFormatHelper(groupedHours: Map<List<String>, List<DayOfWeek>>): List<Pair<String, List<String>>> {
         val formattedHours = LinkedHashMap<String, List<String>>()
 
         groupedHours.forEach { entry ->
@@ -485,3 +463,14 @@ data class EateryStatus(
     val statusText: String,
     val statusColor: Color,
 )
+
+/**
+ * Represents a meal with its description and time duration.
+ * @param mealType The meal type (e.g., "Lunch", "Dinner", "Breakfast")
+ * @param duration The meal time range in the format "HH:MM AM/PM - HH:MM AM/PM" (e.g., "11:00 AM - 2:30 PM")
+ */
+data class MealTime(
+    val mealType: String,
+    val duration: String,
+)
+

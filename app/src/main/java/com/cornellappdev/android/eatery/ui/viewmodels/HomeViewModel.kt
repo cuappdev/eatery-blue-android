@@ -120,7 +120,7 @@ class HomeViewModel @Inject constructor(
             is EateryApiResponse.Error -> listOf()
             is EateryApiResponse.Pending -> listOf()
             is EateryApiResponse.Success -> {
-                apiResponse.data.sortedBy { it.getWalkTimes() }.sortedBy { it.isClosed() }
+                apiResponse.data.sortedBy { it.getWalkTimeInMinutes() }.sortedBy { it.isClosed() }
             }
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())

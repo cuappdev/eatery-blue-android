@@ -113,9 +113,8 @@ import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
-import com.cornellappdev.android.eatery.util.AppStorePopupRepository
-import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
+import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -128,7 +127,6 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
-    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -237,11 +235,11 @@ fun EateryDetailScreen(
                                         ReportBottomSheet(
                                             issue = issue,
                                             eateryid = it,
-                                            sendReport = { issue, report, eateryid ->
+                                            sendReport = { issue, report, eateryId ->
                                                 eateryDetailViewModel.sendReport(
                                                     issue,
                                                     report,
-                                                    eateryid
+                                                    eateryId
                                                 )
                                             }) {
                                             coroutineScope.launch {
@@ -602,60 +600,8 @@ fun EateryDetailScreen(
                                                 .fillMaxHeight(0.5f)
                                                 .width(1.dp)
                                         )
-                                        //todo get rid of this?
-
-
-                                        //                            Column(
-//                                horizontalAlignment = Alignment.CenterHorizontally,
-//                                modifier = Modifier
-//                                    .padding(vertical = 12.dp)
-//                                    .weight(1f, true)
-//                            ) {
-//                                Row(
-//                                    verticalAlignment = Alignment.CenterVertically,
-//                                    modifier = Modifier.clickable {
-//                                        sheetContent = BottomSheetContent.WAIT_TIME
-//                                        coroutineScope.launch {
-//                                            modalBottomSheetState.show()
-//                                        }
-//                                    }
-//                                ) {
-//                                    Icon(
-//                                        imageVector = Icons.Default.HourglassTop,
-//                                        contentDescription = "Watch Icon",
-//                                        tint = GrayFive
-//                                    )
-//                                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-//                                    Text(
-//                                        text = "Wait Time",
-//                                        style = TextStyle(
-//                                            fontWeight = FontWeight.SemiBold,
-//                                            fontSize = 16.sp
-//                                        ),
-//                                        color = GrayFive
-//                                    )
-//                                }
-//
-//                                val waitTimes = eatery.getWaitTimes()
-//                                Text(
-//                                    modifier = Modifier.padding(top = 2.dp),
-//                                    text = if (!waitTimes.isNullOrEmpty() && !eatery.isClosed()) {
-//                                        "$waitTimes minutes"
-//                                    } else {
-//                                        "-"
-//                                    },
-//                                    style = TextStyle(
-//                                        fontWeight = FontWeight.SemiBold,
-//                                        fontSize = 16.sp
-//                                    ),
-//                                    color = Color.Black,
-//                                )
-//
-//
-//                            }
                                     }
                                 }
-
 
                                 item {
                                     Spacer(
@@ -703,7 +649,7 @@ fun EateryDetailScreen(
                                     }
                                     eatery.getTypeMeal(viewState.weekdayIndex.fromOffsetToDayOfWeek())
                                         .takeIf { it.size > 1 }
-                                        ?.map { it.first }
+                                        ?.map { it.mealType.toMealTypeDisplayName() }
                                         ?.let { mealTypes ->
                                             item {
                                                 EateryMealTabs(

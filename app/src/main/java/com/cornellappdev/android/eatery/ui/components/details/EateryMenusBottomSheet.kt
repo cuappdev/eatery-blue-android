@@ -37,10 +37,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.MealTime
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import com.cornellappdev.android.eatery.util.toReadableShortName
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -95,9 +97,9 @@ fun EateryMenusBottomSheet(
     }
 
     val selectedDayOfWeek = DayOfWeek.of(dayWeeks[currSelectedDay])
-    val mealTypes: List<Pair<String, String>> = eatery.getTypeMeal(selectedDayOfWeek)
+    val mealTypes: List<MealTime> = eatery.getTypeMeal(selectedDayOfWeek)
     var selectedMealType by remember {
-        mutableStateOf(mealTypes[mealType].first)
+        mutableStateOf(mealTypes[mealType].mealType)
     }
 
     Card(
@@ -147,7 +149,7 @@ fun EateryMenusBottomSheet(
                 days = days,
                 onClick = { i ->
                     currSelectedDay = i
-                    selectedMealType = mealTypes.firstOrNull()?.first ?: ""
+                    selectedMealType = mealTypes.firstOrNull()?.mealType ?: ""
                 },
                 modifier = Modifier.padding(bottom = 12.dp),
                 closedDays = closedDaysStrings,
@@ -170,7 +172,7 @@ fun EateryMenusBottomSheet(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = description,
+                                    text = description.toMealTypeDisplayName(),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight(600),
                                     color = Color.Black,
@@ -234,7 +236,7 @@ fun EateryMenusBottomSheet(
                         onShowMenuClick(
                             currSelectedDay,
                             selectedMealType,
-                            mealTypes.indexOfFirst { it.first == selectedMealType })
+                            mealTypes.indexOfFirst { it.mealType == selectedMealType })
                         onDismiss()
                     },
                     modifier = Modifier
