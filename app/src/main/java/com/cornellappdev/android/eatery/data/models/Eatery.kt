@@ -18,7 +18,13 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Date
+import java.util.Locale
+
+typealias DayToOperatingHours = Map<DayOfWeek, List<String>>
+typealias OperatingHoursToDays = Map<List<String>, List<DayOfWeek>>
+typealias FormattedOperatingHours = List<Pair<String, List<String>>>
 
 @JsonClass(generateAdapter = true)
 data class Eatery(
@@ -134,8 +140,8 @@ data class Eatery(
      * on chronological order and the duration of that particular meal
      * e.g. for Oken on Mondays, it would return
      * [("Lunch", some string duration),("Dinner", some string duration)]
-     * note, for cafes, it would just return [("Open",some string duration)],
-     * for louies, it returns [("General",some string duration)]
+     * note, for cafés, it would just return [("Open",some string duration)],
+     * for Louie's, it returns [("General",some string duration)]
      * Note, string duration are in the format "11:00 AM - 2:30 PM"
      */
     fun getTypeMeal(currSelectedDay: DayOfWeek): List<MealTime> {
@@ -164,7 +170,7 @@ data class Eatery(
      * Returns the list of DayOfWeek that this eatery is closed
      */
     fun getClosedDays(): List<DayOfWeek> {
-        val dailyHours = operatingHours()
+        val dailyHours = getOperatingHours()
 
         return dailyHours.filter { (_, times) ->
             "Closed" in times
@@ -252,7 +258,7 @@ data class Eatery(
      *
      * e.g. For Oken, {Monday -> ["11:00 AM - 2:30 PM", "4:30 PM - 9:00 PM"], Sunday -> "Closed"}
      */
-    private fun operatingHours(): Map<DayOfWeek, List<String>> {
+    private fun getOperatingHours(): DayToOperatingHours {
         val dailyHours = mutableMapOf<DayOfWeek, MutableList<String>>()
 
         events?.forEach { event ->
@@ -265,78 +271,54 @@ data class Eatery(
                 dailyHours.computeIfAbsent(dayOfWeek) { mutableListOf() }.add(timeString)
             }
         }
-
         DayOfWeek.entries.forEach { dayOfWeek ->
             dailyHours.computeIfAbsent(dayOfWeek) { mutableListOf("Closed") }
         }
-
         return dailyHours
     }
 
-    /**@Return a list of pairs (association list) representing the day(s) of a week
-     * and the corresponding times that a eatery is open
+    /**@Return A list of pairs (association list) representing the day(s) of a week
+     * and the corresponding times that an eatery is open
      *
-     * this is computed by first mapping each dayOfWeek in each element of events to
-     * corresponding opening times (with helper operatingHours()),
-     * then a helper (groupedHoursFormatHelper) to group
-     * daysOfWeek with the same list of opening times into the association list of
-     * day(s) mapped to opening hours.
      */
-    fun formatOperatingHours(): List<Pair<String, List<String>>> {
-        val dailyHours = operatingHours()
-
+    fun formatOperatingHours(): FormattedOperatingHours {
+        val dailyHours = getOperatingHours()
         val groupedHours = dailyHours.entries.groupBy({ it.value }, { it.key })
-
         return groupedHoursFormatHelper(groupedHours)
     }
 
     /**
-     * value to represent the custom order of days in a week (with Sunday as
-     * the first day due to a particular design choice). Used for sorting purposes
-     */
-    private val dayOrder = mapOf(
-        "Sunday" to 1,
-        "Monday" to 2,
-        "Tuesday" to 3,
-        "Wednesday" to 4,
-        "Thursday" to 5,
-        "Friday" to 6,
-        "Saturday" to 7
-    )
-
-    /**
      * @Return a list of pairs (association list) representing the day(s) of a week
-     * and the corresponding times that a eatery is open. The list of pairs is sorted
-     * by key (day(s)) with the custom dayOrder
+     * and the corresponding times that an eatery is open. The list of pairs is sorted
+     * by key (day(s)) with Sunday as the first day of the week
      *
      * @Param groupedHours: a Map data structure mapping a MutableList of strings
-     * representing the opening times of a eatery to the days that opens at those
+     * representing the opening times of an eatery to the days that opens at those
      * opening times
      *
      * The function groups consecutive days of the week that share the same opening time
      * together; then, these groups, along with days with unique opening times compared
      * to its neighbor days, are each mapped to the corresponding opening times
      */
-    private fun groupedHoursFormatHelper(groupedHours: Map<List<String>, List<DayOfWeek>>): List<Pair<String, List<String>>> {
+    private fun groupedHoursFormatHelper(groupedHours: OperatingHoursToDays): FormattedOperatingHours {
         val formattedHours = LinkedHashMap<String, List<String>>()
 
-        groupedHours.forEach { entry ->
-            val days = entry.value.sortedBy {
-                val dayName = "$it".take(1).uppercase() + "$it".drop(1).lowercase()
-                dayOrder[dayName] ?: Int.MAX_VALUE
+        groupedHours.forEach { (operatingHours, daysOfTheWeek) ->
+            val days = daysOfTheWeek.sortedBy { dayOfWeek ->
+                dayOfWeek.value % 7
             }
             var curStrings = mutableListOf<String>()
-            for (i in (days.indices)) {
-                val curDay = "${days[i]}".take(1).uppercase() + "${days[i]}".drop(1).lowercase()
+            for (i in days.indices) {
+                val curDay = days[i].getDisplayName(TextStyle.FULL, Locale.getDefault())
                 if (i == days.size - 1) {
                     curStrings.add(curDay)
                     val formattedString = formatString(curStrings)
-                    formattedHours[formattedString] = entry.key
+                    formattedHours[formattedString] = operatingHours
                 } else {
                     curStrings.add(curDay)
-                    if (!isNext("${days[i]}", "${days[i + 1]}")) {
+                    if (!isNext(days[i], days[i + 1])) {
                         val formattedString = formatString(curStrings)
-                        formattedHours[formattedString] = entry.key
+                        formattedHours[formattedString] = operatingHours
                         curStrings = mutableListOf()
                     }
                 }
@@ -345,30 +327,19 @@ data class Eatery(
 
         val formattedHoursList = formattedHours.toList().sortedBy { entry ->
             val firstDay = entry.first.split(" to ", " ", limit = 2).first()
-            dayOrder[firstDay] ?: Int.MAX_VALUE
+            // Find the matching day and get its sort value
+            DayOfWeek.entries.find {
+                it.getDisplayName(TextStyle.FULL, Locale.getDefault()) == firstDay
+            }?.let { (it.value % 7) } ?: Int.MAX_VALUE
         }
         return formattedHoursList
     }
 
     /**
-     * @Return Boolean representing if day2 is right (consecutively) after
-     * day1
-     *
-     * @Param day1: a all capitalized string representing a day in the week
-     * @Param day2: a all capitalized string representing a day in the week
+     * @Return Whether day2 follows day1
      */
-    private fun isNext(day1: String, day2: String): Boolean {
-        return when (day1) {
-            "MONDAY" -> day2 == "TUESDAY"
-            "TUESDAY" -> day2 == "WEDNESDAY"
-            "WEDNESDAY" -> day2 == "THURSDAY"
-            "THURSDAY" -> day2 == "FRIDAY"
-            "FRIDAY" -> day2 == "SATURDAY"
-            "SATURDAY" -> false
-            "SUNDAY" -> day2 == "MONDAY"
-            else -> false
-        }
-    }
+    private fun isNext(day1: DayOfWeek, day2: DayOfWeek): Boolean =
+        ((day1.value % 7) + 1) % 7 == (day2.value % 7)
 
     /**
      * @Return formatted string representing the duration of days of a week
