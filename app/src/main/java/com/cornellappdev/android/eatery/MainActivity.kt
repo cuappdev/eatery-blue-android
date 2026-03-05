@@ -38,11 +38,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize the activity result launcher before onCreate
         activityResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
         ) { result ->
-            // Handle the result from the update flow
             if (result.resultCode != RESULT_OK) {
                 Log.d("MainActivity", "Update flow failed! Result code: ${result.resultCode}")
             }
@@ -99,10 +97,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkForUpdateAvailability() {
-        // Check for updates
         appUpdateManager.appUpdateInfo.addOnSuccessListener { appUpdateInfo ->
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                // Check if update is allowed based on priority and type
                 val isImmediateUpdateAllowed =
                     appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)
                 val isFlexibleUpdateAllowed =
@@ -156,8 +152,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-
-                    // Register listener before starting flexible update
                     appUpdateManager.registerListener(listener)
 
                     appUpdateManager.startUpdateFlowForResult(
@@ -171,8 +165,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun popupSnackbarForCompleteUpdate() {
-        // Show a snackbar or dialog to prompt user to complete the update
-        // For Compose, you might want to show a dialog instead
+        // todo - Show a snackbar or dialog to prompt user to complete the update
         appUpdateManager.completeUpdate()
     }
 
