@@ -71,10 +71,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        flexibleUpdateListener?.let {
-            appUpdateManager.unregisterListener(it)
-            flexibleUpdateListener = null
-        }
+        unregisterFlexibleUpdateListener()
     }
 
     override fun onResume() {
@@ -121,8 +118,7 @@ class MainActivity : ComponentActivity() {
                     // Create a listener to track flexible update progress
                     flexibleUpdateListener = InstallStateUpdatedListener { state ->
                         if (state.installStatus() == InstallStatus.DOWNLOADED) {
-                            flexibleUpdateListener?.let { appUpdateManager.unregisterListener(it) }
-                            flexibleUpdateListener = null
+                            unregisterFlexibleUpdateListener()
                             appUpdateManager.completeUpdate()
                         }
                     }
@@ -136,6 +132,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun unregisterFlexibleUpdateListener() {
+        flexibleUpdateListener?.let(appUpdateManager::unregisterListener)
+        flexibleUpdateListener = null
     }
 
     private suspend fun configureTokens() {
