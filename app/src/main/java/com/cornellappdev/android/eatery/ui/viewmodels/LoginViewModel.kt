@@ -132,13 +132,6 @@ class LoginViewModel @Inject constructor(
         _loginLoadingFlow.value = isLoading
     }
 
-    fun onLogoutPressed(onDone: () -> Unit = {}) {
-        viewModelScope.launch {
-            userRepository.logout()
-            onDone()
-        }
-    }
-
     fun onLoginWebViewSuccess(sessionId: String) {
         viewModelScope.launch {
             if (linkGETAccount(sessionId)) {
@@ -167,7 +160,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    suspend fun getFinancials() {
+    private suspend fun getFinancials() {
         when (val result = userRepository.getFinancials()) {
             is Result.Success -> {
                 _error.value = null
