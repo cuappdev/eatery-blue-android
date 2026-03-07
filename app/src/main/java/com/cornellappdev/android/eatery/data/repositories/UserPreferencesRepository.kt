@@ -19,6 +19,7 @@ class UserPreferencesRepository @Inject constructor(
     private val userPreferencesStore: DataStore<UserPreferences>,
 ) {
     private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
+
     val recentSearchesFlow: StateFlow<List<Int>> = userPreferencesFlow.map { prefs ->
         prefs.recentSearchesList
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, listOf())
@@ -48,6 +49,31 @@ class UserPreferencesRepository @Inject constructor(
             currentPreferences.toBuilder()
                 .addRecentSearches(eateryId)
                 .build()
+        }
+    }
+
+    suspend fun setFavoriteEateryName(eateryName: String, isFavorite: Boolean) {
+        setPref {
+            val updatedFavorites = favoriteEateryNamesList
+                .filter { it != eateryName }
+                .toMutableList()
+
+            if (isFavorite) {
+                updatedFavorites.add(eateryName)
+            }
+
+            clearFavoriteEateryNames()
+            addAllFavoriteEateryNames(updatedFavorites)
+        }
+    }
+
+    suspend fun setFavoriteItemName(itemName: String, isFavorite: Boolean) {
+        setPref {
+            if (isFavorite) {
+                putItemFavorites(itemName, true)
+            } else {
+                removeItemFavorites(itemName)
+            }
         }
     }
 
@@ -115,4 +141,10 @@ class UserPreferencesRepository @Inject constructor(
     suspend fun setSessionId(sessionId: String) {
         setPref { setSessionId(sessionId) }
     }
+
+    suspend fun getFavoriteEateryNames(): List<String> =
+        userPreferencesFlow.firstOrNull()?.favoriteEateryNamesList ?: emptyList()
+
+    suspend fun getFavoriteItemNames(): List<String> =
+        userPreferencesFlow.firstOrNull()?.itemFavoritesMap?.keys?.toList() ?: emptyList()
 }

@@ -27,6 +27,9 @@ message UserPreferences {
   string refreshToken = 13;
   int32 pin = 14;
 
+  // delete once no longer local
+  repeated string favoriteEateryNames = 15;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.
