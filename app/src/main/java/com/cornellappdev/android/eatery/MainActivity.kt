@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<IntentSenderRequest>
     private val appUpdateManager by lazy { AppUpdateManagerFactory.create(applicationContext) }
+    private var flexibleUpdateListener: InstallStateUpdatedListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,6 +66,14 @@ class MainActivity : ComponentActivity() {
             configureTokens()
             userRepository.updateFavorites()
             userRepository.markTokensAsConfigured()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        flexibleUpdateListener?.let {
+            appUpdateManager.unregisterListener(it)
+            flexibleUpdateListener = null
         }
     }
 
@@ -110,12 +119,14 @@ class MainActivity : ComponentActivity() {
                 // For normal priority updates, use flexible update
                 else if (isFlexibleUpdateAllowed) {
                     // Create a listener to track flexible update progress
-                    val listener = InstallStateUpdatedListener { state ->
+                    flexibleUpdateListener = InstallStateUpdatedListener { state ->
                         if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                            flexibleUpdateListener?.let { appUpdateManager.unregisterListener(it) }
+                            flexibleUpdateListener = null
                             appUpdateManager.completeUpdate()
                         }
                     }
-                    appUpdateManager.registerListener(listener)
+                    flexibleUpdateListener?.let { appUpdateManager.registerListener(it) }
 
                     appUpdateManager.startUpdateFlowForResult(
                         appUpdateInfo,
