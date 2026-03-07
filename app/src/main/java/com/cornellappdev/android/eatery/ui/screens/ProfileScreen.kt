@@ -4,7 +4,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.Transaction
@@ -13,7 +12,6 @@ import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
-import com.cornellappdev.android.eatery.util.EateryPreview
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -89,34 +87,4 @@ private fun ProfileScreenContent(
             updateAccountFilter = updateAccountFilter
         )
     }
-}
-
-@Preview
-@Composable
-private fun ProfileLoginScreenPreview() = EateryPreview {
-    LoginViewModel.State.Login(
-        netID = "aaa00",
-        password = "myVeryLongPassword",
-        loading = false
-    )
-    ProfileScreenContent(
-        isLoginState = false,
-        accountTypeBalance = AccountBalances(
-            brbBalance = 1234.56,
-            cityBucksBalance = 78.90,
-            laundryBalance = 12.34,
-            mealSwipes = 30
-        ),
-        loading = false,
-        onLoginPressed = {},
-        onSuccess = {},
-        webViewEnabled = false,
-        onBackClick = {},
-        onModalHidden = {},
-        accountFilter = TransactionAccountType.BRBS,
-        onSettingsClicked = {},
-        filteredTransactions = emptyList(),
-        onQueryChanged = {},
-        updateAccountFilter = {},
-    )
 }
