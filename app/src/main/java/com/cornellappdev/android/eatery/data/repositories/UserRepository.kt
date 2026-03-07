@@ -320,7 +320,8 @@ class UserRepository @Inject constructor(
      */
     private suspend fun refreshTokens() {
         val deviceId = getDeviceId()
-        val refreshToken = userPreferencesRepository.getRefreshToken()!!
+        val refreshToken = userPreferencesRepository.getRefreshToken()
+            ?: throw IllegalStateException("Refresh token not available")
         val tokens = networkApi.refreshToken(
             RefreshRequest(
                 deviceId = deviceId,
@@ -345,7 +346,10 @@ class UserRepository @Inject constructor(
      * Gets access token with Bearer prefix assuming device has been registered
      */
     private suspend fun getAccessToken(): String =
-        prependBearer(userPreferencesRepository.getAccessToken()!!)
+        prependBearer(
+            userPreferencesRepository.getAccessToken()
+                ?: throw IllegalStateException("Access token ont available")
+        )
 
     private fun prependBearer(str: String) = "Bearer $str"
 }
