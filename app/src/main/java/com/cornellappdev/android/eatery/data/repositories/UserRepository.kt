@@ -234,6 +234,13 @@ class UserRepository @Inject constructor(
                 sessionId = SessionID(userPreferencesRepository.getSessionId())
             )
         }
+        _loadedUser.value = User(
+            brbBalance = financials.accounts?.brbBalance?.balance,
+            cityBucksBalance = financials.accounts?.cityBucksBalance?.balance,
+            laundryBalance = financials.accounts?.laundryBalance?.balance,
+            transactions = financials.transactions,
+//            mealSwipes = financials.accounts?.mealSwipes
+        )
         financials
     }
 

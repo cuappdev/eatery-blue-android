@@ -24,7 +24,6 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,7 +50,6 @@ fun SettingsScreen(
     destinations: HashMap<Routes, () -> Unit>
 ) {
     // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false
-    val state = loginViewModel.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -248,41 +246,34 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                when (state) {
-                    is LoginViewModel.State.Login -> {
-                    }
-
-                    is LoginViewModel.State.Account -> {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 34.dp),
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Button(
-                                onClick = {
-                                    loginViewModel.onLogoutPressed(onDone = {
-                                        destinations[Routes.PROFILE]?.invoke()
-                                    })
-                                },
-                                shape = RoundedCornerShape(25.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = GrayZero,
-                                    contentColor = Color.Black
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Logout,
-                                    contentDescription = Icons.Default.Logout.name,
-                                )
-                                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                                Text(
-                                    text = "Log out",
-                                    style = EateryBlueTypography.button
-                                )
-                            }
-                        }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 34.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = {
+                            loginViewModel.onLogoutPressed(onDone = {
+                                destinations[Routes.PROFILE]?.invoke()
+                            })
+                        },
+                        shape = RoundedCornerShape(25.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = GrayZero,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Logout,
+                            contentDescription = Icons.Default.Logout.name,
+                        )
+                        Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                        Text(
+                            text = "Log out",
+                            style = EateryBlueTypography.button
+                        )
                     }
                 }
             }

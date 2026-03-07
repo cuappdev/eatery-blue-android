@@ -24,7 +24,7 @@ fun ProfileScreen(
     webViewEnabled: Boolean,
     onBackClick: () -> Unit
 ) {
-    val state = loginViewModel.state.collectAsState().value
+    val state = loginViewModel.state.collectAsState(initial = LoginViewModel.State.Login()).value
     val filteredTransactions =
         loginViewModel.filteredTransactionsFlow.collectAsState(initial = emptyList()).value
 
