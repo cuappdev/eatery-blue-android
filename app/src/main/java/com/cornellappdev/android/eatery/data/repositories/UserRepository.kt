@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.data.repositories
 
+import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.DeviceId
 import com.cornellappdev.android.eatery.data.models.FavoriteEatery
@@ -54,6 +55,8 @@ class UserRepository @Inject constructor(
      */
     val tokensConfiguredFlow: StateFlow<Boolean> = _tokensConfiguredFlow.asStateFlow()
 
+    private val useLocalFavorites = BuildConfig.USE_LOCAL_FAVORITES
+
     suspend fun hasLaunchedBefore(): Boolean = userPreferencesRepository.getDeviceId() != null
 
     suspend fun getDeviceId(): String {
@@ -96,6 +99,12 @@ class UserRepository @Inject constructor(
     }
 
     suspend fun updateFavorites() {
+        if (useLocalFavorites) {
+            _favoritesEateriesFlow.value = userPreferencesRepository.getFavoriteEateryNames()
+            _favoriteItemsFlow.value = userPreferencesRepository.getFavoriteItemNames()
+            return
+        }
+
         val accessPhrase = getAccessToken()
         val matches = tryRequest {
             networkApi.getFavoriteMatches(accessToken = accessPhrase)
@@ -122,43 +131,83 @@ class UserRepository @Inject constructor(
             )
         }
 
-    suspend fun addFavoriteItem(name: String) = tryRequest {
-        networkApi.addFavoriteItem(
-            accessToken = getAccessToken(),
-            item = FavoriteItem(item = name)
-        )
-        _favoriteItemsFlow.update { currentItems ->
-            if (name !in currentItems) currentItems + name else currentItems
+    suspend fun addFavoriteItem(name: String) {
+        if (useLocalFavorites) {
+            userPreferencesRepository.setFavoriteItemName(name, true)
+            _favoriteItemsFlow.update { currentItems ->
+                if (name !in currentItems) currentItems + name else currentItems
+            }
+            return
+        }
+
+        tryRequest {
+            networkApi.addFavoriteItem(
+                accessToken = getAccessToken(),
+                item = FavoriteItem(item = name)
+            )
+            _favoriteItemsFlow.update { currentItems ->
+                if (name !in currentItems) currentItems + name else currentItems
+            }
         }
     }
 
-    suspend fun removeFavoriteItem(name: String) = tryRequest {
-        networkApi.deleteFavoriteItem(
-            accessToken = getAccessToken(),
-            item = FavoriteItem(name)
-        )
-        _favoriteItemsFlow.update { currentItems ->
-            currentItems.filter { it != name }
+    suspend fun removeFavoriteItem(name: String) {
+        if (useLocalFavorites) {
+            userPreferencesRepository.setFavoriteItemName(name, false)
+            _favoriteItemsFlow.update { currentItems ->
+                currentItems.filter { it != name }
+            }
+            return
+        }
+
+        tryRequest {
+            networkApi.deleteFavoriteItem(
+                accessToken = getAccessToken(),
+                item = FavoriteItem(name)
+            )
+            _favoriteItemsFlow.update { currentItems ->
+                currentItems.filter { it != name }
+            }
         }
     }
 
-    suspend fun addFavoriteEatery(id: Int, eateryName: String) = tryRequest {
-        networkApi.addFavoriteEatery(
-            accessToken = getAccessToken(),
-            eatery = FavoriteEatery(id),
-        )
-        _favoritesEateriesFlow.update { currentEateries ->
-            if (eateryName !in currentEateries) currentEateries + eateryName else currentEateries
+    suspend fun addFavoriteEatery(id: Int, eateryName: String) {
+        if (useLocalFavorites) {
+            userPreferencesRepository.setFavoriteEateryName(eateryName, true)
+            _favoritesEateriesFlow.update { currentEateries ->
+                if (eateryName !in currentEateries) currentEateries + eateryName else currentEateries
+            }
+            return
+        }
+
+        tryRequest {
+            networkApi.addFavoriteEatery(
+                accessToken = getAccessToken(),
+                eatery = FavoriteEatery(id),
+            )
+            _favoritesEateriesFlow.update { currentEateries ->
+                if (eateryName !in currentEateries) currentEateries + eateryName else currentEateries
+            }
         }
     }
 
-    suspend fun removeFavoriteEatery(id: Int, eateryName: String) = tryRequest {
-        networkApi.deleteFavoriteEatery(
-            accessToken = getAccessToken(),
-            eatery = FavoriteEatery(id)
-        )
-        _favoritesEateriesFlow.update { currentEateries ->
-            currentEateries.filter { it != eateryName }
+    suspend fun removeFavoriteEatery(id: Int, eateryName: String) {
+        if (useLocalFavorites) {
+            userPreferencesRepository.setFavoriteEateryName(eateryName, false)
+            _favoritesEateriesFlow.update { currentEateries ->
+                currentEateries.filter { it != eateryName }
+            }
+            return
+        }
+
+        tryRequest {
+            networkApi.deleteFavoriteEatery(
+                accessToken = getAccessToken(),
+                eatery = FavoriteEatery(id)
+            )
+            _favoritesEateriesFlow.update { currentEateries ->
+                currentEateries.filter { it != eateryName }
+            }
         }
     }
 
