@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.EateryStatus
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
@@ -14,10 +15,13 @@ import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.theme.GrayThree
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -63,6 +67,13 @@ class FavoritesViewModel @Inject constructor(
 ) : ViewModel() {
     private val selectedEateryFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
     private val selectedItemFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
+
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+    val error = _error.asStateFlow()
+
+    fun clearError() {
+        _error.value = null
+    }
 
     /**
      * A flow emitting the latest UI state
@@ -170,10 +181,24 @@ class FavoritesViewModel @Inject constructor(
     }
 
     fun toggleFavoriteMenuItem(menuItemName: String) = viewModelScope.launch {
-        if (menuItemName in userRepository.favoriteItemsFlow.value) {
+        val isRemoving = menuItemName in userRepository.favoriteItemsFlow.value
+        val result = if (isRemoving) {
             userRepository.removeFavoriteItem(menuItemName)
         } else {
             userRepository.addFavoriteItem(menuItemName)
+        }
+
+        when (result) {
+            is Result.Success -> {
+                _error.value = null
+            }
+
+            is Result.Error -> {
+                _error.value = NetworkUiError.Failed(
+                    if (isRemoving) NetworkAction.RemoveFavoriteItem else NetworkAction.AddFavoriteItem,
+                    result.error
+                )
+            }
         }
     }
 
@@ -191,7 +216,16 @@ class FavoritesViewModel @Inject constructor(
 
     fun removeFavorite(eateryId: Int, eateryName: String) {
         viewModelScope.launch {
-            userRepository.removeFavoriteEatery(eateryId, eateryName)
+            when (val result = userRepository.removeFavoriteEatery(eateryId, eateryName)) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.RemoveFavoriteEatery, result.error)
+                }
+            }
         }
     }
 }

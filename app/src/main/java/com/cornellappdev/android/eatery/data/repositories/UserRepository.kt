@@ -8,14 +8,19 @@ import com.cornellappdev.android.eatery.data.models.FavoriteItem
 import com.cornellappdev.android.eatery.data.models.Financials
 import com.cornellappdev.android.eatery.data.models.LoginPIN
 import com.cornellappdev.android.eatery.data.models.LoginRequest
+import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.data.models.RefreshRequest
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.SessionID
 import com.cornellappdev.android.eatery.data.models.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import retrofit2.HttpException
+import java.io.IOException
+import java.net.SocketTimeoutException
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -70,15 +75,16 @@ class UserRepository @Inject constructor(
     }
 
     // called on first app launch
-    suspend fun registerDevice() {
+    suspend fun registerDevice(): Result<Unit> = safeRequest {
         val deviceId = UUID.randomUUID()
         userPreferencesRepository.setDeviceId(deviceId)
     }
 
     // called on app launch
-    suspend fun getTokens() {
+    suspend fun getTokens(): Result<Unit> = safeRequest {
         val deviceId =
-            userPreferencesRepository.getDeviceId() ?: throw Exception("Device not registered")
+            userPreferencesRepository.getDeviceId()
+                ?: throw Exception("Device not registered")
         val response = networkApi.verifyToken(DeviceId(deviceId))
         val accessToken = response.accessToken
         val refreshToken = response.refreshToken
@@ -98,31 +104,31 @@ class UserRepository @Inject constructor(
         _tokensConfiguredFlow.value = true
     }
 
-    suspend fun updateFavorites() {
+    suspend fun updateFavorites(): Result<Unit> {
         if (useLocalFavorites) {
             _favoritesEateriesFlow.value = userPreferencesRepository.getFavoriteEateryNames()
             _favoriteItemsFlow.value = userPreferencesRepository.getFavoriteItemNames()
-            return
+            return Result.Success(Unit)
         }
 
-        val accessPhrase = getAccessToken()
-        val matches = tryRequest {
-            networkApi.getFavoriteMatches(accessToken = accessPhrase)
-        }
-        _favoritesEateriesFlow.value = matches.mapNotNull { it.eateryName }
-        _favoriteItemsFlow.value = run {
-            val items: MutableList<String> = mutableListOf()
-            matches.forEach { (_, eateryItems) ->
-                if (eateryItems != null) {
-                    items.addAll(eateryItems.mapNotNull { it.name })
+        return tryRequestWithResult {
+            val accessPhrase = getAccessToken()
+            val matches = networkApi.getFavoriteMatches(accessToken = accessPhrase)
+            _favoritesEateriesFlow.value = matches.mapNotNull { it.eateryName }
+            _favoriteItemsFlow.value = run {
+                val items: MutableList<String> = mutableListOf()
+                matches.forEach { (_, eateryItems) ->
+                    if (eateryItems != null) {
+                        items.addAll(eateryItems.mapNotNull { it.name })
+                    }
                 }
+                items.toList()
             }
-            items.toList()
         }
     }
 
-    suspend fun sendReport(issue: String, report: String, eateryID: Int?): Any =
-        tryRequest {
+    suspend fun sendReport(issue: String, report: String, eateryID: Int?): Result<Any> =
+        tryRequestWithResult {
             networkApi.sendReport(
                 report = ReportSendBody(
                     eatery = eateryID,
@@ -131,16 +137,16 @@ class UserRepository @Inject constructor(
             )
         }
 
-    suspend fun addFavoriteItem(name: String) {
+    suspend fun addFavoriteItem(name: String): Result<Unit> {
         if (useLocalFavorites) {
             userPreferencesRepository.setFavoriteItemName(name, true)
             _favoriteItemsFlow.update { currentItems ->
                 if (name !in currentItems) currentItems + name else currentItems
             }
-            return
+            return Result.Success(Unit)
         }
 
-        tryRequest {
+        return tryRequestWithResult {
             networkApi.addFavoriteItem(
                 accessToken = getAccessToken(),
                 item = FavoriteItem(item = name)
@@ -151,16 +157,16 @@ class UserRepository @Inject constructor(
         }
     }
 
-    suspend fun removeFavoriteItem(name: String) {
+    suspend fun removeFavoriteItem(name: String): Result<Unit> {
         if (useLocalFavorites) {
             userPreferencesRepository.setFavoriteItemName(name, false)
             _favoriteItemsFlow.update { currentItems ->
                 currentItems.filter { it != name }
             }
-            return
+            return Result.Success(Unit)
         }
 
-        tryRequest {
+        return tryRequestWithResult {
             networkApi.deleteFavoriteItem(
                 accessToken = getAccessToken(),
                 item = FavoriteItem(name)
@@ -171,16 +177,16 @@ class UserRepository @Inject constructor(
         }
     }
 
-    suspend fun addFavoriteEatery(id: Int, eateryName: String) {
+    suspend fun addFavoriteEatery(id: Int, eateryName: String): Result<Unit> {
         if (useLocalFavorites) {
             userPreferencesRepository.setFavoriteEateryName(eateryName, true)
             _favoritesEateriesFlow.update { currentEateries ->
                 if (eateryName !in currentEateries) currentEateries + eateryName else currentEateries
             }
-            return
+            return Result.Success(Unit)
         }
 
-        tryRequest {
+        return tryRequestWithResult {
             networkApi.addFavoriteEatery(
                 accessToken = getAccessToken(),
                 eatery = FavoriteEatery(id),
@@ -191,16 +197,16 @@ class UserRepository @Inject constructor(
         }
     }
 
-    suspend fun removeFavoriteEatery(id: Int, eateryName: String) {
+    suspend fun removeFavoriteEatery(id: Int, eateryName: String): Result<Unit> {
         if (useLocalFavorites) {
             userPreferencesRepository.setFavoriteEateryName(eateryName, false)
             _favoritesEateriesFlow.update { currentEateries ->
                 currentEateries.filter { it != eateryName }
             }
-            return
+            return Result.Success(Unit)
         }
 
-        tryRequest {
+        return tryRequestWithResult {
             networkApi.deleteFavoriteEatery(
                 accessToken = getAccessToken(),
                 eatery = FavoriteEatery(id)
@@ -211,11 +217,11 @@ class UserRepository @Inject constructor(
         }
     }
 
-    suspend fun linkGETAccount(sessionId: String) {
+    suspend fun linkGETAccount(sessionId: String): Result<Unit> {
         userPreferencesRepository.setSessionId(sessionId)
         val pin = Random.nextInt(10000)
         userPreferencesRepository.setPin(pin)
-        tryRequest {
+        return tryRequestWithResult {
             networkApi.authorizeUser(
                 accessToken = getAccessToken(),
                 loginRequest = LoginRequest(pin.toString(), sessionId)
@@ -223,7 +229,7 @@ class UserRepository @Inject constructor(
         }
     }
 
-    suspend fun getFinancials(): Financials = tryRequest {
+    suspend fun getFinancials(): Result<Financials> = tryRequestWithResult {
         var financials: Financials
         try {
             financials = networkApi.getFinancials(
@@ -249,13 +255,13 @@ class UserRepository @Inject constructor(
     /**
      * Refreshes GET sessionID.
      */
-    suspend fun refreshLogin(pin: Int) = tryRequest {
+    suspend fun refreshLogin(pin: Int): Result<Unit> = tryRequestWithResult {
         val newSessionId = networkApi.refreshAuthorizedUser(
             accessToken = getAccessToken(),
             loginPIN = LoginPIN(pin.toString())
         ).sessionId
         if (newSessionId == null) {
-            // todo - handle
+            throw Exception("Session ID is null")
         } else {
             userPreferencesRepository.setSessionId(newSessionId)
         }
@@ -270,18 +276,44 @@ class UserRepository @Inject constructor(
     suspend fun hasOnboarded(): Boolean = userPreferencesRepository.getHasOnboarded()
 
     /**
-     * Tries to make the given request, and if it fails, refreshes tokens and tries again.
+     * Converts exceptions into appropriate [NetworkError] types.
      */
-    private suspend fun <T> tryRequest(request: suspend () -> T): T {
-        try {
-            return request()
+    private fun handleException(e: Exception): NetworkError = when (e) {
+        is HttpException -> when (e.code()) {
+            401, 403 -> NetworkError.Unauthorized
+            in 400..599 -> NetworkError.ServerError(e.code(), e.message())
+            else -> NetworkError.Unknown(e)
+        }
+
+        is SocketTimeoutException -> NetworkError.Timeout
+        is IOException -> NetworkError.NetworkFailure
+        else -> NetworkError.Unknown(e)
+    }
+
+    /**
+     * Safely executes a network request and wraps the result in a [Result] object.
+     */
+    private suspend fun <T> safeRequest(request: suspend () -> T): Result<T> {
+        return try {
+            Result.Success(request())
+        } catch (e: Exception) {
+            Result.Error(handleException(e))
+        }
+    }
+
+    /**
+     * Tries to make the given request, and if it fails, refreshes tokens and tries again.
+     * Returns a [Result] wrapping the response or error.
+     */
+    private suspend fun <T> tryRequestWithResult(request: suspend () -> T): Result<T> {
+        return try {
+            Result.Success(request())
         } catch (_: Exception) {
             try {
                 refreshTokens()
-                return request()
-            } catch (e: Exception) {
-                // todo - pass in handler
-                throw e
+                Result.Success(request())
+            } catch (retryException: Exception) {
+                Result.Error(handleException(retryException))
             }
         }
     }

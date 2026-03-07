@@ -3,11 +3,14 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.AccountBalances
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +33,7 @@ class LoginViewModel @Inject constructor(
         data class Login(
             val netID: String = "",
             val password: String = "",
-            val failureMessage: String? = null,
+            val failure: NetworkUiError? = null,
             val loading: Boolean = false
         ) : State()
 
@@ -133,37 +136,52 @@ class LoginViewModel @Inject constructor(
      * Fetches user data given [sessionId] and updates the state and user preferences.
      */
     private suspend fun linkGETAccount(sessionId: String) {
-        try {
-            userRepository.linkGETAccount(sessionId)
-            userRepository.setIsLoggedIn(true)
-        } catch (e: Exception) {
-            // todo error state
-            val currState = _state.value
-            if (currState is State.Login) {
-                val newState = currState.copy(
-                    failureMessage = e.stackTraceToString(),
-                    loading = false
-                )
-                _state.value = newState
+        when (val result = userRepository.linkGETAccount(sessionId)) {
+            is Result.Success -> {
+                userRepository.setIsLoggedIn(true)
+            }
+
+            is Result.Error -> {
+                val currState = _state.value
+                if (currState is State.Login) {
+                    val newState = currState.copy(
+                        failure = NetworkUiError.Failed(NetworkAction.LinkGetAccount, result.error),
+                        loading = false
+                    )
+                    _state.value = newState
+                }
             }
         }
     }
 
     suspend fun getFinancials() {
-        val financials = userRepository.getFinancials()
-        val newState = State.Account(
-            // todo null states should be handled
-            user = User(
-                brbBalance = financials.accounts?.brbBalance?.balance,
-                cityBucksBalance = financials.accounts?.cityBucksBalance?.balance,
-                laundryBalance = financials.accounts?.laundryBalance?.balance,
-                transactions = financials.transactions,
-//                mealSwipes = financials.accounts?. todo - mealswipes
-            ),
-            query = "",
-            accountFilter = TransactionAccountType.BRBS
-        )
-        _state.value = newState
+        when (val result = userRepository.getFinancials()) {
+            is Result.Success -> {
+                val financials = result.data
+                val newState = State.Account(
+                    user = User(
+                        brbBalance = financials.accounts?.brbBalance?.balance,
+                        cityBucksBalance = financials.accounts?.cityBucksBalance?.balance,
+                        laundryBalance = financials.accounts?.laundryBalance?.balance,
+                        transactions = financials.transactions,
+                        // mealSwipes = financials.accounts?.mealSwipes
+                    ),
+                    query = "",
+                    accountFilter = TransactionAccountType.BRBS
+                )
+                _state.value = newState
+            }
+
+            is Result.Error -> {
+                val currState = _state.value
+                if (currState is State.Login) {
+                    val newState = currState.copy(
+                        failure = NetworkUiError.Failed(NetworkAction.GetFinancials, result.error),
+                        loading = false
+                    )
+                    _state.value = newState
+                }
+            }
+        }
     }
 }
-

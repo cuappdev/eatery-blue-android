@@ -5,11 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -66,6 +69,13 @@ class EateryDetailViewModel @Inject constructor(
     private val _eateryDetailsViewState =
         MutableStateFlow<EateryDetailViewState>(EateryDetailViewState.Loading)
     val eateryDetailViewState = _eateryDetailsViewState.asStateFlow()
+
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+    val error = _error.asStateFlow()
+
+    fun clearError() {
+        _error.value = null
+    }
 
     /**
      * A flow emitting the loading status of the current eatery.
@@ -141,10 +151,26 @@ class EateryDetailViewModel @Inject constructor(
             is EateryDetailViewState.Loaded -> {
                 val eateryName = eateryState.eatery.name ?: return
                 viewModelScope.launch {
-                    if (eateryState.isFavorite) {
+                    val result = if (eateryState.isFavorite) {
                         userRepository.removeFavoriteEatery(eateryId, eateryName)
                     } else {
                         userRepository.addFavoriteEatery(eateryId, eateryName)
+                    }
+                    when (result) {
+                        is Result.Success -> {
+                            _error.value = null
+                        }
+
+                        is Result.Error -> {
+                            _error.value = NetworkUiError.Failed(
+                                if (eateryState.isFavorite) {
+                                    NetworkAction.RemoveFavoriteEatery
+                                } else {
+                                    NetworkAction.AddFavoriteEatery
+                                },
+                                result.error
+                            )
+                        }
                     }
                 }
             }
@@ -160,16 +186,37 @@ class EateryDetailViewModel @Inject constructor(
      */
     fun toggleFavoriteMenuItem(menuItem: String) {
         viewModelScope.launch {
-            if (menuItem in userRepository.favoriteItemsFlow.value) {
+            val isRemoving = menuItem in userRepository.favoriteItemsFlow.value
+            val result = if (isRemoving) {
                 userRepository.removeFavoriteItem(menuItem)
             } else {
                 userRepository.addFavoriteItem(menuItem)
+            }
+            when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value = NetworkUiError.Failed(
+                        if (isRemoving) NetworkAction.RemoveFavoriteItem else NetworkAction.AddFavoriteItem,
+                        result.error
+                    )
+                }
             }
         }
     }
 
     fun sendReport(issue: String, report: String, eateryId: Int?) = viewModelScope.launch {
-        userRepository.sendReport(issue, report, eateryId)
+        when (val result = userRepository.sendReport(issue, report, eateryId)) {
+            is Result.Success -> {
+                _error.value = null
+            }
+
+            is Result.Error -> {
+                _error.value = NetworkUiError.Failed(NetworkAction.SendReport, result.error)
+            }
+        }
     }
 
     fun setSelectedWeekdayIndex(weekdayIndex: Int) {

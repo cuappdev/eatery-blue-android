@@ -85,7 +85,7 @@ private fun ProfileLoginScreenPreview() = EateryPreview {
     LoginViewModel.State.Login(
         netID = "aaa00",
         password = "myVeryLongPassword",
-        failureMessage = null,
+        failure = null,
         loading = false
     )
     ProfileScreenContent(

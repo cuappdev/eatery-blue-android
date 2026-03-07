@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
@@ -10,6 +11,8 @@ import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,6 +30,13 @@ class SearchViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
+
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+    val error = _error.asStateFlow()
+
+    fun clearError() {
+        _error.value = null
+    }
 
     /**
      * A flow of filters applied to the screen.
@@ -136,13 +146,31 @@ class SearchViewModel @Inject constructor(
 
     fun addFavorite(eateryId: Int, eateryName: String) {
         viewModelScope.launch {
-            userRepository.addFavoriteEatery(eateryId, eateryName)
+            when (val result = userRepository.addFavoriteEatery(eateryId, eateryName)) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.AddFavoriteEatery, result.error)
+                }
+            }
         }
     }
 
     fun removeFavorite(eateryId: Int, eateryName: String) {
         viewModelScope.launch {
-            userRepository.removeFavoriteEatery(eateryId, eateryName)
+            when (val result = userRepository.removeFavoriteEatery(eateryId, eateryName)) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.RemoveFavoriteEatery, result.error)
+                }
+            }
         }
     }
 

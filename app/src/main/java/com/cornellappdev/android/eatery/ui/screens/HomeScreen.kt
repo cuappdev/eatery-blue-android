@@ -135,7 +135,7 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
-        homeViewModel.updateFavoritesIfConfigured()
+        homeViewModel.updateFavoritesIfTokensConfigured()
     }
 
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }

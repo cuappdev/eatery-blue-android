@@ -3,12 +3,17 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -23,6 +28,13 @@ class NearestViewModel @Inject constructor(
     eateryRepository: EateryRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+    val error = _error.asStateFlow()
+
+    fun clearError() {
+        _error.value = null
+    }
+
     /**
      * A flow emitting all the eateries the user has favorited.
      */
@@ -65,10 +77,23 @@ class NearestViewModel @Inject constructor(
      */
     fun setFavorite(eateryId: Int, eateryName: String, favorite: Boolean) {
         viewModelScope.launch {
-            if (favorite) {
+            val result = if (favorite) {
                 userRepository.addFavoriteEatery(eateryId, eateryName)
             } else {
                 userRepository.removeFavoriteEatery(eateryId, eateryName)
+            }
+
+            when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value = NetworkUiError.Failed(
+                        if (favorite) NetworkAction.AddFavoriteEatery else NetworkAction.RemoveFavoriteEatery,
+                        result.error
+                    )
+                }
             }
         }
     }

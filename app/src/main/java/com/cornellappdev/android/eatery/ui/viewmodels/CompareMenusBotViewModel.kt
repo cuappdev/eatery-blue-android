@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
@@ -10,6 +11,8 @@ import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.viewmodels.state.CompareMenusUIState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,6 +31,13 @@ class CompareMenusBotViewModel @Inject constructor(
     eateryRepository: EateryRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
+
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+    val error = _error.asStateFlow()
+
+    fun clearError() {
+        _error.value = null
+    }
 
     private val _compareMenusUiState = MutableStateFlow(CompareMenusUIState())
     val compareMenusUiState: StateFlow<CompareMenusUIState> = _compareMenusUiState.asStateFlow()
@@ -122,7 +132,15 @@ class CompareMenusBotViewModel @Inject constructor(
     }
 
     fun sendReport(issue: String, report: String, eateryid: Int?) = viewModelScope.launch {
-        userRepository.sendReport(issue, report, eateryid)
+        when (val result = userRepository.sendReport(issue, report, eateryid)) {
+            is Result.Success -> {
+                _error.value = null
+            }
+
+            is Result.Error -> {
+                _error.value = NetworkUiError.Failed(NetworkAction.SendReport, result.error)
+            }
+        }
     }
 
     fun initializedFirstEatery(
