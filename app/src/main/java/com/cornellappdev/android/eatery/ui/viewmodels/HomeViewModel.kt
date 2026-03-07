@@ -216,7 +216,7 @@ class HomeViewModel @Inject constructor(
 
                     is Result.Error -> {
                         _error.value =
-                            NetworkUiError.Failed(NetworkAction.GetFavorites, result.error)
+                            NetworkUiError.Failed(NetworkAction.UpdateFavorites, result.error)
                     }
                 }
             }

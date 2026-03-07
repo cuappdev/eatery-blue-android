@@ -5,7 +5,7 @@ import com.cornellappdev.android.eatery.data.models.NetworkError
 enum class NetworkAction {
     AddFavoriteEatery,
     RemoveFavoriteEatery,
-    GetFavorites,
+    UpdateFavorites,
     AddFavoriteItem,
     RemoveFavoriteItem,
     SendReport,

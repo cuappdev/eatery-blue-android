@@ -82,6 +82,7 @@ import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.EateryCardStyle
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
 import com.cornellappdev.android.eatery.ui.components.general.PermissionRequestDialog
@@ -122,6 +123,13 @@ fun HomeScreen(
     val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
+    val error by homeViewModel.error.collectAsState()
+
+    NetworkErrorToast(
+        error = error,
+        onErrorShown = homeViewModel::clearError
+    )
+
     val notificationPermissionState =
         rememberMultiplePermissionsState(
             permissions = listOf(
@@ -792,4 +800,3 @@ private fun HomeMainHeader(
 object FirstTimeShown {
     var firstTimeShown = true
 }
-

@@ -48,6 +48,7 @@ import com.cornellappdev.android.eatery.ui.components.details.ToggleRow
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
@@ -68,7 +69,13 @@ fun FavoritesScreen(
     val favoritesScreenViewState =
         favoriteViewModel.favoritesScreenViewState.collectAsState().value
     var toggle by remember { mutableStateOf(true) }
+    val error by favoriteViewModel.error.collectAsState()
 
+    // TODO: replace with an actual error state
+    NetworkErrorToast(
+        error = error,
+        onErrorShown = favoriteViewModel::clearError
+    )
 
     Column(
         modifier = Modifier

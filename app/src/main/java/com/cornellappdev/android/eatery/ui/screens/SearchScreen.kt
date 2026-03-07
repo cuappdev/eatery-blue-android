@@ -55,6 +55,7 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -89,7 +90,12 @@ fun SearchScreen(
         searchViewModel.recentSearches.collectAsState().value.reversed().take(10).distinct()
     val filters = searchViewModel.filtersFlow.collectAsState().value
     val searchResponse = searchViewModel.searchResultEateries.collectAsState().value
+    val error by searchViewModel.error.collectAsState()
 
+    NetworkErrorToast(
+        error = error,
+        onErrorShown = searchViewModel::clearError
+    )
 
     // Automatically brings the search bar into focus when the view is composed
     LaunchedEffect(null) {

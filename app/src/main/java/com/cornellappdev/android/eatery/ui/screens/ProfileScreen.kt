@@ -3,11 +3,13 @@ package com.cornellappdev.android.eatery.ui.screens
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
@@ -25,6 +27,16 @@ fun ProfileScreen(
     val state = loginViewModel.state.collectAsState().value
     val filteredTransactions =
         loginViewModel.filteredTransactionsFlow.collectAsState(initial = emptyList()).value
+
+    // todo - replace toasts with actual error state
+    if (state is LoginViewModel.State.Login) {
+        val error by loginViewModel.error.collectAsState()
+        NetworkErrorToast(
+            error = error,
+            onErrorShown = loginViewModel::clearError
+        )
+    }
+
     ProfileScreenContent(
         isLoginState = state is LoginViewModel.State.Login,
         accountTypeBalance = state.getBalances(),
@@ -85,7 +97,6 @@ private fun ProfileLoginScreenPreview() = EateryPreview {
     LoginViewModel.State.Login(
         netID = "aaa00",
         password = "myVeryLongPassword",
-        failure = null,
         loading = false
     )
     ProfileScreenContent(

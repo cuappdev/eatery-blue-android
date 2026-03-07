@@ -93,6 +93,7 @@ import com.cornellappdev.android.eatery.ui.components.details.EateryHourBottomSh
 import com.cornellappdev.android.eatery.ui.components.details.EateryMealTabs
 import com.cornellappdev.android.eatery.ui.components.details.EateryMenusBottomSheet
 import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.general.menuItems
@@ -141,7 +142,12 @@ fun EateryDetailScreen(
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
     val viewState = eateryDetailViewModel.eateryDetailViewState.collectAsState().value
+    val error by eateryDetailViewModel.error.collectAsState()
 
+    NetworkErrorToast(
+        error = error,
+        onErrorShown = eateryDetailViewModel::clearError
+    )
 
     /**
      * The amount of days offset from the current weekday

@@ -33,7 +33,6 @@ class LoginViewModel @Inject constructor(
         data class Login(
             val netID: String = "",
             val password: String = "",
-            val failure: NetworkUiError? = null,
             val loading: Boolean = false
         ) : State()
 
@@ -66,6 +65,13 @@ class LoginViewModel @Inject constructor(
     )
 
     val state = _state.asStateFlow()
+
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+    val error = _error.asStateFlow()
+
+    fun clearError() {
+        _error.value = null
+    }
 
     init {
         viewModelScope.launch {
@@ -139,15 +145,14 @@ class LoginViewModel @Inject constructor(
         when (val result = userRepository.linkGETAccount(sessionId)) {
             is Result.Success -> {
                 userRepository.setIsLoggedIn(true)
+                _error.value = null
             }
 
             is Result.Error -> {
+                _error.value = NetworkUiError.Failed(NetworkAction.LinkGetAccount, result.error)
                 val currState = _state.value
                 if (currState is State.Login) {
-                    val newState = currState.copy(
-                        failure = NetworkUiError.Failed(NetworkAction.LinkGetAccount, result.error),
-                        loading = false
-                    )
+                    val newState = currState.copy(loading = false)
                     _state.value = newState
                 }
             }
@@ -170,15 +175,14 @@ class LoginViewModel @Inject constructor(
                     accountFilter = TransactionAccountType.BRBS
                 )
                 _state.value = newState
+                _error.value = null
             }
 
             is Result.Error -> {
+                _error.value = NetworkUiError.Failed(NetworkAction.GetFinancials, result.error)
                 val currState = _state.value
                 if (currState is State.Login) {
-                    val newState = currState.copy(
-                        failure = NetworkUiError.Failed(NetworkAction.GetFinancials, result.error),
-                        loading = false
-                    )
+                    val newState = currState.copy(loading = false)
                     _state.value = newState
                 }
             }
