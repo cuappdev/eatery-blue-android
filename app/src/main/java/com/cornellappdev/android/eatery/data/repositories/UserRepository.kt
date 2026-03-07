@@ -62,8 +62,6 @@ class UserRepository @Inject constructor(
 
     private val useLocalFavorites = BuildConfig.USE_LOCAL_FAVORITES
 
-    suspend fun hasLaunchedBefore(): Boolean = userPreferencesRepository.getDeviceId() != null
-
     suspend fun getDeviceId(): String {
         val deviceId = userPreferencesRepository.getDeviceId()
         if (deviceId != null) return deviceId
@@ -74,17 +72,9 @@ class UserRepository @Inject constructor(
         return uuid.toString()
     }
 
-    // called on first app launch
-    suspend fun registerDevice(): Result<Unit> = safeRequest {
-        val deviceId = UUID.randomUUID()
-        userPreferencesRepository.setDeviceId(deviceId)
-    }
-
     // called on app launch
     suspend fun getTokens(): Result<Unit> = safeRequest {
-        val deviceId =
-            userPreferencesRepository.getDeviceId()
-                ?: throw Exception("Device not registered")
+        val deviceId = getDeviceId()
         val response = networkApi.verifyToken(DeviceId(deviceId))
         val accessToken = response.accessToken
         val refreshToken = response.refreshToken

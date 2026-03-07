@@ -128,9 +128,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private suspend fun configureTokens() {
-        if (!userRepository.hasLaunchedBefore()) {
-            userRepository.registerDevice()
-        }
         userRepository.getTokens()
     }
 }
