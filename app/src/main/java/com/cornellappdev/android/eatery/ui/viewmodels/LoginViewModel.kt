@@ -133,19 +133,22 @@ class LoginViewModel @Inject constructor(
 
     fun onLoginWebViewSuccess(sessionId: String) {
         viewModelScope.launch {
-            linkGETAccount(sessionId)
-            getFinancials()
+            if (linkGETAccount(sessionId)) {
+                getFinancials()
+            }
         }
     }
 
     /**
      * Fetches user data given [sessionId] and updates the state and user preferences.
+     * Returns true if the account was linked successfully, false otherwise.
      */
-    private suspend fun linkGETAccount(sessionId: String) {
-        when (val result = userRepository.linkGETAccount(sessionId)) {
+    private suspend fun linkGETAccount(sessionId: String): Boolean {
+        return when (val result = userRepository.linkGETAccount(sessionId)) {
             is Result.Success -> {
                 userRepository.setIsLoggedIn(true)
                 _error.value = null
+                true
             }
 
             is Result.Error -> {
@@ -155,6 +158,7 @@ class LoginViewModel @Inject constructor(
                     val newState = currState.copy(loading = false)
                     _state.value = newState
                 }
+                false
             }
         }
     }
