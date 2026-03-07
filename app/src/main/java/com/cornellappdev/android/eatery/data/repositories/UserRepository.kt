@@ -49,8 +49,7 @@ class UserRepository @Inject constructor(
         MutableStateFlow(emptyList())
 
     /**
-     * A [StateFlow] emitting a map from menu items to whether they are favorited.
-     */
+     * A [StateFlow] emitting a list of the names of the user's favorite menu items.     */
     val favoriteItemsFlow: StateFlow<List<String>> = _favoriteItemsFlow.asStateFlow()
 
     private val _tokensConfiguredFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
