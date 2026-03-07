@@ -40,13 +40,13 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SettingsScreen(
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
     destinations: HashMap<Routes, () -> Unit>
 ) {
     // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false
@@ -255,7 +255,7 @@ fun SettingsScreen(
                 ) {
                     Button(
                         onClick = {
-                            loginViewModel.onLogoutPressed(onDone = {
+                            settingsViewModel.onLogout(onDone = {
                                 destinations[Routes.PROFILE]?.invoke()
                             })
                         },
