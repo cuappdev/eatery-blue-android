@@ -105,7 +105,7 @@ class FavoritesViewModel @Inject constructor(
 
                 val menuItemsToEateries: Map<String, List<Eatery>> =
                     favoriteItems.associateWith { itemName ->
-                        favoriteEateryObjects.filter { eatery ->
+                        allEateries.filter { eatery ->
                             val todayEvents = eatery.events?.filter {
                                 (it.endTimestamp ?: LocalDateTime.MAX) < LocalDateTime.now()
                                     .withHour(23)
