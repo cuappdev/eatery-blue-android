@@ -1,7 +1,6 @@
 package com.cornellappdev.android.eatery
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -40,11 +39,7 @@ class MainActivity : ComponentActivity() {
 
         activityResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
-        ) { result ->
-            if (result.resultCode != RESULT_OK) {
-                Log.d("MainActivity", "Update flow failed! Result code: ${result.resultCode}")
-            }
-        }
+        ) {}
 
         val hasOnboarded = runBlocking { userRepository.hasOnboarded() }
 
@@ -91,7 +86,7 @@ class MainActivity : ComponentActivity() {
 
                 if (appUpdateInfo.installStatus() == InstallStatus.DOWNLOADED) {
                     // If the update is downloaded but not installed, notify the user to complete the update.
-                    popupSnackbarForCompleteUpdate()
+                    appUpdateManager.completeUpdate()
                 }
             }
     }
@@ -116,40 +111,8 @@ class MainActivity : ComponentActivity() {
                 else if (isFlexibleUpdateAllowed) {
                     // Create a listener to track flexible update progress
                     val listener = InstallStateUpdatedListener { state ->
-                        when (state.installStatus()) {
-                            InstallStatus.DOWNLOADING -> {
-                                val bytesDownloaded = state.bytesDownloaded()
-                                val totalBytesToDownload = state.totalBytesToDownload()
-                                Log.d(
-                                    "MainActivity",
-                                    "Update downloading: $bytesDownloaded / $totalBytesToDownload"
-                                )
-                            }
-
-                            InstallStatus.DOWNLOADED -> {
-                                Log.d("MainActivity", "Update downloaded")
-                                popupSnackbarForCompleteUpdate()
-                            }
-
-                            InstallStatus.INSTALLING -> {
-                                Log.d("MainActivity", "Update installing")
-                            }
-
-                            InstallStatus.INSTALLED -> {
-                                Log.d("MainActivity", "Update installed")
-                            }
-
-                            InstallStatus.FAILED -> {
-                                Log.d("MainActivity", "Update failed")
-                            }
-
-                            InstallStatus.CANCELED -> {
-                                Log.d("MainActivity", "Update canceled")
-                            }
-
-                            else -> {
-                                Log.d("MainActivity", "Update status: ${state.installStatus()}")
-                            }
+                        if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                            appUpdateManager.completeUpdate()
                         }
                     }
                     appUpdateManager.registerListener(listener)
@@ -162,11 +125,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun popupSnackbarForCompleteUpdate() {
-        // todo - Show a snackbar or dialog to prompt user to complete the update
-        appUpdateManager.completeUpdate()
     }
 
     private suspend fun configureTokens() {
