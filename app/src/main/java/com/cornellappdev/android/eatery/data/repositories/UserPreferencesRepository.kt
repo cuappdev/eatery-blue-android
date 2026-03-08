@@ -23,7 +23,6 @@ class UserPreferencesRepository @Inject constructor(
     val notificationFlowCompletedFlow: Flow<Boolean> =
         userPreferencesFlow.map { it.notificationFlowCompleted }
     val analyticsDisabledFlow: Flow<Boolean> = userPreferencesFlow.map { it.analyticsDisabled }
-    val deviceIdFlow: Flow<String?> = userPreferencesFlow.map { it.deviceId.nullIfEmpty() }
     val accessTokenFlow: Flow<String?> = userPreferencesFlow.map { it.accessToken.nullIfEmpty() }
     val refreshTokenFlow: Flow<String?> = userPreferencesFlow.map { it.refreshToken.nullIfEmpty() }
     val isLoggedInFlow: Flow<Boolean> = userPreferencesFlow.map { it.isLoggedIn }
@@ -87,8 +86,24 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setDeviceId(deviceId: UUID) {
-        setPref { setDeviceId(deviceId.toString()) }
+    // This approach avoids race conditions by performing get and set inside
+    // updateData which is atomic
+    suspend fun getOrCreateDeviceId(): String {
+        var resolvedDeviceId: String? = null
+        userPreferencesStore.updateData { currentPreferences ->
+            val existingDeviceId = currentPreferences.deviceId.nullIfEmpty()
+            if (existingDeviceId != null) {
+                resolvedDeviceId = existingDeviceId
+                currentPreferences
+            } else {
+                val newDeviceId = UUID.randomUUID().toString()
+                resolvedDeviceId = newDeviceId
+                currentPreferences.toBuilder()
+                    .setDeviceId(newDeviceId)
+                    .build()
+            }
+        }
+        return checkNotNull(resolvedDeviceId)
     }
 
     private fun String?.nullIfEmpty(): String? = if (this.isNullOrEmpty()) null else this

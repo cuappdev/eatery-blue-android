@@ -22,7 +22,6 @@ import kotlinx.coroutines.flow.update
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
@@ -62,15 +61,7 @@ class UserRepository @Inject constructor(
 
     private val useLocalFavorites = BuildConfig.USE_LOCAL_FAVORITES
 
-    suspend fun getDeviceId(): String {
-        val deviceId = userPreferencesRepository.deviceIdFlow.first()
-        if (deviceId != null) return deviceId
-
-        // first launch
-        val uuid = UUID.randomUUID()
-        userPreferencesRepository.setDeviceId(uuid)
-        return uuid.toString()
-    }
+    suspend fun getDeviceId(): String = userPreferencesRepository.getOrCreateDeviceId()
 
     // called on app launch
     suspend fun getTokens(): Result<Unit> = safeRequest {
