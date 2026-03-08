@@ -76,13 +76,14 @@ class SearchViewModel @Inject constructor(
             is EateryApiResponse.Error -> EateryApiResponse.Error
             is EateryApiResponse.Pending -> EateryApiResponse.Pending
             is EateryApiResponse.Success -> {
+                val favoriteEateryIds = eateryApiResponse.data.filter { it.id != null }
+                    .associate { it.id!! to (it.name in favorites) }
                 EateryApiResponse.Success(
                     eateryApiResponse.data.sortedBy { it.isClosed() }.filter { eatery ->
                         Filter.passesSelectedFilters(
                             searchScreenFilters, filters, FilterData(
                                 eatery = eatery,
-                                favoriteEateryIds = eateryApiResponse.data.filter { it.id != null }
-                                    .associate { it.id!! to (it.name in favorites) }
+                                favoriteEateryIds = favoriteEateryIds
                             )
                         ) && eatery.passesSearch(searchQuery)
                     })
