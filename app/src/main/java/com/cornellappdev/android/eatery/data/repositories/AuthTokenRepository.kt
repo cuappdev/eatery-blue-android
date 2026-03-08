@@ -18,10 +18,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.random.Random
 
-/**
- * Repository responsible for managing authentication tokens and token-related operations.
- * Separates auth/token concerns from other user repository responsibilities.
- */
 @Singleton
 class AuthTokenRepository @Inject constructor(
     private val networkApi: NetworkApi,
@@ -34,9 +30,6 @@ class AuthTokenRepository @Inject constructor(
      */
     val tokensConfiguredFlow: StateFlow<Boolean> = _tokensConfiguredFlow.asStateFlow()
 
-    /**
-     * Gets or creates a device ID.
-     */
     suspend fun getDeviceId(): String = userPreferencesRepository.getOrCreateDeviceId()
 
     /**
@@ -60,16 +53,10 @@ class AuthTokenRepository @Inject constructor(
         }
     }
 
-    /**
-     * Marks tokens as configured after successful initialization.
-     */
     fun markTokensAsConfigured() {
         _tokensConfiguredFlow.value = true
     }
 
-    /**
-     * Refreshes the access token using the refresh token.
-     */
     suspend fun refreshTokens(): Result<Unit> = safeRequest {
         val deviceId = getDeviceId()
         val refreshToken = userPreferencesRepository.refreshTokenFlow.first()
@@ -94,19 +81,12 @@ class AuthTokenRepository @Inject constructor(
         }
     }
 
-    /**
-     * Gets the current access token with Bearer prefix.
-     * Assumes device has been registered.
-     */
     suspend fun getAccessToken(): String =
         prependBearer(
             userPreferencesRepository.accessTokenFlow.first()
                 ?: throw IllegalStateException("Access token not available")
         )
 
-    /**
-     * Links a GET account by storing session ID and PIN, then authorizing with the API.
-     */
     suspend fun linkGETAccount(sessionId: String): Result<Unit> {
         userPreferencesRepository.setSessionId(sessionId)
         val pin = Random.nextInt(10000)
@@ -119,9 +99,6 @@ class AuthTokenRepository @Inject constructor(
         }
     }
 
-    /**
-     * Refreshes the GET session ID using the stored PIN.
-     */
     suspend fun refreshLogin(pin: Int): Result<Unit> = tryRequestWithResult {
         val newSessionId = networkApi.refreshAuthorizedUser(
             accessToken = getAccessToken(),
@@ -134,19 +111,10 @@ class AuthTokenRepository @Inject constructor(
         }
     }
 
-    /**
-     * Gets the stored session ID.
-     */
     suspend fun getSessionId(): String = userPreferencesRepository.sessionIdFlow.first()
 
-    /**
-     * Gets the stored PIN.
-     */
     suspend fun getPin(): Int = userPreferencesRepository.pinFlow.first()
 
-    /**
-     * Clears tokens and authentication data (logout).
-     */
     suspend fun clearAuthTokens() {
         userPreferencesRepository.setSessionId("")
         userPreferencesRepository.setAccessToken("")
