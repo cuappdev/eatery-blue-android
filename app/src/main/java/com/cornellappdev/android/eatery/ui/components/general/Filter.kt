@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.components.general
 
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
+import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import java.time.LocalDateTime
 
 data class FilterData(
