@@ -414,15 +414,13 @@ private fun AccountPageHeader(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(color = EateryBlue)
-                        .then(Modifier.statusBarsPadding())
                         .padding(bottom = 7.dp),
                 ) {
                     IconButton(
                         modifier = Modifier
                             .padding(end = 16.dp)
                             .align(Alignment.End)
-                            .size(32.dp)
-                            .statusBarsPadding(),
+                            .size(32.dp),
                         onClick = { onSettingsClicked() }) {
                         Icon(
                             modifier = Modifier.size(28.dp),
