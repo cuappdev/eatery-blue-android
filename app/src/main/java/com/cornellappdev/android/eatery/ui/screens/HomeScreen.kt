@@ -49,7 +49,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -73,6 +72,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -107,6 +108,7 @@ import kotlinx.coroutines.launch
 @OptIn(
     ExperimentalMaterialApi::class,
     ExperimentalPermissionsApi::class,
+    ExperimentalLifecycleComposeApi::class,
 )
 @Composable
 fun HomeScreen(
@@ -119,12 +121,12 @@ fun HomeScreen(
     onNotificationsClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val favorites = homeViewModel.favoriteEateries.collectAsState().value
-    val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
-    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
-    val filters = homeViewModel.filtersFlow.collectAsState().value
-    val error by homeViewModel.error.collectAsState()
-    val notificationFlowCompleted by homeViewModel.notificationFlowCompleted.collectAsState()
+    val favorites = homeViewModel.favoriteEateries.collectAsStateWithLifecycle().value
+    val nearestEateries = homeViewModel.eateriesByDistance.collectAsStateWithLifecycle().value
+    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsStateWithLifecycle().value
+    val filters = homeViewModel.filtersFlow.collectAsStateWithLifecycle().value
+    val error by homeViewModel.error.collectAsStateWithLifecycle()
+    val notificationFlowCompleted by homeViewModel.notificationFlowCompleted.collectAsStateWithLifecycle()
 
     NetworkErrorToast(
         error = error,

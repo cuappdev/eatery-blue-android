@@ -24,7 +24,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +41,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.details.ToggleRow
@@ -58,6 +59,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun FavoritesScreen(
     favoriteViewModel: FavoritesViewModel = hiltViewModel(),
@@ -67,9 +69,9 @@ fun FavoritesScreen(
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val favoritesScreenViewState =
-        favoriteViewModel.favoritesScreenViewState.collectAsState().value
+        favoriteViewModel.favoritesScreenViewState.collectAsStateWithLifecycle().value
     var toggle by remember { mutableStateOf(true) }
-    val error by favoriteViewModel.error.collectAsState()
+    val error by favoriteViewModel.error.collectAsStateWithLifecycle()
 
     // TODO: replace with an actual error state
     NetworkErrorToast(

@@ -34,7 +34,6 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -50,6 +49,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
@@ -71,6 +72,7 @@ enum class EateryCardStyle {
 
 @OptIn(
     ExperimentalMaterialApi::class,
+    ExperimentalLifecycleComposeApi::class,
 )
 @Composable
 fun EateryCard(
@@ -82,7 +84,8 @@ fun EateryCard(
     style: EateryCardStyle = EateryCardStyle.DEFAULT,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
-    val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsState()?.value
+    val xMinutesUntilClosing =
+        eatery.calculateTimeUntilClosing()?.collectAsStateWithLifecycle()?.value
 
     val interactionSource = remember { MutableInteractionSource() }
 

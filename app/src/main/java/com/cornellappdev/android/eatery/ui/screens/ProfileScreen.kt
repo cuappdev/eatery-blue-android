@@ -2,9 +2,10 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
@@ -14,7 +15,7 @@ import com.cornellappdev.android.eatery.ui.components.login.LoginPage
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun ProfileScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
@@ -22,13 +23,14 @@ fun ProfileScreen(
     webViewEnabled: Boolean,
     onBackClick: () -> Unit
 ) {
-    val state = loginViewModel.state.collectAsState(initial = LoginViewModel.State.Login()).value
+    val state =
+        loginViewModel.state.collectAsStateWithLifecycle(initialValue = LoginViewModel.State.Login()).value
     val filteredTransactions =
-        loginViewModel.filteredTransactionsFlow.collectAsState(initial = emptyList()).value
+        loginViewModel.filteredTransactionsFlow.collectAsStateWithLifecycle(initialValue = emptyList()).value
 
     // todo - replace toasts with actual error state
     if (state is LoginViewModel.State.Login) {
-        val error by loginViewModel.error.collectAsState()
+        val error by loginViewModel.error.collectAsStateWithLifecycle()
         NetworkErrorToast(
             error = error,
             onErrorShown = loginViewModel::clearError
