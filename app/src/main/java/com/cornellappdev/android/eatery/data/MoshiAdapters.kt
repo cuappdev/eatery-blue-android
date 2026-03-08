@@ -72,8 +72,7 @@ class DateTimeAdapter {
 
     @FromJson
     fun fromJson(dateTime: String): LocalDateTime {
-        val x = LocalDateTime.ofInstant(Instant.parse(dateTime), ZoneId.systemDefault())
-        return x
+        return LocalDateTime.ofInstant(Instant.parse(dateTime), ZoneId.systemDefault())
     }
 }
 
