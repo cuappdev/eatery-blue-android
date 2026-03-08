@@ -39,13 +39,13 @@ class UserRepository @Inject constructor(
      */
     val loadedUser: StateFlow<User?> = _loadedUser.asStateFlow()
 
-    private val _favoritesEateriesFlow: MutableStateFlow<List<String>> =
+    private val _favoriteEateriesFlow: MutableStateFlow<List<String>> =
         MutableStateFlow(emptyList())
 
     /**
      * A [StateFlow] emitting a list of the names of the user's favorite eateries.
      */
-    val favoriteEateriesFlow: StateFlow<List<String>> = _favoritesEateriesFlow.asStateFlow()
+    val favoriteEateriesFlow: StateFlow<List<String>> = _favoriteEateriesFlow.asStateFlow()
     private val _favoriteItemsFlow: MutableStateFlow<List<String>> =
         MutableStateFlow(emptyList())
 
@@ -96,7 +96,7 @@ class UserRepository @Inject constructor(
 
     suspend fun updateFavorites(): Result<Unit> {
         if (useLocalFavorites) {
-            _favoritesEateriesFlow.value = userPreferencesRepository.favoriteEateryNamesFlow.first()
+            _favoriteEateriesFlow.value = userPreferencesRepository.favoriteEateryNamesFlow.first()
             _favoriteItemsFlow.value = userPreferencesRepository.favoriteItemNamesFlow.first()
             return Result.Success(Unit)
         }
@@ -104,7 +104,7 @@ class UserRepository @Inject constructor(
         return tryRequestWithResult {
             val accessPhrase = getAccessToken()
             val matches = networkApi.getFavoriteMatches(accessToken = accessPhrase)
-            _favoritesEateriesFlow.value = matches.mapNotNull { it.eateryName }
+            _favoriteEateriesFlow.value = matches.mapNotNull { it.eateryName }
             _favoriteItemsFlow.value = run {
                 val items: MutableList<String> = mutableListOf()
                 matches.forEach { (_, eateryItems) ->
@@ -170,7 +170,7 @@ class UserRepository @Inject constructor(
     suspend fun addFavoriteEatery(id: Int, eateryName: String): Result<Unit> {
         if (useLocalFavorites) {
             userPreferencesRepository.setFavoriteEateryName(eateryName, true)
-            _favoritesEateriesFlow.update { currentEateries ->
+            _favoriteEateriesFlow.update { currentEateries ->
                 if (eateryName !in currentEateries) currentEateries + eateryName else currentEateries
             }
             return Result.Success(Unit)
@@ -181,7 +181,7 @@ class UserRepository @Inject constructor(
                 accessToken = getAccessToken(),
                 eatery = FavoriteEatery(id),
             )
-            _favoritesEateriesFlow.update { currentEateries ->
+            _favoriteEateriesFlow.update { currentEateries ->
                 if (eateryName !in currentEateries) currentEateries + eateryName else currentEateries
             }
         }
@@ -190,7 +190,7 @@ class UserRepository @Inject constructor(
     suspend fun removeFavoriteEatery(id: Int, eateryName: String): Result<Unit> {
         if (useLocalFavorites) {
             userPreferencesRepository.setFavoriteEateryName(eateryName, false)
-            _favoritesEateriesFlow.update { currentEateries ->
+            _favoriteEateriesFlow.update { currentEateries ->
                 currentEateries.filter { it != eateryName }
             }
             return Result.Success(Unit)
@@ -201,7 +201,7 @@ class UserRepository @Inject constructor(
                 accessToken = getAccessToken(),
                 eatery = FavoriteEatery(id)
             )
-            _favoritesEateriesFlow.update { currentEateries ->
+            _favoriteEateriesFlow.update { currentEateries ->
                 currentEateries.filter { it != eateryName }
             }
         }
