@@ -99,7 +99,7 @@ fun EateryMenusBottomSheet(
     val selectedDayOfWeek = DayOfWeek.of(dayWeeks[currSelectedDay])
     val mealTypes: List<MealTime> = eatery.getTypeMeal(selectedDayOfWeek)
     var selectedMealType by remember {
-        mutableStateOf(mealTypes[mealType].mealType)
+        mutableStateOf(mealTypes.getOrNull(mealType)?.mealType ?: "")
     }
 
     Card(
