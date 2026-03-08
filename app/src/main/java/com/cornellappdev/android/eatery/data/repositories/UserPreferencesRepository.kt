@@ -86,16 +86,13 @@ class UserPreferencesRepository @Inject constructor(
         setPref { setDeviceId(deviceId.toString()) }
     }
 
-    private fun getStringPref(s: String?): String? {
-        return if (s.isNullOrEmpty()) null else s
-    }
-
+    private fun String?.nullIfEmpty(): String? = if (this.isNullOrEmpty()) null else this
     suspend fun getDeviceId(): String? {
-        return getStringPref(userPreferencesFlow.firstOrNull()?.deviceId)
+        return userPreferencesFlow.firstOrNull()?.deviceId.nullIfEmpty()
     }
 
     suspend fun getAccessToken(): String? {
-        return getStringPref(userPreferencesFlow.firstOrNull()?.accessToken)
+        return userPreferencesFlow.firstOrNull()?.accessToken.nullIfEmpty()
     }
 
     suspend fun setAccessToken(accessToken: String) {
@@ -103,7 +100,7 @@ class UserPreferencesRepository @Inject constructor(
     }
 
     suspend fun getRefreshToken(): String? {
-        return getStringPref(userPreferencesFlow.firstOrNull()?.refreshToken)
+        return userPreferencesFlow.firstOrNull()?.refreshToken.nullIfEmpty()
     }
 
     suspend fun setRefreshToken(refreshToken: String) {
