@@ -24,32 +24,20 @@ class UserPreferencesRepository @Inject constructor(
         prefs.recentSearchesList
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, listOf())
 
-    suspend fun setHasOnboarded(hasOnboarded: Boolean) {
-        userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder().setHasOnboarded(hasOnboarded).build()
-        }
+    suspend fun setHasOnboarded(hasOnboarded: Boolean) = setPref {
+        setHasOnboarded(hasOnboarded)
     }
 
-    suspend fun setNotificationFlowCompleted(value: Boolean) {
-        userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder().setNotificationFlowCompleted(value).build()
-        }
+    suspend fun setNotificationFlowCompleted(value: Boolean) = setPref {
+        setNotificationFlowCompleted(value)
     }
 
-    suspend fun setAnalyticsDisabled(analyticsDisabled: Boolean) {
-        userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder()
-                .setAnalyticsDisabled(analyticsDisabled)
-                .build()
-        }
+    suspend fun setAnalyticsDisabled(analyticsDisabled: Boolean) = setPref {
+        setAnalyticsDisabled(analyticsDisabled)
     }
 
-    suspend fun addRecentSearch(eateryId: Int) {
-        userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder()
-                .addRecentSearches(eateryId)
-                .build()
-        }
+    suspend fun addRecentSearch(eateryId: Int) = setPref {
+        addRecentSearches(eateryId)
     }
 
     suspend fun setFavoriteEateryName(eateryName: String, isFavorite: Boolean) {
