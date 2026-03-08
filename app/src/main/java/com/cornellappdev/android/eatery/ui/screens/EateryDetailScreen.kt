@@ -77,12 +77,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
+import com.cornellappdev.android.eatery.data.models.MenuItem
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
@@ -93,6 +95,8 @@ import com.cornellappdev.android.eatery.ui.components.details.EateryHourBottomSh
 import com.cornellappdev.android.eatery.ui.components.details.EateryMealTabs
 import com.cornellappdev.android.eatery.ui.components.details.EateryMenusBottomSheet
 import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
+import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
+import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
@@ -113,7 +117,10 @@ import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
+import com.cornellappdev.android.eatery.ui.viewmodels.MealViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import com.cornellappdev.android.eatery.util.toReadableFullName
@@ -121,6 +128,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
@@ -129,6 +137,43 @@ import java.time.format.DateTimeFormatter
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+) {
+    val viewState = eateryDetailViewModel.eateryDetailViewState.collectAsState().value
+    val error by eateryDetailViewModel.error.collectAsState()
+    val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
+
+    NetworkErrorToast(
+        error = error,
+        onErrorShown = eateryDetailViewModel::clearError
+    )
+
+    EateryDetailScreenContent(
+        viewState = viewState,
+        filterText = filterText,
+        onCompareMenusClick = onCompareMenusClick,
+        onToggleFavorite = eateryDetailViewModel::toggleFavorite,
+        onSendReport = eateryDetailViewModel::sendReport,
+        onSelectEvent = eateryDetailViewModel::selectEvent,
+        onSetSelectedWeekdayIndex = eateryDetailViewModel::setSelectedWeekdayIndex,
+        onResetSelectedEvent = eateryDetailViewModel::resetSelectedEvent,
+        onSearchQueryChange = eateryDetailViewModel::setSearchQuery,
+        onToggleFavoriteMenuItem = eateryDetailViewModel::toggleFavoriteMenuItem,
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun EateryDetailScreenContent(
+    viewState: EateryDetailViewState,
+    filterText: String,
+    onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+    onToggleFavorite: () -> Unit,
+    onSendReport: (issue: String, report: String, eateryId: Int?) -> Unit,
+    onSelectEvent: (eatery: Eatery, dayIndex: Int, mealDescription: String) -> Unit,
+    onSetSelectedWeekdayIndex: (Int) -> Unit,
+    onResetSelectedEvent: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onToggleFavoriteMenuItem: (String) -> Unit,
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val context = LocalContext.current
@@ -141,20 +186,6 @@ fun EateryDetailScreen(
     val paymentMethods = remember { mutableStateListOf<PaymentMethodsAvailable>() }
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
-    val viewState = eateryDetailViewModel.eateryDetailViewState.collectAsState().value
-    val error by eateryDetailViewModel.error.collectAsState()
-
-    NetworkErrorToast(
-        error = error,
-        onErrorShown = eateryDetailViewModel::clearError
-    )
-
-    /**
-     * The amount of days offset from the current weekday
-     */
-
-    // The filter text typed in.
-    val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
 
     var showFAB by remember {
         mutableStateOf(true)
@@ -242,11 +273,7 @@ fun EateryDetailScreen(
                                             issue = issue,
                                             eateryid = it,
                                             sendReport = { issue, report, eateryId ->
-                                                eateryDetailViewModel.sendReport(
-                                                    issue,
-                                                    report,
-                                                    eateryId
-                                                )
+                                                onSendReport(issue, report, eateryId)
                                             }) {
                                             coroutineScope.launch {
                                                 modalBottomSheetState.hide()
@@ -279,16 +306,16 @@ fun EateryDetailScreen(
                                         },
                                         eatery = eatery,
                                         onShowMenuClick = { dayIndex, mealDescription, _ ->
-                                            eateryDetailViewModel.selectEvent(
+                                            onSelectEvent(
                                                 eatery,
                                                 dayIndex,
                                                 mealDescription
                                             )
-                                            eateryDetailViewModel.setSelectedWeekdayIndex(dayIndex)
+                                            onSetSelectedWeekdayIndex(dayIndex)
                                         },
                                         onResetClick = {
-                                            eateryDetailViewModel.setSelectedWeekdayIndex(0)
-                                            eateryDetailViewModel.resetSelectedEvent()
+                                            onSetSelectedWeekdayIndex(0)
+                                            onResetSelectedEvent()
                                         },
                                         mealType = viewState.mealTypeIndex
                                     )
@@ -406,7 +433,7 @@ fun EateryDetailScreen(
 
 
                                         Button(
-                                            onClick = { eateryDetailViewModel.toggleFavorite() },
+                                            onClick = onToggleFavorite,
                                             modifier = Modifier
                                                 .align(Alignment.TopEnd)
                                                 .padding(top = 40.dp, end = 16.dp)
@@ -631,14 +658,12 @@ fun EateryDetailScreen(
                                         SearchBar(
                                             searchText = filterText,
                                             onSearchTextChange = {
-                                                eateryDetailViewModel.setSearchQuery(
-                                                    it
-                                                )
+                                                onSearchQueryChange(it)
                                             },
                                             placeholderText = "Search the menu...",
                                             modifier = Modifier.padding(horizontal = 16.dp),
                                             onCancelClicked = {
-                                                eateryDetailViewModel.setSearchQuery("")
+                                                onSearchQueryChange("")
                                             })
                                         Spacer(
                                             modifier = Modifier
@@ -661,7 +686,7 @@ fun EateryDetailScreen(
                                                 EateryMealTabs(
                                                     meals = mealTypes,
                                                     onSelectMeal = { selectedMeal ->
-                                                        eateryDetailViewModel.selectEvent(
+                                                        onSelectEvent(
                                                             eatery,
                                                             viewState.weekdayIndex,
                                                             mealTypes[selectedMeal]
@@ -680,7 +705,7 @@ fun EateryDetailScreen(
                                             }
                                         )
                                     }, onFavoriteClick = {
-                                        eateryDetailViewModel.toggleFavoriteMenuItem(it)
+                                        onToggleFavoriteMenuItem(it)
                                     })
 
                                     item {
@@ -775,7 +800,7 @@ fun EateryDetailScreen(
                                     EateryHeader(
                                         eatery = eatery,
                                         isFavorite = viewState.isFavorite,
-                                        onFavoriteClick = eateryDetailViewModel::toggleFavorite
+                                        onFavoriteClick = onToggleFavorite
                                     )
                                     EateryDetailsStickyHeader(
                                         nextEvent.toEvent(),
@@ -897,4 +922,50 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EateryDetailScreenPreview() = EateryPreview {
+    val now = LocalDateTime.now()
+    val mealViewState = MealViewState(
+        startTime = now.withHour(11).withMinute(0),
+        endTime = now.withHour(14).withMinute(0),
+        menu = listOf(
+            MenuCategoryViewState(
+                category = "Featured",
+                items = listOf(
+                    MenuItemViewState(
+                        isFavorite = true,
+                        item = MenuItem(name = "Pesto Pasta")
+                    ),
+                    MenuItemViewState(
+                        isFavorite = false,
+                        item = MenuItem(name = "Tomato Soup")
+                    )
+                )
+            )
+        ),
+        description = "Lunch"
+    )
+
+    EateryDetailScreenContent(
+        viewState = EateryDetailViewState.Loaded(
+            mealToShow = mealViewState,
+            eatery = PreviewData.mockEatery(id = 1).copy(
+                menuSummary = "Pasta and grill"
+            ),
+            isFavorite = true,
+            weekdayIndex = 0
+        ),
+        filterText = "",
+        onCompareMenusClick = {},
+        onToggleFavorite = {},
+        onSendReport = { _, _, _ -> },
+        onSelectEvent = { _, _, _ -> },
+        onSetSelectedWeekdayIndex = {},
+        onResetSelectedEvent = {},
+        onSearchQueryChange = {},
+        onToggleFavoriteMenuItem = {},
+    )
 }
