@@ -10,6 +10,7 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.navigation.NavigationSetup
@@ -32,6 +33,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var userRepository: UserRepository
+
+    @Inject
+    lateinit var authTokenRepository: AuthTokenRepository
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<IntentSenderRequest>
     private val appUpdateManager by lazy { AppUpdateManagerFactory.create(applicationContext) }
@@ -67,7 +71,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             configureTokens()
             userRepository.updateFavorites()
-            userRepository.markTokensAsConfigured()
+            authTokenRepository.markTokensAsConfigured()
         }
     }
 
@@ -148,6 +152,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private suspend fun configureTokens() {
-        userRepository.getTokens()
+        authTokenRepository.getTokens()
     }
 }

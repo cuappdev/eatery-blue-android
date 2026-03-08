@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Result
+import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
@@ -32,7 +33,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val eateryRepository: EateryRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val authTokenRepository: AuthTokenRepository
 ) : ViewModel() {
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
 
@@ -206,7 +208,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun updateFavoritesIfTokensConfigured() {
-        if (userRepository.tokensConfiguredFlow.value) {
+        if (authTokenRepository.tokensConfiguredFlow.value) {
             viewModelScope.launch {
                 when (val result = userRepository.updateFavorites()) {
                     is Result.Success -> {

@@ -8,6 +8,7 @@ import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
+import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
@@ -24,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val authTokenRepository: AuthTokenRepository,
 ) : ViewModel() {
 
     /**
@@ -145,7 +147,7 @@ class LoginViewModel @Inject constructor(
      * Returns true if the account was linked successfully, false otherwise.
      */
     private suspend fun linkGETAccount(sessionId: String): Boolean {
-        return when (val result = userRepository.linkGETAccount(sessionId)) {
+        return when (val result = authTokenRepository.linkGETAccount(sessionId)) {
             is Result.Success -> {
                 userRepository.setIsLoggedIn(true)
                 _error.value = null
