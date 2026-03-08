@@ -27,5 +27,3 @@ fun NetworkErrorToast(
         }
     }
 }
-
-

@@ -71,8 +71,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        unregisterFlexibleUpdateListener()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        // in case onStop cleanup did not run
         unregisterFlexibleUpdateListener()
     }
 
