@@ -29,7 +29,7 @@ import kotlin.random.Random
 @Singleton
 class UserRepository @Inject constructor(
     private val networkApi: NetworkApi,
-    val userPreferencesRepository: UserPreferencesRepository
+    private val userPreferencesRepository: UserPreferencesRepository
 ) {
     private val _loadedUser: MutableStateFlow<User?> = MutableStateFlow(null)
 
