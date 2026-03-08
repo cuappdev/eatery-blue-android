@@ -64,30 +64,12 @@ fun EateryMenusBottomSheet(
     val zoneId: ZoneId? = ZoneId.of("America/New_York")
     val today = LocalDate.now(zoneId)
     val currentDay by remember { mutableStateOf(today) }
-    val dayWeek: Int = currentDay.dayOfWeek.value
-    val dayNum: Int = currentDay.dayOfMonth
-    val dayNames = mutableListOf<String>()
-    val dayWeeks = mutableListOf<Int>()
-    val days = mutableListOf<Int>()
-    dayWeeks.add(dayWeek)
-    days.add(dayNum)
-    for (i in 1 until 7) {
-        dayWeeks.add(currentDay.plusDays(i.toLong()).dayOfWeek.value)
-        days.add(currentDay.plusDays(i.toLong()).dayOfMonth)
-    }
-    dayWeeks.forEach {
-        var dayName = ""
-        when (it) {
-            1 -> dayName = "Mon"
-            2 -> dayName = "Tue"
-            3 -> dayName = "Wed"
-            4 -> dayName = "Thu"
-            5 -> dayName = "Fri"
-            6 -> dayName = "Sat"
-            7 -> dayName = "Sun"
-        }
-        dayNames.add(dayName)
-    }
+
+    val weekDates = (0..6).map { currentDay.plusDays(it.toLong()) }
+    val dayWeeks = weekDates.map { it.dayOfWeek.value }
+    val days = weekDates.map { it.dayOfMonth }
+    val dayNames = weekDates.map { it.dayOfWeek.toReadableShortName() }
+
     var selectedDay by remember { mutableStateOf(weekDayIndex) }
     var currSelectedDay by remember { mutableStateOf(selectedDay) }
 
@@ -126,7 +108,6 @@ fun EateryMenusBottomSheet(
                 }
                 IconButton(
                     onClick = {
-//                        openUpcoming = false
                         onDismiss()
                     },
                     modifier = Modifier
@@ -156,9 +137,7 @@ fun EateryMenusBottomSheet(
                 eateryDetail = true
             )
 
-//            Spacer(modifier = Modifier.height(12.dp))
-
-            //display of possible meal descriptions (none for cafes)
+            //display of possible meal descriptions (none for cafés)
             Column(
                 modifier = Modifier
                     .padding(top = 12.dp, bottom = 12.dp)
@@ -268,8 +247,6 @@ fun EateryMenusBottomSheet(
                         onDismiss()
                     })
             }
-
         }
-
     }
 }
