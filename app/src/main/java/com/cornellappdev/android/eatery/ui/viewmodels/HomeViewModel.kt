@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -135,6 +134,10 @@ class HomeViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
+    val notificationFlowCompleted: StateFlow<Boolean> =
+        userPreferencesRepository.notificationFlowCompletedFlow
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
     var bigPopUp by mutableStateOf(false)
 
     fun setPopUp(bool: Boolean) {
@@ -192,10 +195,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    fun getNotificationFlowCompleted() = runBlocking {
-        return@runBlocking userPreferencesRepository.getNotificationFlowCompleted()
     }
 
     fun setNotificationFlowCompleted(value: Boolean) = viewModelScope.launch {

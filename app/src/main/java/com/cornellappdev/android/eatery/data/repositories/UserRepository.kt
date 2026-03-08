@@ -17,6 +17,7 @@ import com.cornellappdev.android.eatery.data.models.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import retrofit2.HttpException
 import java.io.IOException
@@ -62,7 +63,7 @@ class UserRepository @Inject constructor(
     private val useLocalFavorites = BuildConfig.USE_LOCAL_FAVORITES
 
     suspend fun getDeviceId(): String {
-        val deviceId = userPreferencesRepository.getDeviceId()
+        val deviceId = userPreferencesRepository.deviceIdFlow.first()
         if (deviceId != null) return deviceId
 
         // first launch
@@ -95,8 +96,8 @@ class UserRepository @Inject constructor(
 
     suspend fun updateFavorites(): Result<Unit> {
         if (useLocalFavorites) {
-            _favoritesEateriesFlow.value = userPreferencesRepository.getFavoriteEateryNames()
-            _favoriteItemsFlow.value = userPreferencesRepository.getFavoriteItemNames()
+            _favoritesEateriesFlow.value = userPreferencesRepository.favoriteEateryNamesFlow.first()
+            _favoriteItemsFlow.value = userPreferencesRepository.favoriteItemNamesFlow.first()
             return Result.Success(Unit)
         }
 
@@ -223,14 +224,14 @@ class UserRepository @Inject constructor(
         try {
             financials = networkApi.getFinancials(
                 accessToken = getAccessToken(),
-                sessionId = SessionID(userPreferencesRepository.getSessionId())
+                sessionId = SessionID(userPreferencesRepository.sessionIdFlow.first())
             )
         } catch (_: Exception) {
-            val pin = userPreferencesRepository.getPin()
+            val pin = userPreferencesRepository.pinFlow.first()
             refreshLogin(pin = pin)
             financials = networkApi.getFinancials(
                 accessToken = getAccessToken(),
-                sessionId = SessionID(userPreferencesRepository.getSessionId())
+                sessionId = SessionID(userPreferencesRepository.sessionIdFlow.first())
             )
         }
         _loadedUser.value = User(
@@ -246,7 +247,7 @@ class UserRepository @Inject constructor(
     suspend fun setIsLoggedIn(isLoggedIn: Boolean) =
         userPreferencesRepository.setIsLoggedIn(isLoggedIn)
 
-    suspend fun isLoggedIn(): Boolean = userPreferencesRepository.getIsLoggedIn()
+    suspend fun isLoggedIn(): Boolean = userPreferencesRepository.isLoggedInFlow.first()
 
     /**
      * Refreshes GET sessionID.
@@ -269,7 +270,7 @@ class UserRepository @Inject constructor(
         userPreferencesRepository.setIsLoggedIn(false)
     }
 
-    suspend fun hasOnboarded(): Boolean = userPreferencesRepository.getHasOnboarded()
+    suspend fun hasOnboarded(): Boolean = userPreferencesRepository.hasOnboardedFlow.first()
 
     /**
      * Converts exceptions into appropriate [NetworkError] types.
@@ -319,7 +320,7 @@ class UserRepository @Inject constructor(
      */
     private suspend fun refreshTokens() {
         val deviceId = getDeviceId()
-        val refreshToken = userPreferencesRepository.getRefreshToken()
+        val refreshToken = userPreferencesRepository.refreshTokenFlow.first()
             ?: throw IllegalStateException("Refresh token not available")
         val tokens = networkApi.refreshToken(
             RefreshRequest(
@@ -346,7 +347,7 @@ class UserRepository @Inject constructor(
      */
     private suspend fun getAccessToken(): String =
         prependBearer(
-            userPreferencesRepository.getAccessToken()
+            userPreferencesRepository.accessTokenFlow.first()
                 ?: throw IllegalStateException("Access token not available")
         )
 

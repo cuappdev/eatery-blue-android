@@ -7,8 +7,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.util.UUID
@@ -20,6 +18,21 @@ class UserPreferencesRepository @Inject constructor(
     private val userPreferencesStore: DataStore<UserPreferences>,
 ) {
     private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
+
+    val hasOnboardedFlow: Flow<Boolean> = userPreferencesFlow.map { it.hasOnboarded }
+    val notificationFlowCompletedFlow: Flow<Boolean> =
+        userPreferencesFlow.map { it.notificationFlowCompleted }
+    val analyticsDisabledFlow: Flow<Boolean> = userPreferencesFlow.map { it.analyticsDisabled }
+    val deviceIdFlow: Flow<String?> = userPreferencesFlow.map { it.deviceId.nullIfEmpty() }
+    val accessTokenFlow: Flow<String?> = userPreferencesFlow.map { it.accessToken.nullIfEmpty() }
+    val refreshTokenFlow: Flow<String?> = userPreferencesFlow.map { it.refreshToken.nullIfEmpty() }
+    val isLoggedInFlow: Flow<Boolean> = userPreferencesFlow.map { it.isLoggedIn }
+    val pinFlow: Flow<Int> = userPreferencesFlow.map { it.pin }
+    val sessionIdFlow: Flow<String> = userPreferencesFlow.map { it.sessionId }
+    val favoriteEateryNamesFlow: Flow<List<String>> =
+        userPreferencesFlow.map { it.favoriteEateryNamesList }
+    val favoriteItemNamesFlow: Flow<List<String>> =
+        userPreferencesFlow.map { it.itemFavoritesMap.keys.toList() }
 
     val recentSearchesFlow: StateFlow<List<Int>> = userPreferencesFlow.map { prefs ->
         prefs.recentSearchesList
@@ -66,15 +79,6 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun getHasOnboarded(): Boolean =
-        userPreferencesFlow.first().hasOnboarded
-
-    suspend fun getNotificationFlowCompleted(): Boolean =
-        userPreferencesFlow.first().notificationFlowCompleted
-
-    suspend fun getAnalyticsDisabled(): Boolean =
-        userPreferencesFlow.first().analyticsDisabled
-
     private suspend fun setPref(setter: UserPreferences.Builder.() -> UserPreferences.Builder) {
         userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
@@ -88,49 +92,24 @@ class UserPreferencesRepository @Inject constructor(
     }
 
     private fun String?.nullIfEmpty(): String? = if (this.isNullOrEmpty()) null else this
-    suspend fun getDeviceId(): String? {
-        return userPreferencesFlow.firstOrNull()?.deviceId.nullIfEmpty()
-    }
-
-    suspend fun getAccessToken(): String? {
-        return userPreferencesFlow.firstOrNull()?.accessToken.nullIfEmpty()
-    }
 
     suspend fun setAccessToken(accessToken: String) {
         setPref { setAccessToken(accessToken) }
-    }
-
-    suspend fun getRefreshToken(): String? {
-        return userPreferencesFlow.firstOrNull()?.refreshToken.nullIfEmpty()
     }
 
     suspend fun setRefreshToken(refreshToken: String) {
         setPref { setRefreshToken(refreshToken) }
     }
 
-    suspend fun getIsLoggedIn(): Boolean {
-        val flow = userPreferencesFlow.firstOrNull()
-        return flow?.isLoggedIn ?: false
-    }
-
     suspend fun setIsLoggedIn(loggedIn: Boolean) = setPref {
         setIsLoggedIn(loggedIn)
     }
-
-    suspend fun getPin(): Int = userPreferencesFlow.first().pin
 
     suspend fun setPin(pin: Int) {
         setPref { setPin(pin) }
     }
 
-    suspend fun getSessionId(): String = userPreferencesFlow.first().sessionId
     suspend fun setSessionId(sessionId: String) {
         setPref { setSessionId(sessionId) }
     }
-
-    suspend fun getFavoriteEateryNames(): List<String> =
-        userPreferencesFlow.firstOrNull()?.favoriteEateryNamesList ?: emptyList()
-
-    suspend fun getFavoriteItemNames(): List<String> =
-        userPreferencesFlow.firstOrNull()?.itemFavoritesMap?.keys?.toList() ?: emptyList()
 }

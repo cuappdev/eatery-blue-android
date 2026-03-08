@@ -124,6 +124,7 @@ fun HomeScreen(
     val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
     val filters = homeViewModel.filtersFlow.collectAsState().value
     val error by homeViewModel.error.collectAsState()
+    val notificationFlowCompleted by homeViewModel.notificationFlowCompleted.collectAsState()
 
     NetworkErrorToast(
         error = error,
@@ -261,7 +262,7 @@ fun HomeScreen(
                 if (FirstTimeShown.firstTimeShown) {
                     PermissionRequestDialog(
                         showBottomBar = showBottomBar,
-                        notificationFlowStatus = homeViewModel.getNotificationFlowCompleted(),
+                        notificationFlowStatus = notificationFlowCompleted,
                         updateNotificationFlowStatus = {
                             homeViewModel.setNotificationFlowCompleted(it)
                         }
