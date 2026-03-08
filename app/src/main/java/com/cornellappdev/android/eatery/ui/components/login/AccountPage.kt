@@ -637,7 +637,7 @@ fun AccountTypesSelector(
                         )
                     }
                 }
-                if (index != selectedPaymentMethod.size) {
+                if (index != selectedPaymentMethod.lastIndex) {
                     Spacer(
                         modifier = Modifier
                             .fillMaxWidth()
