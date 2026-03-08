@@ -106,12 +106,8 @@ class UserRepository @Inject constructor(
             val matches = networkApi.getFavoriteMatches(accessToken = accessPhrase)
             _favoriteEateriesFlow.value = matches.mapNotNull { it.eateryName }
             _favoriteItemsFlow.value = run {
-                val items: MutableList<String> = mutableListOf()
-                matches.forEach { (_, eateryItems) ->
-                    if (eateryItems != null) {
-                        items.addAll(eateryItems.mapNotNull { it.name })
-                    }
-                }
+                val items: List<String> =
+                    matches.flatMap { it.items.orEmpty() }.mapNotNull { it.name }
                 items.toList()
             }
         }
