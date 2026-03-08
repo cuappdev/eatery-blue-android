@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -82,7 +83,7 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
-    suspend fun setDeviceId(deviceId: java.util.UUID) {
+    suspend fun setDeviceId(deviceId: UUID) {
         setPref { setDeviceId(deviceId.toString()) }
     }
 
