@@ -347,7 +347,7 @@ class UserRepository @Inject constructor(
     private suspend fun getAccessToken(): String =
         prependBearer(
             userPreferencesRepository.getAccessToken()
-                ?: throw IllegalStateException("Access token ont available")
+                ?: throw IllegalStateException("Access token not available")
         )
 
     private fun prependBearer(str: String) = "Bearer $str"
