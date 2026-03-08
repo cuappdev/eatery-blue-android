@@ -2,13 +2,8 @@ package com.cornellappdev.android.eatery.data.repositories
 
 import androidx.datastore.core.DataStore
 import com.cornellappdev.android.eatery.UserPreferences
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,9 +28,7 @@ class UserPreferencesRepository @Inject constructor(
     val favoriteItemNamesFlow: Flow<List<String>> =
         userPreferencesFlow.map { it.itemFavoritesMap.keys.toList() }
 
-    val recentSearchesFlow: StateFlow<List<Int>> = userPreferencesFlow.map { prefs ->
-        prefs.recentSearchesList
-    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, listOf())
+    val recentSearchesFlow: Flow<List<Int>> = userPreferencesFlow.map { it.recentSearchesList }
 
     suspend fun setHasOnboarded(hasOnboarded: Boolean) = setPref {
         setHasOnboarded(hasOnboarded)
