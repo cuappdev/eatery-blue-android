@@ -12,6 +12,10 @@ import javax.inject.Singleton
 class UserPreferencesRepository @Inject constructor(
     private val userPreferencesStore: DataStore<UserPreferences>,
 ) {
+    companion object {
+        private const val MAX_RECENT_SEARCHES = 20
+    }
+
     private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
 
     val hasOnboardedFlow: Flow<Boolean> = userPreferencesFlow.map { it.hasOnboarded }
@@ -43,7 +47,13 @@ class UserPreferencesRepository @Inject constructor(
     }
 
     suspend fun addRecentSearch(eateryId: Int) = setPref {
-        addRecentSearches(eateryId)
+        val updatedRecentSearches = recentSearchesList
+            .filter { it != eateryId }
+            .toMutableList()
+            .apply { add(eateryId) }
+            .takeLast(MAX_RECENT_SEARCHES)
+        clearRecentSearches()
+        addAllRecentSearches(updatedRecentSearches)
     }
 
     suspend fun setFavoriteEateryName(eateryName: String, isFavorite: Boolean) {
