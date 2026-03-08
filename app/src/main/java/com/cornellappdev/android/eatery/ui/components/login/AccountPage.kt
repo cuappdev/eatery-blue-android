@@ -431,19 +431,16 @@ private fun AccountPageHeader(
                             tint = Color.White
                         )
                     }
-                    Column(
+                    Text(
                         modifier = Modifier.padding(
                             start = 16.dp,
                             end = 16.dp,
                             top = 24.dp
-                        )
-                    ) {
-                        Text(
-                            text = "Account",
-                            color = Color.White,
-                            style = EateryBlueTypography.h2
-                        )
-                    }
+                        ),
+                        text = "Account",
+                        color = Color.White,
+                        style = EateryBlueTypography.h2
+                    )
                 }
             }
         }
