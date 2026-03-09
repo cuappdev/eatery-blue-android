@@ -36,7 +36,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -158,8 +157,7 @@ private fun AccountPageContent(
     setSheetContent: (BottomSheetContent) -> Unit
 ) {
     val innerListState = rememberLazyListState()
-    val isFirstVisible =
-        remember { derivedStateOf { innerListState.firstVisibleItemIndex > 1 } }
+    val isFirstVisible by remember { derivedStateOf { innerListState.firstVisibleItemIndex > 1 } }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -344,7 +342,7 @@ private fun TransactionsHeader(
 @Composable
 @OptIn(ExperimentalAnimationApi::class)
 private fun AccountPageHeader(
-    isFirstVisible: State<Boolean>,
+    isFirstVisible: Boolean,
     onSettingsClicked: () -> Unit
 ) {
     Column(
@@ -355,7 +353,7 @@ private fun AccountPageHeader(
             .padding(bottom = 7.dp),
     ) {
         AnimatedContent(
-            targetState = isFirstVisible.value
+            targetState = isFirstVisible
         ) { isFirstVisible ->
             if (isFirstVisible) {
                 Box(
