@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +16,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -196,12 +196,12 @@ fun EateryMenusBottomSheet(
                             }
                         }
                         if (mealTypes.lastIndex != index) {
-                            Spacer(
+                            Divider(
                                 modifier = Modifier
                                     .padding(top = 12.dp, bottom = 12.dp)
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(GrayZero, CircleShape)
+                                    .fillMaxWidth(),
+                                thickness = 1.dp,
+                                color = GrayZero
                             )
                         }
                     }
