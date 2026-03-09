@@ -34,14 +34,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.models.MealTime
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import com.cornellappdev.android.eatery.util.toReadableShortName
 import java.time.DayOfWeek
@@ -249,4 +253,44 @@ fun EateryMenusBottomSheet(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EateryMenusBottomSheetPreview() = EateryPreview {
+    val zoneId = ZoneId.of("America/New_York")
+    val today = LocalDate.now(zoneId)
+    val previewEatery = PreviewData.mockEatery().copy(
+        events = listOf(
+            Event(
+                type = "Breakfast",
+                startTimestamp = today.atTime(8, 0),
+                endTimestamp = today.atTime(10, 0)
+            ),
+            Event(
+                type = "Lunch",
+                startTimestamp = today.atTime(11, 0),
+                endTimestamp = today.atTime(14, 0)
+            ),
+            Event(
+                type = "Dinner",
+                startTimestamp = today.atTime(17, 0),
+                endTimestamp = today.atTime(20, 0)
+            ),
+            Event(
+                type = "Lunch",
+                startTimestamp = today.plusDays(1).atTime(11, 0),
+                endTimestamp = today.plusDays(1).atTime(14, 0)
+            )
+        )
+    )
+
+    EateryMenusBottomSheet(
+        weekDayIndex = 0,
+        mealType = 1,
+        onDismiss = {},
+        eatery = previewEatery,
+        onShowMenuClick = { _, _, _ -> },
+        onResetClick = {}
+    )
 }
