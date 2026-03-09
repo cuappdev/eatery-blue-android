@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -180,36 +181,21 @@ private fun AccountPageContent(
                                 swipes = it
                             )
                         }
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(GrayZero, CircleShape)
-                        )
+                        Divider(color = GrayZero, thickness = 1.dp)
                         accountTypeBalance.brbBalance?.let {
                             AccountBalanceRow(
                                 accountName = "Big Red Bucks",
                                 balance = it
                             )
                         }
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(GrayZero, CircleShape)
-                        )
+                        Divider(color = GrayZero, thickness = 1.dp)
                         accountTypeBalance.cityBucksBalance?.let {
                             AccountBalanceRow(
                                 accountName = "City Bucks",
                                 balance = it
                             )
                         }
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(GrayZero, CircleShape)
-                        )
+                        Divider(color = GrayZero, thickness = 1.dp)
                         accountTypeBalance.laundryBalance?.let {
                             AccountBalanceRow(
                                 accountName = "Laundry",
@@ -337,25 +323,13 @@ private fun TransactionsHeader(
             placeholderText = "Search for transactions...",
             onCancelClicked = { setFilterText("") }
         )
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .padding(horizontal = 16.dp)
-                .background(GrayZero, CircleShape)
-        )
+        Divider(color = GrayZero, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
         Text(
             text = "Past 30 Days",
             modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
             style = EateryBlueTypography.h5
         )
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(1.dp)
-                .padding(horizontal = 16.dp)
-                .background(GrayZero, CircleShape)
-        )
+        Divider(color = GrayZero, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
     }
 }
 
@@ -490,12 +464,7 @@ private fun TransactionRow(transaction: Transaction, isMealSwipes: Boolean) {
         )
 
     }
-    Spacer(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(1.dp)
-            .background(GrayZero, CircleShape)
-    )
+    Divider(color = GrayZero, thickness = 1.dp)
 }
 
 private fun formatDate(dateString: String): String {
@@ -634,12 +603,10 @@ fun AccountTypesSelector(
                     }
                 }
                 if (index != selectedPaymentMethod.lastIndex) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(GrayZero, CircleShape)
-                            .padding(horizontal = 16.dp)
+                    Divider(
+                        color = GrayZero,
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
             }
