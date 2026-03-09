@@ -439,27 +439,23 @@ private fun TransactionRow(transaction: Transaction, formattedDate: String, isMe
                 color = GrayFive
             )
         }
-        var amtColor by remember { mutableStateOf(Color.Unspecified) }
-        var amtString by remember { mutableStateOf("$0.00") }
-        when {
+        val (amtString, amtColor) = when {
             transaction.transactionType == TransactionType.DEPOSIT -> {
-                amtString = "+$%.2f".format(transaction.amount)
-                amtColor = Green
+                "+$%.2f".format(transaction.amount) to Green
             }
 
             transaction.amount.epsilonEqual(0.0) -> {
-                amtString = "$0.00"
-                amtColor = Black
+                "$0.00" to Black
             }
 
             else -> {
-                amtString = if (isMealSwipes) {
+                val amt = if (isMealSwipes) {
                     val numSwipes = transaction.amount.toInt()
                     "-$numSwipes swipe" + (if (numSwipes > 1) "s" else "")
                 } else {
                     "-$%.2f".format(transaction.amount)
                 }
-                amtColor = Red
+                amt to Red
             }
         }
         Text(
