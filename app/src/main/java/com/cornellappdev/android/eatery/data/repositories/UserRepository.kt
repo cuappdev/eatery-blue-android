@@ -195,7 +195,7 @@ class UserRepository @Inject constructor(
 
     suspend fun logout() {
         _loadedUser.value = null
-        authTokenRepository.clearAuthTokens()
+        authTokenRepository.clearSessionId()
         userPreferencesRepository.setIsLoggedIn(false)
     }
 

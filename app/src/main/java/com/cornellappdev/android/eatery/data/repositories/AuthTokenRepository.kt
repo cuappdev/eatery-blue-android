@@ -115,11 +115,7 @@ class AuthTokenRepository @Inject constructor(
 
     suspend fun getPin(): Int = userPreferencesRepository.pinFlow.firstOrNull() ?: 0
 
-    suspend fun clearAuthTokens() {
-        userPreferencesRepository.setSessionId("")
-        userPreferencesRepository.setAccessToken("")
-        userPreferencesRepository.setRefreshToken("")
-    }
+    suspend fun clearSessionId() = userPreferencesRepository.setSessionId("")
 
     /**
      * Converts exceptions into appropriate [NetworkError] types.
