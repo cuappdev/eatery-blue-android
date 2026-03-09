@@ -2,6 +2,8 @@ package com.cornellappdev.android.eatery.data.repositories
 
 import androidx.datastore.core.DataStore
 import com.cornellappdev.android.eatery.UserPreferences
+import com.cornellappdev.android.eatery.util.decryptData
+import com.cornellappdev.android.eatery.util.encryptData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.UUID
@@ -14,6 +16,13 @@ class UserPreferencesRepository @Inject constructor(
 ) {
     companion object {
         private const val MAX_RECENT_SEARCHES = 20
+
+        // Android KeyStore key aliases for sensitive credential fields
+        private const val ALIAS_ACCESS_TOKEN = "eatery_access_token"
+        private const val ALIAS_REFRESH_TOKEN = "eatery_refresh_token"
+        private const val ALIAS_SESSION_ID = "eatery_session_id"
+        private const val ALIAS_DEVICE_ID = "eatery_device_id"
+        private const val ALIAS_PIN = "eatery_pin"
     }
 
     private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
@@ -22,11 +31,39 @@ class UserPreferencesRepository @Inject constructor(
     val notificationFlowCompletedFlow: Flow<Boolean> =
         userPreferencesFlow.map { it.notificationFlowCompleted }
     val analyticsDisabledFlow: Flow<Boolean> = userPreferencesFlow.map { it.analyticsDisabled }
-    val accessTokenFlow: Flow<String?> = userPreferencesFlow.map { it.accessToken.nullIfEmpty() }
-    val refreshTokenFlow: Flow<String?> = userPreferencesFlow.map { it.refreshToken.nullIfEmpty() }
+
+    /**
+     * Emits the decrypted access token, or null if absent or decryption fails.
+     * Tokens are encrypted at rest using AES/GCM via the Android KeyStore.
+     */
+    val accessTokenFlow: Flow<String?> = userPreferencesFlow.map { prefs ->
+        decryptOrNull(ALIAS_ACCESS_TOKEN, prefs.accessToken)
+    }
+
+    /**
+     * Emits the decrypted refresh token, or null if absent or decryption fails.
+     */
+    val refreshTokenFlow: Flow<String?> = userPreferencesFlow.map { prefs ->
+        decryptOrNull(ALIAS_REFRESH_TOKEN, prefs.refreshToken)
+    }
+
     val isLoggedInFlow: Flow<Boolean> = userPreferencesFlow.map { it.isLoggedIn }
-    val pinFlow: Flow<Int> = userPreferencesFlow.map { it.pin }
-    val sessionIdFlow: Flow<String> = userPreferencesFlow.map { it.sessionId }
+
+    /**
+     * Emits the decrypted PIN from [UserPreferences.encryptedPin].
+     * Emits 0 if absent, decryption fails, or the decrypted value is invalid.
+     */
+    val pinFlow: Flow<Int> = userPreferencesFlow.map { prefs ->
+        decryptOrDefault(ALIAS_PIN, prefs.encryptedPin) { "0" }.toIntOrNull() ?: 0
+    }
+
+    /**
+     * Emits the decrypted session ID, or an empty string if absent or decryption fails.
+     */
+    val sessionIdFlow: Flow<String> = userPreferencesFlow.map { prefs ->
+        decryptOrDefault(ALIAS_SESSION_ID, prefs.sessionId) { "" }
+    }
+
     val favoriteEateryNamesFlow: Flow<List<String>> =
         userPreferencesFlow.map { it.favoriteEateryNamesList }
     val favoriteItemNamesFlow: Flow<List<String>> =
@@ -89,45 +126,71 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
-    // This approach avoids race conditions by performing get and set inside
-    // updateData which is atomic
+    // The device ID is encrypted using the Android KeyStore.
     suspend fun getOrCreateDeviceId(): String {
         var resolvedDeviceId: String? = null
         userPreferencesStore.updateData { currentPreferences ->
-            val existingDeviceId = currentPreferences.deviceId.nullIfEmpty()
-            if (existingDeviceId != null) {
-                resolvedDeviceId = existingDeviceId
+            val existingRaw = currentPreferences.deviceId.nullIfEmpty()
+            val existingDecrypted = existingRaw?.let { decryptOrNull(ALIAS_DEVICE_ID, it) }
+            if (existingDecrypted != null) {
+                resolvedDeviceId = existingDecrypted
                 currentPreferences
             } else {
                 val newDeviceId = UUID.randomUUID().toString()
                 resolvedDeviceId = newDeviceId
                 currentPreferences.toBuilder()
-                    .setDeviceId(newDeviceId)
+                    .setDeviceId(encryptOrEmpty(ALIAS_DEVICE_ID, newDeviceId))
                     .build()
             }
         }
         return checkNotNull(resolvedDeviceId)
     }
 
-    private fun String?.nullIfEmpty(): String? = if (this.isNullOrEmpty()) null else this
 
+    /** Encrypts [accessToken] before persisting. Pass an empty string to clear the value. */
     suspend fun setAccessToken(accessToken: String) {
-        setPref { setAccessToken(accessToken) }
+        setPref { setAccessToken(encryptOrEmpty(ALIAS_ACCESS_TOKEN, accessToken)) }
     }
 
+    /** Encrypts [refreshToken] before persisting. Pass an empty string to clear the value. */
     suspend fun setRefreshToken(refreshToken: String) {
-        setPref { setRefreshToken(refreshToken) }
+        setPref { setRefreshToken(encryptOrEmpty(ALIAS_REFRESH_TOKEN, refreshToken)) }
     }
 
     suspend fun setIsLoggedIn(loggedIn: Boolean) = setPref {
         setIsLoggedIn(loggedIn)
     }
 
+    /**
+     * Encrypts [pin] and stores it in [UserPreferences.encryptedPin].
+     */
     suspend fun setPin(pin: Int) {
-        setPref { setPin(pin) }
+        val toStore = encryptOrEmpty(ALIAS_PIN, pin.toString())
+        setPref { setEncryptedPin(toStore) }
     }
 
+    /** Encrypts [sessionId] before persisting. Pass an empty string to clear the value. */
     suspend fun setSessionId(sessionId: String) {
-        setPref { setSessionId(sessionId) }
+        setPref { setSessionId(encryptOrEmpty(ALIAS_SESSION_ID, sessionId)) }
+    }
+
+    private fun String?.nullIfEmpty(): String? = if (this.isNullOrEmpty()) null else this
+
+    private fun decryptOrNull(alias: String, encryptedValue: String?): String? {
+        val stored = encryptedValue.nullIfEmpty() ?: return null
+        return runCatching { decryptData(alias, stored) }.getOrNull()
+    }
+
+    private fun decryptOrDefault(
+        alias: String,
+        encryptedValue: String?,
+        defaultValue: () -> String,
+    ): String {
+        val stored = encryptedValue.nullIfEmpty() ?: return defaultValue()
+        return runCatching { decryptData(alias, stored) }.getOrElse { defaultValue() }
+    }
+
+    private fun encryptOrEmpty(alias: String, rawValue: String): String {
+        return if (rawValue.isEmpty()) "" else encryptData(alias, rawValue)
     }
 }
