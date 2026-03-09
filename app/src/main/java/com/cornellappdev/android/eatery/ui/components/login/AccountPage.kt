@@ -238,7 +238,7 @@ private fun AccountPageContent(
                     setFilterText
                 )
             }
-            items(filteredTransactions) {
+            items(items = filteredTransactions, key = { it.date + it.location + it.amount }) {
                 TransactionRow(
                     transaction = it,
                     isMealSwipes = accountFilter == TransactionAccountType.MEAL_SWIPES
