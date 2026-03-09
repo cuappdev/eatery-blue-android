@@ -22,6 +22,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+data class TransactionWithFormattedDate(
+    val transaction: Transaction,
+    val formattedDate: String
+)
+
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
@@ -106,7 +111,7 @@ class LoginViewModel @Inject constructor(
     }
 
 
-    val filteredTransactionsFlow: Flow<List<Transaction>> =
+    val filteredTransactionsFlow: Flow<List<TransactionWithFormattedDate>> =
         combine(
             userRepository.loadedUser,
             _queryFlow,
@@ -123,8 +128,34 @@ class LoginViewModel @Inject constructor(
                 ) >= LocalDateTime.now().minusDays(30)
                 val matchesQuery = transaction.location.lowercase().contains(query.lowercase())
                 matchesAccountType && pastThirtyDays && matchesQuery
+            }?.map { transaction ->
+                TransactionWithFormattedDate(
+                    transaction = transaction,
+                    formattedDate = formatDate(transaction.date)
+                )
             } ?: emptyList()
         }
+
+    companion object {
+        fun formatDate(dateString: String): String {
+            return try {
+                // Parse timezone-aware string like "2026-03-02T01:56:45.000+0000"
+                val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+                val zonedDateTime = java.time.ZonedDateTime.parse(dateString, inputFormatter)
+
+                // Convert to system's local timezone
+                val localZonedDateTime =
+                    zonedDateTime.withZoneSameInstant(java.time.ZoneId.systemDefault())
+                val localDateTime = localZonedDateTime.toLocalDateTime()
+
+                val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
+                outputFormatter.format(localDateTime)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                ""
+            }
+        }
+    }
 
     fun onLoginPressed() = updateLoginLoadingState(true)
 

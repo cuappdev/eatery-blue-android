@@ -68,10 +68,9 @@ import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
+import com.cornellappdev.android.eatery.ui.viewmodels.TransactionWithFormattedDate
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
 @OptIn(
@@ -83,7 +82,7 @@ fun AccountPage(
     accountFilter: TransactionAccountType,
     accountTypeBalance: AccountBalances,
     onSettingsClicked: () -> Unit,
-    filteredTransactions: List<Transaction>,
+    filteredTransactions: List<TransactionWithFormattedDate>,
     filterText: String,
     onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
@@ -155,7 +154,7 @@ private fun AccountPageContent(
     showBottomSheet: suspend () -> Unit,
     filterText: String,
     setFilterText: (String) -> Unit,
-    filteredTransactions: List<Transaction>,
+    filteredTransactions: List<TransactionWithFormattedDate>,
     setSheetContent: (BottomSheetContent) -> Unit
 ) {
     val innerListState = rememberLazyListState()
@@ -224,9 +223,12 @@ private fun AccountPageContent(
                     setFilterText
                 )
             }
-            items(items = filteredTransactions, key = { it.date + it.location + it.amount }) {
+            items(
+                items = filteredTransactions,
+                key = { it.transaction.date + it.transaction.location + it.transaction.amount }) {
                 TransactionRow(
-                    transaction = it,
+                    transaction = it.transaction,
+                    formattedDate = it.formattedDate,
                     isMealSwipes = accountFilter == TransactionAccountType.MEAL_SWIPES
                 )
             }
@@ -250,17 +252,23 @@ private fun AccountPagePreview() = EateryPreview {
         filterText = "",
         setFilterText = {},
         filteredTransactions = listOf(
-            Transaction(
-                date = "2023-10-01T12:30:00.000Z",
-                location = "Cafe Jennie",
-                amount = 5.25,
-                transactionType = TransactionType.SPEND
+            TransactionWithFormattedDate(
+                transaction = Transaction(
+                    date = "2023-10-01T12:30:00.000Z",
+                    location = "Cafe Jennie",
+                    amount = 5.25,
+                    transactionType = TransactionType.SPEND
+                ),
+                formattedDate = "12:30 PM · Sunday, October 1"
             ),
-            Transaction(
-                date = "2023-10-02T14:00:00.000Z",
-                location = "Morrison Dining",
-                amount = 15.00,
-                transactionType = TransactionType.DEPOSIT
+            TransactionWithFormattedDate(
+                transaction = Transaction(
+                    date = "2023-10-02T14:00:00.000Z",
+                    location = "Morrison Dining",
+                    amount = 15.00,
+                    transactionType = TransactionType.DEPOSIT
+                ),
+                formattedDate = "2:00 PM · Monday, October 2"
             )
         ),
         setSheetContent = {}
@@ -416,8 +424,7 @@ private fun AccountPageHeader(
 }
 
 @Composable
-private fun TransactionRow(transaction: Transaction, isMealSwipes: Boolean) {
-    val dateText = formatDate(transaction.date)
+private fun TransactionRow(transaction: Transaction, formattedDate: String, isMealSwipes: Boolean) {
     Row(
         modifier = Modifier
             .height(64.dp)
@@ -427,7 +434,7 @@ private fun TransactionRow(transaction: Transaction, isMealSwipes: Boolean) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = transaction.location, style = EateryBlueTypography.button)
             Text(
-                text = dateText,
+                text = formattedDate,
                 style = EateryBlueTypography.subtitle2,
                 color = GrayFive
             )
@@ -467,23 +474,6 @@ private fun TransactionRow(transaction: Transaction, isMealSwipes: Boolean) {
     Divider(color = GrayZero, thickness = 1.dp)
 }
 
-private fun formatDate(dateString: String): String {
-    return try {
-        // Parse timezone-aware string like "2026-03-02T01:56:45.000+0000"
-        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-        val zonedDateTime = ZonedDateTime.parse(dateString, inputFormatter)
-
-        // Convert to system's local timezone
-        val localZonedDateTime = zonedDateTime.withZoneSameInstant(java.time.ZoneId.systemDefault())
-        val localDateTime = localZonedDateTime.toLocalDateTime()
-
-        val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
-        outputFormatter.format(localDateTime)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        ""
-    }
-}
 
 private fun Double.epsilonEqual(other: Double): Boolean {
     val epsilon = 0.00001

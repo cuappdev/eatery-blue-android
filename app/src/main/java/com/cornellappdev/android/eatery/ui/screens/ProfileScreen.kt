@@ -7,12 +7,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.AccountBalances
-import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.TransactionWithFormattedDate
 
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
@@ -68,7 +68,7 @@ private fun ProfileScreenContent(
     accountFilter: TransactionAccountType,
     filterText: String,
     onSettingsClicked: () -> Unit,
-    filteredTransactions: List<Transaction>,
+    filteredTransactions: List<TransactionWithFormattedDate>,
     onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
 ) {
