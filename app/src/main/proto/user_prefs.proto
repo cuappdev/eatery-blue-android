@@ -25,13 +25,12 @@ message UserPreferences {
   string deviceId = 11;
   string accessToken = 12;
   string refreshToken = 13;
-  int32 pin = 14;
 
   // delete once no longer local
-  repeated string favoriteEateryNames = 15;
+  repeated string favoriteEateryNames = 14;
 
-  // Encrypted PIN stored as a Base64-encoded string (replaces the plaintext int32 pin field).
-  string encryptedPin = 16;
+  // Encrypted PIN stored as a Base64-encoded string.
+  string encryptedPin = 15;
 
   //  repeated int32 recentSearches = 2;
   //  string username = 3;

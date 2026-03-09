@@ -50,13 +50,11 @@ class UserPreferencesRepository @Inject constructor(
     val isLoggedInFlow: Flow<Boolean> = userPreferencesFlow.map { it.isLoggedIn }
 
     /**
-     * Emits the decrypted PIN. Prefers the encrypted [UserPreferences.encryptedPin] field;
-     * falls back to the legacy plaintext [UserPreferences.pin] field for migration or on
-     * decryption failure.
+     * Emits the decrypted PIN from [UserPreferences.encryptedPin].
+     * Emits 0 if absent, decryption fails, or the decrypted value is invalid.
      */
     val pinFlow: Flow<Int> = userPreferencesFlow.map { prefs ->
-        decryptOrDefault(ALIAS_PIN, prefs.encryptedPin) { prefs.pin.toString() }
-            .toIntOrNull() ?: prefs.pin
+        decryptOrDefault(ALIAS_PIN, prefs.encryptedPin) { "0" }.toIntOrNull() ?: 0
     }
 
     /**
@@ -128,24 +126,15 @@ class UserPreferencesRepository @Inject constructor(
         }
     }
 
-    // The device ID is encrypted using the Android KeyStore. Legacy unencrypted UUIDs
-    // (stored by a previous app version) are re-encrypted transparently on first access.
+    // The device ID is encrypted using the Android KeyStore.
     suspend fun getOrCreateDeviceId(): String {
         var resolvedDeviceId: String? = null
         userPreferencesStore.updateData { currentPreferences ->
             val existingRaw = currentPreferences.deviceId.nullIfEmpty()
-            if (existingRaw != null) {
-                val decrypted = decryptOrNull(ALIAS_DEVICE_ID, existingRaw)
-                if (decrypted != null) {
-                    resolvedDeviceId = decrypted
-                    currentPreferences
-                } else {
-                    // Legacy plaintext UUID - re-encrypt it and update the store.
-                    resolvedDeviceId = existingRaw
-                    currentPreferences.toBuilder()
-                        .setDeviceId(encryptOrEmpty(ALIAS_DEVICE_ID, existingRaw))
-                        .build()
-                }
+            val existingDecrypted = existingRaw?.let { decryptOrNull(ALIAS_DEVICE_ID, it) }
+            if (existingDecrypted != null) {
+                resolvedDeviceId = existingDecrypted
+                currentPreferences
             } else {
                 val newDeviceId = UUID.randomUUID().toString()
                 resolvedDeviceId = newDeviceId
@@ -173,12 +162,11 @@ class UserPreferencesRepository @Inject constructor(
     }
 
     /**
-     * Encrypts [pin] and stores it in the [UserPreferences.encryptedPin] field.
-     * Clears the legacy plaintext [UserPreferences.pin] field at the same time.
+     * Encrypts [pin] and stores it in [UserPreferences.encryptedPin].
      */
     suspend fun setPin(pin: Int) {
         val toStore = encryptOrEmpty(ALIAS_PIN, pin.toString())
-        setPref { setEncryptedPin(toStore).setPin(0) }
+        setPref { setEncryptedPin(toStore) }
     }
 
     /** Encrypts [sessionId] before persisting. Pass an empty string to clear the value. */
