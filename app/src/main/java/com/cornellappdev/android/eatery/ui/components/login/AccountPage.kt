@@ -83,14 +83,10 @@ fun AccountPage(
     accountTypeBalance: AccountBalances,
     onSettingsClicked: () -> Unit,
     filteredTransactions: List<Transaction>,
+    filterText: String,
     onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
 ) {
-    var filterText by remember { mutableStateOf("") }
-    val onFilterTextChanged = { newText: String ->
-        filterText = newText
-        onQueryChanged(newText)
-    }
     val modalBottomSheetState =
         rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
@@ -137,7 +133,7 @@ fun AccountPage(
             accountFilter,
             showBottomSheet = modalBottomSheetState::show,
             filterText,
-            setFilterText = onFilterTextChanged,
+            setFilterText = onQueryChanged,
             filteredTransactions,
             setSheetContent = { sheetContent = it },
         )

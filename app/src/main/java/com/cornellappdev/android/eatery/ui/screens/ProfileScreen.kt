@@ -48,6 +48,7 @@ fun ProfileScreen(
         onModalHidden = loginViewModel::onLoginExited,
         onSettingsClicked = onSettingsClicked,
         accountFilter = if (state is LoginViewModel.State.Account) state.accountFilter else TransactionAccountType.BRBS,
+        filterText = if (state is LoginViewModel.State.Account) state.query else "",
         filteredTransactions = filteredTransactions,
         onQueryChanged = loginViewModel::setQuery,
         updateAccountFilter = loginViewModel::updateAccountFilter
@@ -65,6 +66,7 @@ private fun ProfileScreenContent(
     onBackClick: () -> Unit,
     onModalHidden: () -> Unit,
     accountFilter: TransactionAccountType,
+    filterText: String,
     onSettingsClicked: () -> Unit,
     filteredTransactions: List<Transaction>,
     onQueryChanged: (String) -> Unit,
@@ -85,6 +87,7 @@ private fun ProfileScreenContent(
             accountTypeBalance = accountTypeBalance,
             onSettingsClicked = onSettingsClicked,
             filteredTransactions = filteredTransactions,
+            filterText = filterText,
             onQueryChanged = onQueryChanged,
             updateAccountFilter = updateAccountFilter
         )
