@@ -93,7 +93,6 @@ class AuthTokenRepository @Inject constructor(
         userPreferencesRepository.setPin(pin)
         return tryRequestWithResult {
             networkApi.authorizeUser(
-                accessToken = getAccessToken(),
                 loginRequest = LoginRequest(pin.toString(), sessionId)
             )
         }
@@ -101,7 +100,6 @@ class AuthTokenRepository @Inject constructor(
 
     suspend fun refreshLogin(pin: Int): Result<Unit> = tryRequestWithResult {
         val newSessionId = networkApi.refreshAuthorizedUser(
-            accessToken = getAccessToken(),
             loginPIN = LoginPIN(pin.toString())
         ).sessionId
         if (newSessionId == null) {
@@ -115,11 +113,7 @@ class AuthTokenRepository @Inject constructor(
 
     suspend fun getPin(): Int = userPreferencesRepository.pinFlow.firstOrNull() ?: 0
 
-    suspend fun clearAuthTokens() {
-        userPreferencesRepository.setSessionId("")
-        userPreferencesRepository.setAccessToken("")
-        userPreferencesRepository.setRefreshToken("")
-    }
+    suspend fun clearSessionId() = userPreferencesRepository.setSessionId("")
 
     /**
      * Converts exceptions into appropriate [NetworkError] types.

@@ -60,8 +60,7 @@ class UserRepository @Inject constructor(
         }
 
         return tryRequestWithResult {
-            val accessPhrase = authTokenRepository.getAccessToken()
-            val matches = networkApi.getFavoriteMatches(accessToken = accessPhrase)
+            val matches = networkApi.getFavoriteMatches()
             _favoriteEateriesFlow.value = matches.mapNotNull { it.eateryName }
             _favoriteItemsFlow.value = run {
                 val items: List<String> =
@@ -92,7 +91,6 @@ class UserRepository @Inject constructor(
 
         return tryRequestWithResult {
             networkApi.addFavoriteItem(
-                accessToken = authTokenRepository.getAccessToken(),
                 item = FavoriteItem(item = name)
             )
             _favoriteItemsFlow.update { currentItems ->
@@ -112,7 +110,6 @@ class UserRepository @Inject constructor(
 
         return tryRequestWithResult {
             networkApi.deleteFavoriteItem(
-                accessToken = authTokenRepository.getAccessToken(),
                 item = FavoriteItem(name)
             )
             _favoriteItemsFlow.update { currentItems ->
@@ -132,7 +129,6 @@ class UserRepository @Inject constructor(
 
         return tryRequestWithResult {
             networkApi.addFavoriteEatery(
-                accessToken = authTokenRepository.getAccessToken(),
                 eatery = FavoriteEatery(id),
             )
             _favoriteEateriesFlow.update { currentEateries ->
@@ -152,7 +148,6 @@ class UserRepository @Inject constructor(
 
         return tryRequestWithResult {
             networkApi.deleteFavoriteEatery(
-                accessToken = authTokenRepository.getAccessToken(),
                 eatery = FavoriteEatery(id)
             )
             _favoriteEateriesFlow.update { currentEateries ->
@@ -166,14 +161,12 @@ class UserRepository @Inject constructor(
         var financials: Financials
         try {
             financials = networkApi.getFinancials(
-                accessToken = authTokenRepository.getAccessToken(),
                 sessionId = SessionID(authTokenRepository.getSessionId())
             )
         } catch (_: Exception) {
             val pin = authTokenRepository.getPin()
             authTokenRepository.refreshLogin(pin = pin)
             financials = networkApi.getFinancials(
-                accessToken = authTokenRepository.getAccessToken(),
                 sessionId = SessionID(authTokenRepository.getSessionId())
             )
         }
@@ -195,7 +188,7 @@ class UserRepository @Inject constructor(
 
     suspend fun logout() {
         _loadedUser.value = null
-        authTokenRepository.clearAuthTokens()
+        authTokenRepository.clearSessionId()
         userPreferencesRepository.setIsLoggedIn(false)
     }
 
