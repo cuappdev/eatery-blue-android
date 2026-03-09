@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.di
 import android.util.Log
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.data.AccountTypeAdapter
+import com.cornellappdev.android.eatery.data.AuthInterceptor
 import com.cornellappdev.android.eatery.data.DateAdapter
 import com.cornellappdev.android.eatery.data.DateTimeAdapter
 import com.cornellappdev.android.eatery.data.NetworkApi
@@ -29,7 +30,7 @@ import javax.inject.Singleton
 object NetworkModule {
     @Singleton
     @Provides
-    fun provideHttpClient(): OkHttpClient {
+    fun provideHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
         val logging = HttpLoggingInterceptor { message -> Log.d("NetworkRequest", message) }
         logging.level = (HttpLoggingInterceptor.Level.BODY)
 
@@ -37,6 +38,7 @@ object NetworkModule {
             .Builder()
             .readTimeout(200, TimeUnit.SECONDS)
             .connectTimeout(200, TimeUnit.SECONDS)
+            .addInterceptor(authInterceptor)
             .addInterceptor(logging)
             .build()
     }
