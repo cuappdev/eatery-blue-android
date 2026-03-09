@@ -11,26 +11,25 @@ message UserPreferences {
   map<int32, bool> favorites = 3;
 
   bool isLoggedIn = 4;
-  string sessionId = 5;
-  repeated int32 recentSearches = 6;
+  repeated int32 recentSearches = 7;
+  bool analyticsDisabled = 8;
+  Date lastShowedRatingPopup = 9;
+  int32 minDaysBetweenRatingShow = 10;
+  map<string, bool> itemFavorites = 11;
 
-  bool analyticsDisabled = 7;
+  string sessionId = 12;
+  string deviceId = 13;
+  string accessToken = 14;
+  string refreshToken = 15;
 
-  Date lastShowedRatingPopup = 8;
-
-  int32 minDaysBetweenRatingShow = 9;
-
-  map<string, bool> itemFavorites = 10;
-
-  string deviceId = 11;
-  string accessToken = 12;
-  string refreshToken = 13;
+  // Legacy tags
+  reserved 5, 6;
 
   // delete once no longer local
-  repeated string favoriteEateryNames = 14;
+  repeated string favoriteEateryNames = 16;
 
   // Encrypted PIN stored as a Base64-encoded string.
-  string encryptedPin = 15;
+  string encryptedPin = 17;
 
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
