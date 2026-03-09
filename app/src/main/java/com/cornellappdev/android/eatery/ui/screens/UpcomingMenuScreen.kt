@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,6 +39,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterButton
@@ -65,7 +66,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(
     ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
+    ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class
 )
 
 @Composable
@@ -78,7 +79,7 @@ fun UpcomingMenuScreen(
         skipHalfExpanded = true,
         initialValue = ModalBottomSheetValue.Hidden
     )
-    val viewState = upcomingViewModel.viewStateFlow.collectAsState().value
+    val viewState = upcomingViewModel.viewStateFlow.collectAsStateWithLifecycle().value
     val coroutineScope = rememberCoroutineScope()
 
     val listState = rememberLazyListState()
@@ -288,10 +289,7 @@ private fun UpcomingFilterRow(
                         }
                     },
                     selected = true,
-                    text = when (mealFilter) {
-                        MealFilter.LATE_DINNER -> "Late Dinner"
-                        else -> mealFilter.text.first()
-                    },
+                    text = mealFilter.displayName,
                     icon = Icons.Default.ExpandMore
                 )
             }

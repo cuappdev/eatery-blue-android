@@ -56,7 +56,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -77,12 +76,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
+import com.cornellappdev.android.eatery.data.models.MenuItem
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
@@ -93,6 +96,9 @@ import com.cornellappdev.android.eatery.ui.components.details.EateryHourBottomSh
 import com.cornellappdev.android.eatery.ui.components.details.EateryMealTabs
 import com.cornellappdev.android.eatery.ui.components.details.EateryMenusBottomSheet
 import com.cornellappdev.android.eatery.ui.components.details.PaymentWidgets
+import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
+import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.general.menuItems
@@ -112,24 +118,63 @@ import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
+import com.cornellappdev.android.eatery.ui.viewmodels.MealViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
-import com.cornellappdev.android.eatery.util.AppStorePopupRepository
-import com.cornellappdev.android.eatery.util.appStorePopupRepository
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
+import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
-    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+) {
+    val viewState = eateryDetailViewModel.eateryDetailViewState.collectAsStateWithLifecycle().value
+    val error by eateryDetailViewModel.error.collectAsStateWithLifecycle()
+    val filterText by eateryDetailViewModel.searchQueryFlow.collectAsStateWithLifecycle()
+
+    NetworkErrorToast(
+        error = error,
+        onErrorShown = eateryDetailViewModel::clearError
+    )
+
+    EateryDetailScreenContent(
+        viewState = viewState,
+        filterText = filterText,
+        onCompareMenusClick = onCompareMenusClick,
+        onToggleFavorite = eateryDetailViewModel::toggleFavorite,
+        onSendReport = eateryDetailViewModel::sendReport,
+        onSelectEvent = eateryDetailViewModel::selectEvent,
+        onSetSelectedWeekdayIndex = eateryDetailViewModel::setSelectedWeekdayIndex,
+        onResetSelectedEvent = eateryDetailViewModel::resetSelectedEvent,
+        onSearchQueryChange = eateryDetailViewModel::setSearchQuery,
+        onToggleFavoriteMenuItem = eateryDetailViewModel::toggleFavoriteMenuItem,
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun EateryDetailScreenContent(
+    viewState: EateryDetailViewState,
+    filterText: String,
+    onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+    onToggleFavorite: () -> Unit,
+    onSendReport: (issue: String, report: String, eateryId: Int?) -> Unit,
+    onSelectEvent: (eatery: Eatery, dayIndex: Int, mealDescription: String) -> Unit,
+    onSetSelectedWeekdayIndex: (Int) -> Unit,
+    onResetSelectedEvent: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onToggleFavoriteMenuItem: (String) -> Unit,
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val context = LocalContext.current
@@ -142,15 +187,6 @@ fun EateryDetailScreen(
     val paymentMethods = remember { mutableStateListOf<PaymentMethodsAvailable>() }
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
-    val viewState = eateryDetailViewModel.eateryDetailViewState.collectAsState().value
-
-
-    /**
-     * The amount of days offset from the current weekday
-     */
-
-    // The filter text typed in.
-    val filterText by eateryDetailViewModel.searchQueryFlow.collectAsState()
 
     var showFAB by remember {
         mutableStateOf(true)
@@ -234,14 +270,11 @@ fun EateryDetailScreen(
 
                                 BottomSheetContent.REPORT -> {
                                     eatery.id?.let {
-                                        ReportBottomSheet(issue = issue,
+                                        ReportBottomSheet(
+                                            issue = issue,
                                             eateryid = it,
-                                            sendReport = { issue, report, eateryid ->
-                                                eateryDetailViewModel.sendReport(
-                                                    issue,
-                                                    report,
-                                                    eateryid
-                                                )
+                                            sendReport = { issue, report, eateryId ->
+                                                onSendReport(issue, report, eateryId)
                                             }) {
                                             coroutineScope.launch {
                                                 modalBottomSheetState.hide()
@@ -274,16 +307,16 @@ fun EateryDetailScreen(
                                         },
                                         eatery = eatery,
                                         onShowMenuClick = { dayIndex, mealDescription, _ ->
-                                            eateryDetailViewModel.selectEvent(
+                                            onSelectEvent(
                                                 eatery,
                                                 dayIndex,
                                                 mealDescription
                                             )
-                                            eateryDetailViewModel.setSelectedWeekdayIndex(dayIndex)
+                                            onSetSelectedWeekdayIndex(dayIndex)
                                         },
                                         onResetClick = {
-                                            eateryDetailViewModel.setSelectedWeekdayIndex(0)
-                                            eateryDetailViewModel.resetSelectedEvent()
+                                            onSetSelectedWeekdayIndex(0)
+                                            onResetSelectedEvent()
                                         },
                                         mealType = viewState.mealTypeIndex
                                     )
@@ -319,9 +352,9 @@ fun EateryDetailScreen(
 
 
                         paymentMethods.apply {
-                            if (eatery.paymentAcceptsCash == true) add(PaymentMethodsAvailable.CASH)
-                            if (eatery.paymentAcceptsBrbs == true) add(PaymentMethodsAvailable.BRB)
-                            if (eatery.paymentAcceptsMealSwipes == true) add(
+                            if (eatery.acceptsCash()) add(PaymentMethodsAvailable.CASH)
+                            if (eatery.acceptsBRB()) add(PaymentMethodsAvailable.BRB)
+                            if (eatery.acceptsMealSwipes()) add(
                                 PaymentMethodsAvailable.SWIPES
                             )
                         }
@@ -401,7 +434,7 @@ fun EateryDetailScreen(
 
 
                                         Button(
-                                            onClick = { eateryDetailViewModel.toggleFavorite() },
+                                            onClick = onToggleFavorite,
                                             modifier = Modifier
                                                 .align(Alignment.TopEnd)
                                                 .padding(top = 40.dp, end = 16.dp)
@@ -457,7 +490,7 @@ fun EateryDetailScreen(
                                             .fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceEvenly
                                     ) {
-                                        if (eatery.paymentAcceptsMealSwipes == false) {
+                                        if (!eatery.acceptsMealSwipes()) {
                                             Button(
                                                 onClick = {
                                                     val getAppIntent =
@@ -508,7 +541,7 @@ fun EateryDetailScreen(
                                                 context.startActivity(mapIntent)
                                             },
                                             shape = RoundedCornerShape(100),
-                                            modifier = if (eatery.paymentAcceptsMealSwipes == false) Modifier else Modifier
+                                            modifier = if (!eatery.acceptsMealSwipes()) Modifier else Modifier
                                                 .fillMaxWidth()
                                                 .padding(horizontal = 15.dp),
                                             colors = ButtonDefaults.buttonColors(
@@ -580,9 +613,9 @@ fun EateryDetailScreen(
                                             Text(
                                                 modifier = Modifier.padding(top = 2.dp),
                                                 text =
-                                                if (openUntil == null) "Closed"
-                                                else if (eatery.isClosingSoon()) "Closing at $openUntil"
-                                                else ("Open until $openUntil"),
+                                                    if (openUntil == null) "Closed"
+                                                    else if (eatery.isClosingSoon()) "Closing at $openUntil"
+                                                    else ("Open until $openUntil"),
                                                 style = TextStyle(
                                                     fontWeight = FontWeight.SemiBold,
                                                     fontSize = 16.sp
@@ -601,60 +634,8 @@ fun EateryDetailScreen(
                                                 .fillMaxHeight(0.5f)
                                                 .width(1.dp)
                                         )
-                                        //todo get rid of this?
-
-
-                                        //                            Column(
-//                                horizontalAlignment = Alignment.CenterHorizontally,
-//                                modifier = Modifier
-//                                    .padding(vertical = 12.dp)
-//                                    .weight(1f, true)
-//                            ) {
-//                                Row(
-//                                    verticalAlignment = Alignment.CenterVertically,
-//                                    modifier = Modifier.clickable {
-//                                        sheetContent = BottomSheetContent.WAIT_TIME
-//                                        coroutineScope.launch {
-//                                            modalBottomSheetState.show()
-//                                        }
-//                                    }
-//                                ) {
-//                                    Icon(
-//                                        imageVector = Icons.Default.HourglassTop,
-//                                        contentDescription = "Watch Icon",
-//                                        tint = GrayFive
-//                                    )
-//                                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-//                                    Text(
-//                                        text = "Wait Time",
-//                                        style = TextStyle(
-//                                            fontWeight = FontWeight.SemiBold,
-//                                            fontSize = 16.sp
-//                                        ),
-//                                        color = GrayFive
-//                                    )
-//                                }
-//
-//                                val waitTimes = eatery.getWaitTimes()
-//                                Text(
-//                                    modifier = Modifier.padding(top = 2.dp),
-//                                    text = if (!waitTimes.isNullOrEmpty() && !eatery.isClosed()) {
-//                                        "$waitTimes minutes"
-//                                    } else {
-//                                        "-"
-//                                    },
-//                                    style = TextStyle(
-//                                        fontWeight = FontWeight.SemiBold,
-//                                        fontSize = 16.sp
-//                                    ),
-//                                    color = Color.Black,
-//                                )
-//
-//
-//                            }
                                     }
                                 }
-
 
                                 item {
                                     Spacer(
@@ -675,16 +656,15 @@ fun EateryDetailScreen(
                                             }
                                         })
                                     item {
-                                        SearchBar(searchText = filterText,
+                                        SearchBar(
+                                            searchText = filterText,
                                             onSearchTextChange = {
-                                                eateryDetailViewModel.setSearchQuery(
-                                                    it
-                                                )
+                                                onSearchQueryChange(it)
                                             },
                                             placeholderText = "Search the menu...",
                                             modifier = Modifier.padding(horizontal = 16.dp),
                                             onCancelClicked = {
-                                                eateryDetailViewModel.setSearchQuery("")
+                                                onSearchQueryChange("")
                                             })
                                         Spacer(
                                             modifier = Modifier
@@ -700,14 +680,14 @@ fun EateryDetailScreen(
                                         )
                                     }
                                     eatery.getTypeMeal(viewState.weekdayIndex.fromOffsetToDayOfWeek())
-                                        .takeIf { it?.size?.let { s -> s > 1 } == true }
-                                        ?.map { it.first }
+                                        .takeIf { it.size > 1 }
+                                        ?.map { it.mealType.toMealTypeDisplayName() }
                                         ?.let { mealTypes ->
                                             item {
                                                 EateryMealTabs(
                                                     meals = mealTypes,
                                                     onSelectMeal = { selectedMeal ->
-                                                        eateryDetailViewModel.selectEvent(
+                                                        onSelectEvent(
                                                             eatery,
                                                             viewState.weekdayIndex,
                                                             mealTypes[selectedMeal]
@@ -726,7 +706,7 @@ fun EateryDetailScreen(
                                             }
                                         )
                                     }, onFavoriteClick = {
-                                        eateryDetailViewModel.toggleFavoriteMenuItem(it)
+                                        onToggleFavoriteMenuItem(it)
                                     })
 
                                     item {
@@ -821,11 +801,10 @@ fun EateryDetailScreen(
                                     EateryHeader(
                                         eatery = eatery,
                                         isFavorite = viewState.isFavorite,
-                                        onFavoriteClick = eateryDetailViewModel::toggleFavorite
+                                        onFavoriteClick = onToggleFavorite
                                     )
                                     EateryDetailsStickyHeader(
                                         nextEvent.toEvent(),
-                                        eatery,
                                         filterText,
                                         fullMenuList,
                                         listState,
@@ -877,14 +856,14 @@ private fun LazyListScope.menuHeadingItem(
                         .toReadableFullName(),
                     style = EateryBlueTypography.h4,
                 )
-                if (nextEvent.startTime != null && nextEvent.endTime != null) {
+                if (nextEvent.startTimestamp != null && nextEvent.endTimestamp != null) {
                     Text(
                         text = "${
-                            nextEvent.startTime.format(
+                            nextEvent.startTimestamp.format(
                                 DateTimeFormatter.ofPattern("h:mm a")
                             )
                         } - ${
-                            nextEvent.endTime.format(
+                            nextEvent.endTimestamp.format(
                                 DateTimeFormatter.ofPattern("h:mm a")
                             )
                         }",
@@ -944,4 +923,50 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun EateryDetailScreenPreview() = EateryPreview {
+    val now = LocalDateTime.now()
+    val mealViewState = MealViewState(
+        startTime = now.withHour(11).withMinute(0),
+        endTime = now.withHour(14).withMinute(0),
+        menu = listOf(
+            MenuCategoryViewState(
+                category = "Featured",
+                items = listOf(
+                    MenuItemViewState(
+                        isFavorite = true,
+                        item = MenuItem(name = "Pesto Pasta")
+                    ),
+                    MenuItemViewState(
+                        isFavorite = false,
+                        item = MenuItem(name = "Tomato Soup")
+                    )
+                )
+            )
+        ),
+        description = "Lunch"
+    )
+
+    EateryDetailScreenContent(
+        viewState = EateryDetailViewState.Loaded(
+            mealToShow = mealViewState,
+            eatery = PreviewData.mockEatery(id = 1).copy(
+                menuSummary = "Pasta and grill"
+            ),
+            isFavorite = true,
+            weekdayIndex = 0
+        ),
+        filterText = "",
+        onCompareMenusClick = {},
+        onToggleFavorite = {},
+        onSendReport = { _, _, _ -> },
+        onSelectEvent = { _, _, _ -> },
+        onSetSelectedWeekdayIndex = {},
+        onResetSelectedEvent = {},
+        onSearchQueryChange = {},
+        onToggleFavoriteMenuItem = {},
+    )
 }

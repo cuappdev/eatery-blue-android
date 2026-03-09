@@ -31,9 +31,8 @@ android {
             useSupportLibrary true
         }
 
-        buildConfigField("String", "GET_BACKEND_URL", secretsProperties['GET_BACKEND_URL'])
         buildConfigField("String", "SESSIONID_WEBVIEW_URL", secretsProperties['SESSIONID_WEBVIEW_URL'])
-        buildConfigField("String", "CORNELL_INSTITUTION_ID", secretsProperties['CORNELL_INSTITUTION_ID'])
+        buildConfigField("boolean", "USE_LOCAL_FAVORITES", "true")
     }
 
     buildTypes {
@@ -105,6 +104,7 @@ dependencies {
     // Networking
     implementation("com.squareup.moshi:moshi:1.14.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+    implementation 'com.squareup.moshi:moshi-adapters:1.14.0'
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.10'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -144,6 +144,10 @@ dependencies {
     implementation 'com.valentinilk.shimmer:compose-shimmer:1.0.3'
 
     implementation "io.coil-kt:coil-compose:2.2.2"
+
+    // In-app Updates
+    implementation("com.google.android.play:app-update:2.1.0")
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
 }
 
 protobuf {

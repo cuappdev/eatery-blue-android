@@ -24,7 +24,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,12 +41,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.details.ToggleRow
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
@@ -57,6 +59,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun FavoritesScreen(
     favoriteViewModel: FavoritesViewModel = hiltViewModel(),
@@ -66,9 +69,15 @@ fun FavoritesScreen(
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val favoritesScreenViewState =
-        favoriteViewModel.favoritesScreenViewState.collectAsState().value
+        favoriteViewModel.favoritesScreenViewState.collectAsStateWithLifecycle().value
     var toggle by remember { mutableStateOf(true) }
+    val error by favoriteViewModel.error.collectAsStateWithLifecycle()
 
+    // TODO: replace with an actual error state
+    NetworkErrorToast(
+        error = error,
+        onErrorShown = favoriteViewModel::clearError
+    )
 
     Column(
         modifier = Modifier
@@ -136,7 +145,7 @@ fun FavoritesScreen(
                     toggleEateryFilter = favoriteViewModel::toggleEateryFilter,
                     toggleItemFilter = favoriteViewModel::toggleItemFilter,
                     removeFavorite = favoriteViewModel::removeFavorite,
-                    removeFavoriteMenuItem = favoriteViewModel::removeFavoriteMenuItem,
+                    removeFavoriteMenuItem = favoriteViewModel::toggleFavoriteMenuItem,
                 )
             }
         }
@@ -153,7 +162,7 @@ private fun ColumnScope.MainScrollableContent(
     onEateryClick: (eatery: Eatery) -> Unit,
     toggleEateryFilter: (filter: Filter.FromEateryFilter) -> Unit,
     toggleItemFilter: (filter: Filter) -> Unit,
-    removeFavorite: (eateryId: Int?) -> Unit,
+    removeFavorite: (eateryId: Int, eateryName: String) -> Unit,
     removeFavoriteMenuItem: (menuItem: String) -> Unit,
 ) {
     LazyColumn(
@@ -204,7 +213,11 @@ private fun ColumnScope.MainScrollableContent(
                     modifier = Modifier.animateItemPlacement(),
                     onFavoriteClick = {
                         if (!it) {
-                            removeFavorite(eatery.id)
+                            eatery.id?.let { id ->
+                                eatery.name?.let { name ->
+                                    removeFavorite(id, name)
+                                }
+                            }
                         }
                     }) {
                     onEateryClick(it)

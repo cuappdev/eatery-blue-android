@@ -35,7 +35,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
@@ -50,11 +49,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -69,7 +71,11 @@ import com.skydoves.landscapist.glide.GlideImage
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalFoundationApi::class,
+    ExperimentalLifecycleComposeApi::class
+)
 @Composable
 fun SearchScreen(
     searchViewModel: SearchViewModel = hiltViewModel(),
@@ -83,13 +89,19 @@ fun SearchScreen(
     )
     val coroutineScope = rememberCoroutineScope()
 
-    val query by searchViewModel.searchFlow.collectAsState()
-    val favorites = searchViewModel.favoriteEateries.collectAsState().value
+    val query by searchViewModel.searchFlow.collectAsStateWithLifecycle()
+    val favorites = searchViewModel.favoriteEateries.collectAsStateWithLifecycle().value
     val recentSearches =
-        searchViewModel.recentSearches.collectAsState().value.reversed().take(10).distinct()
-    val filters = searchViewModel.filtersFlow.collectAsState().value
-    val searchResponse = searchViewModel.searchResultEateries.collectAsState().value
+        searchViewModel.recentSearches.collectAsStateWithLifecycle().value.reversed().take(10)
+            .distinct()
+    val filters = searchViewModel.filtersFlow.collectAsStateWithLifecycle().value
+    val searchResponse = searchViewModel.searchResultEateries.collectAsStateWithLifecycle().value
+    val error by searchViewModel.error.collectAsStateWithLifecycle()
 
+    NetworkErrorToast(
+        error = error,
+        onErrorShown = searchViewModel::clearError
+    )
 
     // Automatically brings the search bar into focus when the view is composed
     LaunchedEffect(null) {
@@ -244,8 +256,8 @@ fun SearchScreen(
 
                         recentSearches.forEach { eateryId ->
                             val eateryResponse =
-                                searchViewModel.openEatery(eateryId).collectAsState(
-                                    initial = EateryApiResponse.Pending
+                                searchViewModel.openEatery(eateryId).collectAsStateWithLifecycle(
+                                    initialValue = EateryApiResponse.Pending
                                 ).value
                             if (eateryResponse is EateryApiResponse.Success) {
                                 Box(
@@ -260,10 +272,18 @@ fun SearchScreen(
                                             favoriteEatery.id == eatery.id
                                         },
                                         onFavoriteClick = {
-                                            if (it) {
-                                                searchViewModel.addFavorite(eatery.id)
-                                            } else {
-                                                searchViewModel.removeFavorite(eatery.id)
+                                            if (eatery.id != null && eatery.name != null) {
+                                                if (it) {
+                                                    searchViewModel.addFavorite(
+                                                        eatery.id,
+                                                        eatery.name
+                                                    )
+                                                } else {
+                                                    searchViewModel.removeFavorite(
+                                                        eatery.id,
+                                                        eatery.name
+                                                    )
+                                                }
                                             }
                                         }) {
                                         searchViewModel.addRecentSearch(it.id)
@@ -290,10 +310,12 @@ fun SearchScreen(
                                     favoriteEatery.id == eatery.id
                                 },
                                 onFavoriteClick = {
-                                    if (it) {
-                                        searchViewModel.addFavorite(eatery.id)
-                                    } else {
-                                        searchViewModel.removeFavorite(eatery.id)
+                                    if (eatery.id != null && eatery.name != null) {
+                                        if (it) {
+                                            searchViewModel.addFavorite(eatery.id, eatery.name)
+                                        } else {
+                                            searchViewModel.removeFavorite(eatery.id, eatery.name)
+                                        }
                                     }
                                 }) {
                                 searchViewModel.addRecentSearch(it.id)

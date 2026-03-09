@@ -8,7 +8,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import coil.imageLoader
 import coil.request.ImageRequest
-import com.cornellappdev.android.eatery.data.models.ApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,7 +21,7 @@ object CoilRepository {
         mutableMapOf()
 
     /**
-     * Returns a [MutableState] containing an [ApiResponse] corresponding to a loading or loaded
+     * Returns a [MutableState] containing an [EateryApiResponse] corresponding to a loading or loaded
      * image bitmap for loading the input [imageUrl]. If the image previously resulted in an error,
      * calling this function will attempt to re-load.
      *

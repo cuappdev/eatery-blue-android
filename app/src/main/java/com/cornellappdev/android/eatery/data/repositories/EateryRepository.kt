@@ -1,10 +1,9 @@
 package com.cornellappdev.android.eatery.data.repositories
 
 import com.cornellappdev.android.eatery.data.NetworkApi
-import com.cornellappdev.android.eatery.data.models.ApiResponse
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse.Success
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -25,12 +24,6 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
     private suspend fun getEatery(eateryId: Int): Eatery =
         networkApi.fetchEatery(eateryId = eateryId.toString())
 
-    private suspend fun getHomeEateries(): List<Eatery> =
-        networkApi.fetchHomeEateries()
-
-    private suspend fun getAllEvents(): ApiResponse<List<Event>> =
-        networkApi.fetchEvents()
-
     private val _eateryFlow: MutableStateFlow<EateryApiResponse<List<Eatery>>> =
         MutableStateFlow(EateryApiResponse.Pending)
 
@@ -38,14 +31,6 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
      * A [StateFlow] emitting [EateryApiResponse]s for lists of ALL eateries, if loaded successfully.
      */
     val eateryFlow = _eateryFlow.asStateFlow()
-
-    private val _homeEateryFlow: MutableStateFlow<EateryApiResponse<List<Eatery>>> =
-        MutableStateFlow(EateryApiResponse.Pending)
-
-    /**
-     * A [StateFlow] emitting [EateryApiResponse]s for lists of home eateries.
-     */
-    val homeEateryFlow = _homeEateryFlow.asStateFlow()
 
     /**
      * A map from eatery ids to the states representing their API loading calls.
@@ -58,15 +43,10 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
         pingEateries()
     }
 
-    fun pingEateries() {
-        pingAllEateries()
-        pingHomeEateries()
-    }
-
     /**
      * Makes a new call to backend for all the eatery data.
      */
-    private fun pingAllEateries() {
+    fun pingEateries() {
         _eateryFlow.value = EateryApiResponse.Pending
         eateryApiCache.update { map ->
             map.mapValues { EateryApiResponse.Pending }
@@ -75,10 +55,10 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val eateries = getAllEateries()
-                _eateryFlow.value = EateryApiResponse.Success(eateries)
-                eateryApiCache.update { map ->
+                _eateryFlow.value = Success(eateries)
+                eateryApiCache.update {
                     eateries.filter { it.id != null }
-                        .associate { it.id!! to EateryApiResponse.Success(it) }
+                        .associate { it.id!! to Success(it) }
                         .withDefault { EateryApiResponse.Error }
                 }
             } catch (_: Exception) {
@@ -86,21 +66,6 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
                 eateryApiCache.update {
                     emptyMap<Int, EateryApiResponse<Eatery>>().withDefault { EateryApiResponse.Error }
                 }
-            }
-        }
-    }
-
-    /**
-     * Makes a new call to backend for all the abridged home eatery data.
-     */
-    private fun pingHomeEateries() {
-        _homeEateryFlow.value = EateryApiResponse.Pending
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val eateries = getHomeEateries()
-                _homeEateryFlow.value = EateryApiResponse.Success(eateries)
-            } catch (_: Exception) {
-                _homeEateryFlow.value = EateryApiResponse.Error
             }
         }
     }
@@ -117,7 +82,7 @@ class EateryRepository @Inject constructor(private val networkApi: NetworkApi) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val eatery = getEatery(eateryId = eateryId)
-                updateCache(eateryId, EateryApiResponse.Success(eatery))
+                updateCache(eateryId, Success(eatery))
             } catch (_: Exception) {
                 updateCache(eateryId, EateryApiResponse.Error)
             }

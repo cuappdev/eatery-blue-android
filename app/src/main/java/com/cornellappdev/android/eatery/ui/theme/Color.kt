@@ -16,6 +16,7 @@ val Red = Color(0xFFF2655D)
 val Green = Color(0xFF63C774)
 val Yellow = Color(0xFFFEC50E)
 val Orange = Color(0xFFFF990E)
+val Black = Color(0xFF050505)
 
 /**
  * Interpolates a color between [color1] and [color2] by choosing a color a [fraction] in between.

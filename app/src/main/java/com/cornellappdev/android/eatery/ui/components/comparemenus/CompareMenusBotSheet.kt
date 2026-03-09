@@ -27,7 +27,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -35,6 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -45,6 +46,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusBotViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun CompareMenusBotSheet(
     onDismiss: () -> Unit,
@@ -52,7 +54,7 @@ fun CompareMenusBotSheet(
     compareMenusBotViewModel: CompareMenusBotViewModel = hiltViewModel(),
     firstEatery: Eatery? = null
 ) {
-    val compareMenusUIState by compareMenusBotViewModel.compareMenusUiState.collectAsState()
+    val compareMenusUIState by compareMenusBotViewModel.compareMenusUiState.collectAsStateWithLifecycle()
     val filters = compareMenusUIState.filters
     val selectedEateries = compareMenusUIState.selected
     val eateries = compareMenusUIState.eateries

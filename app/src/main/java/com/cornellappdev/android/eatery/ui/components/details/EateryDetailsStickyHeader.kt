@@ -29,7 +29,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.models.MenuCategory
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
@@ -41,7 +40,6 @@ import kotlinx.coroutines.launch
 @Composable
 fun EateryDetailsStickyHeader(
     nextEvent: Event?,
-    eatery: Eatery,
     filterText: String,
     fullMenuList: MutableList<String>,
     listState: LazyListState,
@@ -108,7 +106,7 @@ fun EateryDetailsStickyHeader(
 
                     nextEvent?.menu?.forEach { category ->
                         item {
-                            val categoryIndex = fullMenuList.indexOf(category.category)
+                            val categoryIndex = fullMenuList.indexOf(category.name)
                             val isHighlighted = highlightCategory(
                                 category,
                                 listState,
@@ -117,7 +115,7 @@ fun EateryDetailsStickyHeader(
                                 startIndex
                             )
                             CategoryItem(
-                                category.category ?: "Category",
+                                category.name ?: "Category",
                                 isHighlighted,
                             ) { onItemClick(categoryIndex) }
                         }
@@ -203,15 +201,15 @@ fun highlightCategory(
 
     if (firstMenuItemIndex >= 0 && firstMenuItemIndex < fullMenuList.size) {
         val item = fullMenuList[firstMenuItemIndex]
-        val isCategoryName = nextEvent?.menu?.any { it.category == item } ?: false
+        val isCategoryName = nextEvent?.menu?.any { it.name == item } ?: false
 
         if (isCategoryName) {
-            return category.category == item
+            return category.name == item
         } else {
             for (i in firstMenuItemIndex - 1 downTo 0) {
                 val previousItem = fullMenuList[i]
-                if (nextEvent?.menu?.any { it.category == previousItem } == true) {
-                    return category.category == previousItem
+                if (nextEvent?.menu?.any { it.name == previousItem } == true) {
+                    return category.name == previousItem
                 }
             }
         }

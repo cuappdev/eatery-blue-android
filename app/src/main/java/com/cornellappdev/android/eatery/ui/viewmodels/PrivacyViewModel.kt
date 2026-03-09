@@ -1,12 +1,12 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,17 +15,14 @@ class PrivacyViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
-    var analyticsDisabled: Boolean by mutableStateOf(false)
-        private set
+    val analyticsDisabledFlow: StateFlow<Boolean> =
+        userPreferencesRepository.analyticsDisabledFlow
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    init {
-        viewModelScope.launch {
-            analyticsDisabled = userPreferencesRepository.getAnalyticsDisabled()
-        }
-    }
+    val analyticsDisabled: Boolean
+        get() = analyticsDisabledFlow.value
 
     fun setAnalyticsDisabled(analyticsDisabled: Boolean) = viewModelScope.launch {
         userPreferencesRepository.setAnalyticsDisabled(analyticsDisabled)
-        this@PrivacyViewModel.analyticsDisabled = analyticsDisabled
     }
 }
