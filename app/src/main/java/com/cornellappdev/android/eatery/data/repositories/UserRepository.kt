@@ -13,7 +13,7 @@ import com.cornellappdev.android.eatery.data.models.User
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import retrofit2.HttpException
 import java.io.IOException
@@ -52,8 +52,10 @@ class UserRepository @Inject constructor(
 
     suspend fun updateFavorites(): Result<Unit> {
         if (useLocalFavorites) {
-            _favoriteEateriesFlow.value = userPreferencesRepository.favoriteEateryNamesFlow.first()
-            _favoriteItemsFlow.value = userPreferencesRepository.favoriteItemNamesFlow.first()
+            _favoriteEateriesFlow.value =
+                userPreferencesRepository.favoriteEateryNamesFlow.firstOrNull() ?: emptyList()
+            _favoriteItemsFlow.value =
+                userPreferencesRepository.favoriteItemNamesFlow.firstOrNull() ?: emptyList()
             return Result.Success(Unit)
         }
 
@@ -188,7 +190,8 @@ class UserRepository @Inject constructor(
     suspend fun setIsLoggedIn(isLoggedIn: Boolean) =
         userPreferencesRepository.setIsLoggedIn(isLoggedIn)
 
-    suspend fun isLoggedIn(): Boolean = userPreferencesRepository.isLoggedInFlow.first()
+    suspend fun isLoggedIn(): Boolean =
+        userPreferencesRepository.isLoggedInFlow.firstOrNull() ?: false
 
     suspend fun logout() {
         _loadedUser.value = null
@@ -196,7 +199,8 @@ class UserRepository @Inject constructor(
         userPreferencesRepository.setIsLoggedIn(false)
     }
 
-    suspend fun hasOnboarded(): Boolean = userPreferencesRepository.hasOnboardedFlow.first()
+    suspend fun hasOnboarded(): Boolean =
+        userPreferencesRepository.hasOnboardedFlow.firstOrNull() ?: false
 
     /**
      * Tries to make the given request, and if it fails, refreshes tokens and tries again.

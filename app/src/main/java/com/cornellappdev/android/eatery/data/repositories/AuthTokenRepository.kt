@@ -10,7 +10,7 @@ import com.cornellappdev.android.eatery.data.models.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -59,7 +59,7 @@ class AuthTokenRepository @Inject constructor(
 
     suspend fun refreshTokens(): Result<Unit> = safeRequest {
         val deviceId = getDeviceId()
-        val refreshToken = userPreferencesRepository.refreshTokenFlow.first()
+        val refreshToken = userPreferencesRepository.refreshTokenFlow.firstOrNull()
             ?: throw IllegalStateException("Refresh token not available")
         val tokens = networkApi.refreshToken(
             RefreshRequest(
@@ -83,7 +83,7 @@ class AuthTokenRepository @Inject constructor(
 
     suspend fun getAccessToken(): String =
         prependBearer(
-            userPreferencesRepository.accessTokenFlow.first()
+            userPreferencesRepository.accessTokenFlow.firstOrNull()
                 ?: throw IllegalStateException("Access token not available")
         )
 
@@ -111,9 +111,9 @@ class AuthTokenRepository @Inject constructor(
         }
     }
 
-    suspend fun getSessionId(): String = userPreferencesRepository.sessionIdFlow.first()
+    suspend fun getSessionId(): String = userPreferencesRepository.sessionIdFlow.firstOrNull() ?: ""
 
-    suspend fun getPin(): Int = userPreferencesRepository.pinFlow.first()
+    suspend fun getPin(): Int = userPreferencesRepository.pinFlow.firstOrNull() ?: 0
 
     suspend fun clearAuthTokens() {
         userPreferencesRepository.setSessionId("")
@@ -166,4 +166,3 @@ class AuthTokenRepository @Inject constructor(
 
     private fun prependBearer(str: String) = "Bearer $str"
 }
-
