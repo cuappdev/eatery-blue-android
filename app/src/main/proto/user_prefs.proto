@@ -30,6 +30,9 @@ message UserPreferences {
   // delete once no longer local
   repeated string favoriteEateryNames = 15;
 
+  // Encrypted PIN stored as a Base64-encoded string (replaces the plaintext int32 pin field).
+  string encryptedPin = 16;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.
