@@ -1,102 +1,95 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.R
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cornellappdev.android.eatery.data.models.AccountBalances
+import com.cornellappdev.android.eatery.data.models.TransactionAccountType
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
-import com.cornellappdev.android.eatery.ui.components.login.LoginToast
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.TransactionWithFormattedDate
 
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
 @Composable
 fun ProfileScreen(
-    loginViewModel: LoginViewModel,
+    loginViewModel: LoginViewModel = hiltViewModel(),
     onSettingsClicked: () -> Unit,
+    webViewEnabled: Boolean,
+    onBackClick: () -> Unit
 ) {
-    val state = loginViewModel.state.collectAsState().value
-    Column(modifier = Modifier.background(Color.White)) {
-        when (state) {
-            is LoginViewModel.State.Login -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 7.dp)
-                        .then(Modifier.statusBarsPadding())
-                ) {
-                    IconButton(
-                        modifier = Modifier
-                            .padding(end = 16.dp)
-                            .align(Alignment.End)
-                            .size(32.dp)
-                            .statusBarsPadding(),
-                        onClick = { onSettingsClicked() }) {
-                        Icon(
-                            modifier = Modifier.size(28.dp),
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = Icons.Outlined.Settings.name,
-                            tint = Color.Black
-                        )
-                    }
-                    Column(
-                        modifier = Modifier.padding(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 24.dp
-                        )
-                    ) {
-                        Text(
-                            text = "Log in with Eatery",
-                            color = EateryBlue,
-                            style = EateryBlueTypography.h3
-                        )
-                    }
-                }
-                val context = LocalContext.current
-                LoginPage(
-                    loginState = state,
-                    loginViewModel = loginViewModel,
-                    onWrongCredentials = {
-                        LoginToast(
-                            context,
-                            "NetID and/or password incorrect",
-                            R.drawable.ic_error,
-                            R.color.light_red,
-                            R.color.red
-                        )
-                        loginViewModel.onLoginFailed()
-                    }
-                )
+    val state =
+        loginViewModel.state.collectAsStateWithLifecycle(initialValue = LoginViewModel.State.Login()).value
+    val filteredTransactions =
+        loginViewModel.filteredTransactionsFlow.collectAsStateWithLifecycle(initialValue = emptyList()).value
 
-            }
+    // todo - replace toasts with actual error state
+    if (state is LoginViewModel.State.Login) {
+        val error by loginViewModel.error.collectAsStateWithLifecycle()
+        NetworkErrorToast(
+            error = error,
+            onErrorShown = loginViewModel::clearError
+        )
+    }
 
-            is LoginViewModel.State.Account -> {
-                AccountPage(
-                    accountState = state,
-                    loginViewModel = loginViewModel,
-                    onSettingsClicked = { onSettingsClicked() })
-            }
-        }
+    ProfileScreenContent(
+        isLoginState = state is LoginViewModel.State.Login,
+        accountTypeBalance = state.getBalances(),
+        loading = state is LoginViewModel.State.Login && state.loading,
+        onLoginPressed = loginViewModel::onLoginPressed,
+        onSuccess = loginViewModel::onLoginWebViewSuccess,
+        webViewEnabled = webViewEnabled,
+        onBackClick = onBackClick,
+        onModalHidden = loginViewModel::onLoginExited,
+        onSettingsClicked = onSettingsClicked,
+        accountFilter = if (state is LoginViewModel.State.Account) state.accountFilter else TransactionAccountType.BRBS,
+        filterText = if (state is LoginViewModel.State.Account) state.query else "",
+        filteredTransactions = filteredTransactions,
+        onQueryChanged = loginViewModel::setQuery,
+        updateAccountFilter = loginViewModel::updateAccountFilter
+    )
+}
 
+@Composable
+private fun ProfileScreenContent(
+    isLoginState: Boolean,
+    accountTypeBalance: AccountBalances,
+    loading: Boolean,
+    onLoginPressed: () -> Unit,
+    onSuccess: (String) -> Unit,
+    webViewEnabled: Boolean,
+    onBackClick: () -> Unit,
+    onModalHidden: () -> Unit,
+    accountFilter: TransactionAccountType,
+    filterText: String,
+    onSettingsClicked: () -> Unit,
+    filteredTransactions: List<TransactionWithFormattedDate>,
+    onQueryChanged: (String) -> Unit,
+    updateAccountFilter: (TransactionAccountType) -> Unit
+) {
+    if (isLoginState) {
+        LoginPage(
+            loading = loading,
+            onLoginPressed = onLoginPressed,
+            onSuccess = onSuccess,
+            webViewEnabled = webViewEnabled,
+            onBackClick = onBackClick,
+            onModalHidden = onModalHidden
+        )
+    } else {
+        AccountPage(
+            accountFilter = accountFilter,
+            accountTypeBalance = accountTypeBalance,
+            onSettingsClicked = onSettingsClicked,
+            filteredTransactions = filteredTransactions,
+            filterText = filterText,
+            onQueryChanged = onQueryChanged,
+            updateAccountFilter = updateAccountFilter
+        )
     }
 }

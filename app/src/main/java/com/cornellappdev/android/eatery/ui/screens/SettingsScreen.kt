@@ -24,13 +24,13 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.settings.AppIconBottomSheet
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
@@ -40,17 +40,16 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SettingsScreen(
-    loginViewModel: LoginViewModel,
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
     destinations: HashMap<Routes, () -> Unit>
 ) {
     // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false
-    val state = loginViewModel.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden,
@@ -105,6 +104,30 @@ fun SettingsScreen(
                         destinations[Routes.ABOUT]?.invoke()
                     }
                 )
+                SettingsOption(
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_appicon_settings),
+                            contentDescription = null,
+                            tint = GrayFive,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    },
+                    title = "App Icon",
+                    description = "Select the Eatery app icon for your phone",
+                    onClick = {
+                        coroutineScope.launch {
+                            modalBottomSheetState.show()
+                        }
+                    },
+                    trailingIcon = {
+                        Text(
+                            text = "Change",
+                            style = EateryBlueTypography.button,
+                            color = EateryBlue,
+                        )
+                    }
+                )
                 SettingsLineSeparator()
                 SettingsOption(
                     leadingIcon = {
@@ -132,26 +155,24 @@ fun SettingsScreen(
                 SettingsOption(
                     leadingIcon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_appicon_settings),
+                            painter = painterResource(id = R.drawable.ic_bell),
                             contentDescription = null,
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    title = "App Icon",
-                    description = "Select the Eatery app icon for your phone",
+                    title = "Notifications",
+                    description = "Manage item and promotional notifications",
                     onClick = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.show()
-                        }
+                        destinations[Routes.NOTIFICATIONS_SETTING]?.invoke()
                     },
                     trailingIcon = {
-                        Text(
-                            text = "Change",
-                            style = EateryBlueTypography.button,
-                            color = EateryBlue,
+                        Icon(
+                            imageVector = Icons.Outlined.ChevronRight,
+                            contentDescription = null,
+                            tint = EateryBlue,
                         )
-                    }
+                    },
                 )
                 SettingsLineSeparator()
                 SettingsOption(
@@ -225,45 +246,34 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                when (state) {
-                    is LoginViewModel.State.Login -> {
-                    }
-
-                    is LoginViewModel.State.Account -> {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 34.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Logged in as ${state.user.userName!!.substringBefore('@')}",
-                                style = EateryBlueTypography.h5,
-                                color = GrayFive
-                            )
-                            Button(
-                                onClick = {
-                                    loginViewModel.onLogoutPressed()
-                                    destinations[Routes.PROFILE]?.invoke()
-                                },
-                                shape = RoundedCornerShape(25.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = GrayZero,
-                                    contentColor = Color.Black
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Logout,
-                                    contentDescription = Icons.Default.Logout.name,
-                                )
-                                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                                Text(
-                                    text = "Log out",
-                                    style = EateryBlueTypography.button
-                                )
-                            }
-                        }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 34.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = {
+                            settingsViewModel.onLogout(onDone = {
+                                destinations[Routes.PROFILE]?.invoke()
+                            })
+                        },
+                        shape = RoundedCornerShape(25.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            backgroundColor = GrayZero,
+                            contentColor = Color.Black
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Logout,
+                            contentDescription = Icons.Default.Logout.name,
+                        )
+                        Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                        Text(
+                            text = "Log out",
+                            style = EateryBlueTypography.button
+                        )
                     }
                 }
             }

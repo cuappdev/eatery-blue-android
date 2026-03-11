@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
-import android.util.Log
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -35,7 +34,6 @@ import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,6 +49,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
@@ -72,6 +72,7 @@ enum class EateryCardStyle {
 
 @OptIn(
     ExperimentalMaterialApi::class,
+    ExperimentalLifecycleComposeApi::class,
 )
 @Composable
 fun EateryCard(
@@ -83,7 +84,8 @@ fun EateryCard(
     style: EateryCardStyle = EateryCardStyle.DEFAULT,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
-    val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsState()?.value
+    val xMinutesUntilClosing =
+        eatery.calculateTimeUntilClosing()?.collectAsStateWithLifecycle()?.value
 
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -118,7 +120,6 @@ fun EateryCard(
         backgroundColor = Color.White,
         modifier = modifier
     ) {
-        Log.d("TAG", "EateryCard:still alvie ")
         Column {
             Box {
                 Crossfade(
@@ -295,7 +296,7 @@ fun EateryCardPrimaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardS
 @Composable
 fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardStyle.DEFAULT) {
     if (style != EateryCardStyle.COMPACT) {
-        val walkText = eatery.getWalkTimes()?.let {
+        val walkText = eatery.getWalkTimeInMinutes()?.let {
             "${if (it > 0) it else "< 1"} min walk"
         }
         Row(
@@ -322,9 +323,9 @@ fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCar
             Text(
                 modifier = Modifier.padding(top = 2.dp),
                 text =
-                if (openUntil == null) "Closed"
-                else if (eatery.isClosingSoon()) "Closing at $openUntil"
-                else ("Open until $openUntil"),
+                    if (openUntil == null) "Closed"
+                    else if (eatery.isClosingSoon()) "Closing at $openUntil"
+                    else ("Open until $openUntil"),
                 style = EateryBlueTypography.subtitle2,
                 color = if (openUntil == null) Red
                 else if (eatery.isClosingSoon()) Yellow
@@ -384,7 +385,7 @@ fun DotSeparator() {
 
 @Composable
 fun EateryMenuSummary(eatery: Eatery) {
-    if (eatery.paymentAcceptsMealSwipes == true) {
+    if (eatery.acceptsMealSwipes()) {
         DotSeparator()
         Text(
             text = "Meal swipes allowed",
@@ -392,8 +393,8 @@ fun EateryMenuSummary(eatery: Eatery) {
             color = EateryBlue,
             style = EateryBlueTypography.subtitle2
         )
-    } else if (eatery.paymentAcceptsBrbs == false &&
-        eatery.paymentAcceptsCash == true
+    } else if (!eatery.acceptsBRB() &&
+        (eatery.acceptsCash() || eatery.acceptsCard())
     ) {
         DotSeparator()
         Text(

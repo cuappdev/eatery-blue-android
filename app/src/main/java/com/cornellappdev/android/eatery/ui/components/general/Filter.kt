@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.components.general
 
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
+import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import java.time.LocalDateTime
 
 data class FilterData(
@@ -28,7 +29,7 @@ sealed class Filter(open val text: String) {
             val eatery = checkNotNull(filterData.eatery)
 
             return eatery.events?.asSequence()?.filter {
-                it.endTime?.let { end ->
+                it.endTimestamp?.let { end ->
                     end < LocalDateTime.now().withHour(23).withMinute(59)
                 } == true
             }?.flatMap { it.menu ?: emptyList() }
@@ -58,38 +59,38 @@ sealed class Filter(open val text: String) {
 
         data object North : FromEateryFilter(text = "North") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
-                eatery.campusArea == "North"
+                eatery.campusArea == "NORTH"
 
         }
 
         data object West : FromEateryFilter(text = "West") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
-                eatery.campusArea == "West"
+                eatery.campusArea == "WEST"
         }
 
         data object Central : FromEateryFilter(text = "Central") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
-                eatery.campusArea == "Central"
+                eatery.campusArea == "CENTRAL"
         }
 
         data object Under10 : FromEateryFilter(text = "Under 10 min") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
-                eatery.getWalkTimes()?.let { it <= 10 } == true
+                eatery.getWalkTimeInMinutes()?.let { it <= 10 } == true
         }
 
         data object Swipes : FromEateryFilter(text = "Swipes") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
-                eatery.paymentAcceptsMealSwipes == true
+                eatery.acceptsMealSwipes()
         }
 
         data object BRB : FromEateryFilter(text = "BRBs") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
-                eatery.paymentAcceptsBrbs == true
+                eatery.acceptsBRB()
         }
 
         data object Cash : FromEateryFilter(text = "Cash") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
-                eatery.paymentAcceptsCash == true
+                eatery.acceptsCash()
         }
     }
 
@@ -166,8 +167,11 @@ fun List<Filter>.updateFilters(newFilter: Filter): List<Filter> {
  * endTimes: Float that represents average end time for meal out of 24
  */
 enum class MealFilter(val text: List<String>, val endTimes: Float) {
-    BREAKFAST(listOf("Breakfast", "Brunch"), 10.5f),
-    LUNCH(listOf("Lunch", "Brunch", "Late Lunch"), 16f),
-    DINNER(listOf("Dinner"), 20.5f),
-    LATE_DINNER(listOf("Late Night"), 22.5f);
+    BREAKFAST(listOf("BREAKFAST", "BRUNCH"), 10.5f),
+    LUNCH(listOf("LUNCH", "BRUNCH", "LATE_LUNCH"), 16f),
+    DINNER(listOf("DINNER"), 20.5f),
+    LATE_DINNER(listOf("LATE_NIGHT"), 22.5f);
+
+    val displayName: String
+        get() = name.toMealTypeDisplayName()
 }

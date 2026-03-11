@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.screens
 
 
 import android.Manifest
-import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -13,14 +12,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -38,11 +43,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -50,8 +56,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -59,9 +67,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
@@ -70,6 +83,7 @@ import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.EateryCardStyle
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.NoEateryFound
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
 import com.cornellappdev.android.eatery.ui.components.general.PermissionRequestDialog
@@ -82,17 +96,19 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.LocationHandler
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
 
 @OptIn(
     ExperimentalMaterialApi::class,
     ExperimentalPermissionsApi::class,
+    ExperimentalLifecycleComposeApi::class,
 )
 @Composable
 fun HomeScreen(
@@ -102,12 +118,20 @@ fun HomeScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteExpand: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+    onNotificationsClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val favorites = homeViewModel.favoriteEateries.collectAsState().value
-    val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
-    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsState().value
-    val filters = homeViewModel.filtersFlow.collectAsState().value
+    val favorites = homeViewModel.favoriteEateries.collectAsStateWithLifecycle().value
+    val nearestEateries = homeViewModel.eateriesByDistance.collectAsStateWithLifecycle().value
+    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsStateWithLifecycle().value
+    val filters = homeViewModel.filtersFlow.collectAsStateWithLifecycle().value
+    val error by homeViewModel.error.collectAsStateWithLifecycle()
+    val notificationFlowCompleted by homeViewModel.notificationFlowCompleted.collectAsStateWithLifecycle()
+
+    NetworkErrorToast(
+        error = error,
+        onErrorShown = homeViewModel::clearError
+    )
 
     val notificationPermissionState =
         rememberMultiplePermissionsState(
@@ -117,11 +141,13 @@ fun HomeScreen(
             )
         )
 
-
     LaunchedEffect(notificationPermissionState.allPermissionsGranted) {
         LocationHandler.instantiate(context)
     }
 
+    LaunchedEffect(Unit) {
+        homeViewModel.updateFavoritesIfTokensConfigured()
+    }
 
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -129,7 +155,6 @@ fun HomeScreen(
         skipHalfExpanded = true
     )
     val coroutineScope = rememberCoroutineScope()
-
 
     // Here a DisposableEffect is launched when the bottom sheet opens.
     // When it disappears it's from the view hierarchy, which will cause
@@ -167,23 +192,24 @@ fun HomeScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         floatingActionButton = {
-            CompareMenusFAB(
-                modifier = Modifier.scale(compareMenusScale),
-            ) {
-                if (!showFAB) {
-                    return@CompareMenusFAB
-                }
+            if (eateriesApiResponse is EateryApiResponse.Success && eateriesApiResponse.data.size >= 2) {
+                CompareMenusFAB(
+                    modifier = Modifier.scale(compareMenusScale),
+                ) {
+                    if (!showFAB) {
+                        return@CompareMenusFAB
+                    }
 
-                showFAB = false
-                coroutineScope.launch {
-                    sheetContent = BottomSheetContent.COMPARE_MENUS
-                    modalBottomSheetState.show()
+                    showFAB = false
+                    coroutineScope.launch {
+                        sheetContent = BottomSheetContent.COMPARE_MENUS
+                        modalBottomSheetState.show()
+                    }
                 }
             }
         },
         floatingActionButtonPosition = FabPosition.End,
         content = { paddingValues ->
-
             Box(
                 modifier = Modifier
                     .background(Color.White)
@@ -198,69 +224,39 @@ fun HomeScreen(
                         topEnd = 12.dp
                     ),
                     sheetElevation = 8.dp,
-                    sheetContent = {
-                        when (sheetContent) {
-                            BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
-                                PaymentMethodsBottomSheet(
-                                    selectedFilters = selectedPaymentMethodFilters,
-                                    hide = {
-                                        coroutineScope.launch {
-                                            modalBottomSheetState.hide()
-                                        }
-                                    }
-                                )
-                            }
-
-                            BottomSheetContent.COMPARE_MENUS -> {
-                                CompareMenusBotSheet(
-                                    onDismiss = {
-                                        coroutineScope.launch {
-                                            modalBottomSheetState.hide()
-                                        }
-                                    },
-                                    onCompareMenusClick = { selectedEateriesIds ->
-                                        coroutineScope.launch {
-                                            modalBottomSheetState.hide()
-                                        }
-                                        onCompareMenusClick(selectedEateriesIds)
-                                    }
-                                )
-                            }
-
-                            else -> {}
-                        }
-                    },
+                    sheetContent = SheetContent(
+                        sheetContent,
+                        selectedPaymentMethodFilters,
+                        coroutineScope,
+                        modalBottomSheetState,
+                        onCompareMenusClick
+                    ),
                     content = {
                         HomeScrollableMainContent(
                             onSearchClick = onSearchClick,
                             onEateryClick = onEateryClick,
                             onFavoriteExpand = onFavoriteExpand,
-                            modalBottomSheetState = modalBottomSheetState,
                             eateriesApiResponse = eateriesApiResponse,
                             favorites = favorites,
                             nearestEateries = nearestEateries,
                             selectedFilters = filters,
                             onFavoriteClick = { eatery, favorite ->
-                                if (favorite) {
-                                    homeViewModel.addFavorite(eatery.id)
-                                } else {
-                                    homeViewModel.removeFavorite(eatery.id)
+                                if (eatery.id != null && eatery.name != null) {
+                                    if (favorite) {
+                                        homeViewModel.addFavoriteEatery(eatery.id, eatery.name)
+                                    } else {
+                                        homeViewModel.removeFavoriteEatery(eatery.id, eatery.name)
+                                    }
                                 }
                             },
-                            onFilterClicked = { filter ->
-                                homeViewModel.toggleFilter(filter)
-                            },
-                            onResetFilters = {
-                                homeViewModel.resetFilters()
-                            },
+                            onFilterClicked = homeViewModel::onToggleFilterPressed,
+                            onResetFilters = homeViewModel::onResetFiltersClicked,
                             filters = homeViewModel.homeScreenFilters,
                             isGridView = isGridView,
-                            onListClick = {
-                                isGridView = false
-                            },
-                            onGridClick = {
-                                isGridView = true
-                            }
+                            onListClick = { isGridView = false },
+                            onGridClick = { isGridView = true },
+                            onNotificationsClick = onNotificationsClick,
+                            onReload = homeViewModel::pingEateries
                         )
                     }
                 )
@@ -268,7 +264,7 @@ fun HomeScreen(
                 if (FirstTimeShown.firstTimeShown) {
                     PermissionRequestDialog(
                         showBottomBar = showBottomBar,
-                        notificationFlowStatus = homeViewModel.getNotificationFlowCompleted(),
+                        notificationFlowStatus = notificationFlowCompleted,
                         updateNotificationFlowStatus = {
                             homeViewModel.setNotificationFlowCompleted(it)
                         }
@@ -276,6 +272,47 @@ fun HomeScreen(
                 }
             }
         })
+}
+
+@Composable
+@OptIn(ExperimentalMaterialApi::class)
+private fun SheetContent(
+    sheetContent: BottomSheetContent,
+    selectedPaymentMethodFilters: SnapshotStateList<Filter>,
+    coroutineScope: CoroutineScope,
+    modalBottomSheetState: ModalBottomSheetState,
+    onCompareMenusClick: (List<Int>) -> Unit
+): @Composable ColumnScope.() -> Unit = {
+    when (sheetContent) {
+        BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
+            PaymentMethodsBottomSheet(
+                selectedFilters = selectedPaymentMethodFilters,
+                hide = {
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                    }
+                }
+            )
+        }
+
+        BottomSheetContent.COMPARE_MENUS -> {
+            CompareMenusBotSheet(
+                onDismiss = {
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                    }
+                },
+                onCompareMenusClick = { selectedEateriesIds ->
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                    }
+                    onCompareMenusClick(selectedEateriesIds)
+                }
+            )
+        }
+
+        else -> {}
+    }
 }
 
 @OptIn(
@@ -290,7 +327,6 @@ private fun HomeScrollableMainContent(
     onFavoriteClick: (Eatery, Boolean) -> Unit,
     onFilterClicked: (Filter) -> Unit,
     onResetFilters: () -> Unit,
-    modalBottomSheetState: ModalBottomSheetState,
     eateriesApiResponse: EateryApiResponse<List<Eatery>>,
     nearestEateries: List<Eatery>,
     favorites: List<Eatery>,
@@ -298,10 +334,12 @@ private fun HomeScrollableMainContent(
     filters: List<Filter>,
     isGridView: Boolean,
     onListClick: () -> Unit,
-    onGridClick: () -> Unit
+    onGridClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    onReload: () -> Unit
 ) {
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
+    val filterRowState = rememberLazyListState()
     val isFirstVisible =
         remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
 
@@ -311,7 +349,91 @@ private fun HomeScrollableMainContent(
     if (favorites.isNotEmpty()) {
         lastFavorite = favorites[0]
     }
+    when (eateriesApiResponse) {
+        is EateryApiResponse.Success -> {
+            HomeLazyColumn(
+                listState = listState,
+                collapsed = isFirstVisible.value,
+                loaded = true,
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick,
+                selectedFilters = selectedFilters,
+                onFilterClicked = onFilterClicked,
+                filters = filters,
+                filterRowState = filterRowState
+            ) {
+                regularContent(
+                    eateriesApiResponse,
+                    selectedFilters,
+                    favorites,
+                    onFavoriteClick,
+                    onEateryClick,
+                    onResetFilters,
+                    lastFavorite,
+                    onFavoriteExpand,
+                    isGridView,
+                    onListClick,
+                    onGridClick,
+                    nearestEateries
+                )
+            }
+        }
 
+        is EateryApiResponse.Pending -> {
+            HomeLazyColumn(
+                listState = listState,
+                collapsed = isFirstVisible.value,
+                loaded = false,
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick,
+                selectedFilters = selectedFilters,
+                onFilterClicked = onFilterClicked,
+                filters = filters,
+                filterRowState = filterRowState
+            ) {
+                items(MainLoadingItem.mainItems) { item ->
+                    CreateMainLoadingItem(item, shimmer)
+                }
+            }
+        }
+
+        is EateryApiResponse.Error -> {
+            Column(modifier = Modifier.fillMaxSize()) {
+                HomeStickyHeader(
+                    collapsed = isFirstVisible.value,
+                    loaded = false,
+                    onSearchClick = onSearchClick,
+                    onNotificationsClick = onNotificationsClick
+                )
+                HomeMainHeader(
+                    onSearchClick = onSearchClick,
+                    selectedFilters = selectedFilters,
+                    filters = filters,
+                    onFilterClicked = onFilterClicked,
+                    filterRowState = filterRowState
+                )
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    ErrorContent(onTryAgain = onReload)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HomeLazyColumn(
+    listState: LazyListState,
+    collapsed: Boolean,
+    loaded: Boolean,
+    onSearchClick: () -> Unit,
+    onNotificationsClick: () -> Unit,
+    selectedFilters: List<Filter>,
+    onFilterClicked: (Filter) -> Unit,
+    filters: List<Filter>,
+    filterRowState: LazyListState,
+    content: LazyListScope.() -> Unit
+) {
     LazyColumn(
         state = listState,
         modifier = Modifier
@@ -319,184 +441,231 @@ private fun HomeScrollableMainContent(
     ) {
         stickyHeader {
             HomeStickyHeader(
-                collapsed = isFirstVisible.value,
-                loaded = eateriesApiResponse is EateryApiResponse.Success,
-                onSearchClick = onSearchClick
+                collapsed = collapsed,
+                loaded = loaded,
+                onSearchClick = onSearchClick,
+                onNotificationsClick = onNotificationsClick
+            )
+        }
+        item {
+            HomeMainHeader(
+                onSearchClick = onSearchClick,
+                selectedFilters = selectedFilters,
+                onFilterClicked = onFilterClicked,
+                filters = filters,
+                filterRowState = filterRowState
+            )
+        }
+        content()
+    }
+}
+
+@Composable
+fun ErrorContent(onTryAgain: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .width(293.dp)
+            .fillMaxHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_error),
+            contentDescription = "Error Icon",
+            modifier = Modifier.size(72.dp),
+            tint = Color.Red
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "Hmm, no chow here (yet).",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color(0xFF1B1F23),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "We ran into an issue loading this page. Check your connection or try reloading the page.",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color(0xFF1B1F23),
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onTryAgain,
+            modifier = Modifier
+                .width(109.dp)
+                .height(34.dp)
+                .clip(RoundedCornerShape(17.dp)),
+            colors = ButtonDefaults.buttonColors(containerColor = EateryBlue)
+        ) {
+            Text(
+                text = "Try Again", color = Color.White,
+                fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                lineHeight = 1.25.em
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewErrorContent() = EateryPreview {
+    ErrorContent(onTryAgain = {})
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+private fun LazyListScope.regularContent(
+    eateriesApiResponse: EateryApiResponse.Success<List<Eatery>>,
+    selectedFilters: List<Filter>,
+    favorites: List<Eatery>,
+    onFavoriteClick: (Eatery, Boolean) -> Unit,
+    onEateryClick: (Eatery) -> Unit,
+    onResetFilters: () -> Unit,
+    lastFavorite: Eatery?,
+    onFavoriteExpand: () -> Unit,
+    isGridView: Boolean,
+    onListClick: () -> Unit,
+    onGridClick: () -> Unit,
+    nearestEateries: List<Eatery>
+) {
+    val eateries = eateriesApiResponse.data
+
+    if (selectedFilters.isNotEmpty()) {
+        if (eateries.isNotEmpty()) {
+            items(eateries) { eatery ->
+                Box(
+                    Modifier.padding(
+                        horizontal = 16.dp,
+                        vertical = 12.dp
+                    )
+                ) {
+                    EateryCard(
+                        eatery = eatery,
+                        isFavorite = favorites.any { favoriteEatery ->
+                            favoriteEatery.id == eatery.id
+                        },
+                        onFavoriteClick = {
+                            onFavoriteClick(eatery, it)
+                        }
+                    ) {
+                        onEateryClick(it)
+                    }
+                }
+            }
+        } else {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillParentMaxHeight(0.7f)
+                        .fillMaxWidth()
+                ) {
+                    NoEateryFound(modifier = Modifier.align(Alignment.Center)) {
+                        onResetFilters()
+                    }
+                }
+            }
+        }
+    } else {
+        item {
+            Spacer(modifier = Modifier.height(6.dp))
+            val showFake = favorites.isEmpty() && lastFavorite != null
+
+            EateryHomeSection(
+                title = "Favorites",
+                eateries = favorites,
+                overflowEatery = if (showFake) lastFavorite else null,
+                onEateryClick = onEateryClick,
+                onFavoriteClick = onFavoriteClick,
+                onExpandClick = onFavoriteExpand,
+                favoritesDecider = { !showFake }
             )
         }
 
-        when (eateriesApiResponse) {
-            is EateryApiResponse.Pending -> {
-                items(MainLoadingItem.mainItems) { item ->
-                    CreateMainLoadingItem(item, shimmer)
-                }
-            }
-
-            is EateryApiResponse.Error -> {
-                // TODO: Add No Internet State
-            }
-
-            is EateryApiResponse.Success -> {
-                val eateries = eateriesApiResponse.data
-
-                item {
-                    HomeMainHeader(
-                        onSearchClick = onSearchClick,
-                        selectedFilters = selectedFilters,
-                        onFilterClicked = onFilterClicked,
-                        onPaymentMethodsClicked = {
-                            coroutineScope.launch {
-                                modalBottomSheetState.show()
-                            }
-                        },
-                        filters = filters,
+        item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(start = 16.dp, bottom = 12.dp),
+                    text = "All Eateries",
+                    style = EateryBlueTypography.h4,
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = if (isGridView) R.drawable.ic_list_view_unselected else R.drawable.ic_list_view_selected),
+                        contentDescription = "List View",
+                        tint = Color.Unspecified,
+                        modifier = Modifier.clickable { onListClick() }
+                    )
+                    Icon(
+                        painter = painterResource(id = if (isGridView) R.drawable.ic_grid_view_selected else R.drawable.ic_grid_view_unselected),
+                        contentDescription = "Grid View",
+                        tint = Color.Unspecified,
+                        modifier = Modifier.clickable { onGridClick() }
                     )
                 }
 
-                if (selectedFilters.isNotEmpty()) {
-                    if (eateries.isNotEmpty()) {
-                        items(eateries) { eatery ->
-                            Box(
-                                Modifier.padding(
-                                    horizontal = 16.dp,
-                                    vertical = 12.dp
-                                )
-                            ) {
-                                EateryCard(
-                                    eatery = eatery,
-                                    isFavorite = favorites.any { favoriteEatery ->
-                                        favoriteEatery.id == eatery.id
-                                    },
-                                    onFavoriteClick = {
-                                        onFavoriteClick(eatery, it)
-                                    }
-                                ) {
-                                    onEateryClick(it)
-                                }
-                            }
-                        }
-                    } else {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillParentMaxHeight(0.7f)
-                                    .fillMaxWidth()
-                            ) {
-                                NoEateryFound(modifier = Modifier.align(Alignment.Center)) {
-                                    onResetFilters()
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    item {
-                        Spacer(modifier = Modifier.height(6.dp))
-                        val showFake = favorites.isEmpty() && lastFavorite != null
-
-                        EateryHomeSection(
-                            title = "Favorites",
-                            eateries = favorites,
-                            overflowEatery = if (showFake) lastFavorite else null,
-                            onEateryClick = onEateryClick,
-                            onFavoriteClick = onFavoriteClick,
-                            onExpandClick = onFavoriteExpand,
-                            favoritesDecider = { !showFake }
-                        )
-                    }
-
-                    item {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth()
+            }
+        }
+        if (isGridView) {
+            items(eateries.chunked(2)) { row ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    row.forEach { eatery ->
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(bottom = 12.dp)
                         ) {
-                            Text(
-                                modifier = Modifier
-                                    .padding(start = 16.dp, bottom = 12.dp),
-                                text = "All Eateries",
-                                style = EateryBlueTypography.h4,
+                            EateryCard(
+                                eatery = eatery,
+                                isFavorite = favorites.any { it.id == eatery.id },
+                                onFavoriteClick = { isFavorite ->
+                                    onFavoriteClick(eatery, isFavorite)
+                                },
+                                style = EateryCardStyle.GRID_VIEW,
+                                selectEatery = { selectedEatery ->
+                                    onEateryClick(selectedEatery)
+                                }
                             )
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(2.dp),
-                                modifier = Modifier
-                                    .padding(end = 12.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = if (isGridView) R.drawable.ic_list_view_unselected else R.drawable.ic_list_view_selected),
-                                    contentDescription = "List View",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.clickable { onListClick() }
-                                )
-                                Icon(
-                                    painter = painterResource(id = if (isGridView) R.drawable.ic_grid_view_selected else R.drawable.ic_grid_view_unselected),
-                                    contentDescription = "Grid View",
-                                    tint = Color.Unspecified,
-                                    modifier = Modifier.clickable { onGridClick() }
-                                )
-                            }
 
                         }
                     }
-                    if (isGridView) {
-                        items(eateries.chunked(2)) { row ->
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp)
-                            ) {
-                                row.forEach { eatery ->
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .padding(bottom = 12.dp)
-                                    ) {
-                                        EateryCard(
-                                            eatery = eatery,
-                                            isFavorite = favorites.any { it.id == eatery.id },
-                                            onFavoriteClick = { isFavorite ->
-                                                onFavoriteClick(eatery, isFavorite)
-                                            },
-                                            style = EateryCardStyle.GRID_VIEW,
-                                            selectEatery = { selectedEatery ->
-                                                onEateryClick(selectedEatery)
-                                            }
-                                        )
-
-                                    }
-                                }
-                            }
+                }
+            }
+        } else {
+            itemsIndexed(nearestEateries) { index, eatery ->
+                Box(
+                    Modifier.padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = if (index != 0) 12.dp else 0.dp
+                    )
+                ) {
+                    EateryCard(
+                        eatery = eatery,
+                        isFavorite = favorites.any { favoriteEatery ->
+                            favoriteEatery.id == eatery.id
+                        },
+                        onFavoriteClick = {
+                            onFavoriteClick(eatery, it)
                         }
-                    } else {
-                        itemsIndexed(nearestEateries) { index, eatery ->
-                            Log.d(
-                                "TAG",
-                                "HomeScrollableMainContent: index = $index, eatery = $eatery, \n\n\nsize = ${nearestEateries.size}"
-                            )
-                            Box(
-                                Modifier.padding(
-                                    start = 16.dp,
-                                    end = 16.dp,
-                                    top = if (index != 0) 12.dp else 0.dp
-                                )
-                            ) {
-                                Log.d(
-                                    "TAG",
-                                    "HomeScrollableMainContent: index = $index, eatery = $eatery"
-                                )
-                                EateryCard(
-                                    eatery = eatery,
-                                    isFavorite = favorites.any { favoriteEatery ->
-                                        favoriteEatery.id == eatery.id
-                                    },
-                                    onFavoriteClick = {
-                                        onFavoriteClick(eatery, it)
-                                    }
-                                ) {
-                                    onEateryClick(it)
-                                }
-                            }
-                        }
+                    ) {
+                        onEateryClick(it)
                     }
                 }
             }
@@ -510,6 +679,7 @@ private fun HomeStickyHeader(
     collapsed: Boolean,
     loaded: Boolean,
     onSearchClick: () -> Unit,
+    onNotificationsClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -569,17 +739,32 @@ private fun HomeStickyHeader(
                             tint = Color.White
                         )
                     }
-                    Text(
-                        text = "Eatery",
-                        color = Color.White,
-                        style = EateryBlueTypography.h2
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Eatery",
+                            color = Color.White,
+                            style = EateryBlueTypography.h2
+                        )
+                        if (BuildConfig.ENABLE_NOTIFICATIONS) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_bell),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.clickable {
+                                    onNotificationsClick()
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
-
 
 @Composable
 private fun HomeMainHeader(
@@ -587,7 +772,7 @@ private fun HomeMainHeader(
     selectedFilters: List<Filter>,
     filters: List<Filter>,
     onFilterClicked: (Filter) -> Unit,
-    onPaymentMethodsClicked: () -> Unit,
+    filterRowState: LazyListState
 ) {
     SearchBar(
         searchText = "",
@@ -602,12 +787,11 @@ private fun HomeMainHeader(
         onCancelClicked = {},
         enabled = false
     )
-
-
     FilterRow(
         currentFiltersSelected = selectedFilters,
         onFilterClicked = onFilterClicked,
         filters = filters,
+        rowState = filterRowState
     )
 }
 
@@ -619,4 +803,3 @@ private fun HomeMainHeader(
 object FirstTimeShown {
     var firstTimeShown = true
 }
-

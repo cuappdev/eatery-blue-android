@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.cornellappdev.android.eatery.data
 
 import com.cornellappdev.android.eatery.data.models.AccountType
@@ -62,22 +64,6 @@ class ReportAdapter {
     }
 }
 
-class TransactionDateAdapter {
-    @FromJson
-    fun fromJson(date: String): Date {
-        try {
-            val simpleDate =
-                SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZ", Locale.US).parse(date)
-            if (simpleDate != null) {
-                return simpleDate
-            }
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-        return Date(0)
-    }
-}
-
 class DateTimeAdapter {
     @ToJson
     fun toJson(dateTime: LocalDateTime): String {
@@ -85,14 +71,8 @@ class DateTimeAdapter {
     }
 
     @FromJson
-    fun fromJson(dateTime: Long): LocalDateTime {
-        try {
-            val instant = Instant.ofEpochSecond(dateTime)
-            return LocalDateTime.ofInstant(instant, ZoneId.systemDefault())
-        } catch (e: ParseException) {
-            e.printStackTrace()
-        }
-        return LocalDateTime.MIN
+    fun fromJson(dateTime: String): LocalDateTime {
+        return LocalDateTime.ofInstant(Instant.parse(dateTime), ZoneId.systemDefault())
     }
 }
 
@@ -116,16 +96,12 @@ class AccountTypeAdapter {
                 "brb"
             }
 
-            AccountType.CITYBUCKS -> {
+            AccountType.CITY_BUCKS -> {
                 "city bucks"
             }
 
             AccountType.LAUNDRY -> {
                 "laundry"
-            }
-
-            AccountType.MEALSWIPES -> {
-                "meal plan"
             }
 
             else -> {
@@ -155,7 +131,7 @@ class AccountTypeAdapter {
         return if (accountName.contains("brb", ignoreCase = true)) {
             AccountType.BRBS
         } else if (accountName.contains("city bucks", ignoreCase = true)) {
-            AccountType.CITYBUCKS
+            AccountType.CITY_BUCKS
         } else if (accountName.contains("laundry", ignoreCase = true)) {
             AccountType.LAUNDRY
         } else {

@@ -43,7 +43,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -63,6 +62,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
@@ -82,7 +83,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalFoundationApi::class,
+    ExperimentalLifecycleComposeApi::class
+)
 @Composable
 fun CompareMenusScreen(
     eateryIds: List<Int>,
@@ -91,8 +96,8 @@ fun CompareMenusScreen(
 ) {
     compareMenusViewModel.openEatery(eateryIds)
 
-    val eateries by compareMenusViewModel.eateryFlow.collectAsState()
-    val events by compareMenusViewModel.eventFlow.collectAsState()
+    val eateries by compareMenusViewModel.eateryFlow.collectAsStateWithLifecycle()
+    val events by compareMenusViewModel.eventFlow.collectAsStateWithLifecycle()
     val modalBottomSheetState =
         rememberModalBottomSheetState(
             initialValue = ModalBottomSheetValue.Hidden,
@@ -157,17 +162,23 @@ fun CompareMenusScreen(
         ModalBottomSheetLayout(
             sheetState = modalBottomSheetState, sheetContent = {
                 when (sheetContent) {
-                    BottomSheetContent.HOURS -> EateryHourBottomSheet(onDismiss = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.hide()
+                    BottomSheetContent.HOURS -> {
+                        val eatery = eateries.getOrNull(firstPagerState.currentPage)
+                        eatery?.let {
+                            EateryHourBottomSheet(onDismiss = {
+                                coroutineScope.launch {
+                                    modalBottomSheetState.hide()
+                                }
+                            }, eatery = eatery, onReportIssue = {
+                                sheetContent = BottomSheetContent.REPORT
+                            })
                         }
-                    }, eatery = eateries[firstPagerState.currentPage], onReportIssue = {
-                        sheetContent = BottomSheetContent.REPORT
-                    })
+                    }
 
                     BottomSheetContent.REPORT -> {
                         eateries[0].id?.let {
-                            ReportBottomSheet(issue = issue,
+                            ReportBottomSheet(
+                                issue = issue,
                                 eateryid = it,
                                 sendReport = { issue, report, eateryid ->
                                     compareMenusViewModel.sendReport(
@@ -235,7 +246,7 @@ private fun MenuPager(
             val currentEvent = events[page]
             val fullMenuList = mutableListOf<String>()
             currentEvent?.menu?.forEach { category ->
-                category.category?.let { fullMenuList.add(it) }
+                category.name?.let { fullMenuList.add(it) }
                 category.items?.forEach { item ->
                     item.name?.let { fullMenuList.add(it) }
                 }
@@ -289,9 +300,9 @@ private fun MenuPager(
                         Text(
                             modifier = Modifier.padding(top = 2.dp),
                             text =
-                            if (openUntil == null) "Closed"
-                            else if (eateries[page].isClosingSoon()) "Closing at $openUntil"
-                            else ("Open until $openUntil"),
+                                if (openUntil == null) "Closed"
+                                else if (eateries[page].isClosingSoon()) "Closing at $openUntil"
+                                else ("Open until $openUntil"),
                             style = TextStyle(
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp
@@ -306,7 +317,6 @@ private fun MenuPager(
 
                 EateryDetailsStickyHeader(
                     currentEvent,
-                    eateries[page],
                     "",
                     fullMenuList,
                     listState,
@@ -341,7 +351,7 @@ private fun MenuPager(
                             currentEvent.menu?.forEach { category ->
                                 item {
                                     Text(
-                                        text = category.category ?: "Category",
+                                        text = category.name ?: "Category",
                                         style = EateryBlueTypography.h5,
                                         modifier = Modifier.padding(
                                             horizontal = 16.dp,

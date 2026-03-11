@@ -48,7 +48,6 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 fun MealBottomSheet(
     selectedMeal: MealFilter,
     onSubmit: (MealFilter) -> Unit,
-    onReset: () -> Unit,
     hide: () -> Unit,
     sheetState: ModalBottomSheetState
 ) {
@@ -94,7 +93,7 @@ fun MealBottomSheet(
     ) {
         Column {
             Text(
-                text = "Breakfast",
+                text = MealFilter.BREAKFAST.displayName,
                 modifier = Modifier.padding(start = 16.dp),
                 style = EateryBlueTypography.h5
             )
@@ -133,7 +132,8 @@ fun MealBottomSheet(
             .height(1.dp)
             .background(GrayZero, CircleShape)
     )
-    Row(horizontalArrangement = Arrangement.SpaceBetween,
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
@@ -143,7 +143,7 @@ fun MealBottomSheet(
     ) {
         Column {
             Text(
-                text = "Lunch",
+                text = MealFilter.LUNCH.displayName,
                 modifier = Modifier.padding(start = 16.dp),
                 style = EateryBlueTypography.h5
             )
@@ -183,7 +183,8 @@ fun MealBottomSheet(
             .height(1.dp)
             .background(GrayZero, CircleShape)
     )
-    Row(horizontalArrangement = Arrangement.SpaceBetween,
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
@@ -193,7 +194,7 @@ fun MealBottomSheet(
     ) {
         Column {
             Text(
-                text = "Dinner",
+                text = MealFilter.DINNER.displayName,
                 modifier = Modifier.padding(start = 16.dp),
                 style = EateryBlueTypography.h5
             )
@@ -231,7 +232,8 @@ fun MealBottomSheet(
             .height(1.dp)
             .background(GrayZero, CircleShape)
     )
-    Row(horizontalArrangement = Arrangement.SpaceBetween,
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
@@ -241,7 +243,7 @@ fun MealBottomSheet(
     ) {
         Column {
             Text(
-                text = "Late Dinner",
+                text = MealFilter.LATE_DINNER.displayName,
                 modifier = Modifier.padding(start = 16.dp),
                 style = EateryBlueTypography.h5
             )

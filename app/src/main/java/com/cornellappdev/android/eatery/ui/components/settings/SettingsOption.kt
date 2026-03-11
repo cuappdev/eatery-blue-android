@@ -28,7 +28,7 @@ import com.cornellappdev.android.eatery.ui.theme.GrayOne
 @Composable
 fun SettingsOption(
     title: String,
-    onClick: () -> Unit,
+    onClick: () -> Unit = {},
     description: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,

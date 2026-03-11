@@ -95,9 +95,9 @@ fun EateryHourBottomSheet(
         Text(
             modifier = Modifier.padding(top = 2.dp),
             text =
-            if (openUntil == null) "Closed"
-            else if (eatery.isClosingSoon()) "Closing at $openUntil"
-            else ("Open until $openUntil"),
+                if (openUntil == null) "Closed"
+                else if (eatery.isClosingSoon()) "Closing at $openUntil"
+                else ("Open until $openUntil"),
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ),
