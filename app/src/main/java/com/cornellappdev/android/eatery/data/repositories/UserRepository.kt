@@ -64,7 +64,7 @@ class UserRepository @Inject constructor(
             _favoriteEateriesFlow.value = matches.mapNotNull { it.eateryName }
             _favoriteItemsFlow.value = run {
                 val items: List<String> =
-                    matches.flatMap { it.items.orEmpty() }.mapNotNull { it.name }
+                    matches.flatMap { it.items.orEmpty() }.mapNotNull { it?.name }
                 items.toList()
             }
         }

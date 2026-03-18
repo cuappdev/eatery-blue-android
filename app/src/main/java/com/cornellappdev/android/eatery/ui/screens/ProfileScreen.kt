@@ -12,7 +12,7 @@ import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.TransactionWithFormattedDate
+import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
@@ -68,7 +68,7 @@ private fun ProfileScreenContent(
     accountFilter: TransactionAccountType,
     filterText: String,
     onSettingsClicked: () -> Unit,
-    filteredTransactions: List<TransactionWithFormattedDate>,
+    filteredTransactions: List<DisplayTransaction>,
     onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
 ) {

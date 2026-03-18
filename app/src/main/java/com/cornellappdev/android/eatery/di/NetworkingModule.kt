@@ -9,7 +9,6 @@ import com.cornellappdev.android.eatery.data.DateTimeAdapter
 import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.ReportAdapter
 import com.cornellappdev.android.eatery.data.TimestampAdapter
-import com.cornellappdev.android.eatery.data.TransactionTypeAdapter
 import com.cornellappdev.android.eatery.data.models.PaymentMethod
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.EnumJsonAdapter
@@ -49,7 +48,6 @@ object NetworkModule {
         .add(DateTimeAdapter())
         .add(TimestampAdapter())
         .add(DateAdapter())
-        .add(TransactionTypeAdapter())
         .add(AccountTypeAdapter())
         .add(KotlinJsonAdapterFactory())
         .add(ReportAdapter())

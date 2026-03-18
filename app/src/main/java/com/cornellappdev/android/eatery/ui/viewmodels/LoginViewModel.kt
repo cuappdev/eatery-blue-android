@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.Result
-import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
+import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,11 +21,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-
-data class TransactionWithFormattedDate(
-    val transaction: Transaction,
-    val formattedDate: String
-)
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -111,29 +106,47 @@ class LoginViewModel @Inject constructor(
     }
 
 
-    val filteredTransactionsFlow: Flow<List<TransactionWithFormattedDate>> =
+    val filteredTransactionsFlow: Flow<List<DisplayTransaction>> =
         combine(
             userRepository.loadedUser,
             _queryFlow,
             _accountTypeFilterFlow
-        ) { loadedUser, query, accountType ->
+        ) { loadedUser, query, accountFilter ->
             if (loadedUser == null) return@combine emptyList()
             val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-            loadedUser.transactions?.filter { transaction ->
-                val matchesAccountType =
-                    transaction.accountType.toTransactionAccountType() == accountType
-                val pastThirtyDays = LocalDateTime.parse(
-                    transaction.date,
-                    inputFormatter
-                ) >= LocalDateTime.now().minusDays(30)
-                val matchesQuery = transaction.location.lowercase().contains(query.lowercase())
-                matchesAccountType && pastThirtyDays && matchesQuery
-            }?.map { transaction ->
-                TransactionWithFormattedDate(
-                    transaction = transaction,
-                    formattedDate = formatDate(transaction.date)
+            loadedUser.transactions.orEmpty().mapNotNull { transaction ->
+                val safeTransaction = transaction ?: return@mapNotNull null
+                val accountName = safeTransaction.accountType ?: return@mapNotNull null
+                val mappedAccountType = accountName.toTransactionAccountType()
+                if (mappedAccountType != accountFilter) return@mapNotNull null
+
+                val date = safeTransaction.date ?: return@mapNotNull null
+                val location =
+                    safeTransaction.location?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                val amount = safeTransaction.amount ?: return@mapNotNull null
+                val parsedDate =
+                    runCatching { LocalDateTime.parse(date, inputFormatter) }.getOrNull()
+                        ?: return@mapNotNull null
+                if (parsedDate < LocalDateTime.now().minusDays(30)) return@mapNotNull null
+                if (!location.lowercase().contains(query.lowercase())) return@mapNotNull null
+
+                val formattedDate = formatDate(date)
+                if (formattedDate.isBlank()) return@mapNotNull null
+
+                DisplayTransaction(
+                    id = listOf(
+                        date,
+                        location,
+                        amount.toString(),
+                        mappedAccountType.name
+                    ).joinToString("|"),
+                    amount = amount,
+                    accountType = mappedAccountType,
+                    date = date,
+                    location = location,
+                    formattedDate = formattedDate
                 )
-            } ?: emptyList()
+            }
         }
 
     companion object {

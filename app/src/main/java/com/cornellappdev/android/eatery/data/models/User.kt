@@ -40,23 +40,23 @@ data class FavoriteEatery(
 @JsonClass(generateAdapter = true)
 data class Match(
     @Json(name = "eateryName") val eateryName: String? = null,
-    @Json(name = "items") val items: List<Item>? = null
+    @Json(name = "items") val items: List<Item?>? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class Item(
     val name: String? = null,
-    val events: List<String>? = null
+    val events: List<String?>? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class User(
-    @Json(name = "favorite_eateries") val favoriteEateries: List<Int> = emptyList(),
-    @Json(name = "favorite_items") val favoriteItems: List<String> = emptyList(),
+    @Json(name = "favorite_eateries") val favoriteEateries: List<Int?>? = emptyList(),
+    @Json(name = "favorite_items") val favoriteItems: List<String?>? = emptyList(),
     @Json(name = "brb_balance") val brbBalance: Double? = null,
     @Json(name = "city_bucks_balance") val cityBucksBalance: Double? = null,
     @Json(name = "laundry_balance") val laundryBalance: Double? = null,
-    @Json(name = "transactions") val transactions: List<Transaction>? = emptyList(),
+    @Json(name = "transactions") val transactions: List<Transaction?>? = emptyList(),
     @Json(name = "meal_swipes") val mealSwipes: Int? = null // todo - backend should make this
 )
 
@@ -79,7 +79,7 @@ data class SessionID(
 @JsonClass(generateAdapter = true)
 data class Financials(
     @Json(name = "accounts") val accounts: Accounts? = null,
-    @Json(name = "transactions") val transactions: List<Transaction>? = null
+    @Json(name = "transactions") val transactions: List<Transaction?>? = null
 )
 
 
@@ -92,18 +92,17 @@ data class Accounts(
 
 @JsonClass(generateAdapter = true)
 data class Account(
-    @Json(name = "name") val name: String = "",
-    @Json(name = "balance") val balance: Double = 0.0
+    @Json(name = "name") val name: String? = null,
+    @Json(name = "balance") val balance: Double? = null
 )
 
 @JsonClass(generateAdapter = true)
 data class Transaction(
-    @Json(name = "amount") val amount: Double = 0.0,
-    val tenderId: String? = "",
-    @Json(name = "accountName") val accountType: AccountType = AccountType.OTHER,
-    @Json(name = "date") val date: String = "",
-    @Json(name = "location") val location: String = "",
-    @Json(name = "transactionType") val transactionType: TransactionType = TransactionType.NOOP // todo - backend should give this
+    @Json(name = "amount") val amount: Double? = null,
+    val tenderId: String? = null,
+    @Json(name = "accountName") val accountType: AccountType? = null,
+    @Json(name = "date") val date: String? = null,
+    @Json(name = "location") val location: String? = null,
 )
 
 /**
@@ -145,10 +144,3 @@ fun AccountType.toTransactionAccountType(): TransactionAccountType {
     }
 }
 
-enum class TransactionType(val value: Int) {
-    DEPOSIT(3), SPEND(1), NOOP(0), MISC(2);
-
-    companion object {
-        fun fromInt(value: Int) = TransactionType.entries.first { it.value == value }
-    }
-}

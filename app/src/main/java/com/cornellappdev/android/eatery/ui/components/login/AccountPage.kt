@@ -55,9 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.AccountBalances
-import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
-import com.cornellappdev.android.eatery.data.models.TransactionType
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.theme.Black
@@ -65,9 +63,8 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
-import com.cornellappdev.android.eatery.ui.viewmodels.TransactionWithFormattedDate
+import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -81,7 +78,7 @@ fun AccountPage(
     accountFilter: TransactionAccountType,
     accountTypeBalance: AccountBalances,
     onSettingsClicked: () -> Unit,
-    filteredTransactions: List<TransactionWithFormattedDate>,
+    filteredTransactions: List<DisplayTransaction>,
     filterText: String,
     onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
@@ -127,13 +124,13 @@ fun AccountPage(
         sheetElevation = 8.dp
     ) {
         AccountPageContent(
-            onSettingsClicked,
-            accountTypeBalance,
-            accountFilter,
+            onSettingsClicked = onSettingsClicked,
+            accountTypeBalance = accountTypeBalance,
+            accountFilter = accountFilter,
             showBottomSheet = modalBottomSheetState::show,
-            filterText,
+            filterText = filterText,
             setFilterText = onQueryChanged,
-            filteredTransactions,
+            filteredTransactions = filteredTransactions,
             setSheetContent = { sheetContent = it },
         )
 
@@ -153,7 +150,7 @@ private fun AccountPageContent(
     showBottomSheet: suspend () -> Unit,
     filterText: String,
     setFilterText: (String) -> Unit,
-    filteredTransactions: List<TransactionWithFormattedDate>,
+    filteredTransactions: List<DisplayTransaction>,
     setSheetContent: (BottomSheetContent) -> Unit
 ) {
     val innerListState = rememberLazyListState()
@@ -223,10 +220,9 @@ private fun AccountPageContent(
             }
             items(
                 items = filteredTransactions,
-                key = { it.transaction.date + it.transaction.location + it.transaction.amount }) {
+                key = { it.id }) {
                 TransactionRow(
-                    transaction = it.transaction,
-                    formattedDate = it.formattedDate,
+                    transaction = it,
                     isMealSwipes = accountFilter == TransactionAccountType.MEAL_SWIPES
                 )
             }
@@ -250,22 +246,20 @@ private fun AccountPagePreview() = EateryPreview {
         filterText = "",
         setFilterText = {},
         filteredTransactions = listOf(
-            TransactionWithFormattedDate(
-                transaction = Transaction(
-                    date = "2023-10-01T12:30:00.000Z",
-                    location = "Cafe Jennie",
-                    amount = 5.25,
-                    transactionType = TransactionType.SPEND
-                ),
+            DisplayTransaction(
+                id = "2023-10-01T12:30:00.000Z|Cafe Jennie|5.25|BRBS",
+                amount = 5.25,
+                accountType = TransactionAccountType.BRBS,
+                date = "2023-10-01T12:30:00.000Z",
+                location = "Cafe Jennie",
                 formattedDate = "12:30 PM · Sunday, October 1"
             ),
-            TransactionWithFormattedDate(
-                transaction = Transaction(
-                    date = "2023-10-02T14:00:00.000Z",
-                    location = "Morrison Dining",
-                    amount = 15.00,
-                    transactionType = TransactionType.DEPOSIT
-                ),
+            DisplayTransaction(
+                id = "2023-10-02T14:00:00.000Z|Morrison Dining|15.0|BRBS",
+                amount = 15.00,
+                accountType = TransactionAccountType.BRBS,
+                date = "2023-10-02T14:00:00.000Z",
+                location = "Morrison Dining",
                 formattedDate = "2:00 PM · Monday, October 2"
             )
         ),
@@ -422,7 +416,8 @@ private fun AccountPageHeader(
 }
 
 @Composable
-private fun TransactionRow(transaction: Transaction, formattedDate: String, isMealSwipes: Boolean) {
+private fun TransactionRow(transaction: DisplayTransaction, isMealSwipes: Boolean) {
+    val amount = transaction.amount
     Row(
         modifier = Modifier
             .height(64.dp)
@@ -432,29 +427,20 @@ private fun TransactionRow(transaction: Transaction, formattedDate: String, isMe
         Column(modifier = Modifier.weight(1f)) {
             Text(text = transaction.location, style = EateryBlueTypography.button)
             Text(
-                text = formattedDate,
+                text = transaction.formattedDate,
                 style = EateryBlueTypography.subtitle2,
                 color = GrayFive
             )
         }
-        val (amtString, amtColor) = when {
-            transaction.transactionType == TransactionType.DEPOSIT -> {
-                "+$%.2f".format(transaction.amount) to Green
-            }
-
-            transaction.amount.epsilonEqual(0.0) -> {
-                "$0.00" to Black
-            }
-
-            else -> {
-                val amt = if (isMealSwipes) {
-                    val numSwipes = transaction.amount.toInt()
-                    "-$numSwipes swipe" + (if (numSwipes > 1) "s" else "")
-                } else {
-                    "-$%.2f".format(transaction.amount)
-                }
-                amt to Red
-            }
+        // TODO - when we get transaction type, update formatting as appropriate
+        // e.g., for deposits, "+$%.2f".format(amount) to Green
+        val (amtString, amtColor) = if (isMealSwipes) {
+            val numSwipes = abs(amount).toInt()
+            "-$numSwipes swipe" + (if (numSwipes > 1) "s" else "") to Red
+        } else if (amount.epsilonEqual(0.0)) {
+            "$0.00" to Black
+        } else {
+            "-$%.2f".format(abs(amount)) to Red
         }
         Text(
             text = amtString,
