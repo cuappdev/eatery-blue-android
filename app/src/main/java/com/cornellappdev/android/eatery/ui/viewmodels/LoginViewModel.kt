@@ -40,8 +40,8 @@ class LoginViewModel @Inject constructor(
 
         data class Account(
             val user: User, // Contains all user data.
-            var query: String, // Search bar query.
-            var accountFilter: TransactionAccountType
+            val query: String, // Search bar query.
+            val accountFilter: TransactionAccountType
         ) : State()
 
         fun getBalances(): AccountBalances {
