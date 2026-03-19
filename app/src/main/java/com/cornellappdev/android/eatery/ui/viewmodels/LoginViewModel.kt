@@ -140,6 +140,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onLoginPressed() {
+        clearError()
         _isLoginLoadingFlow.value = true
     }
 
