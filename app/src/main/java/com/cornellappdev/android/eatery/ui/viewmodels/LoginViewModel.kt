@@ -3,11 +3,12 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.AccountBalances
+import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
-import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
+import com.cornellappdev.android.eatery.data.repositories.GetAccountRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
@@ -25,7 +26,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val authTokenRepository: AuthTokenRepository,
+    private val getAccountRepository: GetAccountRepository,
 ) : ViewModel() {
 
     /**
@@ -99,7 +100,7 @@ class LoginViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            if (userRepository.isLoggedIn()) {
+            if (getAccountRepository.isLoggedIn()) {
                 getFinancials()
             }
         }
@@ -140,12 +141,12 @@ class LoginViewModel @Inject constructor(
         )
     }
 
-    fun onLoginPressed() = updateLoginLoadingState(true)
+    fun onLoginPressed() {
+        _loginLoadingFlow.value = true
+    }
 
-    fun onLoginExited() = updateLoginLoadingState(false)
-
-    private fun updateLoginLoadingState(isLoading: Boolean) {
-        _loginLoadingFlow.value = isLoading
+    fun onLoginExited() {
+        _loginLoadingFlow.value = false
     }
 
     fun onLoginWebViewSuccess(sessionId: String) {
@@ -156,21 +157,28 @@ class LoginViewModel @Inject constructor(
         }
     }
 
+    private fun onNetworkSuccess() {
+        _error.value = null
+    }
+
+    private fun onNetworkFailure(action: NetworkAction, error: NetworkError) {
+        _error.value = NetworkUiError.Failed(action, error)
+        _loginLoadingFlow.value = false
+    }
+
     /**
      * Fetches user data given [sessionId] and updates the state and user preferences.
      * Returns true if the account was linked successfully, false otherwise.
      */
     private suspend fun linkGETAccount(sessionId: String): Boolean {
-        return when (val result = authTokenRepository.linkGETAccount(sessionId)) {
+        return when (val result = getAccountRepository.linkGETAccount(sessionId)) {
             is Result.Success -> {
-                userRepository.setIsLoggedIn(true)
-                _error.value = null
+                onNetworkSuccess()
                 true
             }
 
             is Result.Error -> {
-                _error.value = NetworkUiError.Failed(NetworkAction.LinkGetAccount, result.error)
-                updateLoginLoadingState(false)
+                onNetworkFailure(NetworkAction.LinkGetAccount, result.error)
                 false
             }
         }
@@ -178,14 +186,8 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun getFinancials() {
         when (val result = userRepository.getFinancials()) {
-            is Result.Success -> {
-                _error.value = null
-            }
-
-            is Result.Error -> {
-                _error.value = NetworkUiError.Failed(NetworkAction.GetFinancials, result.error)
-                updateLoginLoadingState(false)
-            }
+            is Result.Success -> onNetworkSuccess()
+            is Result.Error -> onNetworkFailure(NetworkAction.GetFinancials, result.error)
         }
     }
 }
