@@ -166,7 +166,7 @@ class UserRepository @Inject constructor(
                 sessionId = SessionID(getAccountRepository.getSessionId())
             )
         } catch (_: Exception) {
-            val pin = getAccountRepository.getPin()
+            val pin = getAccountRepository.getPin() ?: throw IllegalStateException()
             getAccountRepository.refreshLogin(pin = pin)
             financials = networkApi.getFinancials(
                 sessionId = SessionID(getAccountRepository.getSessionId())

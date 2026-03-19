@@ -41,9 +41,9 @@ class GETAccountRepository @Inject constructor(
         }
     }
 
-    suspend fun getSessionId(): String = userPreferencesRepository.sessionIdFlow.firstOrNull() ?: ""
+    suspend fun getSessionId(): String? = userPreferencesRepository.sessionIdFlow.firstOrNull()
 
-    suspend fun getPin(): Int = userPreferencesRepository.pinFlow.firstOrNull() ?: 0
+    suspend fun getPin(): Int? = userPreferencesRepository.pinFlow.firstOrNull()
 
     suspend fun clearSessionId() = userPreferencesRepository.setSessionId("")
 
