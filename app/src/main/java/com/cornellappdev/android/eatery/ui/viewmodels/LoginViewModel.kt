@@ -53,10 +53,12 @@ class LoginViewModel @Inject constructor(
         _error
     ) { loadedUser, query, accountFilter, loginLoading, error ->
         val isLoginState = loadedUser == null
+        val lowercaseQuery = query.lowercase()
+        val thirtyDaysAgo = LocalDateTime.now().minusDays(30)
         val filteredTransactions = loadedUser?.transactions?.filter {
-            it.location.lowercase().contains(query.lowercase())
+            it.location.lowercase().contains(lowercaseQuery)
                     && it.accountType == accountFilter
-                    && it.date >= LocalDateTime.now().minusDays(30)
+                    && it.date >= thirtyDaysAgo
         }?.map { it.toDisplayTransaction() } ?: emptyList()
 
         ProfileUiState(
@@ -81,6 +83,7 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
     companion object {
         private fun LocalDateTime.formatDate(): String {
             val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
