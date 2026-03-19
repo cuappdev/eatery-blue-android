@@ -20,7 +20,12 @@ internal suspend fun <T> tryRequestWithTokenRefresh(
 ): Result<T> {
     return try {
         Result.Success(request())
-    } catch (_: Exception) {
+    } catch (initialException: Exception) {
+        // Only attempt refresh for auth-related errors
+        val initialError = mapExceptionToNetworkError(initialException)
+        if (initialError !is NetworkError.Unauthorized) {
+            return Result.Error(initialError)
+        }
         when (val refreshResult = refreshTokens()) {
             is Result.Success -> {
                 try {
@@ -30,7 +35,7 @@ internal suspend fun <T> tryRequestWithTokenRefresh(
                 }
             }
 
-            is Result.Error -> refreshResult
+            is Result.Error -> Result.Error(refreshResult.error)
         }
     }
 }
