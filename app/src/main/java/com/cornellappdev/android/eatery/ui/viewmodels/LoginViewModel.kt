@@ -14,9 +14,9 @@ import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -32,7 +32,7 @@ class LoginViewModel @Inject constructor(
 
     data class ProfileUiState(
         val isLoginState: Boolean = true,
-        val isLoginLoading: Boolean = false,
+        val isLoading: Boolean = false,
         val accountTypeBalance: AccountBalances = AccountBalances(),
         val accountFilter: TransactionAccountType = TransactionAccountType.BRBS,
         val filterText: String = "",
@@ -45,14 +45,20 @@ class LoginViewModel @Inject constructor(
     private val _isLoginLoadingFlow = MutableStateFlow(false)
     private val _error = MutableStateFlow<NetworkUiError?>(null)
 
-    val uiState: StateFlow<ProfileUiState> = combine(
+    /**
+     * Whether financials data of previously logged-in user is being fetched.
+     * Should show Account page if true.
+     */
+    private val _isRestoringSessionFlow = MutableStateFlow(false)
+
+    private val loginDataState: Flow<ProfileUiState> = combine(
         userRepository.loadedUser,
         _queryFlow,
         _accountTypeFilterFlow,
+        _isRestoringSessionFlow,
         _isLoginLoadingFlow,
-        _error
-    ) { loadedUser, query, accountFilter, loginLoading, error ->
-        val isLoginState = loadedUser == null
+    ) { loadedUser, query, accountFilter, isRestoringSession, loginLoading ->
+        val isLoginState = loadedUser == null && !isRestoringSession
         val lowercaseQuery = query.lowercase()
         val thirtyDaysAgo = LocalDateTime.now().minusDays(30)
         val filteredTransactions = loadedUser?.transactions?.filter {
@@ -63,13 +69,16 @@ class LoginViewModel @Inject constructor(
 
         ProfileUiState(
             isLoginState = isLoginState,
-            isLoginLoading = loginLoading,
+            isLoading = loginLoading || isRestoringSession,
             accountTypeBalance = loadedUser?.toAccountBalances() ?: AccountBalances(),
             accountFilter = if (isLoginState) TransactionAccountType.BRBS else accountFilter,
             filterText = if (isLoginState) "" else query,
             filteredTransactions = filteredTransactions,
-            error = error
         )
+    }
+
+    val uiState = combine(loginDataState, _error) { dataState, error ->
+        dataState.copy(error = error)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -79,7 +88,12 @@ class LoginViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             if (getAccountRepository.isLoggedIn()) {
-                getFinancials()
+                _isRestoringSessionFlow.value = true
+                try {
+                    getFinancials()
+                } finally {
+                    _isRestoringSessionFlow.value = false
+                }
             }
         }
     }
