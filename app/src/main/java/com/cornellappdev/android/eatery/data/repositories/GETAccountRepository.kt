@@ -10,7 +10,7 @@ import javax.inject.Singleton
 import kotlin.random.Random
 
 @Singleton
-class GetAccountRepository @Inject constructor(
+class GETAccountRepository @Inject constructor(
     private val networkApi: NetworkApi,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val authTokenRepository: AuthTokenRepository

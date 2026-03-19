@@ -27,7 +27,7 @@ class UserRepository @Inject constructor(
     private val networkApi: NetworkApi,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val authTokenRepository: AuthTokenRepository,
-    private val getAccountRepository: GetAccountRepository
+    private val getAccountRepository: GETAccountRepository
 ) {
     private val _loadedUser: MutableStateFlow<User?> = MutableStateFlow(null)
 

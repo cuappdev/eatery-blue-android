@@ -35,7 +35,7 @@ fun ProfileScreen(
     ProfileScreenContent(
         isLoginState = uiState.isLoginState,
         accountTypeBalance = uiState.accountTypeBalance,
-        loading = uiState.isLoginState && uiState.loading,
+        loading = uiState.isLoginState && uiState.isLoginLoading,
         onLoginPressed = loginViewModel::onLoginPressed,
         onSuccess = loginViewModel::onLoginWebViewSuccess,
         webViewEnabled = webViewEnabled,

@@ -8,7 +8,7 @@ import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
-import com.cornellappdev.android.eatery.data.repositories.GetAccountRepository
+import com.cornellappdev.android.eatery.data.repositories.GETAccountRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
@@ -27,12 +27,12 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val getAccountRepository: GetAccountRepository,
+    private val getAccountRepository: GETAccountRepository,
 ) : ViewModel() {
 
     data class ProfileUiState(
         val isLoginState: Boolean = true,
-        val loading: Boolean = false,
+        val isLoginLoading: Boolean = false,
         val accountTypeBalance: AccountBalances = AccountBalances(),
         val accountFilter: TransactionAccountType = TransactionAccountType.BRBS,
         val filterText: String = "",
@@ -61,7 +61,7 @@ class LoginViewModel @Inject constructor(
 
         ProfileUiState(
             isLoginState = isLoginState,
-            loading = loginLoading,
+            isLoginLoading = loginLoading,
             accountTypeBalance = loadedUser?.toAccountBalances() ?: AccountBalances(),
             accountFilter = if (isLoginState) TransactionAccountType.BRBS else accountFilter,
             filterText = if (isLoginState) "" else query,
