@@ -68,14 +68,13 @@ fun FavoritesScreen(
     onBackClick: () -> Unit
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
-    val favoritesScreenViewState =
-        favoriteViewModel.favoritesScreenViewState.collectAsStateWithLifecycle().value
+    val uiState = favoriteViewModel.uiState.collectAsStateWithLifecycle().value
+    val favoritesScreenViewState = uiState.screenState
     var toggle by remember { mutableStateOf(true) }
-    val error by favoriteViewModel.error.collectAsStateWithLifecycle()
 
     // TODO: replace with an actual error state
     NetworkErrorToast(
-        error = error,
+        error = uiState.error,
         onErrorShown = favoriteViewModel::clearError
     )
 

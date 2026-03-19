@@ -35,7 +35,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -89,17 +88,15 @@ fun SearchScreen(
     )
     val coroutineScope = rememberCoroutineScope()
 
-    val query by searchViewModel.searchFlow.collectAsStateWithLifecycle()
-    val favorites = searchViewModel.favoriteEateries.collectAsStateWithLifecycle().value
-    val recentSearches =
-        searchViewModel.recentSearches.collectAsStateWithLifecycle().value.reversed().take(10)
-            .distinct()
-    val filters = searchViewModel.filtersFlow.collectAsStateWithLifecycle().value
-    val searchResponse = searchViewModel.searchResultEateries.collectAsStateWithLifecycle().value
-    val error by searchViewModel.error.collectAsStateWithLifecycle()
+    val uiState = searchViewModel.uiState.collectAsStateWithLifecycle().value
+    val query = uiState.query
+    val favorites = uiState.favoriteEateries
+    val recentSearches = uiState.recentSearches
+    val filters = uiState.filters
+    val searchResponse = uiState.searchResponse
 
     NetworkErrorToast(
-        error = error,
+        error = uiState.error,
         onErrorShown = searchViewModel::clearError
     )
 

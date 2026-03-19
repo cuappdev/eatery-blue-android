@@ -14,10 +14,10 @@ import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -30,31 +30,29 @@ class SearchViewModel @Inject constructor(
     private val eateryRepository: EateryRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
+    data class SearchUiState(
+        val query: String = "",
+        val filters: List<Filter> = emptyList(),
+        val searchResponse: EateryApiResponse<List<Eatery>> = EateryApiResponse.Pending,
+        val favoriteEateries: List<Eatery> = emptyList(),
+        val recentSearches: List<Int> = emptyList(),
+        val error: NetworkUiError? = null
+    )
+
     private val eateryFlowCache = mutableMapOf<Int, StateFlow<EateryApiResponse<Eatery>>>()
 
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
 
     private val _error = MutableStateFlow<NetworkUiError?>(null)
-    val error = _error.asStateFlow()
 
     fun clearError() {
         _error.value = null
     }
 
     /**
-     * A flow of filters applied to the screen.
-     */
-    val filtersFlow = _filtersFlow.asStateFlow()
-
-    /**
      * The current search query. Combine with other flows to filter by search query.
      */
     private val _searchFlow: MutableStateFlow<String> = MutableStateFlow("")
-
-    /**
-     * The current String search query.
-     */
-    val searchFlow = _searchFlow.asStateFlow()
 
     val searchScreenFilters = listOf(
         Filter.FromEateryFilter.North,
@@ -69,9 +67,9 @@ class SearchViewModel @Inject constructor(
     /**
      * A flow of the eateries that should show up with the current query.
      */
-    val searchResultEateries = combine(
+    private val searchResultEateries = combine(
         eateryRepository.eateryFlow,
-        filtersFlow,
+        _filtersFlow,
         userRepository.favoriteEateriesFlow,
         _searchFlow
     ) { eateryApiResponse, filters, favorites, searchQuery ->
@@ -97,13 +95,13 @@ class SearchViewModel @Inject constructor(
     /**
      * A flow of the user's recent searches.
      */
-    val recentSearches = userPreferencesRepository.recentSearchesFlow
+    private val recentSearches = userPreferencesRepository.recentSearchesFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
     /**
      * A flow of the user's current favorite eateries.
      */
-    val favoriteEateries =
+    private val favoriteEateries =
         combine(
             eateryRepository.eateryFlow,
             userRepository.favoriteEateriesFlow
@@ -118,6 +116,29 @@ class SearchViewModel @Inject constructor(
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+
+    private val searchDataState: Flow<SearchUiState> = combine(
+        _searchFlow,
+        _filtersFlow,
+        searchResultEateries,
+        favoriteEateries,
+        recentSearches
+    ) { query, filters, searchResponse, favorites, recents ->
+        SearchUiState(
+            query = query,
+            filters = filters,
+            searchResponse = searchResponse,
+            favoriteEateries = favorites,
+            recentSearches = recents.reversed().take(10).distinct()
+        )
+    }
+
+    val uiState: StateFlow<SearchUiState> = combine(
+        searchDataState,
+        _error
+    ) { dataState, networkError ->
+        dataState.copy(error = networkError)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SearchUiState())
 
     fun addPaymentMethodFilters(filters: List<Filter>) {
         val newList = _filtersFlow.value.toMutableList()

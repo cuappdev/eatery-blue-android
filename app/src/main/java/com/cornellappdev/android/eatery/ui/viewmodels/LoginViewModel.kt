@@ -17,7 +17,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -31,64 +30,49 @@ class LoginViewModel @Inject constructor(
     private val getAccountRepository: GetAccountRepository,
 ) : ViewModel() {
 
-    /**
-     * State class contains the two classes that will be passed down through the flow to the login, profile, and account related views.
-     */
-    sealed class State {
-        data class Login(
-            val netID: String = "",
-            val password: String = "",
-            val loading: Boolean = false
-        ) : State()
-
-        data class Account(
-            val user: User, // Contains all user data.
-            val query: String, // Search bar query.
-            val accountFilter: TransactionAccountType
-        ) : State()
-
-        fun getBalances(): AccountBalances {
-            if (this !is Account) return AccountBalances()
-            return AccountBalances(
-                brbBalance = this.user.brbBalance,
-                cityBucksBalance = this.user.cityBucksBalance,
-                laundryBalance = this.user.laundryBalance,
-                mealSwipes = this.user.mealSwipes
-            )
-        }
-    }
+    data class ProfileUiState(
+        val isLoginState: Boolean = true,
+        val loading: Boolean = false,
+        val accountTypeBalance: AccountBalances = AccountBalances(),
+        val accountFilter: TransactionAccountType = TransactionAccountType.BRBS,
+        val filterText: String = "",
+        val filteredTransactions: List<DisplayTransaction> = emptyList(),
+        val error: NetworkUiError? = null
+    )
 
     private val _queryFlow = MutableStateFlow("")
     private val _accountTypeFilterFlow = MutableStateFlow(TransactionAccountType.BRBS)
-    private val _loginLoadingFlow = MutableStateFlow(false)
+    private val _isLoginLoadingFlow = MutableStateFlow(false)
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
 
-    val state: StateFlow<State> = combine(
+    val uiState: StateFlow<ProfileUiState> = combine(
         userRepository.loadedUser,
         _queryFlow,
         _accountTypeFilterFlow,
-        _loginLoadingFlow
-    ) { loadedUser, query, accountFilter, loginLoading ->
-        if (loadedUser != null) {
-            State.Account(
-                user = loadedUser,
-                query = query,
-                accountFilter = accountFilter
-            )
-        } else {
-            State.Login(
-                netID = "",
-                password = "",
-                loading = loginLoading
-            )
-        }
+        _isLoginLoadingFlow,
+        _error
+    ) { loadedUser, query, accountFilter, loginLoading, error ->
+        val isLoginState = loadedUser == null
+        val filteredTransactions = loadedUser?.transactions?.filter {
+            it.location.lowercase().contains(query.lowercase())
+                    && it.accountType == accountFilter
+                    && it.date >= LocalDateTime.now().minusDays(30)
+        }?.map { it.toDisplayTransaction() } ?: emptyList()
+
+        ProfileUiState(
+            isLoginState = isLoginState,
+            loading = loginLoading,
+            accountTypeBalance = loadedUser?.toAccountBalances() ?: AccountBalances(),
+            accountFilter = if (isLoginState) TransactionAccountType.BRBS else accountFilter,
+            filterText = if (isLoginState) "" else query,
+            filteredTransactions = filteredTransactions,
+            error = error
+        )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = State.Login()
+        initialValue = ProfileUiState()
     )
-
-    private val _error = MutableStateFlow<NetworkUiError?>(null)
-    val error = _error.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -97,25 +81,6 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
-
-    val filteredTransactionsFlow: StateFlow<List<DisplayTransaction>> =
-        combine(
-            userRepository.loadedUser,
-            _queryFlow,
-            _accountTypeFilterFlow
-        ) { loadedUser, query, accountFilter ->
-            if (loadedUser == null) return@combine emptyList()
-            loadedUser.transactions.filter {
-                it.location.lowercase().contains(query.lowercase())
-                        && it.accountType == accountFilter
-                        && it.date >= LocalDateTime.now().minusDays(30)
-            }.map { it.toDisplayTransaction() }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList()
-        )
-
     companion object {
         private fun LocalDateTime.formatDate(): String {
             val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
@@ -134,6 +99,15 @@ class LoginViewModel @Inject constructor(
             location = this.location,
             formattedDate = this.date.formatDate()
         )
+
+        private fun User.toAccountBalances(): AccountBalances {
+            return AccountBalances(
+                brbBalance = this.brbBalance,
+                cityBucksBalance = this.cityBucksBalance,
+                laundryBalance = this.laundryBalance,
+                mealSwipes = this.mealSwipes
+            )
+        }
     }
 
     fun setQuery(query: String) {
@@ -149,11 +123,11 @@ class LoginViewModel @Inject constructor(
     }
 
     fun onLoginPressed() {
-        _loginLoadingFlow.value = true
+        _isLoginLoadingFlow.value = true
     }
 
     fun onLoginExited() {
-        _loginLoadingFlow.value = false
+        _isLoginLoadingFlow.value = false
     }
 
     fun onLoginWebViewSuccess(sessionId: String) {
@@ -170,7 +144,7 @@ class LoginViewModel @Inject constructor(
 
     private fun onNetworkFailure(action: NetworkAction, error: NetworkError) {
         _error.value = NetworkUiError.Failed(action, error)
-        _loginLoadingFlow.value = false
+        _isLoginLoadingFlow.value = false
     }
 
     /**

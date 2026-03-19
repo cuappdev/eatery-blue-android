@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,33 +22,29 @@ fun ProfileScreen(
     webViewEnabled: Boolean,
     onBackClick: () -> Unit
 ) {
-    val state =
-        loginViewModel.state.collectAsStateWithLifecycle(initialValue = LoginViewModel.State.Login()).value
-    val filteredTransactions =
-        loginViewModel.filteredTransactionsFlow.collectAsStateWithLifecycle(initialValue = emptyList()).value
+    val uiState = loginViewModel.uiState.collectAsStateWithLifecycle().value
 
     // todo - replace toasts with actual error state
-    if (state is LoginViewModel.State.Login) {
-        val error by loginViewModel.error.collectAsStateWithLifecycle()
+    if (uiState.isLoginState) {
         NetworkErrorToast(
-            error = error,
+            error = uiState.error,
             onErrorShown = loginViewModel::clearError
         )
     }
 
     ProfileScreenContent(
-        isLoginState = state is LoginViewModel.State.Login,
-        accountTypeBalance = state.getBalances(),
-        loading = state is LoginViewModel.State.Login && state.loading,
+        isLoginState = uiState.isLoginState,
+        accountTypeBalance = uiState.accountTypeBalance,
+        loading = uiState.isLoginState && uiState.loading,
         onLoginPressed = loginViewModel::onLoginPressed,
         onSuccess = loginViewModel::onLoginWebViewSuccess,
         webViewEnabled = webViewEnabled,
         onBackClick = onBackClick,
         onModalHidden = loginViewModel::onLoginExited,
         onSettingsClicked = onSettingsClicked,
-        accountFilter = if (state is LoginViewModel.State.Account) state.accountFilter else TransactionAccountType.BRBS,
-        filterText = if (state is LoginViewModel.State.Account) state.query else "",
-        filteredTransactions = filteredTransactions,
+        accountFilter = uiState.accountFilter,
+        filterText = uiState.filterText,
+        filteredTransactions = uiState.filteredTransactions,
         onQueryChanged = loginViewModel::setQuery,
         updateAccountFilter = loginViewModel::updateAccountFilter
     )

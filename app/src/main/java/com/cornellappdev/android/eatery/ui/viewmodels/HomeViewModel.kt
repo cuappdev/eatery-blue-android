@@ -18,10 +18,10 @@ import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -36,19 +36,22 @@ class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val authTokenRepository: AuthTokenRepository
 ) : ViewModel() {
+    data class HomeUiState(
+        val eateriesApiResponse: EateryApiResponse<List<Eatery>> = EateryApiResponse.Pending,
+        val favoriteEateries: List<Eatery> = emptyList(),
+        val nearestEateries: List<Eatery> = emptyList(),
+        val selectedFilters: List<Filter> = emptyList(),
+        val notificationFlowCompleted: Boolean = false,
+        val error: NetworkUiError? = null
+    )
+
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
 
     private val _error = MutableStateFlow<NetworkUiError?>(null)
-    val error = _error.asStateFlow()
 
     fun clearError() {
         _error.value = null
     }
-
-    /**
-     * A flow of filters applied to the screen.
-     */
-    val filtersFlow = _filtersFlow.asStateFlow()
 
     val homeScreenFilters = listOf(
         Filter.FromEateryFilter.North,
@@ -65,7 +68,7 @@ class HomeViewModel @Inject constructor(
      *
      * Sorted (by descending priority): Open/Closed, Alphabetically
      */
-    val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
+    private val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
         combine(
             eateryRepository.eateryFlow,
             _filtersFlow,
@@ -102,7 +105,7 @@ class HomeViewModel @Inject constructor(
     /**
      * A flow emitting all the eateries the user has favorited.
      */
-    val favoriteEateries =
+    private val favoriteEateries =
         combine(
             eateryRepository.eateryFlow,
             userRepository.favoriteEateriesFlow
@@ -126,7 +129,7 @@ class HomeViewModel @Inject constructor(
      *
      * TODO: (from old nearestEateries function) Walk times may not be updating automatically; may have to change location to use state.
      * */
-    val eateriesByDistance: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
+    private val eateriesByDistance: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
         when (apiResponse) {
             is EateryApiResponse.Error -> listOf()
             is EateryApiResponse.Pending -> listOf()
@@ -136,9 +139,32 @@ class HomeViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
-    val notificationFlowCompleted: StateFlow<Boolean> =
+    private val notificationFlowCompleted: StateFlow<Boolean> =
         userPreferencesRepository.notificationFlowCompletedFlow
             .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val homeDataState: Flow<HomeUiState> = combine(
+        eateryFlow,
+        favoriteEateries,
+        eateriesByDistance,
+        _filtersFlow,
+        notificationFlowCompleted
+    ) { eateriesApiResponse, favorites, nearest, filters, notificationFlowDone ->
+        HomeUiState(
+            eateriesApiResponse = eateriesApiResponse,
+            favoriteEateries = favorites,
+            nearestEateries = nearest,
+            selectedFilters = filters,
+            notificationFlowCompleted = notificationFlowDone
+        )
+    }
+
+    val uiState: StateFlow<HomeUiState> = combine(
+        homeDataState,
+        _error
+    ) { dataState, networkError ->
+        dataState.copy(error = networkError)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     var bigPopUp by mutableStateOf(false)
 
