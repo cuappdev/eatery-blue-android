@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.Result
+import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
-import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
@@ -113,61 +113,31 @@ class LoginViewModel @Inject constructor(
             _accountTypeFilterFlow
         ) { loadedUser, query, accountFilter ->
             if (loadedUser == null) return@combine emptyList()
-            val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-            loadedUser.transactions.orEmpty().mapNotNull { transaction ->
-                val safeTransaction = transaction ?: return@mapNotNull null
-                val accountName = safeTransaction.accountType ?: return@mapNotNull null
-                val mappedAccountType = accountName.toTransactionAccountType()
-                if (mappedAccountType != accountFilter) return@mapNotNull null
-
-                val date = safeTransaction.date ?: return@mapNotNull null
-                val location =
-                    safeTransaction.location?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
-                val amount = safeTransaction.amount ?: return@mapNotNull null
-                val parsedDate =
-                    runCatching { LocalDateTime.parse(date, inputFormatter) }.getOrNull()
-                        ?: return@mapNotNull null
-                if (parsedDate < LocalDateTime.now().minusDays(30)) return@mapNotNull null
-                if (!location.lowercase().contains(query.lowercase())) return@mapNotNull null
-
-                val formattedDate = formatDate(date)
-                if (formattedDate.isBlank()) return@mapNotNull null
-
-                DisplayTransaction(
-                    id = listOf(
-                        date,
-                        location,
-                        amount.toString(),
-                        mappedAccountType.name
-                    ).joinToString("|"),
-                    amount = amount,
-                    accountType = mappedAccountType,
-                    date = date,
-                    location = location,
-                    formattedDate = formattedDate
-                )
-            }
+            loadedUser.transactions.filter {
+                it.location.lowercase().contains(query.lowercase())
+                        && it.accountType == accountFilter
+                        && it.date >= LocalDateTime.now().minusDays(30)
+            }.map { it.toDisplayTransaction() }
         }
 
     companion object {
-        fun formatDate(dateString: String): String {
-            return try {
-                // Parse timezone-aware string like "2026-03-02T01:56:45.000+0000"
-                val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-                val zonedDateTime = java.time.ZonedDateTime.parse(dateString, inputFormatter)
-
-                // Convert to system's local timezone
-                val localZonedDateTime =
-                    zonedDateTime.withZoneSameInstant(java.time.ZoneId.systemDefault())
-                val localDateTime = localZonedDateTime.toLocalDateTime()
-
-                val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
-                outputFormatter.format(localDateTime)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                ""
-            }
+        private fun LocalDateTime.formatDate(): String {
+            val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
+            return outputFormatter.format(this)
         }
+
+        private fun Transaction.toDisplayTransaction(): DisplayTransaction = DisplayTransaction(
+            id = listOf(
+                this.date,
+                this.location,
+                this.amount.toString(),
+                this.accountType.name
+            ).joinToString("|"),
+            amount = this.amount,
+            accountType = this.accountType,
+            location = this.location,
+            formattedDate = this.date.formatDate()
+        )
     }
 
     fun onLoginPressed() = updateLoginLoadingState(true)

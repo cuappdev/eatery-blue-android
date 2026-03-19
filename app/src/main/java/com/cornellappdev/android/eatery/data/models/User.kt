@@ -4,6 +4,7 @@ package com.cornellappdev.android.eatery.data.models
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.time.LocalDateTime
 
 @JsonClass(generateAdapter = true)
 data class DeviceId(
@@ -49,14 +50,13 @@ data class Item(
     val events: List<String?>? = null
 )
 
-@JsonClass(generateAdapter = true)
 data class User(
-    @Json(name = "favorite_eateries") val favoriteEateries: List<Int?>? = emptyList(),
-    @Json(name = "favorite_items") val favoriteItems: List<String?>? = emptyList(),
+    @Json(name = "favorite_eateries") val favoriteEateries: List<Int> = emptyList(),
+    @Json(name = "favorite_items") val favoriteItems: List<String> = emptyList(),
     @Json(name = "brb_balance") val brbBalance: Double? = null,
     @Json(name = "city_bucks_balance") val cityBucksBalance: Double? = null,
-    @Json(name = "laundry_balance") val laundryBalance: Double? = null,
-    @Json(name = "transactions") val transactions: List<Transaction?>? = emptyList(),
+    @Json(name = "laundry_balance") val laundryBalance: Double? = 0.0,
+    @Json(name = "transactions") val transactions: List<Transaction> = emptyList(),
     @Json(name = "meal_swipes") val mealSwipes: Int? = null // todo - backend should make this
 )
 
@@ -79,7 +79,7 @@ data class SessionID(
 @JsonClass(generateAdapter = true)
 data class Financials(
     @Json(name = "accounts") val accounts: Accounts? = null,
-    @Json(name = "transactions") val transactions: List<Transaction?>? = null
+    @Json(name = "transactions") val transactions: List<TransactionResponse?>? = null
 )
 
 
@@ -97,12 +97,19 @@ data class Account(
 )
 
 @JsonClass(generateAdapter = true)
-data class Transaction(
+data class TransactionResponse(
     @Json(name = "amount") val amount: Double? = null,
     val tenderId: String? = null,
     @Json(name = "accountName") val accountType: AccountType? = null,
     @Json(name = "date") val date: String? = null,
     @Json(name = "location") val location: String? = null,
+)
+
+data class Transaction(
+    val amount: Double,
+    val accountType: TransactionAccountType,
+    val date: LocalDateTime,
+    val location: String
 )
 
 /**

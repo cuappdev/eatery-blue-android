@@ -9,7 +9,9 @@ import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.SessionID
+import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.User
+import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +20,9 @@ import kotlinx.coroutines.flow.update
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -170,14 +175,39 @@ class UserRepository @Inject constructor(
                 sessionId = SessionID(authTokenRepository.getSessionId())
             )
         }
+
         _loadedUser.value = User(
-            brbBalance = financials.accounts?.brbBalance?.balance,
-            cityBucksBalance = financials.accounts?.cityBucksBalance?.balance,
-            laundryBalance = financials.accounts?.laundryBalance?.balance,
-            transactions = financials.transactions,
+            brbBalance = financials.accounts?.brbBalance?.balance ?: 0.0,
+            cityBucksBalance = financials.accounts?.cityBucksBalance?.balance ?: 0.0,
+            laundryBalance = financials.accounts?.laundryBalance?.balance ?: 0.0,
+            transactions = financials.transactions?.filterNotNull()
+                ?.mapNotNull { transaction ->
+                    val date = transaction.date?.toLocalDateTime()
+                    if (transaction.amount == null ||
+                        transaction.accountType == null ||
+                        date == null ||
+                        transaction.location == null
+                    ) return@mapNotNull null
+                    Transaction(
+                        amount = transaction.amount,
+                        accountType = transaction.accountType.toTransactionAccountType(),
+                        date = date,
+                        location = transaction.location
+                    )
+                } ?: emptyList()
 //            mealSwipes = financials.accounts?.mealSwipes
         )
         financials
+    }
+
+    private fun String.toLocalDateTime(): LocalDateTime? {
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+        return runCatching {
+            ZonedDateTime
+                .parse(this, inputFormatter)
+                .withZoneSameInstant(java.time.ZoneId.systemDefault())
+                .toLocalDateTime()
+        }.getOrNull()
     }
 
     suspend fun setIsLoggedIn(isLoggedIn: Boolean) =

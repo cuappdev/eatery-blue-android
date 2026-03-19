@@ -250,7 +250,6 @@ private fun AccountPagePreview() = EateryPreview {
                 id = "2023-10-01T12:30:00.000Z|Cafe Jennie|5.25|BRBS",
                 amount = 5.25,
                 accountType = TransactionAccountType.BRBS,
-                date = "2023-10-01T12:30:00.000Z",
                 location = "Cafe Jennie",
                 formattedDate = "12:30 PM · Sunday, October 1"
             ),
@@ -258,7 +257,6 @@ private fun AccountPagePreview() = EateryPreview {
                 id = "2023-10-02T14:00:00.000Z|Morrison Dining|15.0|BRBS",
                 amount = 15.00,
                 accountType = TransactionAccountType.BRBS,
-                date = "2023-10-02T14:00:00.000Z",
                 location = "Morrison Dining",
                 formattedDate = "2:00 PM · Monday, October 2"
             )

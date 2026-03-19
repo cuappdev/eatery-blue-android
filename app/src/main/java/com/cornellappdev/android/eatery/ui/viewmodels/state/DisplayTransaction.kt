@@ -6,7 +6,6 @@ data class DisplayTransaction(
     val id: String,
     val amount: Double,
     val accountType: TransactionAccountType,
-    val date: String,
     val location: String,
     val formattedDate: String
 )
