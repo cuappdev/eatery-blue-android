@@ -235,7 +235,7 @@ fun SearchScreen(
                                             modifier = Modifier.padding(start = 16.dp)
                                         ) {
                                             items(items = favorites, key = { eatery ->
-                                                eatery.id!!
+                                                eatery.id ?: eatery.hashCode()
                                             }) { eatery ->
                                                 FavoriteItem(eatery, onEateryClick)
                                             }

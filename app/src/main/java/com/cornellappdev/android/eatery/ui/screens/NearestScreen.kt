@@ -104,7 +104,7 @@ fun NearestScreen(
                 items(
                     items = nearestEateries,
                     key = { eatery ->
-                        eatery.id!!
+                        eatery.id ?: eatery.hashCode()
                     }) { eatery ->
                     EateryCard(
                         eatery = eatery,

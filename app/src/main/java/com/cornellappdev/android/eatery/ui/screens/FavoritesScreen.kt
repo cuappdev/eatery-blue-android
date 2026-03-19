@@ -203,7 +203,7 @@ private fun ColumnScope.MainScrollableContent(
             items(
                 items = favoriteEateries,
                 key = { eatery ->
-                    eatery.id!!
+                    eatery.id ?: eatery.hashCode()
                 }) { eatery ->
 
                 EateryCard(
