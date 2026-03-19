@@ -16,6 +16,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -29,6 +30,8 @@ class SearchViewModel @Inject constructor(
     private val eateryRepository: EateryRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
+    private val eateryFlowCache = mutableMapOf<Int, StateFlow<EateryApiResponse<Eatery>>>()
+
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
 
     private val _error = MutableStateFlow<NetworkUiError?>(null)
@@ -179,6 +182,13 @@ class SearchViewModel @Inject constructor(
         userPreferencesRepository.addRecentSearch(eateryId ?: 0)
     }
 
-    fun openEatery(eateryId: Int) = eateryRepository.getEateryFlow(eateryId)
+    fun observeEatery(eateryId: Int): StateFlow<EateryApiResponse<Eatery>> =
+        eateryFlowCache.getOrPut(eateryId) {
+            eateryRepository.getEateryFlow(eateryId).stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = EateryApiResponse.Pending
+            )
+        }
 
 }

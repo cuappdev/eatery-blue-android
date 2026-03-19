@@ -256,7 +256,7 @@ fun SearchScreen(
 
                         recentSearches.forEach { eateryId ->
                             val eateryResponse =
-                                searchViewModel.openEatery(eateryId).collectAsStateWithLifecycle(
+                                searchViewModel.observeEatery(eateryId).collectAsStateWithLifecycle(
                                     initialValue = EateryApiResponse.Pending
                                 ).value
                             if (eateryResponse is EateryApiResponse.Success) {

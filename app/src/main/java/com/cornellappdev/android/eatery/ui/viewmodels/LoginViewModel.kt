@@ -14,10 +14,12 @@ import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -57,20 +59,10 @@ class LoginViewModel @Inject constructor(
     }
 
     private val _queryFlow = MutableStateFlow("")
-
-    fun setQuery(query: String) {
-        _queryFlow.value = query
-    }
-
     private val _accountTypeFilterFlow = MutableStateFlow(TransactionAccountType.BRBS)
-
-    fun updateAccountFilter(newAccountType: TransactionAccountType) {
-        _accountTypeFilterFlow.value = newAccountType
-    }
-
     private val _loginLoadingFlow = MutableStateFlow(false)
 
-    val state: Flow<State> = combine(
+    val state: StateFlow<State> = combine(
         userRepository.loadedUser,
         _queryFlow,
         _accountTypeFilterFlow,
@@ -89,14 +81,14 @@ class LoginViewModel @Inject constructor(
                 loading = loginLoading
             )
         }
-    }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = State.Login()
+    )
 
     private val _error = MutableStateFlow<NetworkUiError?>(null)
     val error = _error.asStateFlow()
-
-    fun clearError() {
-        _error.value = null
-    }
 
     init {
         viewModelScope.launch {
@@ -106,8 +98,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-
-    val filteredTransactionsFlow: Flow<List<DisplayTransaction>> =
+    val filteredTransactionsFlow: StateFlow<List<DisplayTransaction>> =
         combine(
             userRepository.loadedUser,
             _queryFlow,
@@ -119,7 +110,11 @@ class LoginViewModel @Inject constructor(
                         && it.accountType == accountFilter
                         && it.date >= LocalDateTime.now().minusDays(30)
             }.map { it.toDisplayTransaction() }
-        }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
 
     companion object {
         private fun LocalDateTime.formatDate(): String {
@@ -139,6 +134,18 @@ class LoginViewModel @Inject constructor(
             location = this.location,
             formattedDate = this.date.formatDate()
         )
+    }
+
+    fun setQuery(query: String) {
+        _queryFlow.value = query
+    }
+
+    fun updateAccountFilter(newAccountType: TransactionAccountType) {
+        _accountTypeFilterFlow.value = newAccountType
+    }
+
+    fun clearError() {
+        _error.value = null
     }
 
     fun onLoginPressed() {
