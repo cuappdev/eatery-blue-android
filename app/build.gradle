@@ -17,12 +17,12 @@ secretsProperties.load(new FileInputStream(secretsPropertiesFile))
 
 android {
     namespace 'com.cornellappdev.android.eatery'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.cornellappdev.android.eatery"
         minSdk 28
-        targetSdk 34
+        targetSdk 36
         versionCode 76
         versionName "1.3.0"
 
