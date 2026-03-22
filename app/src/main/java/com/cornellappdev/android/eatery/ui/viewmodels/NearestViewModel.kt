@@ -13,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -28,8 +27,13 @@ class NearestViewModel @Inject constructor(
     eateryRepository: EateryRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
+    data class NearestUiState(
+        val nearestEateries: List<Eatery> = emptyList(),
+        val favoriteEateries: List<Eatery> = emptyList(),
+        val error: NetworkUiError? = null
+    )
+
     private val _error = MutableStateFlow<NetworkUiError?>(null)
-    val error = _error.asStateFlow()
 
     fun clearError() {
         _error.value = null
@@ -38,7 +42,7 @@ class NearestViewModel @Inject constructor(
     /**
      * A flow emitting all the eateries the user has favorited.
      */
-    val favoriteEateries =
+    private val favoriteEateries =
         combine(
             eateryRepository.eateryFlow,
             userRepository.favoriteEateriesFlow
@@ -59,7 +63,7 @@ class NearestViewModel @Inject constructor(
      *
      * Sorted (by descending priority): Open/Closed, Walk Time
      */
-    val nearestEateries: StateFlow<List<Eatery>> =
+    private val nearestEateries: StateFlow<List<Eatery>> =
         eateryRepository.eateryFlow.map { apiResponse ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> listOf()
@@ -71,6 +75,18 @@ class NearestViewModel @Inject constructor(
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+
+    val uiState: StateFlow<NearestUiState> = combine(
+        nearestEateries,
+        favoriteEateries,
+        _error
+    ) { nearest, favorites, networkError ->
+        NearestUiState(
+            nearestEateries = nearest,
+            favoriteEateries = favorites,
+            error = networkError
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NearestUiState())
 
     /**
      * Changes the favorite status of the given eatery.

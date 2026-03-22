@@ -121,15 +121,15 @@ fun HomeScreen(
     onNotificationsClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val favorites = homeViewModel.favoriteEateries.collectAsStateWithLifecycle().value
-    val nearestEateries = homeViewModel.eateriesByDistance.collectAsStateWithLifecycle().value
-    val eateriesApiResponse = homeViewModel.eateryFlow.collectAsStateWithLifecycle().value
-    val filters = homeViewModel.filtersFlow.collectAsStateWithLifecycle().value
-    val error by homeViewModel.error.collectAsStateWithLifecycle()
-    val notificationFlowCompleted by homeViewModel.notificationFlowCompleted.collectAsStateWithLifecycle()
+    val uiState = homeViewModel.uiState.collectAsStateWithLifecycle().value
+    val favorites = uiState.favoriteEateries
+    val nearestEateries = uiState.nearestEateries
+    val eateriesApiResponse = uiState.eateriesApiResponse
+    val filters = uiState.selectedFilters
+    val notificationFlowCompleted = uiState.notificationFlowCompleted
 
     NetworkErrorToast(
-        error = error,
+        error = uiState.error,
         onErrorShown = homeViewModel::clearError
     )
 
