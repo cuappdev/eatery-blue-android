@@ -2,21 +2,14 @@ package com.cornellappdev.android.eatery.data.repositories
 
 import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.DeviceId
-import com.cornellappdev.android.eatery.data.models.LoginPIN
-import com.cornellappdev.android.eatery.data.models.LoginRequest
-import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.data.models.RefreshRequest
 import com.cornellappdev.android.eatery.data.models.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import retrofit2.HttpException
-import java.io.IOException
-import java.net.SocketTimeoutException
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.random.Random
 
 @Singleton
 class AuthTokenRepository @Inject constructor(
@@ -36,7 +29,7 @@ class AuthTokenRepository @Inject constructor(
      * Fetches initial tokens from the API based on device ID.
      * Called on app launch.
      */
-    suspend fun getTokens(): Result<Unit> = safeRequest {
+    suspend fun getTokens(): Result<Unit> = safeNetworkRequest {
         val deviceId = getDeviceId()
         val response = networkApi.verifyToken(DeviceId(deviceId))
         val accessToken = response.accessToken
@@ -57,7 +50,7 @@ class AuthTokenRepository @Inject constructor(
         _tokensConfiguredFlow.value = true
     }
 
-    suspend fun refreshTokens(): Result<Unit> = safeRequest {
+    suspend fun refreshTokens(): Result<Unit> = safeNetworkRequest {
         val deviceId = getDeviceId()
         val refreshToken = userPreferencesRepository.refreshTokenFlow.firstOrNull()
             ?: throw IllegalStateException("Refresh token not available")
@@ -87,76 +80,6 @@ class AuthTokenRepository @Inject constructor(
                 ?: throw IllegalStateException("Access token not available")
         )
 
-    suspend fun linkGETAccount(sessionId: String): Result<Unit> {
-        userPreferencesRepository.setSessionId(sessionId)
-        val pin = Random.nextInt(10000)
-        userPreferencesRepository.setPin(pin)
-        return tryRequestWithResult {
-            networkApi.authorizeUser(
-                loginRequest = LoginRequest(pin.toString(), sessionId)
-            )
-        }
-    }
-
-    suspend fun refreshLogin(pin: Int): Result<Unit> = tryRequestWithResult {
-        val newSessionId = networkApi.refreshAuthorizedUser(
-            loginPIN = LoginPIN(pin.toString())
-        ).sessionId
-        if (newSessionId == null) {
-            throw Exception("Session ID is null")
-        } else {
-            userPreferencesRepository.setSessionId(newSessionId)
-        }
-    }
-
-    suspend fun getSessionId(): String = userPreferencesRepository.sessionIdFlow.firstOrNull() ?: ""
-
-    suspend fun getPin(): Int = userPreferencesRepository.pinFlow.firstOrNull() ?: 0
-
-    suspend fun clearSessionId() = userPreferencesRepository.setSessionId("")
-
-    /**
-     * Converts exceptions into appropriate [NetworkError] types.
-     */
-    private fun handleException(e: Exception): NetworkError = when (e) {
-        is HttpException -> when (e.code()) {
-            401, 403 -> NetworkError.Unauthorized
-            in 400..599 -> NetworkError.ServerError(e.code(), e.message())
-            else -> NetworkError.Unknown(e)
-        }
-
-        is SocketTimeoutException -> NetworkError.Timeout
-        is IOException -> NetworkError.NetworkFailure
-        else -> NetworkError.Unknown(e)
-    }
-
-    /**
-     * Safely executes a network request and wraps the result in a [Result] object.
-     */
-    private suspend fun <T> safeRequest(request: suspend () -> T): Result<T> {
-        return try {
-            Result.Success(request())
-        } catch (e: Exception) {
-            Result.Error(handleException(e))
-        }
-    }
-
-    /**
-     * Tries to make the given request, and if it fails, refreshes tokens and tries again.
-     * Returns a [Result] wrapping the response or error.
-     */
-    private suspend fun <T> tryRequestWithResult(request: suspend () -> T): Result<T> {
-        return try {
-            Result.Success(request())
-        } catch (_: Exception) {
-            try {
-                refreshTokens()
-                Result.Success(request())
-            } catch (retryException: Exception) {
-                Result.Error(handleException(retryException))
-            }
-        }
-    }
 
     private fun prependBearer(str: String) = "Bearer $str"
 }

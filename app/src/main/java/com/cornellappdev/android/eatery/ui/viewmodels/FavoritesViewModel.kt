@@ -21,7 +21,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -65,11 +64,15 @@ class FavoritesViewModel @Inject constructor(
     eateryRepository: EateryRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
+    data class FavoritesUiState(
+        val screenState: FavoritesScreenViewState = FavoritesScreenViewState.Loading,
+        val error: NetworkUiError? = null
+    )
+
     private val selectedEateryFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
     private val selectedItemFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
 
     private val _error = MutableStateFlow<NetworkUiError?>(null)
-    val error = _error.asStateFlow()
 
     fun clearError() {
         _error.value = null
@@ -78,7 +81,7 @@ class FavoritesViewModel @Inject constructor(
     /**
      * A flow emitting the latest UI state
      */
-    val favoritesScreenViewState: StateFlow<FavoritesScreenViewState> = combine(
+    private val favoritesScreenViewState: StateFlow<FavoritesScreenViewState> = combine(
         eateryRepository.eateryFlow,
         userRepository.favoriteEateriesFlow,
         userRepository.favoriteItemsFlow,
@@ -170,6 +173,16 @@ class FavoritesViewModel @Inject constructor(
             }
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, FavoritesScreenViewState.Loading)
+
+    val uiState: StateFlow<FavoritesUiState> = combine(
+        favoritesScreenViewState,
+        _error
+    ) { screenState, networkError ->
+        FavoritesUiState(
+            screenState = screenState,
+            error = networkError
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), FavoritesUiState())
 
     private fun String.toSortOrder(): Int = when (this) {
         "Breakfast" -> 1

@@ -5,19 +5,20 @@ import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.FavoriteEatery
 import com.cornellappdev.android.eatery.data.models.FavoriteItem
 import com.cornellappdev.android.eatery.data.models.Financials
-import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.SessionID
+import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.User
+import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
-import retrofit2.HttpException
-import java.io.IOException
-import java.net.SocketTimeoutException
+import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,7 +26,8 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(
     private val networkApi: NetworkApi,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val authTokenRepository: AuthTokenRepository
+    private val authTokenRepository: AuthTokenRepository,
+    private val getAccountRepository: GETAccountRepository
 ) {
     private val _loadedUser: MutableStateFlow<User?> = MutableStateFlow(null)
 
@@ -64,7 +66,7 @@ class UserRepository @Inject constructor(
             _favoriteEateriesFlow.value = matches.mapNotNull { it.eateryName }
             _favoriteItemsFlow.value = run {
                 val items: List<String> =
-                    matches.flatMap { it.items.orEmpty() }.mapNotNull { it.name }
+                    matches.flatMap { it.items.orEmpty() }.mapNotNull { it?.name }
                 items.toList()
             }
         }
@@ -161,69 +163,62 @@ class UserRepository @Inject constructor(
         var financials: Financials
         try {
             financials = networkApi.getFinancials(
-                sessionId = SessionID(authTokenRepository.getSessionId())
+                sessionId = SessionID(getAccountRepository.getSessionId())
             )
         } catch (_: Exception) {
-            val pin = authTokenRepository.getPin()
-            authTokenRepository.refreshLogin(pin = pin)
+            val pin = getAccountRepository.getPin() ?: throw IllegalStateException()
+            getAccountRepository.refreshLogin(pin = pin)
             financials = networkApi.getFinancials(
-                sessionId = SessionID(authTokenRepository.getSessionId())
+                sessionId = SessionID(getAccountRepository.getSessionId())
             )
         }
+
         _loadedUser.value = User(
-            brbBalance = financials.accounts?.brbBalance?.balance,
-            cityBucksBalance = financials.accounts?.cityBucksBalance?.balance,
-            laundryBalance = financials.accounts?.laundryBalance?.balance,
-            transactions = financials.transactions,
+            brbBalance = financials.accounts?.brbBalance?.balance ?: 0.0,
+            cityBucksBalance = financials.accounts?.cityBucksBalance?.balance ?: 0.0,
+            laundryBalance = financials.accounts?.laundryBalance?.balance ?: 0.0,
+            transactions = financials.transactions?.filterNotNull()
+                ?.mapNotNull { transaction ->
+                    val date = transaction.date?.toLocalDateTime()
+                    if (transaction.amount == null ||
+                        transaction.accountType == null ||
+                        date == null ||
+                        transaction.location == null
+                    ) return@mapNotNull null
+                    Transaction(
+                        amount = transaction.amount,
+                        accountType = transaction.accountType.toTransactionAccountType(),
+                        date = date,
+                        location = transaction.location
+                    )
+                } ?: emptyList()
 //            mealSwipes = financials.accounts?.mealSwipes
         )
         financials
     }
 
-    suspend fun setIsLoggedIn(isLoggedIn: Boolean) =
-        userPreferencesRepository.setIsLoggedIn(isLoggedIn)
-
-    suspend fun isLoggedIn(): Boolean =
-        userPreferencesRepository.isLoggedInFlow.firstOrNull() ?: false
+    private fun String.toLocalDateTime(): LocalDateTime? {
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
+        return runCatching {
+            ZonedDateTime
+                .parse(this, inputFormatter)
+                .withZoneSameInstant(java.time.ZoneId.systemDefault())
+                .toLocalDateTime()
+        }.getOrNull()
+    }
 
     suspend fun logout() {
         _loadedUser.value = null
-        authTokenRepository.clearSessionId()
-        userPreferencesRepository.setIsLoggedIn(false)
+        getAccountRepository.clearSessionId()
+        getAccountRepository.setIsLoggedIn(false)
     }
 
     suspend fun hasOnboarded(): Boolean =
         userPreferencesRepository.hasOnboardedFlow.firstOrNull() ?: false
 
-    /**
-     * Tries to make the given request, and if it fails, refreshes tokens and tries again.
-     * Returns a [Result] wrapping the response or error.
-     */
-    private suspend fun <T> tryRequestWithResult(request: suspend () -> T): Result<T> {
-        return try {
-            Result.Success(request())
-        } catch (_: Exception) {
-            try {
-                authTokenRepository.refreshTokens()
-                Result.Success(request())
-            } catch (retryException: Exception) {
-                Result.Error(handleException(retryException))
-            }
-        }
-    }
-
-    /**
-     * Converts exceptions into appropriate [NetworkError] types.
-     */
-    private fun handleException(e: Exception): NetworkError = when (e) {
-        is HttpException -> when (e.code()) {
-            401, 403 -> NetworkError.Unauthorized
-            in 400..599 -> NetworkError.ServerError(e.code(), e.message())
-            else -> NetworkError.Unknown(e)
-        }
-
-        is SocketTimeoutException -> NetworkError.Timeout
-        is IOException -> NetworkError.NetworkFailure
-        else -> NetworkError.Unknown(e)
-    }
+    private suspend fun <T> tryRequestWithResult(request: suspend () -> T): Result<T> =
+        tryRequestWithTokenRefresh(
+            request = request,
+            refreshTokens = authTokenRepository::refreshTokens
+        )
 }

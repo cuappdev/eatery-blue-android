@@ -35,7 +35,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -89,17 +88,15 @@ fun SearchScreen(
     )
     val coroutineScope = rememberCoroutineScope()
 
-    val query by searchViewModel.searchFlow.collectAsStateWithLifecycle()
-    val favorites = searchViewModel.favoriteEateries.collectAsStateWithLifecycle().value
-    val recentSearches =
-        searchViewModel.recentSearches.collectAsStateWithLifecycle().value.reversed().take(10)
-            .distinct()
-    val filters = searchViewModel.filtersFlow.collectAsStateWithLifecycle().value
-    val searchResponse = searchViewModel.searchResultEateries.collectAsStateWithLifecycle().value
-    val error by searchViewModel.error.collectAsStateWithLifecycle()
+    val uiState = searchViewModel.uiState.collectAsStateWithLifecycle().value
+    val query = uiState.query
+    val favorites = uiState.favoriteEateries
+    val recentSearches = uiState.recentSearches
+    val filters = uiState.filters
+    val searchResponse = uiState.searchResponse
 
     NetworkErrorToast(
-        error = error,
+        error = uiState.error,
         onErrorShown = searchViewModel::clearError
     )
 
@@ -123,210 +120,212 @@ fun SearchScreen(
 
     ModalBottomSheetLayout(
         sheetState = modalBottomSheetState, sheetShape = RoundedCornerShape(
-        bottomStart = 0.dp, bottomEnd = 0.dp, topStart = 12.dp, topEnd = 12.dp
-    ), sheetElevation = 8.dp, sheetContent = {
-        PaymentMethodsBottomSheet(selectedFilters = selectedPaymentMethodFilters, hide = {
-            coroutineScope.launch {
-                modalBottomSheetState.hide()
-            }
-        })
-    }, content = { ->
-        val listState = rememberLazyListState()
-
-        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
-            stickyHeader {
-
-                Column(modifier = Modifier.background(Color.White)) {
-                    SearchBar(
-                        searchText = query,
-                        onSearchTextChange = {
-                            searchViewModel.queryEateries(it)
-                        },
-                        placeholderText = "Search for grub...",
-                        modifier = Modifier.padding(
-                            top = 64.dp,
-                            bottom = 6.dp,
-                            start = 16.dp,
-                            end = 16.dp
-                        ),
-                        onCancelClicked = {},
-                        focusRequester = focusRequester,
-                        enabled = true
-                    )
-
-                    Column(
-                        modifier = Modifier
-                            .animateContentSize()
-                            .fillMaxWidth()
-                    ) {
-                        AnimatedVisibility(
-                            visible = query.isNotEmpty(),
-                            enter = popIn(),
-                            exit = popOut()
-                        ) {
-                            FilterRow(
-                                currentFiltersSelected = filters,
-                                onFilterClicked = { filter ->
-                                    searchViewModel.toggleFilter(filter)
-                                },
-                                filters = searchViewModel.searchScreenFilters,
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(GrayZero)
-                    )
+            bottomStart = 0.dp, bottomEnd = 0.dp, topStart = 12.dp, topEnd = 12.dp
+        ), sheetElevation = 8.dp, sheetContent = {
+            PaymentMethodsBottomSheet(selectedFilters = selectedPaymentMethodFilters, hide = {
+                coroutineScope.launch {
+                    modalBottomSheetState.hide()
                 }
-            }
+            })
+        }, content = { ->
+            val listState = rememberLazyListState()
 
-            item {
-                if (query.isEmpty()) {
-                    if (searchResponse is EateryApiResponse.Success) {
-                        // FAVORITES
-                        Box(
+            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+                stickyHeader {
+
+                    Column(modifier = Modifier.background(Color.White)) {
+                        SearchBar(
+                            searchText = query,
+                            onSearchTextChange = {
+                                searchViewModel.queryEateries(it)
+                            },
+                            placeholderText = "Search for grub...",
+                            modifier = Modifier.padding(
+                                top = 64.dp,
+                                bottom = 6.dp,
+                                start = 16.dp,
+                                end = 16.dp
+                            ),
+                            onCancelClicked = {},
+                            focusRequester = focusRequester,
+                            enabled = true
+                        )
+
+                        Column(
                             modifier = Modifier
                                 .animateContentSize()
                                 .fillMaxWidth()
                         ) {
                             AnimatedVisibility(
-                                visible = favorites.isNotEmpty(),
+                                visible = query.isNotEmpty(),
                                 enter = popIn(),
                                 exit = popOut()
                             ) {
-                                Column {
-                                    Row(
-                                        modifier = Modifier
-                                            .padding(
-                                                start = 16.dp,
-                                                end = 16.dp,
-                                                bottom = 12.dp,
-                                                top = 12.dp
-                                            )
-                                            .fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = "Favorites", style = EateryBlueTypography.h4
-                                        )
-                                        IconButton(
-                                            onClick = {
-                                                onFavoriteClick()
-                                            },
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .background(
-                                                    color = GrayZero,
-                                                    shape = CircleShape
-                                                )
-                                        ) {
-                                            Icon(
-                                                Icons.Default.ArrowForward,
-                                                contentDescription = "Favorites",
-                                                tint = Color.Black
-                                            )
-                                        }
-                                    }
-
-                                    LazyRow(
-                                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                        modifier = Modifier.padding(start = 16.dp)
-                                    ) {
-                                        items(items = favorites, key = { eatery ->
-                                            eatery.id!!
-                                        }) { eatery ->
-                                            FavoriteItem(eatery, onEateryClick)
-                                        }
-                                    }
-                                }
+                                FilterRow(
+                                    currentFiltersSelected = filters,
+                                    onFilterClicked = { filter ->
+                                        searchViewModel.toggleFilter(filter)
+                                    },
+                                    filters = searchViewModel.searchScreenFilters,
+                                )
                             }
                         }
 
-                        // RECENT SEARCHES
-                        Text(
-                            modifier = Modifier.padding(start = 16.dp, top = 12.dp),
-                            text = "Recent Searches",
-                            style = EateryBlueTypography.h4
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(GrayZero)
                         )
+                    }
+                }
 
-                        recentSearches.forEach { eateryId ->
-                            val eateryResponse =
-                                searchViewModel.openEatery(eateryId).collectAsStateWithLifecycle(
-                                    initialValue = EateryApiResponse.Pending
-                                ).value
-                            if (eateryResponse is EateryApiResponse.Success) {
-                                Box(
-                                    Modifier.padding(
-                                        horizontal = 16.dp, vertical = 12.dp
-                                    )
+                item {
+                    if (query.isEmpty()) {
+                        if (searchResponse is EateryApiResponse.Success) {
+                            // FAVORITES
+                            Box(
+                                modifier = Modifier
+                                    .animateContentSize()
+                                    .fillMaxWidth()
+                            ) {
+                                AnimatedVisibility(
+                                    visible = favorites.isNotEmpty(),
+                                    enter = popIn(),
+                                    exit = popOut()
                                 ) {
-                                    val eatery = eateryResponse.data
-                                    EateryCard(
-                                        eatery = eatery,
-                                        isFavorite = favorites.any { favoriteEatery ->
-                                            favoriteEatery.id == eatery.id
-                                        },
-                                        onFavoriteClick = {
-                                            if (eatery.id != null && eatery.name != null) {
-                                                if (it) {
-                                                    searchViewModel.addFavorite(
-                                                        eatery.id,
-                                                        eatery.name
+                                    Column {
+                                        Row(
+                                            modifier = Modifier
+                                                .padding(
+                                                    start = 16.dp,
+                                                    end = 16.dp,
+                                                    bottom = 12.dp,
+                                                    top = 12.dp
+                                                )
+                                                .fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "Favorites", style = EateryBlueTypography.h4
+                                            )
+                                            IconButton(
+                                                onClick = {
+                                                    onFavoriteClick()
+                                                },
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .background(
+                                                        color = GrayZero,
+                                                        shape = CircleShape
                                                     )
-                                                } else {
-                                                    searchViewModel.removeFavorite(
-                                                        eatery.id,
-                                                        eatery.name
-                                                    )
-                                                }
+                                            ) {
+                                                Icon(
+                                                    Icons.Default.ArrowForward,
+                                                    contentDescription = "Favorites",
+                                                    tint = Color.Black
+                                                )
                                             }
-                                        }) {
-                                        searchViewModel.addRecentSearch(it.id)
-                                        onEateryClick(it)
+                                        }
+
+                                        LazyRow(
+                                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                            modifier = Modifier.padding(start = 16.dp)
+                                        ) {
+                                            items(items = favorites, key = { eatery ->
+                                                eatery.id ?: eatery.hashCode()
+                                            }) { eatery ->
+                                                FavoriteItem(eatery, onEateryClick)
+                                            }
+                                        }
                                     }
                                 }
                             }
 
-
-                        }
-                    }
-                } else if (searchResponse is EateryApiResponse.Success) {
-                    // SEARCH QUERY
-                    val searchEateries = searchResponse.data
-                    searchEateries.forEach { eatery ->
-                        Box(
-                            Modifier.padding(
-                                horizontal = 16.dp, vertical = 12.dp
+                            // RECENT SEARCHES
+                            Text(
+                                modifier = Modifier.padding(start = 16.dp, top = 12.dp),
+                                text = "Recent Searches",
+                                style = EateryBlueTypography.h4
                             )
-                        ) {
-                            EateryCard(
-                                eatery = eatery,
-                                isFavorite = favorites.any { favoriteEatery ->
-                                    favoriteEatery.id == eatery.id
-                                },
-                                onFavoriteClick = {
-                                    if (eatery.id != null && eatery.name != null) {
-                                        if (it) {
-                                            searchViewModel.addFavorite(eatery.id, eatery.name)
-                                        } else {
-                                            searchViewModel.removeFavorite(eatery.id, eatery.name)
+
+                            recentSearches.forEach { eateryId ->
+                                val eateryResponse =
+                                    searchViewModel.observeEatery(eateryId)
+                                        .collectAsStateWithLifecycle().value
+                                if (eateryResponse is EateryApiResponse.Success) {
+                                    Box(
+                                        Modifier.padding(
+                                            horizontal = 16.dp, vertical = 12.dp
+                                        )
+                                    ) {
+                                        val eatery = eateryResponse.data
+                                        EateryCard(
+                                            eatery = eatery,
+                                            isFavorite = favorites.any { favoriteEatery ->
+                                                favoriteEatery.id == eatery.id
+                                            },
+                                            onFavoriteClick = {
+                                                if (eatery.id != null && eatery.name != null) {
+                                                    if (it) {
+                                                        searchViewModel.addFavorite(
+                                                            eatery.id,
+                                                            eatery.name
+                                                        )
+                                                    } else {
+                                                        searchViewModel.removeFavorite(
+                                                            eatery.id,
+                                                            eatery.name
+                                                        )
+                                                    }
+                                                }
+                                            }) {
+                                            searchViewModel.addRecentSearch(it.id)
+                                            onEateryClick(it)
                                         }
                                     }
-                                }) {
-                                searchViewModel.addRecentSearch(it.id)
-                                onEateryClick(it)
+                                }
+
+
+                            }
+                        }
+                    } else if (searchResponse is EateryApiResponse.Success) {
+                        // SEARCH QUERY
+                        val searchEateries = searchResponse.data
+                        searchEateries.forEach { eatery ->
+                            Box(
+                                Modifier.padding(
+                                    horizontal = 16.dp, vertical = 12.dp
+                                )
+                            ) {
+                                EateryCard(
+                                    eatery = eatery,
+                                    isFavorite = favorites.any { favoriteEatery ->
+                                        favoriteEatery.id == eatery.id
+                                    },
+                                    onFavoriteClick = {
+                                        if (eatery.id != null && eatery.name != null) {
+                                            if (it) {
+                                                searchViewModel.addFavorite(eatery.id, eatery.name)
+                                            } else {
+                                                searchViewModel.removeFavorite(
+                                                    eatery.id,
+                                                    eatery.name
+                                                )
+                                            }
+                                        }
+                                    }) {
+                                    searchViewModel.addRecentSearch(it.id)
+                                    onEateryClick(it)
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-    })
+        })
 }
 
 /**
