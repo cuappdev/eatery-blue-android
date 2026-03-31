@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
@@ -45,8 +44,6 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusBotViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun CompareMenusBotSheet(
     onDismiss: () -> Unit,

@@ -41,7 +41,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -59,7 +58,6 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun FavoritesScreen(
     favoriteViewModel: FavoritesViewModel = hiltViewModel(),
@@ -210,7 +208,7 @@ private fun ColumnScope.MainScrollableContent(
                 EateryCard(
                     eatery = eatery,
                     isFavorite = true,
-                    modifier = Modifier.animateItemPlacement(),
+                    modifier = Modifier.animateItem(),
                     onFavoriteClick = {
                         if (!it) {
                             eatery.id?.let { id ->
@@ -232,7 +230,7 @@ private fun ColumnScope.MainScrollableContent(
             items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
                 ItemFavoritesCard(
                     itemFavoritesCardViewState,
-                    modifier = Modifier.animateItemPlacement(),
+                    modifier = Modifier.animateItem(),
                     onFavoriteClick = {
                         removeFavoriteMenuItem(
                             itemFavoritesCardViewState.itemName

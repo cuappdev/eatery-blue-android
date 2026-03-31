@@ -4,7 +4,6 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
@@ -15,7 +14,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.TransactionWithFormattedDate
 
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ProfileScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),

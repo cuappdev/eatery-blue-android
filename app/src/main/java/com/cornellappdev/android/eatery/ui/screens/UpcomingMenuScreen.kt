@@ -39,7 +39,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eatery.ui.components.general.Filter
@@ -66,7 +65,7 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(
     ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class
+    ExperimentalAnimationApi::class
 )
 
 @Composable

@@ -24,7 +24,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -39,7 +38,6 @@ import com.valentinilk.shimmer.rememberShimmer
 /**
  * The Nearest to You screen that shows eateries sorted by walk times.
  */
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun NearestScreen(
     nearestViewModel: NearestViewModel = hiltViewModel(),

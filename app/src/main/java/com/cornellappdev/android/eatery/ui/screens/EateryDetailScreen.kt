@@ -80,7 +80,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -133,7 +132,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),

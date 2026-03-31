@@ -72,7 +72,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
@@ -107,8 +106,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(
     ExperimentalMaterialApi::class,
-    ExperimentalPermissionsApi::class,
-    ExperimentalLifecycleComposeApi::class,
+    ExperimentalPermissionsApi::class
 )
 @Composable
 fun HomeScreen(

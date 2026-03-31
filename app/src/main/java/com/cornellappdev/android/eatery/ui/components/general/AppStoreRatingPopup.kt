@@ -42,7 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -53,7 +52,6 @@ import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun AppStoreRatingPopup(
     navigateToSupport: () -> Unit,

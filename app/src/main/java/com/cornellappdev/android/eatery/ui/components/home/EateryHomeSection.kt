@@ -153,7 +153,7 @@ private fun EaterySectionRow(
                 isFavorite = favoritesDecider(eatery),
                 modifier = Modifier
                     .fillParentMaxWidth(0.85f)
-                    .animateItemPlacement(),
+                    .animateItem(),
                 onFavoriteClick = {
                     onFavoriteClick(eatery, it)
                 }) {

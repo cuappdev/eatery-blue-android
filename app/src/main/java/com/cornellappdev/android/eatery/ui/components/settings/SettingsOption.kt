@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -41,7 +41,7 @@ fun SettingsOption(
             .clickable(
                 onClick = { onClick() },
                 interactionSource = interactionSource,
-                indication = rememberRipple()
+                indication = ripple()
             ),
         verticalAlignment = CenterVertically
     ) {

@@ -32,7 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -49,7 +49,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -72,7 +71,6 @@ enum class EateryCardStyle {
 
 @OptIn(
     ExperimentalMaterialApi::class,
-    ExperimentalLifecycleComposeApi::class,
 )
 @Composable
 fun EateryCard(
@@ -263,7 +261,7 @@ fun GridViewFavoriteWidget(
             .size(40.dp)
             .clickable(
                 interactionSource = interactionSource,
-                indication = rememberRipple(radius = 20.dp),
+                indication = ripple(radius = 20.dp),
                 onClick = onClick
             ),
         shape = CircleShape,

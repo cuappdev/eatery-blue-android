@@ -62,7 +62,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -86,7 +85,6 @@ import java.math.BigDecimal
 @OptIn(
     ExperimentalMaterialApi::class,
     ExperimentalFoundationApi::class,
-    ExperimentalLifecycleComposeApi::class
 )
 @Composable
 fun CompareMenusScreen(
@@ -129,8 +127,8 @@ fun CompareMenusScreen(
                 .height(1.dp)
         )
         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-        val firstPagerState = rememberPagerState()
-        val secondPagerState = rememberPagerState()
+        val firstPagerState = rememberPagerState(pageCount = { eateries.size })
+        val secondPagerState = rememberPagerState(pageCount = { eateries.size })
 
         val scrollingFollowingPair by remember {
             derivedStateOf {
@@ -233,7 +231,6 @@ private fun MenuPager(
 ) {
     var sheetContent1 = sheetContent
     HorizontalPager(
-        pageCount = eateries.size,
         state = firstPagerState,
         modifier = Modifier.fillMaxHeight(0.92f),
         flingBehavior = PagerDefaults.flingBehavior(
@@ -490,7 +487,6 @@ private fun TitlePager(
     secondPagerState: PagerState
 ) {
     HorizontalPager(
-        pageCount = eateries.size,
         state = secondPagerState,
         modifier = Modifier
             .fillMaxSize()
