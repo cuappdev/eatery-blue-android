@@ -3,7 +3,7 @@ package com.cornellappdev.android.eatery.ui.screens
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType

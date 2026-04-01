@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
 import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
