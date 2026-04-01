@@ -83,6 +83,7 @@ dependencies {
     implementation 'androidx.compose.animation:animation:1.10.6'
     implementation 'androidx.compose.ui:ui-tooling:1.10.6'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0'
     implementation "androidx.compose.ui:ui:1.10.6"
     implementation "androidx.lifecycle:lifecycle-runtime-compose:2.10.0"
     implementation("androidx.navigation:navigation-compose:2.9.7")
@@ -101,10 +102,9 @@ dependencies {
     implementation "com.github.skydoves:landscapist-placeholder:2.9.5"
     implementation 'com.google.code.gson:gson:2.13.2'
 
-    implementation "androidx.datastore:datastore:1.0.0"
-    implementation "androidx.datastore:datastore-core:1.0.0"
+    implementation "androidx.datastore:datastore:1.2.1"
+    implementation "androidx.datastore:datastore-core:1.2.1"
     implementation "com.google.protobuf:protobuf-javalite:3.25.1"
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
 
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:31.1.1')
