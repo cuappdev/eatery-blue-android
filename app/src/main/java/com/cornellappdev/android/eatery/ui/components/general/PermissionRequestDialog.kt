@@ -3,8 +3,8 @@ package com.cornellappdev.android.eatery.ui.components.general
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.LocationHandler
@@ -55,7 +56,10 @@ fun PermissionRequestDialog(
     notificationFlowStatus: Boolean,
     updateNotificationFlowStatus: (Boolean) -> Unit
 ) {
-    var requestingPermission by remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) }
+    val context = LocalContext.current
+    var requestingPermission by remember {
+        mutableStateOf(!context.hasLocationPermission())
+    }
     showBottomBar.value = !requestingPermission
 
     AnimatedVisibility(
@@ -63,8 +67,6 @@ fun PermissionRequestDialog(
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        val context = LocalContext.current
-
         val notificationPermissionState =
             rememberMultiplePermissionsState(
                 permissions = listOf(
@@ -135,6 +137,18 @@ fun PermissionRequestDialog(
             }
         }
     }
+}
+
+private fun Context.hasLocationPermission(): Boolean {
+    val coarsePermission = ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+    val finePermission = ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+    return coarsePermission && finePermission
 }
 
 private fun Context.openSettings() {
