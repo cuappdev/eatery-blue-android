@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.components.details
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,10 +14,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -140,14 +140,13 @@ fun EateryDetailsStickyHeader(
             Spacer(modifier = Modifier.height(6.dp))
         }
 
-        Divider(
+        HorizontalDivider(
             color = GrayZero,
             thickness = 1.dp
         )
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CategoryItem(
     name: String,
@@ -164,10 +163,11 @@ fun CategoryItem(
     )
 
     Surface(
-        modifier = Modifier.fillMaxHeight(),
+        modifier = Modifier
+            .fillMaxHeight()
+            .clickable(onClick = onItemClick),
         shape = RoundedCornerShape(100),
-        color = backgroundColor,
-        onClick = onItemClick
+        color = backgroundColor
     ) {
         Text(
             modifier = Modifier

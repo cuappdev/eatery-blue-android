@@ -35,9 +35,9 @@ fun SwitchOption(
                         .width(51.dp)
                         .height(31.dp),
                     checked = switched,
-                    onCheckedChange = {
-                        switched = !switched
-                        onCheckedChange(switched)
+                    onCheckedChange = { checked ->
+                        switched = checked
+                        onCheckedChange(checked)
                     },
                     enabled = enabled,
                     colors = SwitchDefaults.colors(

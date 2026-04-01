@@ -3,12 +3,12 @@ package com.cornellappdev.android.eatery.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowOutward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,7 +37,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
     Column(
         modifier = Modifier
             .padding(top = 36.dp, start = 16.dp, end = 16.dp)
-            .fillMaxWidth()
+            .fillMaxSize()
     ) {
         Text(
             text = "Privacy",

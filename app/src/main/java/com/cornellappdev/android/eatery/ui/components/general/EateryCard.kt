@@ -22,16 +22,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -69,9 +69,6 @@ enum class EateryCardStyle {
     DEFAULT, COMPACT, GRID_VIEW
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-)
 @Composable
 fun EateryCard(
     eatery: Eatery,
@@ -110,13 +107,10 @@ fun EateryCard(
     }
 
     Card(
-        elevation = 3.dp,
         shape = RoundedCornerShape(10.dp),
-        onClick = {
-            selectEatery(eatery)
-        },
-        backgroundColor = Color.White,
-        modifier = modifier
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        modifier = modifier.clickable { selectEatery(eatery) }
     ) {
         Column {
             Box {
@@ -187,8 +181,10 @@ fun EateryCard(
                             .padding(top = 12.dp, end = 12.dp)
                             .align(Alignment.TopEnd),
                         shape = RoundedCornerShape(100.dp),
-                        contentColor = Orange,
-                        backgroundColor = Color.White
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White,
+                            contentColor = Orange
+                        )
                     ) {
                         Row(
                             modifier = Modifier.padding(

@@ -14,6 +14,7 @@ import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.navigation.NavigationSetup
+import com.cornellappdev.android.eatery.ui.theme.EateryBlueTheme
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
@@ -52,11 +53,10 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        val typography = androidx.compose.material3.Typography()
         setContent {
             LockScreenOrientation()
 
-            androidx.compose.material3.MaterialTheme(typography = typography) {
+            EateryBlueTheme {
                 NavigationSetup(hasOnboarded)
             }
         }

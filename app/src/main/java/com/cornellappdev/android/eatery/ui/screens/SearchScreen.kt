@@ -23,22 +23,23 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,7 +73,7 @@ import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 import kotlinx.coroutines.launch
 
 @OptIn(
-    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class
 )
 @Composable
@@ -83,9 +84,8 @@ fun SearchScreen(
 ) {
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val focusRequester = remember { FocusRequester() }
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden
-    )
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showPaymentMethodSheet by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     val query by searchViewModel.searchFlow.collectAsStateWithLifecycle()
@@ -111,7 +111,7 @@ fun SearchScreen(
     // Here a DisposableEffect is launched when the bottom sheet opens.
     // When it disappears it's from the view hierarchy, which will cause
     // onDispose to be called, adding/resetting the payment filters.
-    if (modalBottomSheetState.currentValue != ModalBottomSheetValue.Hidden) {
+    if (showPaymentMethodSheet) {
         DisposableEffect(Unit) {
             onDispose {
                 // Handles the case where filters reset as well (by adding an empty list).
@@ -120,19 +120,30 @@ fun SearchScreen(
         }
     }
 
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState, sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp, bottomEnd = 0.dp, topStart = 12.dp, topEnd = 12.dp
-        ), sheetElevation = 8.dp, sheetContent = {
+    if (showPaymentMethodSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showPaymentMethodSheet = false },
+            sheetState = modalBottomSheetState,
+            shape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            )
+        ) {
             PaymentMethodsBottomSheet(selectedFilters = selectedPaymentMethodFilters, hide = {
                 coroutineScope.launch {
                     modalBottomSheetState.hide()
+                }.invokeOnCompletion {
+                    if (!modalBottomSheetState.isVisible) showPaymentMethodSheet = false
                 }
             })
-        }, content = { ->
-            val listState = rememberLazyListState()
+        }
+    }
 
-            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+    val listState = rememberLazyListState()
+
+    LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
                 stickyHeader {
 
                     Column(modifier = Modifier.background(Color.White)) {
@@ -225,7 +236,7 @@ fun SearchScreen(
                                                     )
                                             ) {
                                                 Icon(
-                                                    Icons.Default.ArrowForward,
+                                                    Icons.AutoMirrored.Filled.ArrowForward,
                                                     contentDescription = "Favorites",
                                                     tint = Color.Black
                                                 )
@@ -329,7 +340,6 @@ fun SearchScreen(
                     }
                 }
             }
-        })
 }
 
 /**

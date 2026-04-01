@@ -1,21 +1,18 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,14 +27,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.util.EateryPreview
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SearchBar(
     searchText: String,
@@ -61,8 +59,7 @@ fun SearchBar(
             focusManager.clearFocus()
         }
 
-        val interactionSource = remember { MutableInteractionSource() }
-        BasicTextField(
+        TextField(
             value = searchText,
             onValueChange = onSearchTextChange,
             enabled = enabled,
@@ -73,44 +70,36 @@ fun SearchBar(
                     showCancel = it.isFocused
                 },
             keyboardActions = KeyboardActions(onDone = { onSubmit() }),
-            interactionSource = interactionSource,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             singleLine = true,
             textStyle = TextStyle(
                 color = GrayFive,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp
-            )
-        ) { innerTextField ->
-            Surface(shape = RoundedCornerShape(8.dp), color = GrayZero) {
-                TextFieldDefaults.TextFieldDecorationBox(
-                    value = searchText,
-                    innerTextField = innerTextField,
-                    singleLine = true,
-                    interactionSource = interactionSource,
-                    contentPadding = PaddingValues(0.dp),
-                    leadingIcon = {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = GrayFive
-                        )
-
-                    },
-                    placeholder = {
-                        Text(
-                            text = placeholderText,
-                            color = GrayFive
-                        )
-                    },
-                    colors = TextFieldDefaults.textFieldColors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    enabled = enabled,
-                    visualTransformation = VisualTransformation.None,
+            ),
+            shape = RoundedCornerShape(8.dp),
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = GrayFive
                 )
-            }
-        }
+            },
+            placeholder = {
+                Text(
+                    text = placeholderText,
+                    color = GrayFive
+                )
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = GrayZero,
+                unfocusedContainerColor = GrayZero,
+                disabledContainerColor = GrayZero,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                disabledIndicatorColor = Color.Transparent
+            )
+        )
 
         if (showCancel) {
             TextButton(
@@ -128,4 +117,15 @@ fun SearchBar(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun SearchBarPreview() = EateryPreview {
+    SearchBar(
+        searchText = "",
+        onSearchTextChange = {},
+        placeholderText = "Search the menu...",
+        onCancelClicked = {}
+    )
 }

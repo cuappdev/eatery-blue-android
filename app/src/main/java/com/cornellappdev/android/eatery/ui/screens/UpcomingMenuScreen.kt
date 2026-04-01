@@ -18,18 +18,20 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.White
@@ -58,13 +60,12 @@ import com.cornellappdev.android.eatery.util.AppStorePopupRepository
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @OptIn(
-    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class
 )
 
@@ -75,9 +76,9 @@ fun UpcomingMenuScreen(
     onEateryClick: (Int) -> Unit,
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(
-        skipHalfExpanded = true,
-        initialValue = ModalBottomSheetValue.Hidden
+        skipPartiallyExpanded = true
     )
+    var showMealBottomSheet by remember { mutableStateOf(false) }
     val viewState = upcomingViewModel.viewStateFlow.collectAsStateWithLifecycle().value
     val coroutineScope = rememberCoroutineScope()
 
@@ -86,33 +87,37 @@ fun UpcomingMenuScreen(
     val shimmer = rememberShimmer(ShimmerBounds.View)
 
     Box(modifier = Modifier.background(White)) {
-        ModalBottomSheetLayout(
-            sheetState = modalBottomSheetState,
-            sheetShape = RoundedCornerShape(
-                bottomStart = 0.dp,
-                bottomEnd = 0.dp,
-                topStart = 12.dp,
-                topEnd = 12.dp
-            ),
-            sheetElevation = 8.dp,
-            sheetContent = {
+        if (showMealBottomSheet) {
+            ModalBottomSheet(
+                sheetState = modalBottomSheetState,
+                onDismissRequest = { showMealBottomSheet = false },
+                shape = RoundedCornerShape(
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp,
+                    topStart = 12.dp,
+                    topEnd = 12.dp
+                ),
+            ) {
                 MealBottomSheet(
-                    sheetState = modalBottomSheetState,
+                    isVisible = modalBottomSheetState.isVisible,
                     selectedMeal = viewState.mealFilter,
                     onSubmit = upcomingViewModel::onMealFilterChanged,
                     hide = {
                         coroutineScope.launch {
                             modalBottomSheetState.hide()
+                        }.invokeOnCompletion {
+                            if (!modalBottomSheetState.isVisible) showMealBottomSheet = false
                         }
                     }
                 )
-            },
-            content = {
-                val innerListState = rememberLazyListState()
-                val filterRowState = rememberLazyListState()
-                val isFirstVisible =
-                    remember { derivedStateOf { innerListState.firstVisibleItemIndex > 0 } }
-                when (val menus = viewState.menus) {
+            }
+        }
+
+        val innerListState = rememberLazyListState()
+        val filterRowState = rememberLazyListState()
+        val isFirstVisible =
+            remember { derivedStateOf { innerListState.firstVisibleItemIndex > 0 } }
+        when (val menus = viewState.menus) {
                     is EateryApiResponse.Success -> {
                         UpcomingLazyColumn(
                             innerListState = innerListState,
@@ -125,10 +130,7 @@ fun UpcomingMenuScreen(
                             },
                             filterRow = {
                                 UpcomingFilterRow(
-                                    coroutineScope = coroutineScope,
-                                    showModalBottomSheet = {
-                                        modalBottomSheetState.show()
-                                    },
+                                    showModalBottomSheet = { showMealBottomSheet = true },
                                     mealFilter = viewState.mealFilter,
                                     upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
                                     selectedFilters = viewState.selectedFilters,
@@ -191,10 +193,7 @@ fun UpcomingMenuScreen(
                             },
                             filterRow = {
                                 UpcomingFilterRow(
-                                    coroutineScope = coroutineScope,
-                                    showModalBottomSheet = {
-                                        modalBottomSheetState.show()
-                                    },
+                                    showModalBottomSheet = { showMealBottomSheet = true },
                                     mealFilter = viewState.mealFilter,
                                     upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
                                     selectedFilters = viewState.selectedFilters,
@@ -220,10 +219,7 @@ fun UpcomingMenuScreen(
                                 selectDayOffset = upcomingViewModel::selectDayOffset
                             )
                             UpcomingFilterRow(
-                                coroutineScope = coroutineScope,
-                                showModalBottomSheet = {
-                                    modalBottomSheetState.show()
-                                },
+                                showModalBottomSheet = { showMealBottomSheet = true },
                                 mealFilter = viewState.mealFilter,
                                 upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
                                 selectedFilters = viewState.selectedFilters,
@@ -239,8 +235,6 @@ fun UpcomingMenuScreen(
                         }
                     }
                 }
-            }
-        )
     }
 }
 
@@ -270,8 +264,7 @@ private fun CalendarWeekSelector(
 
 @Composable
 private fun UpcomingFilterRow(
-    coroutineScope: CoroutineScope,
-    showModalBottomSheet: suspend () -> Unit,
+    showModalBottomSheet: () -> Unit,
     mealFilter: MealFilter,
     upcomingMenuFilters: List<Filter>,
     selectedFilters: List<Filter>,
@@ -283,9 +276,7 @@ private fun UpcomingFilterRow(
             item {
                 FilterButton(
                     onFilterClicked = {
-                        coroutineScope.launch {
-                            showModalBottomSheet()
-                        }
+                        showModalBottomSheet()
                     },
                     selected = true,
                     text = mealFilter.displayName,

@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
-import androidx.compose.material3.Divider
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -77,5 +77,5 @@ fun SettingsOption(
 
 @Composable
 fun SettingsLineSeparator() {
-    Divider(color = GrayOne, modifier = Modifier.fillMaxWidth(), thickness = 1.dp)
+    HorizontalDivider(color = GrayOne, modifier = Modifier.fillMaxWidth(), thickness = 1.dp)
 }

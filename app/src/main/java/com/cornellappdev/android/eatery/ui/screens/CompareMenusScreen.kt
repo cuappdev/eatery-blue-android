@@ -27,20 +27,17 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -78,13 +75,12 @@ import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 @OptIn(
-    ExperimentalMaterialApi::class,
     ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class,
 )
 @Composable
 fun CompareMenusScreen(
@@ -96,14 +92,21 @@ fun CompareMenusScreen(
 
     val eateries by compareMenusViewModel.eateryFlow.collectAsStateWithLifecycle()
     val events by compareMenusViewModel.eventFlow.collectAsStateWithLifecycle()
-    val modalBottomSheetState =
-        rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
-            skipHalfExpanded = true
-        )
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     var sheetContent by remember { mutableStateOf(BottomSheetContent.HOURS) }
+    val closeBottomSheet: () -> Unit = {
+        coroutineScope.launch {
+            modalBottomSheetState.hide()
+            showBottomSheet = false
+        }
+    }
+    val openBottomSheet: (BottomSheetContent) -> Unit = { content ->
+        sheetContent = content
+        showBottomSheet = true
+    }
 
     val issue by remember { mutableStateOf<Issue?>(null) }
     Column {
@@ -120,7 +123,7 @@ fun CompareMenusScreen(
                 fontWeight = FontWeight(600)
             )
         }
-        Divider(
+        HorizontalDivider(
             color = GrayZero,
             modifier = Modifier
                 .fillMaxWidth()
@@ -157,24 +160,31 @@ fun CompareMenusScreen(
                     )
                 }
         }
-        ModalBottomSheetLayout(
-            sheetState = modalBottomSheetState, sheetContent = {
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = closeBottomSheet,
+                sheetState = modalBottomSheetState,
+                shape = RoundedCornerShape(
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp,
+                    topStart = 12.dp,
+                    topEnd = 12.dp
+                )
+            ) {
                 when (sheetContent) {
                     BottomSheetContent.HOURS -> {
                         val eatery = eateries.getOrNull(firstPagerState.currentPage)
                         eatery?.let {
-                            EateryHourBottomSheet(onDismiss = {
-                                coroutineScope.launch {
-                                    modalBottomSheetState.hide()
-                                }
-                            }, eatery = eatery, onReportIssue = {
-                                sheetContent = BottomSheetContent.REPORT
-                            })
+                            EateryHourBottomSheet(
+                                onDismiss = closeBottomSheet,
+                                eatery = eatery,
+                                onReportIssue = { sheetContent = BottomSheetContent.REPORT }
+                            )
                         }
                     }
 
                     BottomSheetContent.REPORT -> {
-                        eateries[0].id?.let {
+                        eateries.firstOrNull()?.id?.let {
                             ReportBottomSheet(
                                 issue = issue,
                                 eateryid = it,
@@ -184,32 +194,28 @@ fun CompareMenusScreen(
                                         report,
                                         eateryid
                                     )
-                                }) {
-                                coroutineScope.launch {
-                                    modalBottomSheetState.hide()
-                                }
-                            }
+                                },
+                                hide = closeBottomSheet
+                            )
                         }
                     }
 
                     else -> {}
                 }
             }
-        ) {
-            Column {
-                MenuPager(
-                    eateries,
-                    firstPagerState,
-                    events,
-                    sheetContent,
-                    coroutineScope,
-                    modalBottomSheetState,
-                    onEateryClick
-                )
-                TitlePager(eateries, secondPagerState)
-            }
-
         }
+
+        Column {
+            MenuPager(
+                eateries,
+                firstPagerState,
+                events,
+                onOpenSheet = openBottomSheet,
+                onEateryClick
+            )
+            TitlePager(eateries, secondPagerState)
+        }
+
     }
 
 
@@ -217,19 +223,17 @@ fun CompareMenusScreen(
 
 @Composable
 @OptIn(
-    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class,
     ExperimentalMaterial3Api::class
 )
 private fun MenuPager(
     eateries: List<Eatery>,
     firstPagerState: PagerState,
     events: List<Event?>,
-    sheetContent: BottomSheetContent,
-    coroutineScope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState,
+    onOpenSheet: (BottomSheetContent) -> Unit,
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    var sheetContent1 = sheetContent
+    val coroutineScope = rememberCoroutineScope()
     HorizontalPager(
         state = firstPagerState,
         modifier = Modifier.fillMaxHeight(0.92f),
@@ -270,10 +274,7 @@ private fun MenuPager(
                             .padding(vertical = 12.dp)
                             .weight(1f, true)
                             .clickable {
-                                sheetContent1 = BottomSheetContent.HOURS
-                                coroutineScope.launch {
-                                    modalBottomSheetState.show()
-                                }
+                                onOpenSheet(BottomSheetContent.HOURS)
                             }
                     ) {
                         Row(
@@ -386,7 +387,7 @@ private fun MenuPager(
                                         )
                                     }
                                     if (category.items?.lastIndex == index) {
-                                        Divider(
+                                        HorizontalDivider(
                                             color = GrayZero,
                                             modifier = Modifier.height(10.dp)
                                         )
@@ -418,7 +419,7 @@ private fun MenuPager(
                                             fontWeight = FontWeight(500),
                                         )
                                     }
-                                    Divider(
+                                    HorizontalDivider(
                                         color = GrayZero,
                                         modifier = Modifier
                                             .fillMaxWidth()

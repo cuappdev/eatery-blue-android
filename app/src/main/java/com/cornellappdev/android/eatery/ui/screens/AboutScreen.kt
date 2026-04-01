@@ -21,13 +21,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -120,7 +120,7 @@ fun AboutScreen() {
         }
 
         Column {
-            TeamPosition.values().forEach {
+            TeamPosition.entries.forEach {
                 CreditsRow(position = it)
             }
         }
@@ -138,7 +138,7 @@ fun AboutScreen() {
                 uriCurrent.openUri("https://www.cornellappdev.com/")
             },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = GrayOne,
+                containerColor = GrayOne,
                 contentColor = Color.Black
             )
         ) {

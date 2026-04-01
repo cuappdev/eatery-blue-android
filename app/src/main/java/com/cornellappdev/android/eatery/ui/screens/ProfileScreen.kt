@@ -19,7 +19,6 @@ import com.cornellappdev.android.eatery.ui.viewmodels.TransactionWithFormattedDa
 fun ProfileScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onSettingsClicked: () -> Unit,
-    webViewEnabled: Boolean,
     onBackClick: () -> Unit
 ) {
     val state =
@@ -42,7 +41,6 @@ fun ProfileScreen(
         loading = state is LoginViewModel.State.Login && state.loading,
         onLoginPressed = loginViewModel::onLoginPressed,
         onSuccess = loginViewModel::onLoginWebViewSuccess,
-        webViewEnabled = webViewEnabled,
         onBackClick = onBackClick,
         onModalHidden = loginViewModel::onLoginExited,
         onSettingsClicked = onSettingsClicked,
@@ -61,7 +59,6 @@ private fun ProfileScreenContent(
     loading: Boolean,
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
-    webViewEnabled: Boolean,
     onBackClick: () -> Unit,
     onModalHidden: () -> Unit,
     accountFilter: TransactionAccountType,
@@ -73,10 +70,9 @@ private fun ProfileScreenContent(
 ) {
     if (isLoginState) {
         LoginPage(
-            loading = loading,
+            isLoading = loading,
             onLoginPressed = onLoginPressed,
             onSuccess = onSuccess,
-            webViewEnabled = webViewEnabled,
             onBackClick = onBackClick,
             onModalHidden = onModalHidden
         )

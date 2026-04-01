@@ -12,16 +12,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,16 +41,15 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
  * The pop up that shows up when users want to pick a different meal as the filter in the upcoming
  * menu screen.
  */
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MealBottomSheet(
+    isVisible: Boolean,
     selectedMeal: MealFilter,
     onSubmit: (MealFilter) -> Unit,
-    hide: () -> Unit,
-    sheetState: ModalBottomSheetState
+    hide: () -> Unit
 ) {
     val currSelectedMeal = remember { mutableStateOf(selectedMeal) }
-    if (!sheetState.isVisible) currSelectedMeal.value = selectedMeal
+    if (!isVisible) currSelectedMeal.value = selectedMeal
     Column(
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = 24.dp)
@@ -284,7 +281,7 @@ fun MealBottomSheet(
             .padding(top = 10.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = EateryBlue,
+            containerColor = EateryBlue,
             contentColor = Color.White
         )
     ) {

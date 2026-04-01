@@ -13,16 +13,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -196,7 +196,7 @@ fun EateryMenusBottomSheet(
                             }
                         }
                         if (mealTypes.lastIndex != index) {
-                            Divider(
+                            HorizontalDivider(
                                 modifier = Modifier
                                     .padding(top = 12.dp, bottom = 12.dp)
                                     .fillMaxWidth(),
@@ -227,7 +227,8 @@ fun EateryMenusBottomSheet(
                         .height(48.dp),
                     shape = RoundedCornerShape(100),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = EateryBlue, contentColor = Color.White
+                        containerColor = EateryBlue,
+                        contentColor = Color.White
                     )
                 ) {
                     Text(

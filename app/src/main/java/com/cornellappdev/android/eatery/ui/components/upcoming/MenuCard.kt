@@ -17,13 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,9 +71,9 @@ fun MenuCard(
 ) = with(menuCardViewState) {
     var openDropdown by remember { mutableStateOf(false) }
     Card(
-        elevation = 5.dp,
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         shape = RoundedCornerShape(10.dp),
-        backgroundColor = Color.White,
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = Modifier.clickable {
             openDropdown = !openDropdown
             if (!openDropdown) {
@@ -147,7 +147,6 @@ fun MenuCard(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun EateryDetails(
     selectEatery: () -> Unit,
@@ -157,13 +156,11 @@ private fun EateryDetails(
         EateryEventMenu(menu)
         Card(
             shape = RoundedCornerShape(20.dp),
-            onClick = {
-                selectEatery()
-            },
-            backgroundColor = GrayZero,
+            colors = CardDefaults.cardColors(containerColor = GrayZero),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp, bottom = 8.dp)
+                .clickable { selectEatery() }
         ) {
 
             Row(
