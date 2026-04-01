@@ -32,18 +32,23 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusBotViewModel
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
 @Composable
 fun CompareMenusBotSheet(
     onDismiss: () -> Unit,
@@ -52,14 +57,43 @@ fun CompareMenusBotSheet(
     firstEatery: Eatery? = null
 ) {
     val compareMenusUIState by compareMenusBotViewModel.compareMenusUiState.collectAsStateWithLifecycle()
-    val filters = compareMenusUIState.filters
-    val selectedEateries = compareMenusUIState.selected
-    val eateries = compareMenusUIState.eateries
 
     LaunchedEffect(firstEatery) {
         compareMenusBotViewModel.initializedFirstEatery(firstEatery)
     }
 
+    CompareMenusBotSheetContent(
+        onDismiss = {
+            compareMenusBotViewModel.resetSelected()
+            onDismiss()
+        },
+        onCompareMenusClick = onCompareMenusClick,
+        filters = compareMenusUIState.filters,
+        availableFilters = compareMenusBotViewModel.compareMenusBottomSheetFilters,
+        selectedEateries = compareMenusUIState.selected,
+        eateries = compareMenusUIState.eateries,
+        onFilterClicked = compareMenusBotViewModel::toggleFilter,
+        onToggleEatery = { eatery ->
+            if (compareMenusUIState.selected.contains(eatery)) {
+                compareMenusBotViewModel.removeSelected(eatery)
+            } else {
+                compareMenusBotViewModel.addSelected(eatery)
+            }
+        }
+    )
+}
+
+@Composable
+fun CompareMenusBotSheetContent(
+    onDismiss: () -> Unit,
+    onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+    filters: List<Filter>,
+    availableFilters: List<Filter>,
+    selectedEateries: List<Eatery>,
+    eateries: List<Eatery>,
+    onFilterClicked: (Filter) -> Unit,
+    onToggleEatery: (Eatery) -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,10 +111,7 @@ fun CompareMenusBotSheet(
                 color = Color.Black
             )
             IconButton(
-                onClick = {
-                    compareMenusBotViewModel.resetSelected()
-                    onDismiss()
-                },
+                onClick = onDismiss,
                 modifier = Modifier
                     .size(40.dp)
                     .background(color = GrayZero, shape = CircleShape)
@@ -96,10 +127,8 @@ fun CompareMenusBotSheet(
 
     FilterRow(
         currentFiltersSelected = filters,
-        onFilterClicked = { filter ->
-            compareMenusBotViewModel.toggleFilter(filter)
-        },
-        filters = compareMenusBotViewModel.compareMenusBottomSheetFilters
+        onFilterClicked = onFilterClicked,
+        filters = availableFilters
     )
     Column(
         modifier = Modifier
@@ -114,7 +143,11 @@ fun CompareMenusBotSheet(
                 .fillMaxHeight(0.4f)
                 .fillMaxWidth()
         ) {
-            SelectableEateriesList(eateries, selectedEateries, compareMenusBotViewModel)
+            SelectableEateriesList(
+                eateries = eateries,
+                selectedEateries = selectedEateries,
+                onToggleEatery = onToggleEatery
+            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -124,7 +157,7 @@ fun CompareMenusBotSheet(
                 if (selectedEateries.size >= 2) {
                     coroutineScope.launch {
                         delay(100)
-                        onCompareMenusClick(compareMenusUIState.selected.mapNotNull { it.id })
+                        onCompareMenusClick(selectedEateries.mapNotNull { it.id })
                     }
                 }
             },
@@ -141,8 +174,7 @@ fun CompareMenusBotSheet(
             Text(
                 text = if (selectedEateries.size < 2) "Select at least ${2 - selectedEateries.size} more"
                 else "Compare ${selectedEateries.size} now",
-                style = EateryBlueTypography.h5,
-                color = Color.White
+                style = EateryBlueTypography.h5
             )
         }
     }
@@ -152,7 +184,7 @@ fun CompareMenusBotSheet(
 private fun SelectableEateriesList(
     eateries: List<Eatery>,
     selectedEateries: List<Eatery>,
-    compareMenusBotViewModel: CompareMenusBotViewModel
+    onToggleEatery: (Eatery) -> Unit,
 ) {
     LazyColumn {
         items(eateries) { eatery ->
@@ -160,22 +192,14 @@ private fun SelectableEateriesList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        if (selectedEateries.contains(eatery)) {
-                            compareMenusBotViewModel.removeSelected(eatery)
-                        } else {
-                            compareMenusBotViewModel.addSelected(eatery)
-                        }
+                        onToggleEatery(eatery)
                     },
                 verticalAlignment = Alignment.CenterVertically,
 
                 ) {
                 IconButton(
                     onClick = {
-                        if (selectedEateries.contains(eatery)) {
-                            compareMenusBotViewModel.removeSelected(eatery)
-                        } else {
-                            compareMenusBotViewModel.addSelected(eatery)
-                        }
+                        onToggleEatery(eatery)
                     },
                     modifier = Modifier.align(Alignment.CenterVertically)
                 ) {
@@ -211,8 +235,33 @@ private fun SelectableEateriesList(
                     )
                 }
             }
-
-
         }
     }
+}
+
+@Preview
+@Composable
+fun CompareMenusBotSheetContentPreview() = EateryPreview {
+    val mockEateries = listOf(
+        PreviewData.mockEatery(1).copy(name = "North Star"),
+        PreviewData.mockEatery(2).copy(name = "RPCC"),
+        PreviewData.mockEatery(3).copy(name = "Okenshields"),
+    )
+
+    CompareMenusBotSheetContent(
+        onDismiss = {},
+        onCompareMenusClick = {},
+        filters = listOf(Filter.Selected),
+        availableFilters = listOf(
+            Filter.Selected,
+            Filter.FromEateryFilter.North,
+            Filter.FromEateryFilter.West,
+            Filter.FromEateryFilter.Central,
+            Filter.FromEateryFilter.Under10,
+        ),
+        selectedEateries = mockEateries.take(1),
+        eateries = mockEateries,
+        onFilterClicked = {},
+        onToggleEatery = {},
+    )
 }
