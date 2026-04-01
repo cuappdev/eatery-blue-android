@@ -44,8 +44,9 @@ fun NearestScreen(
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
     rememberShimmer(ShimmerBounds.View)
-    val nearestEateries = nearestViewModel.nearestEateries.collectAsStateWithLifecycle().value
-    val favorites = nearestViewModel.favoriteEateries.collectAsStateWithLifecycle().value
+    val uiState = nearestViewModel.uiState.collectAsStateWithLifecycle().value
+    val nearestEateries = uiState.nearestEateries
+    val favorites = uiState.favoriteEateries
 
     Column(
         modifier = Modifier
@@ -101,7 +102,7 @@ fun NearestScreen(
                 items(
                     items = nearestEateries,
                     key = { eatery ->
-                        eatery.id!!
+                        eatery.id ?: eatery.hashCode()
                     }) { eatery ->
                     EateryCard(
                         eatery = eatery,

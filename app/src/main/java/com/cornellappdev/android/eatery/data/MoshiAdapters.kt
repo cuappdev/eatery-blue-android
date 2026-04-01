@@ -4,7 +4,6 @@ package com.cornellappdev.android.eatery.data
 
 import com.cornellappdev.android.eatery.data.models.AccountType
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
-import com.cornellappdev.android.eatery.data.models.TransactionType
 import com.cornellappdev.android.eatery.util.Constants.mealPlanAccountMap
 import com.google.gson.Gson
 import com.squareup.moshi.FromJson
@@ -76,17 +75,6 @@ class DateTimeAdapter {
     }
 }
 
-class TransactionTypeAdapter {
-    @ToJson
-    fun toJson(transactionType: TransactionType): Int {
-        return transactionType.value
-    }
-
-    @FromJson
-    fun fromJson(transactionType: Int): TransactionType {
-        return TransactionType.fromInt(transactionType)
-    }
-}
 
 class AccountTypeAdapter {
     @ToJson
