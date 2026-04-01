@@ -150,8 +150,7 @@ fun CompareMenusScreen(
                     val divideAndRemainder = BigDecimal.valueOf(pagePart.toDouble())
                         .divideAndRemainder(BigDecimal.ONE)
                     val pageOffsetFraction =
-                        if (divideAndRemainder[1].toFloat() > 0.5f) 0.5f else Math.max(
-                            -0.5f,
+                        if (divideAndRemainder[1].toFloat() > 0.5f) 0.5f else (-0.5f).coerceAtLeast(
                             divideAndRemainder[1].toFloat()
                         )
                     followingState.scrollToPage(
@@ -184,15 +183,15 @@ fun CompareMenusScreen(
                     }
 
                     BottomSheetContent.REPORT -> {
-                        eateries.firstOrNull()?.id?.let {
+                        eateries.getOrNull(firstPagerState.currentPage)?.id?.let {
                             ReportBottomSheet(
                                 issue = issue,
                                 eateryid = it,
-                                sendReport = { issue, report, eateryid ->
+                                sendReport = { issue, report, eateryId ->
                                     compareMenusViewModel.sendReport(
                                         issue,
                                         report,
-                                        eateryid
+                                        eateryId
                                     )
                                 },
                                 hide = closeBottomSheet
