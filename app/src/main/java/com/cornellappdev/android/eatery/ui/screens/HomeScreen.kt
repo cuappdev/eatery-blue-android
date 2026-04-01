@@ -191,6 +191,7 @@ fun HomeScreen(
     var isGridView: Boolean by remember { mutableStateOf(false) }
 
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             if (eateriesApiResponse is EateryApiResponse.Success && eateriesApiResponse.data.size >= 2) {
                 CompareMenusFAB(
@@ -211,6 +212,7 @@ fun HomeScreen(
                 modifier = Modifier
                     .background(Color.White)
                     .padding(paddingValues)
+                    .fillMaxSize()
             ) {
                 if (showBottomSheet) {
                     ModalBottomSheet(

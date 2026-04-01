@@ -62,7 +62,6 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.SupportViewModel
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {

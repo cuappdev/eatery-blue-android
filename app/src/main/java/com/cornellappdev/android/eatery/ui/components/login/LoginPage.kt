@@ -83,7 +83,7 @@ fun LoginPage(
         showSheet = true
     }
     if (!isPreview()) {
-        Box(modifier = Modifier.statusBarsPadding()) {
+        Box {
             LoginPageMainLayer(onBackClick, isLoading, onLoginPressed)
             if (showSheet) {
                 ModalBottomSheet(

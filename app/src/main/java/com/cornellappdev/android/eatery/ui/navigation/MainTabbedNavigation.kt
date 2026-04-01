@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -19,9 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -83,6 +82,7 @@ fun NavigationSetup(hasOnboarded: Boolean) {
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             AnimatedContent(
                 targetState = showBottomBar.value,
@@ -157,10 +157,6 @@ fun SetupNavHost(
     showBottomBar: MutableState<Boolean>,
 ) {
     AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
-
-    // Need to handle here so the webview is destroyed before navigating away from profile.
-    // Otherwise, it causes a crash when navigating away from the webview.
-    var webViewEnabled by remember { mutableStateOf(true) }
 
     // The starting destination switches to onboarding if it isn't completed.
     NavHost(
@@ -278,22 +274,16 @@ fun SetupNavHost(
                 defaultValue = true
             }),
             enterTransition = {
-                webViewEnabled = true
                 fadeIn(
                     initialAlpha = 0f,
                     animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
-                webViewEnabled = false
                 fadeOut(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            // need this for when user navigates from profile to itself
-            // since no guarantee of order between enterTransition and exitTransition
-            webViewEnabled = true
-
             ProfileScreen(
                 onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
                 onBackClick = navController::popBackStack
