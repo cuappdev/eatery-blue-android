@@ -18,7 +18,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
@@ -60,13 +59,11 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
             title = "Location Access",
             description = "Used to find eateries near you",
             onClick = {
-                startActivity(
-                    context,
+                context.startActivity(
                     Intent(
                         android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                         Uri.fromParts("package", context.packageName, null)
-                    ),
-                    null
+                    )
                 )
             },
             trailingIcon = {
@@ -88,7 +85,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
                 intent.putExtra("app_uid", context.applicationInfo.uid)
                 intent.putExtra("android.provider.extra.APP_PACKAGE", context.packageName)
 
-                startActivity(context, intent, null)
+                context.startActivity(intent)
             },
             trailingIcon = {
                 Icon(

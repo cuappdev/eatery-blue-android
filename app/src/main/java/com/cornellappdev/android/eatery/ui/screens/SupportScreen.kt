@@ -46,7 +46,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
@@ -156,11 +155,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                     val email = Intent(Intent.ACTION_SENDTO)
                     email.data =
                         "mailto:team@cornellappdev.com?subject=${Uri.encode("Eatery - Reporting an Issue")}".toUri()
-                    startActivity(
-                        context,
-                        Intent.createChooser(email, "Choose an Email client :"),
-                        null
-                    )
+                    context.startActivity(Intent.createChooser(email, "Choose an Email client :"))
                 }) {
                     Text(
                         text = "Shoot us an email",
@@ -231,11 +226,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                     email.data =
                         "mailto:dining@cornell.edu?subject=${Uri.encode("Ordering Food on Eatery")}".toUri()
 
-                    startActivity(
-                        context,
-                        Intent.createChooser(email, "Choose an Email client :"),
-                        null
-                    )
+                    context.startActivity(Intent.createChooser(email, "Choose an Email client :"))
                 }
             }
 }

@@ -40,7 +40,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
@@ -81,20 +80,18 @@ private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () ->
                 "Open PlayStore",
                 onButtonPress = {
                     try {
-                        startActivity(
-                            context, Intent(
+                        context.startActivity(
+                            Intent(
                                 Intent.ACTION_VIEW,
                                 "market://details?id=$packageName".toUri()
-                            ), null
+                            )
                         )
                     } catch (_: ActivityNotFoundException) {
-                        startActivity(
-                            context,
+                        context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
                                 "https://play.google.com/store/apps/details?id=$packageName".toUri()
-                            ),
-                            null
+                            )
                         )
                     } finally {
                         onDismiss()
