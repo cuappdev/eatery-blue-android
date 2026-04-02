@@ -147,10 +147,14 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
 
+    var showFAB by remember { mutableStateOf(true) }
+
+    var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
+
     // Here a DisposableEffect is launched when the bottom sheet opens.
     // When it disappears it's from the view hierarchy, which will cause
     // onDispose to be called, adding/resetting the payment filters.
-    if (showBottomSheet) {
+    if (showBottomSheet && sheetContent == BottomSheetContent.PAYMENT_METHODS_AVAILABLE) {
         DisposableEffect(Unit) {
             onDispose {
                 // Handles the case where filters reset as well (by adding an empty list).
@@ -158,12 +162,6 @@ fun HomeScreen(
             }
         }
     }
-
-    var showFAB by remember {
-        mutableStateOf(true)
-    }
-
-    var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
 
     val closeBottomSheet: () -> Unit = {
         coroutineScope.launch {
