@@ -253,82 +253,80 @@ fun SearchScreen(
                                 }
                             }
                         }
+                    }
+                    // RECENT SEARCHES
+                    Text(
+                        modifier = Modifier.padding(start = 16.dp, top = 12.dp),
+                        text = "Recent Searches",
+                        style = EateryBlueTypography.h4
+                    )
 
-
-                        // RECENT SEARCHES
-                        Text(
-                            modifier = Modifier.padding(start = 16.dp, top = 12.dp),
-                            text = "Recent Searches",
-                            style = EateryBlueTypography.h4
-                        )
-
-                        recentSearches.forEach { eateryId ->
-                            val eateryResponse =
-                                searchViewModel.observeEatery(eateryId)
-                                    .collectAsStateWithLifecycle().value
-                            if (eateryResponse is EateryApiResponse.Success) {
-                                Box(
-                                    Modifier.padding(
-                                        horizontal = 16.dp, vertical = 12.dp
-                                    )
-                                ) {
-                                    val eatery = eateryResponse.data
-                                    EateryCard(
-                                        eatery = eatery,
-                                        isFavorite = favorites.any { favoriteEatery ->
-                                            favoriteEatery.id == eatery.id
-                                        },
-                                        onFavoriteClick = {
-                                            if (eatery.id != null && eatery.name != null) {
-                                                if (it) {
-                                                    searchViewModel.addFavorite(
-                                                        eatery.id,
-                                                        eatery.name
-                                                    )
-                                                } else {
-                                                    searchViewModel.removeFavorite(
-                                                        eatery.id,
-                                                        eatery.name
-                                                    )
-                                                }
+                    recentSearches.forEach { eateryId ->
+                        val eateryResponse =
+                            searchViewModel.observeEatery(eateryId)
+                                .collectAsStateWithLifecycle().value
+                        if (eateryResponse is EateryApiResponse.Success) {
+                            Box(
+                                Modifier.padding(
+                                    horizontal = 16.dp, vertical = 12.dp
+                                )
+                            ) {
+                                val eatery = eateryResponse.data
+                                EateryCard(
+                                    eatery = eatery,
+                                    isFavorite = favorites.any { favoriteEatery ->
+                                        favoriteEatery.id == eatery.id
+                                    },
+                                    onFavoriteClick = {
+                                        if (eatery.id != null && eatery.name != null) {
+                                            if (it) {
+                                                searchViewModel.addFavorite(
+                                                    eatery.id,
+                                                    eatery.name
+                                                )
+                                            } else {
+                                                searchViewModel.removeFavorite(
+                                                    eatery.id,
+                                                    eatery.name
+                                                )
                                             }
-                                        }) {
-                                        searchViewModel.addRecentSearch(it.id)
-                                        onEateryClick(it)
-                                    }
+                                        }
+                                    }) {
+                                    searchViewModel.addRecentSearch(it.id)
+                                    onEateryClick(it)
                                 }
                             }
                         }
                     }
-                } else if (searchResponse is EateryApiResponse.Success) {
-                    // SEARCH QUERY
-                    val searchEateries = searchResponse.data
-                    searchEateries.forEach { eatery ->
-                        Box(
-                            Modifier.padding(
-                                horizontal = 16.dp, vertical = 12.dp
-                            )
-                        ) {
-                            EateryCard(
-                                eatery = eatery,
-                                isFavorite = favorites.any { favoriteEatery ->
-                                    favoriteEatery.id == eatery.id
-                                },
-                                onFavoriteClick = {
-                                    if (eatery.id != null && eatery.name != null) {
-                                        if (it) {
-                                            searchViewModel.addFavorite(eatery.id, eatery.name)
-                                        } else {
-                                            searchViewModel.removeFavorite(
-                                                eatery.id,
-                                                eatery.name
-                                            )
-                                        }
+                }
+            } else if (searchResponse is EateryApiResponse.Success) {
+                // SEARCH QUERY
+                val searchEateries = searchResponse.data
+                searchEateries.forEach { eatery ->
+                    Box(
+                        Modifier.padding(
+                            horizontal = 16.dp, vertical = 12.dp
+                        )
+                    ) {
+                        EateryCard(
+                            eatery = eatery,
+                            isFavorite = favorites.any { favoriteEatery ->
+                                favoriteEatery.id == eatery.id
+                            },
+                            onFavoriteClick = {
+                                if (eatery.id != null && eatery.name != null) {
+                                    if (it) {
+                                        searchViewModel.addFavorite(eatery.id, eatery.name)
+                                    } else {
+                                        searchViewModel.removeFavorite(
+                                            eatery.id,
+                                            eatery.name
+                                        )
                                     }
-                                }) {
-                                searchViewModel.addRecentSearch(it.id)
-                                onEateryClick(it)
-                            }
+                                }
+                            }) {
+                            searchViewModel.addRecentSearch(it.id)
+                            onEateryClick(it)
                         }
                     }
                 }
@@ -336,6 +334,7 @@ fun SearchScreen(
         }
     }
 }
+
 
 /**
  * Each favorited item within the favorited list
