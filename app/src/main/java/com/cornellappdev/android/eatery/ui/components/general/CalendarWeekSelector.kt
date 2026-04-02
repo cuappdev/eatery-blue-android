@@ -74,7 +74,7 @@ fun CalendarWeekSelector(
                         .then(
                             when {
                                 eateryDetail && closedDays?.contains(dayNames[i]) == true -> Modifier
-                                !eateryDetail || closedDays?.contains(dayNames[i]) == false -> Modifier.clickable(
+                                !eateryDetail || closedDays?.contains(dayNames[i]) != true -> Modifier.clickable(
                                     indication = null,
                                     interactionSource = interactionSource
                                 ) { onClick(i) }
