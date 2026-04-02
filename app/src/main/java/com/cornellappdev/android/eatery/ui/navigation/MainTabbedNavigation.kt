@@ -487,6 +487,6 @@ private fun currentRoute(navController: NavHostController): String? {
 
 private fun NavController.isOnBackStack(route: String): Boolean = try {
     getBackStackEntry(route); true
-} catch (_: Throwable) {
+} catch (_: IllegalArgumentException) {
     false
 }
