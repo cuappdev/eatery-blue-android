@@ -118,123 +118,123 @@ fun UpcomingMenuScreen(
         val isFirstVisible =
             remember { derivedStateOf { innerListState.firstVisibleItemIndex > 0 } }
         when (val menus = viewState.menus) {
-                    is EateryApiResponse.Success -> {
-                        UpcomingLazyColumn(
-                            innerListState = innerListState,
-                            upcomingMenuHeader = { UpcomingMenuHeader(isFirstVisible) },
-                            calendarWeekSelector = {
-                                CalendarWeekSelector(
-                                    selectedDay = viewState.selectedDay,
-                                    selectDayOffset = upcomingViewModel::selectDayOffset
-                                )
-                            },
-                            filterRow = {
-                                UpcomingFilterRow(
-                                    showModalBottomSheet = { showMealBottomSheet = true },
-                                    mealFilter = viewState.mealFilter,
-                                    upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
-                                    selectedFilters = viewState.selectedFilters,
-                                    onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
-                                    filterRowState = filterRowState
-                                )
-                            }
-                        ) {
-                            if (menus.data.isEmpty()) {
-                                item {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillParentMaxHeight(0.7f)
-                                            .fillMaxWidth()
-                                    ) {
-                                        NoEateryFound(
-                                            modifier = Modifier.align(
-                                                Alignment.Center
-                                            ),
-                                            resetFilters = upcomingViewModel::onResetFiltersClicked
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                }
-                            }
-                            items(menus.data) {
-                                Column(modifier = Modifier.padding(horizontal = 12.dp)) {
-                                    Text(
-                                        modifier = Modifier.padding(start = 6.dp),
-                                        text = it.header,
-                                        style = EateryBlueTypography.h4
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    it.menuCards.forEach { eatery ->
-                                        MenuCard(
-                                            menuCardViewState = eatery,
-                                            selectEatery = {
-                                                onEateryClick(eatery.eateryId)
-                                            },
-                                            onEateryCardContract = {
-                                                appStorePopupRepository.requestRatingPopup()
-                                            }
-                                        )
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                    }
-                                }
-                            }
-                        }
+            is EateryApiResponse.Success -> {
+                UpcomingLazyColumn(
+                    innerListState = innerListState,
+                    upcomingMenuHeader = { UpcomingMenuHeader(isFirstVisible) },
+                    calendarWeekSelector = {
+                        CalendarWeekSelector(
+                            selectedDay = viewState.selectedDay,
+                            selectDayOffset = upcomingViewModel::selectDayOffset
+                        )
+                    },
+                    filterRow = {
+                        UpcomingFilterRow(
+                            showModalBottomSheet = { showMealBottomSheet = true },
+                            mealFilter = viewState.mealFilter,
+                            upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                            selectedFilters = viewState.selectedFilters,
+                            onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                            filterRowState = filterRowState
+                        )
                     }
-
-                    is EateryApiResponse.Pending -> {
-                        UpcomingLazyColumn(
-                            innerListState = innerListState,
-                            upcomingMenuHeader = { UpcomingMenuHeader(isFirstVisible) },
-                            calendarWeekSelector = {
-                                CalendarWeekSelector(
-                                    selectedDay = viewState.selectedDay,
-                                    selectDayOffset = upcomingViewModel::selectDayOffset
-                                )
-                            },
-                            filterRow = {
-                                UpcomingFilterRow(
-                                    showModalBottomSheet = { showMealBottomSheet = true },
-                                    mealFilter = viewState.mealFilter,
-                                    upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
-                                    selectedFilters = viewState.selectedFilters,
-                                    onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
-                                    filterRowState = filterRowState
-                                )
-                            }
-                        ) {
-                            items(UpcomingLoadingItem.upcomingItems) { item ->
-                                CreateUpcomingLoadingItem(
-                                    item,
-                                    shimmer
-                                )
-                            }
-                        }
-                    }
-
-                    is EateryApiResponse.Error -> {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            UpcomingMenuHeader(isFirstVisible)
-                            CalendarWeekSelector(
-                                selectedDay = viewState.selectedDay,
-                                selectDayOffset = upcomingViewModel::selectDayOffset
-                            )
-                            UpcomingFilterRow(
-                                showModalBottomSheet = { showMealBottomSheet = true },
-                                mealFilter = viewState.mealFilter,
-                                upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
-                                selectedFilters = viewState.selectedFilters,
-                                onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
-                                filterRowState = filterRowState
-                            )
+                ) {
+                    if (menus.data.isEmpty()) {
+                        item {
                             Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
+                                modifier = Modifier
+                                    .fillParentMaxHeight(0.7f)
+                                    .fillMaxWidth()
                             ) {
-                                ErrorContent(onTryAgain = upcomingViewModel::pingEateries)
+                                NoEateryFound(
+                                    modifier = Modifier.align(
+                                        Alignment.Center
+                                    ),
+                                    resetFilters = upcomingViewModel::onResetFiltersClicked
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
+                    items(menus.data) {
+                        Column(modifier = Modifier.padding(horizontal = 12.dp)) {
+                            Text(
+                                modifier = Modifier.padding(start = 6.dp),
+                                text = it.header,
+                                style = EateryBlueTypography.h4
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            it.menuCards.forEach { eatery ->
+                                MenuCard(
+                                    menuCardViewState = eatery,
+                                    selectEatery = {
+                                        onEateryClick(eatery.eateryId)
+                                    },
+                                    onEateryCardContract = {
+                                        appStorePopupRepository.requestRatingPopup()
+                                    }
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
                             }
                         }
                     }
                 }
+            }
+
+            is EateryApiResponse.Pending -> {
+                UpcomingLazyColumn(
+                    innerListState = innerListState,
+                    upcomingMenuHeader = { UpcomingMenuHeader(isFirstVisible) },
+                    calendarWeekSelector = {
+                        CalendarWeekSelector(
+                            selectedDay = viewState.selectedDay,
+                            selectDayOffset = upcomingViewModel::selectDayOffset
+                        )
+                    },
+                    filterRow = {
+                        UpcomingFilterRow(
+                            showModalBottomSheet = { showMealBottomSheet = true },
+                            mealFilter = viewState.mealFilter,
+                            upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                            selectedFilters = viewState.selectedFilters,
+                            onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                            filterRowState = filterRowState
+                        )
+                    }
+                ) {
+                    items(UpcomingLoadingItem.upcomingItems) { item ->
+                        CreateUpcomingLoadingItem(
+                            item,
+                            shimmer
+                        )
+                    }
+                }
+            }
+
+            is EateryApiResponse.Error -> {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    UpcomingMenuHeader(isFirstVisible)
+                    CalendarWeekSelector(
+                        selectedDay = viewState.selectedDay,
+                        selectDayOffset = upcomingViewModel::selectDayOffset
+                    )
+                    UpcomingFilterRow(
+                        showModalBottomSheet = { showMealBottomSheet = true },
+                        mealFilter = viewState.mealFilter,
+                        upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                        selectedFilters = viewState.selectedFilters,
+                        onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                        filterRowState = filterRowState
+                    )
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ErrorContent(onTryAgain = upcomingViewModel::pingEateries)
+                    }
+                }
+            }
+        }
     }
 }
 

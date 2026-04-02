@@ -25,12 +25,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,8 +75,8 @@ fun EateryMenusBottomSheet(
     val days = weekDates.map { it.dayOfMonth }
     val dayNames = weekDates.map { it.dayOfWeek.toReadableShortName() }
 
-    var selectedDay by remember { mutableStateOf(weekDayIndex) }
-    var currSelectedDay by remember { mutableStateOf(selectedDay) }
+    var selectedDay by remember { mutableIntStateOf(weekDayIndex) }
+    var currSelectedDay by remember { mutableIntStateOf(selectedDay) }
 
     val closedDays: List<DayOfWeek> = eatery.getClosedDays()
     val closedDaysStrings: List<String> = closedDays.map { dayOfWeek ->
@@ -238,7 +240,7 @@ fun EateryMenusBottomSheet(
                 Text(
                     modifier = Modifier
                         .padding(top = 12.dp)
-                        .clickable {
+                        .clickable(role = Role.Button) {
                             selectedDay = weekDayIndex
                             onResetClick()
                             onDismiss()
