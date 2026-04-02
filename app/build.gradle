@@ -120,7 +120,7 @@ dependencies {
     implementation 'com.google.accompanist:accompanist-insets:0.30.1'
 
     // Hilt
-    // Implementation and kapt must be in-sync version number
+    // Hilt runtime and compiler should stay on the same version
     implementation "com.google.dagger:hilt-android:2.59.2"
     ksp 'com.google.dagger:hilt-compiler:2.59.2'
     implementation 'androidx.hilt:hilt-navigation-compose:1.3.0'
