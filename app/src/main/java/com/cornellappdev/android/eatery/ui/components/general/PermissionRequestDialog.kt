@@ -57,17 +57,17 @@ fun PermissionRequestDialog(
     updateNotificationFlowStatus: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
-    var requestingPermission by remember {
+    var isRequestingPermission by remember {
         mutableStateOf(!context.hasLocationPermission())
     }
-    showBottomBar.value = !requestingPermission
+    showBottomBar.value = !isRequestingPermission
 
     AnimatedVisibility(
-        visible = requestingPermission,
+        visible = isRequestingPermission,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        val notificationPermissionState =
+        val locationPermissionState =
             rememberMultiplePermissionsState(
                 permissions = listOf(
                     Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -75,9 +75,9 @@ fun PermissionRequestDialog(
                 )
             )
 
-        if (notificationPermissionState.allPermissionsGranted) {
+        if (locationPermissionState.allPermissionsGranted) {
             LocationHandler.instantiate(context)
-            requestingPermission = false
+            isRequestingPermission = false
         } else {
             Box(
                 modifier = Modifier
@@ -101,10 +101,10 @@ fun PermissionRequestDialog(
                         Text(
                             text = "Location permissions are necessary to show you " +
                                     "eateries that are the closest to you!" +
-                                    if (notificationPermissionState.shouldShowRationale || !notificationFlowStatus) {
+                                    if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
                                         ""
                                     } else {
-                                        "\n\nPlease click the button below to go to the settings to enable notifications."
+                                        "\n\nPlease click the button below to go to the settings to enable location permissions."
                                     },
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Medium
@@ -112,19 +112,19 @@ fun PermissionRequestDialog(
                         Spacer(modifier = Modifier.height(15.dp))
                         Button(
                             onClick = {
-                                if (notificationPermissionState.shouldShowRationale || !notificationFlowStatus) {
-                                    notificationPermissionState.launchMultiplePermissionRequest()
+                                if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
+                                    locationPermissionState.launchMultiplePermissionRequest()
                                     updateNotificationFlowStatus(true)
                                 } else {
                                     context.openSettings()
                                 }
-                                requestingPermission = false
+                                isRequestingPermission = false
                             },
                             shape = RoundedCornerShape(5.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = EateryBlue),
                         ) {
                             Text(
-                                text = if (notificationPermissionState.shouldShowRationale || !notificationFlowStatus) {
+                                text = if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
                                     "Request Permission"
                                 } else {
                                     "Open Settings"
@@ -167,3 +167,4 @@ fun PermissionRequestDialogPreview() = EateryPreview {
         updateNotificationFlowStatus = {}
     )
 }
+
