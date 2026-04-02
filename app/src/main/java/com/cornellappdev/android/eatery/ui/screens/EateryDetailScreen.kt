@@ -58,7 +58,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -180,7 +179,6 @@ fun EateryDetailScreenContent(
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
     var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
-    val paymentMethods = remember { mutableStateListOf<PaymentMethodsAvailable>() }
     val coroutineScope = rememberCoroutineScope()
     val issue by remember { mutableStateOf<Issue?>(null) }
 
@@ -239,6 +237,13 @@ fun EateryDetailScreenContent(
 
                 is EateryDetailViewState.Loaded -> {
                     val eatery = viewState.eatery
+                    val paymentMethods = remember(eatery) {
+                        buildList {
+                            if (eatery.acceptsCash()) add(PaymentMethodsAvailable.CASH)
+                            if (eatery.acceptsBRB()) add(PaymentMethodsAvailable.BRB)
+                            if (eatery.acceptsMealSwipes()) add(PaymentMethodsAvailable.SWIPES)
+                        }
+                    }
                     val bitmapState =
                         eatery.imageUrl?.let {
                             CoilRepository.getUrlState(
@@ -335,13 +340,6 @@ fun EateryDetailScreenContent(
                     }
 
 
-                    paymentMethods.apply {
-                        if (eatery.acceptsCash()) add(PaymentMethodsAvailable.CASH)
-                        if (eatery.acceptsBRB()) add(PaymentMethodsAvailable.BRB)
-                        if (eatery.acceptsMealSwipes()) add(
-                            PaymentMethodsAvailable.SWIPES
-                        )
-                    }
 
                     val listState = rememberLazyListState()
                     val showStickyHeader by remember {
