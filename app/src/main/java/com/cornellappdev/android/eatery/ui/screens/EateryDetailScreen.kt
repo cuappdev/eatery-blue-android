@@ -1,7 +1,10 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.RepeatMode
@@ -473,17 +476,44 @@ fun EateryDetailScreenContent(
                                                     context.packageManager.getLaunchIntentForPackage(
                                                         "com.cbord.get"
                                                     )
-                                                if (getAppIntent != null) {
+                                                val launchedGetApp = if (getAppIntent != null) {
                                                     getAppIntent.addCategory(Intent.CATEGORY_LAUNCHER)
-                                                    context.startActivity(getAppIntent)
+                                                    launchIntentSafely(context, getAppIntent)
                                                 } else {
+                                                    false
+                                                }
+
+                                                if (!launchedGetApp) {
+                                                    val playStoreUri =
+                                                        "https://play.google.com/store/apps/details?id=com.cbord.get".toUri()
                                                     val openPlayIntent =
                                                         Intent(Intent.ACTION_VIEW).apply {
-                                                            data =
-                                                                "https://play.google.com/store/apps/details?id=com.cbord.get".toUri()
+                                                            data = playStoreUri
                                                             setPackage("com.android.vending")
                                                         }
-                                                    context.startActivity(openPlayIntent)
+
+                                                    val launchedPlayStore =
+                                                        launchIntentSafely(context, openPlayIntent)
+                                                    if (!launchedPlayStore) {
+                                                        val browserIntent =
+                                                            Intent(Intent.ACTION_VIEW, playStoreUri)
+                                                        val launchedBrowser =
+                                                            launchIntentSafely(
+                                                                context,
+                                                                browserIntent
+                                                            )
+                                                        if (!launchedBrowser) {
+                                                            Log.w(
+                                                                EATERY_DETAIL_TAG,
+                                                                "No activity found to open GET app or Play Store listing"
+                                                            )
+                                                            Toast.makeText(
+                                                                context,
+                                                                "No app available to open this link.",
+                                                                Toast.LENGTH_SHORT
+                                                            ).show()
+                                                        }
+                                                    }
                                                 }
                                             },
                                             shape = RoundedCornerShape(100),
@@ -513,7 +543,29 @@ fun EateryDetailScreenContent(
                                                         "google.navigation:q=${eatery.latitude},${eatery.longitude}&mode=w".toUri()
                                                     setPackage("com.google.android.apps.maps")
                                                 }
-                                            context.startActivity(mapIntent)
+
+                                            val launchedGoogleMaps =
+                                                launchIntentSafely(context, mapIntent)
+                                            if (!launchedGoogleMaps) {
+                                                val fallbackMapIntent =
+                                                    Intent(
+                                                        Intent.ACTION_VIEW,
+                                                        "geo:${eatery.latitude},${eatery.longitude}".toUri()
+                                                    )
+                                                val launchedFallback =
+                                                    launchIntentSafely(context, fallbackMapIntent)
+                                                if (!launchedFallback) {
+                                                    Log.w(
+                                                        EATERY_DETAIL_TAG,
+                                                        "No activity found to handle maps navigation intent"
+                                                    )
+                                                    Toast.makeText(
+                                                        context,
+                                                        "No maps app available on this device.",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            }
                                         },
                                         shape = RoundedCornerShape(100),
                                         modifier = if (!eatery.acceptsMealSwipes()) Modifier else Modifier
@@ -886,6 +938,23 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
         }
     }
 }
+
+private fun launchIntentSafely(context: android.content.Context, intent: Intent): Boolean {
+    val packageManager = context.packageManager
+    return if (intent.resolveActivity(packageManager) != null) {
+        try {
+            context.startActivity(intent)
+            true
+        } catch (exception: ActivityNotFoundException) {
+            Log.w(EATERY_DETAIL_TAG, "Unable to start activity for intent: $intent", exception)
+            false
+        }
+    } else {
+        false
+    }
+}
+
+private const val EATERY_DETAIL_TAG = "EateryDetailScreen"
 
 @Preview(showBackground = true)
 @Composable
