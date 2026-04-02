@@ -56,6 +56,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -342,9 +343,10 @@ fun EateryDetailScreenContent(
                         )
                     }
 
-
                     val listState = rememberLazyListState()
-
+                    val showStickyHeader by remember {
+                        derivedStateOf { listState.firstVisibleItemIndex >= 1 }
+                    }
 
                     Box {
                         val fullMenuList: MutableList<String> =
@@ -803,7 +805,7 @@ fun EateryDetailScreenContent(
                             }
                         }
                         AnimatedVisibility(
-                            visible = listState.firstVisibleItemIndex >= 1,
+                            visible = showStickyHeader,
                             enter = fadeIn(animationSpec = tween(100)),
                             exit = fadeOut(animationSpec = tween(100))
                         ) {
