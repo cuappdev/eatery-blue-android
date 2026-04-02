@@ -232,8 +232,7 @@ fun EateryMenusBottomSheet(
                 ) {
                     Text(
                         text = "Show menu",
-                        style = EateryBlueTypography.h5,
-                        color = Color.White
+                        style = EateryBlueTypography.h5
                     )
                 }
                 Text(
