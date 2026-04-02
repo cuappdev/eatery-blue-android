@@ -159,7 +159,8 @@ fun SearchScreen(
                     ),
                     onCancelClicked = {},
                     focusRequester = focusRequester,
-                    enabled = true
+                    enabled = true,
+                    inputDebounceMillis = 120
                 )
 
                 Column(

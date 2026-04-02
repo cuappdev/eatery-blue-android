@@ -14,6 +14,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,6 +37,7 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.util.EateryPreview
+import kotlinx.coroutines.delay
 
 @Composable
 fun SearchBar(
@@ -45,9 +48,22 @@ fun SearchBar(
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester = remember { FocusRequester() },
     enabled: Boolean = true,
+    inputDebounceMillis: Long = 0,
 ) {
     var showCancel by remember { mutableStateOf(false) }
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(searchText)) }
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(textFieldValue.text, inputDebounceMillis) {
+        if (textFieldValue.text != searchText) {
+            if (inputDebounceMillis > 0) {
+                delay(inputDebounceMillis)
+            }
+            if (textFieldValue.text != searchText) {
+                onSearchTextChange(textFieldValue.text)
+            }
+        }
+    }
 
     Row(
         modifier = Modifier
@@ -60,8 +76,10 @@ fun SearchBar(
         }
 
         TextField(
-            value = searchText,
-            onValueChange = onSearchTextChange,
+            value = textFieldValue,
+            onValueChange = { updatedValue ->
+                textFieldValue = updatedValue
+            },
             enabled = enabled,
             modifier = Modifier
                 .weight(1f)
