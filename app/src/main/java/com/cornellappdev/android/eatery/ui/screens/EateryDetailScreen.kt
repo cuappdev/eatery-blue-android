@@ -100,16 +100,9 @@ import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
-import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
@@ -131,6 +124,7 @@ fun EateryDetailScreen(
     appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
 ) {
+    val colors = currentColors
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val context = LocalContext.current
     val modalBottomSheetState =
@@ -190,7 +184,7 @@ fun EateryDetailScreen(
     ) { paddingValues ->
         Box(
             modifier = Modifier
-                .background(Color.White)
+                .background(currentColors.backgroundDefault)
                 .padding(paddingValues)
         ) {
             when (viewState) {
@@ -375,8 +369,8 @@ fun EateryDetailScreen(
                                                                 .background(
                                                                     colorInterp(
                                                                         progress,
-                                                                        GrayOne,
-                                                                        GrayThree
+                                                                        colors.backgroundSecondary,
+                                                                        colors.backgroundDefault10
                                                                     )
                                                                 ),
                                                             contentDescription = "",
@@ -409,12 +403,12 @@ fun EateryDetailScreen(
                                             contentPadding = PaddingValues(6.dp),
                                             shape = CircleShape,
                                             colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = Color.White,
+                                                backgroundColor = currentColors.backgroundDefault,
                                             )
                                         ) {
                                             Icon(
                                                 imageVector = if (viewState.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                                                tint = if (viewState.isFavorite) Yellow else GrayFive,
+                                                tint = if (viewState.isFavorite) colors.accentPressed else colors.textSecondary,
                                                 contentDescription = null
                                             )
                                         }
@@ -440,6 +434,7 @@ fun EateryDetailScreen(
                                         text = eatery.name ?: "Loading...",
                                         modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                                         style = EateryBlueTypography.h3,
+                                        color = currentColors.textPrimary
                                     )
                                 }
                                 item {
@@ -447,7 +442,7 @@ fun EateryDetailScreen(
                                         text = "${eatery.location} ${if (!eatery.menuSummary.isNullOrBlank()) "· ${eatery.menuSummary}" else ""}",
                                         modifier = Modifier.padding(start = 16.dp),
                                         style = EateryBlueTypography.subtitle2,
-                                        color = GrayFive
+                                        color = colors.textSecondary
                                     )
                                 }
                                 item {
@@ -480,20 +475,21 @@ fun EateryDetailScreen(
                                                 },
                                                 shape = RoundedCornerShape(100),
                                                 colors = ButtonDefaults.buttonColors(
-                                                    backgroundColor = EateryBlue,
-                                                    contentColor = Color.White
+                                                    backgroundColor = colors.accentPrimary,
+                                                    contentColor = currentColors.backgroundDefault
                                                 )
                                             ) {
                                                 Icon(
                                                     painter = painterResource(id = R.drawable.ic_android_phone),
-                                                    contentDescription = "Phone - Order Online"
+                                                    contentDescription = "Phone - Order Online",
+                                                    tint = currentColors.textPrimary
                                                 )
                                                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                                 Text(
                                                     modifier = Modifier.padding(vertical = 6.dp),
                                                     text = "Order online",
                                                     style = EateryBlueTypography.h5,
-                                                    color = Color.White
+                                                    color = currentColors.textPrimary
                                                 )
                                             }
                                         }
@@ -512,8 +508,8 @@ fun EateryDetailScreen(
                                                 .fillMaxWidth()
                                                 .padding(horizontal = 15.dp),
                                             colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = GrayZero,
-                                                contentColor = Color.Black
+                                                backgroundColor = currentColors.accentPrimary,
+                                                contentColor = currentColors.textPrimary
                                             )
                                         ) {
                                             Icon(
@@ -542,7 +538,7 @@ fun EateryDetailScreen(
                                             .fillMaxWidth()
                                             .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
                                             .border(
-                                                1.dp, GrayZero, RoundedCornerShape(8.dp)
+                                                1.dp, colors.accentPrimary, RoundedCornerShape(8.dp)
                                             ),
                                         horizontalArrangement = Arrangement.SpaceEvenly,
                                         verticalAlignment = Alignment.CenterVertically
@@ -560,20 +556,20 @@ fun EateryDetailScreen(
                                                 }
                                         ) {
                                             Row(
-                                                modifier = Modifier,
+                                                modifier = Modifier.border(1.dp, color = currentColors.accentPrimary),
                                                 verticalAlignment = Alignment.CenterVertically
                                             ) {
                                                 Icon(
                                                     imageVector = Icons.Outlined.Schedule,
                                                     contentDescription = "Hours Icon",
-                                                    tint = GrayFive
+                                                    tint = colors.textSecondary
                                                 )
                                                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                                 Text(
                                                     text = "Hours", style = TextStyle(
                                                         fontWeight = FontWeight.SemiBold,
                                                         fontSize = 16.sp
-                                                    ), color = GrayFive
+                                                    ), color = colors.textSecondary
                                                 )
                                             }
                                             val openUntil = eatery.getOpenUntil()
@@ -587,15 +583,15 @@ fun EateryDetailScreen(
                                                     fontWeight = FontWeight.SemiBold,
                                                     fontSize = 16.sp
                                                 ),
-                                                color = if (openUntil == null) Red
-                                                else if (eatery.isClosingSoon()) Yellow
-                                                else Green
+                                                color = if (openUntil == null) colors.error
+                                                else if (eatery.isClosingSoon()) colors.accentPressed
+                                                else colors.success
                                             )
                                         }
 
 
                                         Divider(
-                                            color = GrayZero,
+                                            color = colors.accentPrimary,
                                             modifier = Modifier
                                                 .align(Alignment.CenterVertically)
                                                 .fillMaxHeight(0.5f)
@@ -622,7 +618,7 @@ fun EateryDetailScreen(
 //                                    Icon(
 //                                        imageVector = Icons.Default.HourglassTop,
 //                                        contentDescription = "Watch Icon",
-//                                        tint = GrayFive
+//                                        tint = colors.textSecondary
 //                                    )
 //                                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
 //                                    Text(
@@ -631,7 +627,7 @@ fun EateryDetailScreen(
 //                                            fontWeight = FontWeight.SemiBold,
 //                                            fontSize = 16.sp
 //                                        ),
-//                                        color = GrayFive
+//                                        color = colors.textSecondary
 //                                    )
 //                                }
 //
@@ -647,7 +643,7 @@ fun EateryDetailScreen(
 //                                        fontWeight = FontWeight.SemiBold,
 //                                        fontSize = 16.sp
 //                                    ),
-//                                    color = Color.Black,
+//                                    color = currentColors.textPrimary,
 //                                )
 //
 //
@@ -661,7 +657,7 @@ fun EateryDetailScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(16.dp)
-                                            .background(GrayZero)
+                                            .background(colors.accentPrimary)
                                     )
                                 }
                                 nextEvent.menu?.let {
@@ -696,7 +692,7 @@ fun EateryDetailScreen(
                                                 )
                                                 .fillMaxWidth()
                                                 .height(1.dp)
-                                                .background(GrayZero, CircleShape)
+                                                .background(colors.accentPrimary, CircleShape)
                                         )
                                     }
                                     eatery.getTypeMeal(viewState.weekdayIndex.fromOffsetToDayOfWeek())
@@ -734,7 +730,7 @@ fun EateryDetailScreen(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .height(16.dp)
-                                                .background(GrayZero)
+                                                .background(colors.accentPrimary)
                                         )
                                     }
                                 }
@@ -757,7 +753,7 @@ fun EateryDetailScreen(
                                             text = "Help us make this info more accurate by letting us know what's wrong.",
                                             style = EateryBlueTypography.body2,
                                             modifier = Modifier.padding(bottom = 5.dp),
-                                            color = GrayFive
+                                            color = colors.textSecondary
                                         )
 
 
@@ -775,7 +771,7 @@ fun EateryDetailScreen(
                                                 }
                                             },
                                             colors = ButtonDefaults.buttonColors(
-                                                backgroundColor = GrayZero,
+                                                backgroundColor = colors.backgroundDefault,
                                             )
                                         ) {
                                             Icon(
@@ -786,7 +782,7 @@ fun EateryDetailScreen(
                                             Text(
                                                 text = "Report an Issue",
                                                 style = EateryBlueTypography.button,
-                                                color = Color.Black
+                                                color = currentColors.textPrimary
                                             )
                                         }
 
@@ -803,7 +799,7 @@ fun EateryDetailScreen(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(16.dp)
-                                            .background(GrayZero)
+                                            .background(colors.backgroundDefault)
                                     )
                                 }
                             }
@@ -815,7 +811,7 @@ fun EateryDetailScreen(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .background(Color.White)
+                                        .background(currentColors.backgroundDefault)
                                         .padding(top = 48.dp, bottom = 12.dp)
                                 ) {
                                     EateryHeader(
@@ -859,7 +855,10 @@ private fun LazyListScope.menuHeadingItem(
     nextEvent: Event,
     hoursOnClick: () -> Job
 ) {
+
+
     item {
+        val colors = currentColors
         Row(
             modifier = Modifier.padding(
                 top = 16.dp,
@@ -876,6 +875,7 @@ private fun LazyListScope.menuHeadingItem(
                     text = weekDayIndex.fromOffsetToDayOfWeek()
                         .toReadableFullName(),
                     style = EateryBlueTypography.h4,
+                    color= currentColors.textPrimary
                 )
                 if (nextEvent.startTime != null && nextEvent.endTime != null) {
                     Text(
@@ -889,7 +889,7 @@ private fun LazyListScope.menuHeadingItem(
                             )
                         }",
                         style = EateryBlueTypography.subtitle2,
-                        color = GrayFive
+                        color = colors.textSecondary
                     )
                 }
             }
@@ -900,6 +900,7 @@ private fun LazyListScope.menuHeadingItem(
 
 @Composable
 fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Unit) {
+    val colors = currentColors
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -914,7 +915,7 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
             text = eatery.name ?: "Loading...",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            color = Color.Black,
+            color = currentColors.textPrimary,
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp
@@ -930,7 +931,7 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
             contentPadding = PaddingValues(6.dp),
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.White,
+                backgroundColor = currentColors.backgroundDefault,
             ),
             elevation = ButtonDefaults.elevation(
                 defaultElevation = 0.dp,
@@ -939,7 +940,7 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
         ) {
             Icon(
                 imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                tint = if (isFavorite) Yellow else GrayFive,
+                tint = if (isFavorite) colors.accentPressed else colors.textSecondary,
                 contentDescription = null
             )
         }

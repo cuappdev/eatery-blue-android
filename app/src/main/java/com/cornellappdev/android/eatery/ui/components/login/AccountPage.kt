@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,6 +36,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,21 +48,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Account
 import com.cornellappdev.android.eatery.data.models.AccountType
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -76,8 +80,10 @@ fun AccountPage(
     checkMealPlan: () -> Account?,
     onSettingsClicked: () -> Unit,
     getTransactionsOfType: (AccountType, String) -> List<Transaction>,
-    updateAccountFilter: (AccountType) -> Unit
+    updateAccountFilter: (AccountType) -> Unit,
+    themeViewModel: ThemeViewModel = hiltViewModel()
 ) {
+    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
     var filterText by remember { mutableStateOf("") }
     val modalBottomSheetState =
         rememberModalBottomSheetState(
@@ -119,6 +125,11 @@ fun AccountPage(
         ),
         sheetElevation = 8.dp
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(currentColors.backgroundDefault)
+        )
         val innerListState = rememberLazyListState()
         val isFirstVisible =
             remember { derivedStateOf { innerListState.firstVisibleItemIndex > 1 } }
@@ -131,8 +142,8 @@ fun AccountPage(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(EateryBlue)
-                    .then(Modifier.statusBarsPadding())
+                    .background(currentColors.backgroundSecondary)
+                    .statusBarsPadding()
                     .padding(bottom = 7.dp),
             ) {
                 AnimatedContent(
@@ -142,14 +153,13 @@ fun AccountPage(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(color = EateryBlue)
                                 .padding(top = 12.dp)
                         ) {
                             Text(
                                 modifier = Modifier.align(Alignment.Center),
                                 textAlign = TextAlign.Center,
                                 text = "Account",
-                                color = Color.White,
+                                color = currentColors.oppTextPrimary,
                                 style = TextStyle(
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 20.sp
@@ -164,9 +174,9 @@ fun AccountPage(
                             ) {
                                 Icon(
                                     modifier = Modifier.size(28.dp),
-                                    imageVector = Icons.Outlined.Settings,
+                                    painter = painterResource(id=R.drawable.system_setting),
                                     contentDescription = Icons.Outlined.Settings.name,
-                                    tint = Color.White
+                                    tint = currentColors.textPrimary
                                 )
                             }
                         }
@@ -174,7 +184,6 @@ fun AccountPage(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(color = EateryBlue)
                                 .then(Modifier.statusBarsPadding())
                                 .padding(bottom = 7.dp),
                         ) {
@@ -189,7 +198,7 @@ fun AccountPage(
                                     modifier = Modifier.size(28.dp),
                                     imageVector = Icons.Outlined.Settings,
                                     contentDescription = Icons.Outlined.Settings.name,
-                                    tint = Color.White
+                                    tint = currentColors.textPrimary
                                 )
                             }
                             Column(
@@ -201,7 +210,7 @@ fun AccountPage(
                             ) {
                                 Text(
                                     text = "Account",
-                                    color = Color.White,
+                                    color = currentColors.oppTextPrimary,
                                     style = EateryBlueTypography.h2
                                 )
                             }
@@ -216,6 +225,7 @@ fun AccountPage(
                             Text(
                                 text = "Meal Plan",
                                 style = EateryBlueTypography.h4,
+                                color = currentColors.textPrimary,
                                 modifier = Modifier.padding(top = 16.dp)
                             )
                             AccountBalanceRow(
@@ -228,7 +238,7 @@ fun AccountPage(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(1.dp)
-                                    .background(GrayZero, CircleShape)
+                                    .background(currentColors.accentPrimary, CircleShape)
                             )
                             AccountBalanceRow(
                                 accountName = "Big Red Bucks",
@@ -240,7 +250,7 @@ fun AccountPage(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(1.dp)
-                                    .background(GrayZero, CircleShape)
+                                    .background(currentColors.accentPrimary, CircleShape)
                             )
                             AccountBalanceRow(
                                 accountName = "City Bucks",
@@ -252,7 +262,7 @@ fun AccountPage(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(1.dp)
-                                    .background(GrayZero, CircleShape)
+                                    .background(currentColors.accentPrimary, CircleShape)
                             )
                             AccountBalanceRow(
                                 accountName = "Laundry",
@@ -269,15 +279,12 @@ fun AccountPage(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(16.dp)
-                            .background(GrayZero)
+                            .background(currentColors.accentPrimary)
                     )
                 }
 
                 stickyHeader {
-                    Column(
-                        modifier = Modifier
-                            .background(color = Color.White)
-                    ) {
+
                         Row(
                             modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -294,6 +301,7 @@ fun AccountPage(
                                         else -> "Account Type"
                                     },
                                     style = EateryBlueTypography.h4,
+                                    color = currentColors.textPrimary
 
                                     )
                             }
@@ -306,47 +314,53 @@ fun AccountPage(
                                 },
                                 modifier = Modifier
                                     .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
-                                    .background(color = GrayZero, shape = CircleShape)
+                                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.KeyboardArrowDown,
                                     contentDescription = "Change Account Type",
                                     modifier = Modifier
-                                        .size(26.dp)
+                                        .size(26.dp),
+                                    tint = currentColors.accentPrimary
                                 )
                             }
                         }
                         SearchBar(
                             searchText = filterText,
                             onSearchTextChange = { filterText = it },
-                            modifier = Modifier.padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
+                            modifier = Modifier
+                            .padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
                             placeholderText = "Search for transactions...",
                             onCancelClicked = {
                                 filterText = ""
-                            }
+                            },
+
                         )
                         Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(1.dp)
+                                .background(currentColors.accentPrimary, CircleShape)
                                 .padding(horizontal = 16.dp)
-                                .background(GrayZero, CircleShape)
+
                         )
                         Text(
                             text = "Past 30 Days",
                             modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
-                            style = EateryBlueTypography.h5
+                            style = EateryBlueTypography.h5,
+                            color = currentColors.textPrimary
                         )
                         Spacer(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(1.dp)
+                                .background(currentColors.accentPrimary, CircleShape)
                                 .padding(horizontal = 16.dp)
-                                .background(GrayZero, CircleShape)
+
                         )
 
 
-                    }
+
                 }
                 items(
                     getTransactionsOfType(
@@ -365,30 +379,27 @@ fun AccountPage(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "${it.location}", style = EateryBlueTypography.button)
+                            Text(text = "${it.location}",
+                                style = EateryBlueTypography.button,
+                                color = currentColors.textPrimary)
                             Text(
                                 text = outputFormatter.format(dateTime),
-                                style = EateryBlueTypography.subtitle2
+                                style = EateryBlueTypography.subtitle2,
+                                color = currentColors.textSecondary
                             )
                         }
-                        var amtColor by remember { mutableStateOf(Color.Unspecified) }
-                        var amtString by remember { mutableStateOf("$0.00") }
+                        val (amtString, amtColor) =
                         when {
                             it.transactionType == 3 -> {
-                                amtString = "+$%.2f".format(it.amount)
-                                amtColor =
-                                    Color(LocalContext.current.resources.getColor(R.color.green))
+                                "+$%.2f".format(it.amount) to currentColors.success
                             }
 
                             it.amount?.toInt() == 0 -> {
-                                amtString = "$0.00"
-                                amtColor = Color.Black
+                                "$0.00" to currentColors.textPrimary
                             }
 
                             else -> {
-                                amtString = "-$%.2f".format(it.amount)
-                                amtColor =
-                                    Color(LocalContext.current.resources.getColor(R.color.red))
+                                "-$%.2f".format(it.amount) to currentColors.error
                             }
                         }
                         Text(
@@ -404,7 +415,7 @@ fun AccountPage(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(GrayZero, CircleShape)
+                            .background(currentColors.accentPrimary, CircleShape)
                     )
                 }
             }
@@ -422,13 +433,15 @@ fun AccountBalanceRow(
     checkMealPlan: () -> Account?
 ) {
     Row(
-        modifier = Modifier.height(50.dp),
+        modifier = Modifier.height(50.dp)
+            .background(currentColors.backgroundDefault),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             modifier = Modifier.weight(1f),
             text = accountName,
             style = EateryBlueTypography.button,
+            color = currentColors.textPrimary
         )
         Text(
             modifier = Modifier.weight(1f),
@@ -443,6 +456,7 @@ fun AccountBalanceRow(
                 ) + " remaining"
             },
             style = EateryBlueTypography.button,
+            color = currentColors.textPrimary
         )
     }
 }
@@ -458,7 +472,9 @@ fun AccountTypesAvailable(
     var selected by remember { mutableStateOf(accountFilter) }
     Column(
         modifier = Modifier
+            .background(currentColors.backgroundDefault)
             .padding(vertical = 24.dp)
+
     ) {
         Row(
             modifier = Modifier
@@ -469,7 +485,8 @@ fun AccountTypesAvailable(
             Text(
                 text = "Payment Methods",
                 style = EateryBlueTypography.h4,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
+                color = currentColors.textPrimary
             )
 
             IconButton(
@@ -478,12 +495,13 @@ fun AccountTypesAvailable(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = currentColors.textPrimary)
             }
         }
-        Column {
+        Column( modifier = Modifier.background(currentColors.backgroundDefault))
+        {
             selectedPaymentMethod.forEachIndexed { index, account ->
                 val select = when (selected) {
                     account -> true
@@ -499,7 +517,7 @@ fun AccountTypesAvailable(
                         ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(
+                    Text(color = currentColors.textPrimary,
                         text = when (account.name) {
                             "MEALSWIPES" -> "Meal Swipes"
                             "BRBS" -> "Big Red Bucks"
@@ -530,7 +548,7 @@ fun AccountTypesAvailable(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(GrayZero, CircleShape)
+                            .background(currentColors.backgroundDefault, CircleShape)
                             .padding(horizontal = 16.dp)
                     )
                 }
@@ -547,15 +565,15 @@ fun AccountTypesAvailable(
 
                 shape = RoundedCornerShape(100),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = EateryBlue,
-                    contentColor = Color.White
+                    backgroundColor = currentColors.accentPrimary,
+                    contentColor = currentColors.textPrimary
                 )
             ) {
                 Text(
                     modifier = Modifier.padding(vertical = 6.dp),
                     text = "Show transactions",
                     style = EateryBlueTypography.h5,
-                    color = Color.White
+                    color = currentColors.textPrimary
                 )
             }
         }

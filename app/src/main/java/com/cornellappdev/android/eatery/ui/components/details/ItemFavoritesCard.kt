@@ -32,8 +32,7 @@ import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.ui.components.general.FavoriteButton
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.conditional
 
@@ -57,10 +56,10 @@ fun ItemFavoritesCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .border(BorderStroke(Dp.Hairline, GrayZero), RoundedCornerShape(8)),
+            .border(BorderStroke(Dp.Hairline, currentColors.backgroundDefault), RoundedCornerShape(8)),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = currentColors.backgroundDefault
         ),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -130,7 +129,7 @@ private fun FavoritesCardPreview() = EateryPreview {
     ItemFavoritesCard(
         ItemFavoritesCardViewState(
             "tes",
-            EateryStatus("Available", Green),
+            EateryStatus("Available", currentColors.success),
             mapOf(
                 "lunch" to listOf("becker"),
                 "lunch" to listOf("becker"),

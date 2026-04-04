@@ -38,9 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.toReadableShortName
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -59,6 +58,7 @@ fun EateryMenusBottomSheet(
     onShowMenuClick: (Int, String, Int) -> Unit,
     onResetClick: () -> Unit
 ) {
+    val colors = currentColors
     val zoneId: ZoneId? = ZoneId.of("America/New_York")
     val today = LocalDate.now(zoneId)
     val currentDay by remember { mutableStateOf(today) }
@@ -129,7 +129,7 @@ fun EateryMenusBottomSheet(
                     },
                     modifier = Modifier
                         .padding(all = 8.dp)
-                        .background(color = GrayZero, shape = CircleShape)
+                        .background(color = colors.backgroundDefault, shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -174,14 +174,14 @@ fun EateryMenusBottomSheet(
                                         text = description,
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight(600),
-                                        color = Color.Black,
+                                        color = currentColors.textPrimary,
                                         modifier = Modifier.padding(bottom = 2.dp)
                                     )
                                     Text(
                                         text = duration,
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight(600),
-                                        color = Color.Gray
+                                        color = currentColors.textSecondary
                                     )
                                 }
                                 IconButton(onClick = { selectedMealType = description }) {
@@ -190,12 +190,12 @@ fun EateryMenusBottomSheet(
                                             contentAlignment = Alignment.Center,
                                             modifier = Modifier
                                                 .size(26.dp)
-                                                .background(Color.Black, CircleShape)
+                                                .background(currentColors.textPrimary, CircleShape)
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Default.Check,
                                                 contentDescription = "Selected",
-                                                tint = Color.White,
+                                                tint = currentColors.backgroundDefault,
                                                 modifier = Modifier.fillMaxSize(0.7f)
                                             )
                                         }
@@ -204,8 +204,8 @@ fun EateryMenusBottomSheet(
                                             contentAlignment = Alignment.Center,
                                             modifier = Modifier
                                                 .size(26.dp)
-                                                .background(Color.White, CircleShape)
-                                                .border(2.dp, Color.Black, CircleShape)
+                                                .background(currentColors.backgroundDefault, CircleShape)
+                                                .border(2.dp, currentColors.textPrimary, CircleShape)
                                         ) {
                                         }
                                     }
@@ -218,7 +218,7 @@ fun EateryMenusBottomSheet(
                                         .padding(top = 12.dp, bottom = 12.dp)
                                         .fillMaxWidth()
                                         .height(1.dp)
-                                        .background(GrayZero, CircleShape)
+                                        .background(currentColors.backgroundDefault, CircleShape)
                                 )
                             }
                         }
@@ -250,13 +250,14 @@ fun EateryMenusBottomSheet(
                         .height(48.dp),
                     shape = RoundedCornerShape(100),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = EateryBlue, contentColor = Color.White
+                        backgroundColor = currentColors.accentPrimary,
+                        contentColor = currentColors.backgroundDefault
                     )
                 ) {
                     Text(
                         text = "Show menu",
                         style = EateryBlueTypography.h5,
-                        color = Color.White
+                        color = currentColors.backgroundDefault
                     )
                 }
                 ClickableText(modifier = Modifier.padding(top = 12.dp),
@@ -265,7 +266,7 @@ fun EateryMenusBottomSheet(
                         fontSize = 14.sp,
                         lineHeight = 17.5.sp,
                         fontWeight = FontWeight(600),
-                        color = Color(0xFF050505)
+                        color = currentColors.textPrimary
                     ),
                     onClick = {
                         selectedDay = weekDayIndex

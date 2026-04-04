@@ -58,7 +58,7 @@ import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.SearchViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.popIn
@@ -76,6 +76,7 @@ fun SearchScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteClick: () -> Unit
 ) {
+    val colors = currentColors
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val focusRequester = remember { FocusRequester() }
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -124,7 +125,7 @@ fun SearchScreen(
         LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
             stickyHeader {
 
-                Column(modifier = Modifier.background(Color.White)) {
+                Column(modifier = Modifier.background(currentColors.backgroundDefault)) {
                     SearchBar(
                         searchText = query,
                         onSearchTextChange = {
@@ -167,7 +168,7 @@ fun SearchScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(GrayZero)
+                            .background(colors.backgroundDefault)
                     )
                 }
             }
@@ -209,14 +210,14 @@ fun SearchScreen(
                                             modifier = Modifier
                                                 .size(40.dp)
                                                 .background(
-                                                    color = GrayZero,
+                                                    color = colors.backgroundDefault,
                                                     shape = CircleShape
                                                 )
                                         ) {
                                             Icon(
                                                 Icons.Default.ArrowForward,
                                                 contentDescription = "Favorites",
-                                                tint = Color.Black
+                                                tint = currentColors.textPrimary
                                             )
                                         }
                                     }
@@ -314,6 +315,7 @@ fun SearchScreen(
 fun FavoriteItem(
     eatery: Eatery, onEateryClick: (eatery: Eatery) -> Unit
 ) {
+    val colors = currentColors
     Column(
         modifier = Modifier
             .width(96.dp)
@@ -333,8 +335,8 @@ fun FavoriteItem(
                 ),
                 component = rememberImageComponent {
                     +ShimmerPlugin(
-                        baseColor = Color.White,
-                        highlightColor = GrayZero,
+                        baseColor = currentColors.backgroundDefault,
+                        highlightColor = colors.backgroundDefault,
                         durationMillis = 350,
                         dropOff = 0.65f,
                         tilt = 20f

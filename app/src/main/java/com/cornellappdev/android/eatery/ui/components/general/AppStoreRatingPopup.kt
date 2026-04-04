@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
@@ -44,9 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat.startActivity
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
@@ -125,13 +125,13 @@ private fun ActionPrompt(
         Spacer(Modifier.height(12.dp))
         Button(
             onButtonPress,
-            colors = ButtonDefaults.buttonColors(backgroundColor = EateryBlue),
+            colors = ButtonDefaults.buttonColors(backgroundColor = currentColors.accentPrimary),
             shape = RoundedCornerShape(100.dp)
         ) {
             Text(
                 buttonText,
                 style = EateryBlueTypography.button,
-                color = Color.White
+                color = currentColors.backgroundDefault
             )
         }
     }
@@ -181,7 +181,7 @@ private fun AppStoreRatingCardBorder(
     Column(
         modifier = Modifier
             .shadow(3.dp, shape = RoundedCornerShape(20.dp))
-            .background(Color.White)
+            .background(currentColors.backgroundDefault)
             .clip(RoundedCornerShape(20.dp))
             .padding(bottom = 24.dp, start = 24.dp)
     ) {
@@ -191,12 +191,12 @@ private fun AppStoreRatingCardBorder(
                 modifier = Modifier
                     .padding(end = 16.dp, top = 16.dp)
                     .size(20.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
                 androidx.compose.material.Icon(
                     Icons.Default.Close,
                     contentDescription = Icons.Default.Close.name,
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
             }
         }

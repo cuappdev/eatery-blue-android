@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -22,8 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun SettingsOption(
@@ -36,6 +36,7 @@ fun SettingsOption(
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .fillMaxWidth()
             .height(80.dp)
             .clickable(
@@ -58,12 +59,13 @@ fun SettingsOption(
                 Text(
                     text = title,
                     style = EateryBlueTypography.h5,
+                    color = currentColors.textPrimary
                 )
                 if (!description.isNullOrEmpty())
                     Text(
                         text = description,
                         style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                        color = GrayFive,
+                        color = currentColors.textPrimary,
                         modifier = Modifier.padding(top = 2.dp)
                     )
             }
@@ -77,5 +79,5 @@ fun SettingsOption(
 
 @Composable
 fun SettingsLineSeparator() {
-    Divider(color = GrayOne, modifier = Modifier.fillMaxWidth(), thickness = 1.dp)
+    Divider(color = currentColors.accentPrimary, modifier = Modifier.fillMaxWidth(), thickness = 1.dp)
 }

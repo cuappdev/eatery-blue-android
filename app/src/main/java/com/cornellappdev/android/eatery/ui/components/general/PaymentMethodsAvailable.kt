@@ -34,12 +34,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 
 @Composable
@@ -99,9 +95,9 @@ fun PaymentMethodsAvailable(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = currentColors.textPrimary)
             }
         }
 
@@ -118,14 +114,14 @@ fun PaymentMethodsAvailable(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = Color.White,
+                            color = currentColors.backgroundDefault,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_swipes),
                         contentDescription = "Swipes",
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.SWIPES)) EateryBlue else GrayTwo
+                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.SWIPES)) currentColors.backgroundSecondary else currentColors.backgroundDefault92
                     )
                 }
             }
@@ -137,14 +133,14 @@ fun PaymentMethodsAvailable(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = Color.White,
+                            color = currentColors.backgroundDefault,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_brbs),
                         contentDescription = "BRBs",
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.BRB)) Red else GrayTwo
+                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.BRB)) currentColors.error else currentColors.backgroundDefault92
                     )
                 }
             }
@@ -155,14 +151,14 @@ fun PaymentMethodsAvailable(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = Color.White,
+                            color = currentColors.backgroundDefault,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_cash),
                         contentDescription = "Cash or card",
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.CASH)) Green else GrayTwo
+                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.CASH)) currentColors.success else currentColors.backgroundDefault92
                     )
                 }
             }
@@ -184,8 +180,8 @@ fun PaymentMethodsAvailable(
                 .padding(top = 12.dp, bottom = 12.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = GrayZero,
-                contentColor = Color.Black
+                backgroundColor = currentColors.backgroundDefault,
+                contentColor = currentColors.textPrimary
             )
         ) {
             Text(
@@ -197,8 +193,10 @@ fun PaymentMethodsAvailable(
     }
 }
 
+
+
 enum class PaymentMethodsAvailable(val drawable: Int, val color: Color, val text: String) {
-    BRB(drawable = R.drawable.ic_small_brbs, color = Red, text = "BRBs"),
-    CASH(drawable = R.drawable.ic_small_cash, color = Green, text = "Cash or credit"),
-    SWIPES(drawable = R.drawable.ic_small_swipes, color = EateryBlue, text = "Meal swipes");
+    BRB(drawable = R.drawable.ic_small_brbs, color = Color.Red, text = "BRBs"),
+    CASH(drawable = R.drawable.ic_small_cash, color = Color.Green, text = "Cash or credit"),
+    SWIPES(drawable = R.drawable.ic_small_swipes, color = Color(0xFF808080), text = "Meal swipes");
 }

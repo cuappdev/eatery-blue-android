@@ -9,6 +9,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -90,10 +91,10 @@ import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.EateryHomeSection
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.LocationHandler
@@ -116,9 +117,11 @@ fun HomeScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteExpand: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
-    onNotificationsClick: () -> Unit
+    onNotificationsClick: () -> Unit,
+    themeViewModel : ThemeViewModel = hiltViewModel()
 ) {
-    val colors = currentColors
+    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+    val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
     val context = LocalContext.current
     val favorites = homeViewModel.favoriteEateries.collectAsState().value
     val nearestEateries = homeViewModel.eateriesByDistance.collectAsState().value
@@ -199,7 +202,7 @@ fun HomeScreen(
         content = { paddingValues ->
             Box(
                 modifier = Modifier
-                    .background(colors.backgroundDefault)
+                    .background(currentColors.backgroundDefault)
                     .padding(paddingValues)
             ) {
                 ModalBottomSheetLayout(
@@ -241,7 +244,8 @@ fun HomeScreen(
                             onListClick = { isGridView = false },
                             onGridClick = { isGridView = true },
                             onNotificationsClick = onNotificationsClick,
-                            onReload = homeViewModel::pingEateries
+                            onReload = homeViewModel::pingEateries,
+                            isDarkMode = resolvedDarkMode
                         )
                     }
                 )
@@ -321,7 +325,8 @@ private fun HomeScrollableMainContent(
     onListClick: () -> Unit,
     onGridClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onReload: () -> Unit
+    onReload: () -> Unit,
+    isDarkMode : Boolean
 ) {
     val listState = rememberLazyListState()
     val filterRowState = rememberLazyListState()
@@ -359,7 +364,8 @@ private fun HomeScrollableMainContent(
                     isGridView,
                     onListClick,
                     onGridClick,
-                    nearestEateries
+                    nearestEateries,
+                    isDarkMode
                 )
             }
         }
@@ -458,14 +464,14 @@ fun ErrorContent(onTryAgain: () -> Unit) {
             painter = painterResource(R.drawable.ic_error),
             contentDescription = "Error Icon",
             modifier = Modifier.size(72.dp),
-            tint = Color.Red
+            tint = currentColors.error
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = "Hmm, no chow here (yet).",
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF1B1F23),
+            color = currentColors.textPrimary,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -473,7 +479,7 @@ fun ErrorContent(onTryAgain: () -> Unit) {
             text = "We ran into an issue loading this page. Check your connection or try reloading the page.",
             fontSize = 18.sp,
             fontWeight = FontWeight.Normal,
-            color = Color(0xFF1B1F23),
+            color = currentColors.textPrimary,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -483,10 +489,10 @@ fun ErrorContent(onTryAgain: () -> Unit) {
                 .width(109.dp)
                 .height(34.dp)
                 .clip(RoundedCornerShape(17.dp)),
-            colors = ButtonDefaults.buttonColors(containerColor = EateryBlue)
+            colors = ButtonDefaults.buttonColors(currentColors.accentPrimary)
         ) {
             Text(
-                text = "Try Again", color = Color.White,
+                text = "Try Again", color = currentColors.textPrimary,
                 fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
                 lineHeight = 1.25.em
@@ -514,8 +520,10 @@ private fun LazyListScope.regularContent(
     isGridView: Boolean,
     onListClick: () -> Unit,
     onGridClick: () -> Unit,
-    nearestEateries: List<Eatery>
+    nearestEateries: List<Eatery>,
+    isDarkMode : Boolean
 ) {
+
     val eateries = eateriesApiResponse.data
 
     if (selectedFilters.isNotEmpty()) {
@@ -580,6 +588,7 @@ private fun LazyListScope.regularContent(
                         .padding(start = 16.dp, bottom = 12.dp),
                     text = "All Eateries",
                     style = EateryBlueTypography.h4,
+                    color = currentColors.textPrimary
                 )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -587,13 +596,20 @@ private fun LazyListScope.regularContent(
                         .padding(end = 12.dp)
                 ) {
                     Icon(
-                        painter = painterResource(id = if (isGridView) R.drawable.ic_list_view_unselected else R.drawable.ic_list_view_selected),
+                        painter = painterResource(id =
+                            if (isGridView && isDarkMode) { R.drawable.ic_list_view_unselected_dark }
+                        else if (isGridView && !isDarkMode) {R.drawable.ic_list_view_unselected}
+                        else if (!isGridView && isDarkMode) { R.drawable.ic_list_view_selected_dark }
+                        else {R.drawable.ic_list_view_unselected}),
                         contentDescription = "List View",
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onListClick() }
                     )
                     Icon(
-                        painter = painterResource(id = if (isGridView) R.drawable.ic_grid_view_selected else R.drawable.ic_grid_view_unselected),
+                        painter = painterResource(if (isGridView && isDarkMode) { R.drawable.ic_grid_view_selected_dark }
+                        else if (isGridView && !isDarkMode) {R.drawable.ic_grid_view_selected}
+                        else if (!isGridView && isDarkMode) { R.drawable.ic_grid_view_unselected_dark }
+                        else {R.drawable.ic_grid_view_unselected}),
                         contentDescription = "Grid View",
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onGridClick() }
@@ -666,10 +682,11 @@ private fun HomeStickyHeader(
     onSearchClick: () -> Unit,
     onNotificationsClick: () -> Unit
 ) {
+    val colors = currentColors
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(EateryBlue)
+            .background(colors.backgroundSecondary)
             .then(Modifier.statusBarsPadding())
             .padding(bottom = 7.dp),
     ) {
@@ -686,7 +703,7 @@ private fun HomeStickyHeader(
                         modifier = Modifier.align(Alignment.Center),
                         textAlign = TextAlign.Center,
                         text = "Eatery",
-                        color = Color.White,
+                        color = currentColors.oppTextPrimary,
                         style = TextStyle(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 20.sp
@@ -703,7 +720,7 @@ private fun HomeStickyHeader(
                         Icon(
                             Icons.Default.Search,
                             contentDescription = Icons.Default.Search.name,
-                            tint = Color.White
+                            tint = currentColors.backgroundDefault
                         )
                     }
                 }
@@ -721,7 +738,7 @@ private fun HomeStickyHeader(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_eaterylogo),
                             contentDescription = null,
-                            tint = Color.White
+                            tint = currentColors.backgroundDefault
                         )
                     }
                     Row(
@@ -731,14 +748,14 @@ private fun HomeStickyHeader(
                     ) {
                         Text(
                             text = "Eatery",
-                            color = Color.White,
+                            color = currentColors.oppTextPrimary,
                             style = EateryBlueTypography.h2
                         )
                         if (BuildConfig.ENABLE_NOTIFICATIONS) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_bell),
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = currentColors.backgroundDefault,
                                 modifier = Modifier.clickable {
                                     onNotificationsClick()
                                 }

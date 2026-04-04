@@ -53,11 +53,8 @@ import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GraySix
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.SupportViewModel
 import kotlinx.coroutines.launch
 
@@ -65,6 +62,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
+    val colors = currentColors
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val modalBottomSheetState = rememberModalBottomSheetState(
@@ -102,26 +100,26 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
             ) {
                 Text(
                     text = "Support",
-                    color = EateryBlue,
+                    color = colors.textPrimary,
                     style = EateryBlueTypography.h2,
                     modifier = Modifier.padding(top = 7.dp)
                 )
                 Text(
                     text = "Report issues and contact Cornell AppDev",
                     style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-                    color = GraySix,
+                    color = colors.textPrimary,
                     modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
                 )
 
                 Text(
                     text = "Make Eatery Better",
-                    color = Color.Black,
+                    color = currentColors.textPrimary,
                     style = EateryBlueTypography.h4,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
                 Text(
                     text = "Help us improve Eatery by letting us know what’s wrong.",
-                    color = GrayFive,
+                    color = colors.textSecondary,
                     style = EateryBlueTypography.subtitle2,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
@@ -136,8 +134,8 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = EateryBlue,
-                        contentColor = Color.White
+                        backgroundColor = colors.accentPrimary,
+                        contentColor = currentColors.backgroundDefault
                     )
                 ) {
                     Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
@@ -161,20 +159,20 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                     Text(
                         text = "Shoot us an email",
                         style = EateryBlueTypography.button,
-                        color = EateryBlue
+                        color = colors.textPrimary
                     )
                     Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                     Icon(
                         Icons.Outlined.ArrowOutward,
                         null,
-                        tint = EateryBlue
+                        tint = colors.backgroundSecondary
                     )
                 }
 
                 Text(
                     text = "Frequently Asked Questions",
                     style = EateryBlueTypography.h4,
-                    color = Color.Black,
+                    color = currentColors.textPrimary,
                     modifier = Modifier.padding(top = 20.dp)
                 )
                 FAQCreation(
@@ -224,7 +222,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                             Text(
                                 text = "send them an email.",
                                 style = EateryBlueTypography.subtitle2,
-                                color = EateryBlue,
+                                color = colors.textPrimary,
                             )
                         }
                     }
@@ -246,13 +244,14 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
 
 @Composable
 private fun ReportButton() {
+    val colors = currentColors
     Surface(
         shape = RoundedCornerShape(17.dp),
         modifier = Modifier
             .height(50.dp)
             .padding(vertical = 8.dp),
-        color = GrayZero,
-        contentColor = Color.Black
+        color = colors.backgroundDefault,
+        contentColor = currentColors.textPrimary
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -263,7 +262,7 @@ private fun ReportButton() {
             Text(
                 text = "Report an Issue",
                 style = EateryBlueTypography.button,
-                color = Color.Black,
+                color = currentColors.textPrimary,
             )
         }
     }
@@ -277,6 +276,7 @@ fun FAQCreation(
     action: @Composable () -> Unit,
     onActionClick: () -> Unit
 ) {
+    val colors = currentColors
     val (expanded, setExpanded) = remember {
         mutableStateOf(false)
     }
@@ -288,14 +288,14 @@ fun FAQCreation(
                     Icon(
                         imageVector = Icons.Default.ExpandLess,
                         contentDescription = Icons.Default.ExpandLess.name,
-                        tint = EateryBlue,
+                        tint = colors.backgroundSecondary,
                         modifier = Modifier.width(24.dp)
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.ExpandMore,
                         contentDescription = null,
-                        tint = EateryBlue,
+                        tint = colors.backgroundSecondary,
                         modifier = Modifier.width(24.dp)
                     )
                 }
@@ -313,7 +313,7 @@ fun FAQCreation(
                 Text(
                     text = dropdownText,
                     style = EateryBlueTypography.subtitle2,
-                    color = GrayFive,
+                    color = colors.textSecondary,
                 )
                 Box(modifier = Modifier.clickable {
                     setExpanded(false)

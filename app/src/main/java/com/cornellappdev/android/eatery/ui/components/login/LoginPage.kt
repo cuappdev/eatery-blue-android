@@ -46,11 +46,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GraySix
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -155,7 +152,7 @@ private fun LoginPageMainLayer(
         }
         Text(
             text = "Log into Eatery",
-            color = EateryBlue,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h3
         )
         val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -169,7 +166,7 @@ private fun LoginPageMainLayer(
             Text(
                 text = "Log in with your Cornell NetID to see your account balance and history",
                 style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-                color = GraySix,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(top = 7.dp)
             )
 
@@ -198,13 +195,13 @@ private fun LoginPageMainLayer(
                     onLoginPressed()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (clickable) EateryBlue else GrayZero
+                    backgroundColor = if (clickable) currentColors.backgroundSecondary else currentColors.backgroundDefault
                 ),
                 elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
             ) {
                 Text(
                     text = if (loading) "Logging in..." else "Log in",
-                    color = if (clickable) Color.White else GrayThree,
+                    color = if (clickable) currentColors.backgroundDefault else currentColors.backgroundDefault10,
                     style = EateryBlueTypography.h5
                 )
             }

@@ -15,9 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 /**
  * Payment widgets that are displayed at the top right region eatery details screen
@@ -27,7 +25,7 @@ fun PaymentWidgets(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
     Surface(
         modifier = modifier.clickable {
             onClick.invoke()
-        }, shape = CircleShape, color = Color.White
+        }, shape = CircleShape, color = currentColors.backgroundDefault
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -37,21 +35,21 @@ fun PaymentWidgets(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
                 Icon(
                     painter = painterResource(id = R.drawable.ic_payment_swipes),
                     contentDescription = "Accepts Swipes",
-                    tint = EateryBlue
+                    tint = currentColors.accentPrimary
                 )
             }
             if (eatery.paymentAcceptsBrbs == true) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_payment_brbs),
                     contentDescription = "Accepts BRBs",
-                    tint = Red
+                    tint = currentColors.error
                 )
             }
             if (eatery.paymentAcceptsCash == true) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_payment_cash),
                     contentDescription = "Accepts Cash",
-                    tint = Green
+                    tint = currentColors.success
                 )
             }
         }

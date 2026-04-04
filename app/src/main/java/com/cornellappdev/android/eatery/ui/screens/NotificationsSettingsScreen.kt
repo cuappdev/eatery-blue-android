@@ -13,12 +13,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun NotificationsSettingsScreen() {
+    val colors = currentColors
 
     Column(
         modifier = Modifier
@@ -27,7 +27,7 @@ fun NotificationsSettingsScreen() {
     ) {
         Text(
             text = "Notifications",
-            color = EateryBlue,
+            color = colors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
@@ -35,7 +35,7 @@ fun NotificationsSettingsScreen() {
         Text(
             text = "Manage item and promotional notifications",
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
+            color = colors.textPrimary,
             modifier = Modifier.padding(top = 7.dp, bottom = 12.dp)
         )
 

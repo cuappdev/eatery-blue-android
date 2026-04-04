@@ -1,6 +1,8 @@
 package com.cornellappdev.android.eatery.ui.navigation
 
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 
 /**
  * Class to represent each tab.
@@ -14,12 +16,15 @@ sealed class NavigationItem(
     val route: String,
     val unselectedIconId: Int,
     val selectedIconId: Int,
-    val selectedRoutes: Set<String>
+    val selectedDarkIconId: Int,
+    val selectedRoutes: Set<String>,
 ) {
+
     object Home : NavigationItem(
         route = Routes.HOME.route,
         unselectedIconId = R.drawable.ic_home_unselected,
         selectedIconId = R.drawable.ic_home_selected,
+        selectedDarkIconId = R.drawable.ic_home_selected_dark,
         selectedRoutes = setOf(
             Routes.HOME.route,
             Routes.SEARCH.route,
@@ -31,6 +36,7 @@ sealed class NavigationItem(
         route = Routes.UPCOMING.route,
         unselectedIconId = R.drawable.ic_calendar_unselected,
         selectedIconId = R.drawable.ic_calendar_selected,
+        selectedDarkIconId = R.drawable.ic_calendar_selected_dark,
         selectedRoutes = setOf(
             Routes.UPCOMING.route
         )
@@ -40,6 +46,7 @@ sealed class NavigationItem(
         route = "${Routes.PROFILE.route}/true",
         unselectedIconId = R.drawable.ic_profile_unselected,
         selectedIconId = R.drawable.ic_profile_selected,
+        selectedDarkIconId = R.drawable.ic_profile_selected_dark,
         selectedRoutes = setOf(
             "${Routes.PROFILE.route}/{autoLogin}",
             Routes.ACCOUNT.route,
@@ -48,7 +55,8 @@ sealed class NavigationItem(
             Routes.FAVORITES.route,
             Routes.LEGAL.route,
             Routes.PRIVACY.route,
-            Routes.SUPPORT.route
+            Routes.SUPPORT.route,
+            Routes.THEME.route
         )
     )
 
@@ -91,5 +99,6 @@ enum class Routes(override var route: String) : NavUnit {
     LEGAL("legal"),
     PRIVACY("privacy"),
     SUPPORT("support"),
-    COMPAREMENUS("compare_menus")
+    COMPAREMENUS("compare_menus"),
+    THEME("theme")
 }

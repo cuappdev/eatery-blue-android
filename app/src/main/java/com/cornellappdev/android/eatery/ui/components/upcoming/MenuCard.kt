@@ -41,8 +41,7 @@ import com.cornellappdev.android.eatery.ui.components.general.FavoriteIcon
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 
 data class MenuCardViewState(
@@ -73,7 +72,7 @@ fun MenuCard(
     Card(
         elevation = 5.dp,
         shape = RoundedCornerShape(10.dp),
-        backgroundColor = Color.White,
+        backgroundColor = currentColors.accentPrimary,
         modifier = Modifier.clickable {
             openDropdown = !openDropdown
             if (!openDropdown) {
@@ -86,11 +85,12 @@ fun MenuCard(
                 Text(
                     text = menuCardViewState.name,
                     style = EateryBlueTypography.h5,
+                    color = currentColors.textPrimary
                 )
                 Icon(
                     imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
                     contentDescription = "Expand menu",
-                    tint = Color.Black,
+                    tint = currentColors.textPrimary,
                     modifier = Modifier
                         .padding(top = 10.dp, end = 20.dp)
                         .size(24.dp)
@@ -107,7 +107,7 @@ fun MenuCard(
                         Text(
                             text = " • ",
                             style = EateryBlueTypography.subtitle2,
-                            color = GrayFive
+                            color = currentColors.textSecondary
                         )
                     }
                     eateryHours?.let {
@@ -117,7 +117,7 @@ fun MenuCard(
                             ),
                             text = "${it.startTime} - ${it.endTime}",
                             style = EateryBlueTypography.subtitle2,
-                            color = GrayFive
+                            color = currentColors.textSecondary
                         )
                     }
                 }
@@ -133,7 +133,7 @@ fun MenuCard(
                             .padding(end = 12.dp, bottom = 8.dp)
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(GrayZero, CircleShape)
+                            .background(currentColors.backgroundDefault, CircleShape)
                     )
                     Box(modifier = Modifier.padding(end = 12.dp)) {
                         EateryDetails(
@@ -160,7 +160,7 @@ private fun EateryDetails(
             onClick = {
                 selectEatery()
             },
-            backgroundColor = GrayZero,
+            backgroundColor = currentColors.backgroundDefault,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp, bottom = 8.dp)
@@ -177,11 +177,11 @@ private fun EateryDetails(
                 Icon(
                     painter = painterResource(R.drawable.ic_eatery),
                     contentDescription = null,
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
                 Text(
                     text = "View Eatery Details",
-                    color = Color.Black,
+                    color = currentColors.textPrimary,
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold
                 )

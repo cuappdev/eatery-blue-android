@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.components.general
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -19,13 +20,16 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 
 @Composable
 fun FilterRow(
@@ -34,8 +38,11 @@ fun FilterRow(
     onFilterClicked: (Filter) -> Unit,
     customItemsBefore: LazyListScope.() -> Unit = {},
     customItemsAfter: LazyListScope.() -> Unit = {},
-    rowState: LazyListState = rememberLazyListState()
+    rowState: LazyListState = rememberLazyListState(),
+    themeViewModel : ThemeViewModel = hiltViewModel()
 ) {
+    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+    val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -47,7 +54,8 @@ fun FilterRow(
                 onFilterClicked = {
                     onFilterClicked(filter)
                 }, selected = filter in currentFiltersSelected,
-                text = filter.text
+                text = filter.text,
+                isDarkMode = resolvedDarkMode
             )
         }
         customItemsAfter()
@@ -62,15 +70,24 @@ fun FilterButton(
     onFilterClicked: () -> Unit,
     selected: Boolean,
     text: String,
-    icon: ImageVector? = null
+    icon: ImageVector? = null,
+    isDarkMode: Boolean
 ) {
     val progress by animateFloatAsState(
         targetValue = if (selected) 0f else 1f,
         label = "Button Color",
         animationSpec = tween(150)
     )
-    val background = colorInterp(progress, Color.Black, GrayZero)
-    val contentColor = colorInterp(progress, Color.White, Color.Black)
+    var background = colorInterp(progress, Color.Black, Color(0xFFEFF1F4))
+    var contentColor = colorInterp(progress, Color.White, Color.Black)
+
+    if (isDarkMode==true)
+    {
+        background = colorInterp(progress, Color.White, Color(0xFF272727))
+        contentColor = colorInterp(progress, Color.Black, Color.White)
+    }
+
+
 
     Button(
         onClick = onFilterClicked,

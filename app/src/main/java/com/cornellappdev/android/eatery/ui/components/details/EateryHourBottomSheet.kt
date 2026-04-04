@@ -31,11 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
-import com.cornellappdev.android.eatery.ui.theme.Yellow
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 /**
  * BottomSheet that displays the specific opening times of days in a week.
@@ -48,6 +44,7 @@ fun EateryHourBottomSheet(
     onDismiss: () -> Unit,
     onReportIssue: () -> Unit
 ) {
+    val colors = currentColors
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,14 +60,14 @@ fun EateryHourBottomSheet(
                 Icon(
                     imageVector = Icons.Outlined.Schedule,
                     contentDescription = "Hours Icon",
-                    tint = Color.Black,
+                    tint = currentColors.textPrimary,
                     modifier = Modifier.size(32.dp)
                 )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                 Text(
                     text = "Hours",
                     style = EateryBlueTypography.h4,
-                    color = Color.Black
+                    color = currentColors.textPrimary
                 )
             }
             IconButton(
@@ -79,12 +76,12 @@ fun EateryHourBottomSheet(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = colors.backgroundDefault, shape = CircleShape)
             ) {
                 Icon(
                     Icons.Default.Close,
                     contentDescription = Icons.Default.Close.name,
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
             }
         }
@@ -101,9 +98,9 @@ fun EateryHourBottomSheet(
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ),
-            color = if (openUntil == null) Red
-            else if (eatery.isClosingSoon()) Yellow
-            else Green
+            color = if (openUntil == null) currentColors.error
+            else if (eatery.isClosingSoon()) colors.accentPressed
+            else currentColors.success
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -115,14 +112,14 @@ fun EateryHourBottomSheet(
                 Text(
                     text = dayRange,
                     fontSize = 16.sp,
-                    color = GrayFive,
+                    color = colors.textSecondary,
                     fontWeight = FontWeight(500)
                 )
                 hours.forEach { hour ->
                     Text(
                         text = hour,
                         fontSize = 18.sp,
-                        color = Color.Black,
+                        color = currentColors.textPrimary,
                         fontWeight = FontWeight(600)
                     )
                 }
@@ -141,10 +138,10 @@ fun EateryHourBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = GrayZero),
+            colors = ButtonDefaults.buttonColors(backgroundColor = colors.backgroundDefault),
             shape = RoundedCornerShape(corner = CornerSize(24.dp)),
         ) {
-            Text("Close", color = Color.Black, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text("Close", color = currentColors.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -155,7 +152,7 @@ fun EateryHourBottomSheet(
         ) {
             Text(
                 "Report an issue",
-                color = Color.Black,
+                color = currentColors.textPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
             )

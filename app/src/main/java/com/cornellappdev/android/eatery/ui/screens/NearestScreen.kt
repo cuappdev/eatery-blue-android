@@ -28,9 +28,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.NearestViewModel
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -43,6 +42,7 @@ fun NearestScreen(
     nearestViewModel: NearestViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
+    val colors = currentColors
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val nearestEateries = nearestViewModel.nearestEateries.collectAsState().value
     val favorites = nearestViewModel.favoriteEateries.collectAsState().value
@@ -54,7 +54,7 @@ fun NearestScreen(
     ) {
         Text(
             text = "Nearest to You",
-            color = EateryBlue,
+            color = colors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
@@ -79,7 +79,7 @@ fun NearestScreen(
                         modifier = Modifier
                             .height(72.dp)
                             .width(72.dp),
-                        tint = GrayTwo,
+                        tint = colors.backgroundDefault92,
                     )
 
                     Text(
@@ -88,7 +88,7 @@ fun NearestScreen(
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
                         ),
-                        color = Color.Black,
+                        color = currentColors.textPrimary,
                         modifier = Modifier.padding(top = 12.dp)
                     )
                 }

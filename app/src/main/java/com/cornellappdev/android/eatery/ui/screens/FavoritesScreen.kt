@@ -48,9 +48,8 @@ import com.cornellappdev.android.eatery.ui.components.details.ToggleRow
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
 import com.valentinilk.shimmer.ShimmerBounds
@@ -64,6 +63,7 @@ fun FavoritesScreen(
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val colors = currentColors
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val favoritesScreenViewState =
         favoriteViewModel.favoritesScreenViewState.collectAsState().value
@@ -99,7 +99,7 @@ fun FavoritesScreen(
         }
         Text(
             text = "Favorites",
-            color = EateryBlue,
+            color = colors.backgroundSecondary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(start = 6.dp, end = 6.dp)
         )
@@ -237,6 +237,7 @@ private fun ColumnScope.MainScrollableContent(
 
 @Composable
 private fun EateriesEmptyState(message: String) {
+    val colors = currentColors
     Box(
         modifier = Modifier
             .fillMaxHeight(0.7f)
@@ -253,7 +254,7 @@ private fun EateriesEmptyState(message: String) {
                 modifier = Modifier
                     .height(72.dp)
                     .width(72.dp),
-                tint = GrayTwo,
+                tint = colors.backgroundDefault92,
             )
 
             Text(
@@ -262,7 +263,7 @@ private fun EateriesEmptyState(message: String) {
                     fontWeight = FontWeight.Medium,
                     fontSize = 18.sp
                 ),
-                color = Color.Black,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(top = 12.dp)
             )
         }
@@ -275,6 +276,7 @@ private fun EateryBlob(
     fillMaxWidth: Boolean = true,
     height: Dp = 186.dp
 ) {
+    val colors = currentColors
     Surface(
         modifier = Modifier
             .padding(end = 12.dp)
@@ -286,6 +288,6 @@ private fun EateryBlob(
             )
             .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(295.dp))
             .height(height),
-        color = GrayTwo
+        color = colors.backgroundDefault92
     ) {}
 }

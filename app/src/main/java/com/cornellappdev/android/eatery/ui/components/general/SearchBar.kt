@@ -34,8 +34,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -76,12 +75,13 @@ fun SearchBar(
             interactionSource = interactionSource,
             singleLine = true,
             textStyle = TextStyle(
-                color = GrayFive,
+                color = currentColors.textSecondary,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp
             )
         ) { innerTextField ->
-            Surface(shape = RoundedCornerShape(8.dp), color = GrayZero) {
+            Surface(shape = RoundedCornerShape(8.dp),
+                color = currentColors.accentPrimary) {
                 TextFieldDefaults.TextFieldDecorationBox(
                     value = searchText,
                     innerTextField = innerTextField,
@@ -92,14 +92,14 @@ fun SearchBar(
                         Icon(
                             Icons.Default.Search,
                             contentDescription = "Search",
-                            tint = GrayFive
+                            tint = currentColors.textSecondary
                         )
 
                     },
                     placeholder = {
                         Text(
                             text = placeholderText,
-                            color = GrayFive
+                            color = currentColors.textSecondary
                         )
                     },
                     colors = TextFieldDefaults.textFieldColors(
@@ -123,7 +123,7 @@ fun SearchBar(
                 Text(
                     text = "Cancel",
                     style = EateryBlueTypography.subtitle2,
-                    color = GrayFive
+                    color = currentColors.textSecondary
                 )
             }
         }

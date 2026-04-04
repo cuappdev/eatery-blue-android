@@ -23,9 +23,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
 import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.PrivacyViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 
@@ -33,6 +32,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val uriCurrent = LocalUriHandler.current
+    val colors = currentColors
 
     Column(
         modifier = Modifier
@@ -41,19 +41,19 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
     ) {
         Text(
             text = "Privacy",
-            color = EateryBlue,
+            color = colors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
         Text(
             text = "Manage permissions and analytics",
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
+            color = colors.textPrimary,
             modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
         )
         Text(
             text = "Permissions",
-            color = Color.Black,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h4,
         )
         SettingsOption(
@@ -73,7 +73,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = EateryBlue,
+                    tint = colors.backgroundSecondary,
                 )
             })
         SettingsLineSeparator()
@@ -94,14 +94,14 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = EateryBlue,
+                    tint = colors.backgroundSecondary,
                 )
             }
         )
         SettingsLineSeparator()
         Text(
             text = "Analytics",
-            color = Color.Black,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h4,
             modifier = Modifier.padding(top = 28.dp)
         )
@@ -123,7 +123,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = EateryBlue,
+                    tint = colors.backgroundSecondary,
                 )
             }
         )

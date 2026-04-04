@@ -18,9 +18,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import kotlin.math.absoluteValue
 import kotlin.math.pow
 
@@ -56,7 +55,7 @@ fun OnboardingHeader(
                     else -> "Log in with Eatery"
                 },
                 style = EateryBlueTypography.h3,
-                color = EateryBlue,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(start = 16.dp)
             )
 
@@ -72,7 +71,7 @@ fun OnboardingHeader(
                     Text(
                         text = "Skip",
                         modifier = Modifier.offset(x = 0.dp, y = (-7).dp),
-                        color = Color.Black,
+                        color = currentColors.textPrimary,
                         style = EateryBlueTypography.h6,
                     )
                 }
@@ -89,7 +88,7 @@ fun OnboardingHeader(
                 else -> "See your meal swipes, BRBs, and more"
             },
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
+            color = currentColors.textPrimary,
             modifier = Modifier.padding(top = 7.dp, start = 16.dp)
         )
     }

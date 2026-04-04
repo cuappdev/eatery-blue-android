@@ -14,8 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun SwitchOption(
@@ -41,10 +40,10 @@ fun SwitchOption(
                     },
                     enabled = enabled,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        uncheckedThumbColor = Color.White,
-                        checkedTrackColor = EateryBlue,
-                        uncheckedTrackColor = GrayOne,
+                        checkedThumbColor = currentColors.backgroundDefault,
+                        uncheckedThumbColor = currentColors.backgroundDefault,
+                        checkedTrackColor = currentColors.accentPrimary,
+                        uncheckedTrackColor = currentColors.backgroundSecondary,
                         checkedBorderColor = Color.Transparent,
                         uncheckedBorderColor = Color.Transparent,
                     ),

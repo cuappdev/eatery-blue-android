@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
 import ItemFavoritesCardViewState
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -11,8 +12,7 @@ import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.Green
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -123,8 +123,8 @@ class FavoritesViewModel @Inject constructor(
                         itemName = itemName,
                         availability = if (eateriesByItem.isEmpty()) EateryStatus(
                             "Not available",
-                            GrayThree
-                        ) else EateryStatus("Available today", Green),
+                            Color.Red
+                        ) else EateryStatus("Available today", Color.Green),
                         mealAvailability = eateriesByItem.groupBy { eatery ->
                             eatery.events?.find { event ->
                                 event.menu?.any {
@@ -144,7 +144,7 @@ class FavoritesViewModel @Inject constructor(
                             ) "Other" else key
                         }.toSortedMap { s1, s2 -> s1.toSortOrder().compareTo(s2.toSortOrder()) }
                     )
-                }.sortedByDescending { it.availability.statusColor == Green }
+                }.sortedByDescending { it.availability.statusColor == Color.Green }
 
 
                 FavoritesScreenViewState.Loaded(

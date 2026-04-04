@@ -22,9 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
@@ -33,8 +32,8 @@ fun FavoritesToggle(
     label: String,
     active: Boolean
 ) {
-    val detailColor = if (active) EateryBlue else Color(0xFF6B6B6B)
-    val backgroundColor = if (active) Color.White else GrayZero
+    val detailColor = if (active) Color(0xFFFFD700) else currentColors.accentPrimary
+    val backgroundColor = if (active) currentColors.backgroundDefault else Color.Transparent
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(8))

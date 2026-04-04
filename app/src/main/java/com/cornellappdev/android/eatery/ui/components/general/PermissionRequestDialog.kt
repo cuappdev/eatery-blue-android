@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.LocationHandler
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -74,7 +74,7 @@ fun PermissionRequestDialog(
             requestingPermission = false
         } else {
             Surface(
-                color = Color.Black.copy(alpha = 0.6f),
+                color = currentColors.textPrimary.copy(alpha = 0.6f),
                 modifier = Modifier.fillMaxSize()
             ) {
                 Column(
@@ -116,7 +116,7 @@ fun PermissionRequestDialog(
                                     requestingPermission = false
                                 },
                                 shape = RoundedCornerShape(5.dp),
-                                colors = ButtonDefaults.buttonColors(backgroundColor = EateryBlue),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = currentColors.accentPrimary),
                             ) {
                                 Text(
                                     text = if (notificationPermissionState.shouldShowRationale || !notificationFlowStatus) {
@@ -124,7 +124,7 @@ fun PermissionRequestDialog(
                                     } else {
                                         "Open Settings"
                                     },
-                                    color = Color.White,
+                                    color = currentColors.textPrimary,
                                 )
                             }
                         }

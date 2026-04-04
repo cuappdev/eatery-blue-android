@@ -20,9 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.LightBlue
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import java.time.LocalDateTime
 
 /**
@@ -30,6 +29,7 @@ import java.time.LocalDateTime
  */
 @Composable
 fun AlertsSection(eatery: Eatery) {
+    val colors = currentColors
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 12.dp)
     ) {
@@ -47,16 +47,16 @@ fun AlertsSection(eatery: Eatery) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(LightBlue)
+                        .background(colors.accentPrimary)
                 ) {
                     Icon(
-                        Icons.Default.Info, contentDescription = "Warning", tint = EateryBlue
+                        Icons.Default.Info, contentDescription = "Warning", tint = colors.backgroundSecondary
                     )
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Text(
                         text = it.description,
                         style = EateryBlueTypography.body2,
-                        color = EateryBlue,
+                        color = colors.textPrimary,
                         modifier = Modifier.padding(start = 5.dp)
                     )
                 }

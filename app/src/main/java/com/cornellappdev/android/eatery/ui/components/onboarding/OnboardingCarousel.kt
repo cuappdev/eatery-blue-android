@@ -29,6 +29,7 @@ import androidx.compose.ui.zIndex
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -157,7 +158,7 @@ fun OnboardingCarousel(
                                 onClick = {
                                     onProceed()
                                 },
-                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                                colors = ButtonDefaults.buttonColors(backgroundColor = currentColors.backgroundDefault),
                                 elevation = ButtonDefaults.elevation(
                                     defaultElevation = 4.dp,
                                     pressedElevation = 4.dp,

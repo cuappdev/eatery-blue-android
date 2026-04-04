@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.components.notifications.FavoriteItemRow
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun NotificationsHomeScreen(
@@ -23,7 +23,7 @@ fun NotificationsHomeScreen(
     ) {
         Text(
             text = "Notifications",
-            color = EateryBlue,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp, bottom = 20.dp)
         )

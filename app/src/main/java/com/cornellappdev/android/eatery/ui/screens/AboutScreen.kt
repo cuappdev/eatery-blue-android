@@ -47,16 +47,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
+
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GraySix
+
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import kotlinx.coroutines.launch
 
 @Composable
 fun AboutScreen() {
     val uriCurrent = LocalUriHandler.current
+    val colors = currentColors
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -65,13 +65,13 @@ fun AboutScreen() {
         ) {
             Text(
                 text = "About Eatery",
-                color = EateryBlue,
+                color = colors.textPrimary,
                 style = EateryBlueTypography.h2,
                 modifier = Modifier.padding(top = 7.dp)
             )
             Text(
                 text = "Learn more about Cornell AppDev",
-                color = GraySix,
+                color = colors.textSecondary,
                 style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
                 modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
             )
@@ -85,7 +85,7 @@ fun AboutScreen() {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_appdev),
                         contentDescription = null,
-                        tint = GrayFive,
+                        tint = colors.textSecondary,
                         modifier = Modifier
                             .height(24.dp)
                             .width(24.dp)
@@ -94,7 +94,7 @@ fun AboutScreen() {
                     Text(
                         text = "DESIGNED AND DEVELOPED BY",
                         style = EateryBlueTypography.subtitle1,
-                        color = GrayFive,
+                        color = colors.textSecondary,
                         modifier = Modifier.padding(top = 12.dp)
                     )
 
@@ -107,12 +107,12 @@ fun AboutScreen() {
                         Text(
                             text = "Cornell",
                             style = EateryBlueTypography.h2,
-                            color = Color.Black,
+                            color = colors.textPrimary,
                         )
                         Text(
                             text = "AppDev",
                             style = EateryBlueTypography.h2,
-                            color = Color.Black,
+                            color = colors.textPrimary,
                         )
                     }
                 }
@@ -138,17 +138,18 @@ fun AboutScreen() {
                 uriCurrent.openUri("https://www.cornellappdev.com/")
             },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = GrayOne,
-                contentColor = Color.Black
+                backgroundColor = colors.backgroundSecondary,
+                contentColor = colors.textPrimary
             )
         ) {
-            Icon(Icons.Default.Language, null)
+            Icon(Icons.Default.Language, contentDescription = null, tint = colors.textPrimary)
             Spacer(
                 Modifier.size(ButtonDefaults.IconSpacing)
             )
             Text(
                 text = "Visit our website",
                 style = EateryBlueTypography.h5,
+                color = colors.textPrimary,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -248,6 +249,7 @@ private val teamRosterMap: HashMap<TeamPosition, List<String>> = hashMapOf(
 @Composable
 fun CreditsRow(position: TeamPosition) {
     // First item in the row is the position, e.g. Android Developer, Pod Leads.
+    val colors = currentColors
     val lazyRowList = mutableListOf<Any>(position)
     val names: List<String> = teamRosterMap[position]!!
     names.forEach { name -> lazyRowList.add(name) }
@@ -291,7 +293,7 @@ fun CreditsRow(position: TeamPosition) {
                     Text(
                         text = teamNameMap[item]!!,
                         style = EateryBlueTypography.button,
-                        color = Color.Black,
+                        color = colors.textPrimary,
                         modifier = Modifier.padding(start = 15.dp)
                     )
                 } else {
@@ -299,12 +301,12 @@ fun CreditsRow(position: TeamPosition) {
                         modifier = Modifier
                             .height(34.dp)
                             .clip(RoundedCornerShape(17.dp))
-                            .background(GrayOne)
+                            .background(colors.backgroundSecondary)
                     ) {
                         Text(
                             text = item as String,
                             style = EateryBlueTypography.button,
-                            color = Color.Black,
+                            color = currentColors.textPrimary,
                             modifier = Modifier.padding(
                                 start = 10.dp,
                                 top = 8.dp,
@@ -318,7 +320,7 @@ fun CreditsRow(position: TeamPosition) {
                 Icon(
                     Icons.Filled.Star,
                     contentDescription = null,
-                    tint = GrayOne,
+                    tint = colors.backgroundSecondary,
                     modifier = Modifier
                         .height(7.dp)
                         .padding(start = 12.33.dp, end = 12.33.dp)

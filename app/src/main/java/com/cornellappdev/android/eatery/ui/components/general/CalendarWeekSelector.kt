@@ -22,10 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 /**
  * Reusable UI component that displays today and the next six days
@@ -59,7 +57,7 @@ fun CalendarWeekSelector(
             ) {
                 Text(
                     text = dayNames[i].uppercase(),
-                    color = GrayFive,
+                    color = currentColors.textSecondary,
                     textAlign = TextAlign.Center,
                     style = EateryBlueTypography.caption,
                     modifier = Modifier.padding(bottom = 8.dp),
@@ -87,9 +85,9 @@ fun CalendarWeekSelector(
                             .size(size = (34 * size).dp)
                             .alpha(size),
                         color = when {
-                            i == currSelectedDay && currSelectedDay == 0 -> EateryBlue
-                            i == currSelectedDay || i == selectedDay -> GrayFive
-                            else -> GrayFive
+                            i == currSelectedDay && currSelectedDay == 0 -> currentColors.accentPrimary
+                            i == currSelectedDay || i == selectedDay -> currentColors.textSecondary
+                            else -> currentColors.textSecondary
                         },
                         shape = CircleShape
                     ) {}
@@ -97,11 +95,11 @@ fun CalendarWeekSelector(
                     Text(
                         text = days[i].toString(),
                         color = when {
-                            closedDays?.contains(dayNames[i]) == true -> GrayThree
-                            i != currSelectedDay && i == 0 -> EateryBlue
-                            i != currSelectedDay && i == selectedDay -> Color.Black
-                            i == currSelectedDay || i == selectedDay -> Color.White
-                            else -> Color.Black
+                            closedDays?.contains(dayNames[i]) == true -> currentColors.backgroundDefault10
+                            i != currSelectedDay && i == 0 -> currentColors.accentPrimary
+                            i != currSelectedDay && i == selectedDay -> currentColors.textPrimary
+                            i == currSelectedDay || i == selectedDay -> currentColors.backgroundDefault
+                            else -> currentColors.textPrimary
                         },
                         style = EateryBlueTypography.h6,
                         fontWeight = FontWeight.Normal,

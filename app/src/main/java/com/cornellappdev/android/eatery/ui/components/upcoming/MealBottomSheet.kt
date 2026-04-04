@@ -35,9 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 /**
  * The pop up that shows up when users want to pick a different meal as the filter in the upcoming
@@ -74,9 +73,9 @@ fun MealBottomSheet(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = currentColors.textPrimary)
             }
         }
 
@@ -130,7 +129,7 @@ fun MealBottomSheet(
             .padding(start = 12.dp, end = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(GrayZero, CircleShape)
+            .background(currentColors.backgroundDefault, CircleShape)
     )
     Row(horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
@@ -180,7 +179,7 @@ fun MealBottomSheet(
             .padding(start = 12.dp, end = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(GrayZero, CircleShape)
+            .background(currentColors.backgroundDefault, CircleShape)
     )
     Row(horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
@@ -228,7 +227,7 @@ fun MealBottomSheet(
             .padding(start = 12.dp, end = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(GrayZero, CircleShape)
+            .background(currentColors.backgroundDefault, CircleShape)
     )
     Row(horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
@@ -281,8 +280,8 @@ fun MealBottomSheet(
             .padding(top = 10.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = EateryBlue,
-            contentColor = Color.White
+            backgroundColor = currentColors.accentPrimary,
+            contentColor = currentColors.backgroundDefault
         )
     ) {
         Text(
@@ -304,7 +303,7 @@ fun MealBottomSheet(
         Text(
             text = "Reset",
             style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
-            color = Color.Black
+            color = currentColors.textPrimary
         )
     }
 }

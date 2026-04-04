@@ -27,12 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun PaymentMethodsBottomSheet(
@@ -59,9 +55,9 @@ fun PaymentMethodsBottomSheet(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = currentColors.textPrimary)
             }
         }
 
@@ -85,14 +81,14 @@ fun PaymentMethodsBottomSheet(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) EateryBlue else GrayZero,
+                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) currentColors.backgroundSecondary else currentColors.backgroundDefault,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_swipes),
                         contentDescription = "Swipes",
-                        tint = if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) Color.White else GrayFive
+                        tint = if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) currentColors.backgroundDefault else currentColors.textSecondary
                     )
                 }
 
@@ -117,14 +113,14 @@ fun PaymentMethodsBottomSheet(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) Red else GrayZero,
+                            color = if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) currentColors.error else currentColors.backgroundDefault,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_brbs),
                         contentDescription = "BRBs",
-                        tint = if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) Color.White else GrayFive
+                        tint = if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) currentColors.backgroundDefault else currentColors.textSecondary
                     )
                 }
 
@@ -148,14 +144,14 @@ fun PaymentMethodsBottomSheet(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) Green else GrayZero,
+                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) currentColors.success else currentColors.backgroundDefault,
                             shape = CircleShape
                         )
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_cash),
                         contentDescription = "Cash or credit",
-                        tint = if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) Color.White else GrayFive
+                        tint = if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) currentColors.backgroundDefault else currentColors.textSecondary
                     )
                 }
 
@@ -174,8 +170,8 @@ fun PaymentMethodsBottomSheet(
                 .padding(top = 12.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = EateryBlue,
-                contentColor = Color.White
+                backgroundColor = currentColors.accentPrimary,
+                contentColor = currentColors.backgroundDefault
             )
         ) {
             Text(
@@ -197,7 +193,7 @@ fun PaymentMethodsBottomSheet(
             Text(
                 text = "Reset",
                 style = EateryBlueTypography.h5,
-                color = Color.Black
+                color = currentColors.textPrimary
             )
         }
     }

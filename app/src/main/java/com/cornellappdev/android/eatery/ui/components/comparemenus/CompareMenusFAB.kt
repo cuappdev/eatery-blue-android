@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun CompareMenusFAB(
@@ -20,12 +20,12 @@ fun CompareMenusFAB(
         onClick = { onClick() },
         modifier = modifier
             .padding(16.dp),
-        backgroundColor = EateryBlue
+        backgroundColor = currentColors.backgroundSecondary
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_compare_menus),
             "Compare Menus Floating Action Button",
-            tint = Color.White
+            tint = currentColors.backgroundDefault
         )
     }
 }

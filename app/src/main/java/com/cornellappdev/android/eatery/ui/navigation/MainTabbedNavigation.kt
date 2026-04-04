@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.with
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -15,6 +16,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material3.NavigationBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,9 +49,11 @@ import com.cornellappdev.android.eatery.ui.screens.ProfileScreen
 import com.cornellappdev.android.eatery.ui.screens.SearchScreen
 import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
+import com.cornellappdev.android.eatery.ui.screens.ThemeSheet
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -130,18 +134,31 @@ fun NavigationSetup(hasOnboarded: Boolean) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController, tabItems: List<NavigationItem>) {
+fun BottomNavigationBar(navController: NavHostController,
+                        tabItems: List<NavigationItem>,
+                        themeViewModel : ThemeViewModel = hiltViewModel()) {
     NavigationBar(
-        containerColor = Color.White,
-        contentColor = EateryBlue
+        containerColor = currentColors.accentPrimary,
+        contentColor = currentColors.accentPressed
     ) {
+        val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+        val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
+
         val currentRoute = currentRoute(navController)
         tabItems.forEach { item ->
+            val isSelected  = item.selectedRoutes.contains(currentRoute)
+            val iconId = when {
+                resolvedDarkMode && isSelected -> item.selectedDarkIconId
+                !resolvedDarkMode && isSelected -> item.selectedIconId
+
+                else -> item.unselectedIconId
+            }
             BottomNavigationItem(
+
                 icon = {
                     Icon(
                         painter = painterResource(
-                            id = if (item.selectedRoutes.contains(currentRoute)) item.selectedIconId else item.unselectedIconId
+                            id = iconId
                         ),
                         contentDescription = item.route
                     )
@@ -166,6 +183,7 @@ fun SetupNavHost(
     navController: NavHostController,
     showBottomBar: MutableState<Boolean>,
     loginViewModel: LoginViewModel = hiltViewModel(),
+    themeViewModel : ThemeViewModel = hiltViewModel()
 ) {
     AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
 
@@ -349,7 +367,8 @@ fun SetupNavHost(
                         }
                     }
                 ),
-                loginViewModel = loginViewModel
+                loginViewModel = loginViewModel,
+                themeViewModel = themeViewModel
             )
 
         }

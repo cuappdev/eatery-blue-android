@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.popIn
 import com.cornellappdev.android.eatery.util.popOut
@@ -114,14 +114,14 @@ private fun EateryHomeSectionHeader(
                 modifier = Modifier
                     .size(40.dp)
                     .background(
-                        color = GrayZero,
+                        color = currentColors.backgroundDefault,
                         shape = CircleShape
                     )
             ) {
                 Icon(
                     Icons.Default.ArrowForward,
                     contentDescription = "Favorites",
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
             }
         } else {
@@ -172,7 +172,7 @@ private fun EaterySectionRow(
 private fun EateryHomeSectionPreview() {
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(Color.White)) {
+        .background(currentColors.backgroundDefault)) {
         EateryHomeSection(
             title = "Eateries With Expand",
             eateries = listOf(PreviewData.mockEatery(), PreviewData.mockEatery()),

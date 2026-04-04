@@ -35,9 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.onboarding.OnboardingCarousel
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.OnboardingViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -51,6 +50,7 @@ fun OnboardingScreen(
     onboardingViewModel: OnboardingViewModel = hiltViewModel(),
     proceedHome: () -> Unit
 ) {
+    val colors = currentColors
     val pagerState = rememberPagerState(0)
     val coroutineScope = rememberCoroutineScope()
     var fadePage by rememberSaveable { mutableStateOf(false) }
@@ -72,7 +72,7 @@ fun OnboardingScreen(
 
                         Icon(
                             painter = painterResource(id = R.drawable.ic_eaterylogo_blue),
-                            tint = EateryBlue,
+                            tint = colors.backgroundSecondary,
                             modifier = Modifier
                                 .width(96.dp)
                                 .height(96.dp),
@@ -81,7 +81,7 @@ fun OnboardingScreen(
 
                         Text(
                             text = "Eatery",
-                            color = EateryBlue,
+                            color = currentColors.oppTextPrimary,
                             style = EateryBlueTypography.h1
                         )
 
@@ -98,7 +98,7 @@ fun OnboardingScreen(
                                     fadePage = true
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                            colors = ButtonDefaults.buttonColors(backgroundColor = currentColors.backgroundDefault),
                             elevation = ButtonDefaults.elevation(
                                 defaultElevation = 4.dp,
                                 pressedElevation = 4.dp,
@@ -125,13 +125,13 @@ fun OnboardingScreen(
                                 painter = painterResource(id = R.drawable.ic_appdev),
                                 modifier = Modifier.padding(end = 6.dp),
                                 contentDescription = null,
-                                tint = GrayThree
+                                tint = colors.backgroundDefault10
                             )
                             Text(
                                 buildAnnotatedString {
                                     withStyle(
                                         style = SpanStyle(
-                                            color = GrayThree,
+                                            color = colors.backgroundDefault10,
                                             fontWeight = FontWeight.Normal
                                         )
                                     ) {
@@ -139,7 +139,7 @@ fun OnboardingScreen(
                                     }
                                     withStyle(
                                         style = SpanStyle(
-                                            color = GrayThree,
+                                            color = colors.backgroundDefault10,
                                             fontWeight = FontWeight.SemiBold
                                         )
                                     ) {

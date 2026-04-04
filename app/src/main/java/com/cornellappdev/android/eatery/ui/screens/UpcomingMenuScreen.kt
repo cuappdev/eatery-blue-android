@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,11 +30,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -50,8 +51,9 @@ import com.cornellappdev.android.eatery.ui.components.upcoming.MealBottomSheet
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCard
 import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingItem
 import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingItem.Companion.CreateUpcomingLoadingItem
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
@@ -85,9 +87,11 @@ fun UpcomingMenuScreen(
     remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val shimmer = rememberShimmer(ShimmerBounds.View)
 
-    Box(modifier = Modifier.background(White)) {
+    Box(modifier = Modifier.background(currentColors.backgroundDefault)) {
         ModalBottomSheetLayout(
             sheetState = modalBottomSheetState,
+            sheetBackgroundColor = currentColors.accentPrimary,
+            sheetContentColor = currentColors.textPrimary,
             sheetShape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,
@@ -159,7 +163,8 @@ fun UpcomingMenuScreen(
                                     Text(
                                         modifier = Modifier.padding(start = 6.dp),
                                         text = it.header,
-                                        style = EateryBlueTypography.h4
+                                        style = EateryBlueTypography.h4,
+                                        color = currentColors.textPrimary
                                     )
                                     Spacer(modifier = Modifier.height(16.dp))
                                     it.menuCards.forEach { eatery ->
@@ -277,7 +282,10 @@ private fun UpcomingFilterRow(
     selectedFilters: List<Filter>,
     onToggleFilterClicked: (Filter) -> Unit,
     filterRowState: LazyListState,
+    themeViewModel : ThemeViewModel = hiltViewModel()
 ) {
+    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+    val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
     FilterRow(
         customItemsBefore = {
             item {
@@ -292,7 +300,8 @@ private fun UpcomingFilterRow(
                         MealFilter.LATE_DINNER -> "Late Dinner"
                         else -> mealFilter.text.first()
                     },
-                    icon = Icons.Default.ExpandMore
+                    icon = Icons.Default.ExpandMore,
+                    resolvedDarkMode
                 )
             }
         },
@@ -316,7 +325,12 @@ private fun UpcomingLazyColumn(
         state = innerListState, modifier = Modifier.fillMaxSize()
     ) {
         stickyHeader {
-            upcomingMenuHeader()
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .background(currentColors.backgroundDefault)
+            ) {
+                upcomingMenuHeader()
+            }
         }
         item {
             calendarWeekSelector()
@@ -331,10 +345,11 @@ private fun UpcomingLazyColumn(
 @Composable
 @OptIn(ExperimentalAnimationApi::class)
 private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
+    val colors = currentColors
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(EateryBlue)
+            .background(colors.backgroundSecondary)
             .then(Modifier.statusBarsPadding())
             .padding(bottom = 7.dp),
     ) {
@@ -351,7 +366,7 @@ private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
                         modifier = Modifier.align(Alignment.Center),
                         textAlign = TextAlign.Center,
                         text = "Upcoming Menus",
-                        color = White,
+                        color = currentColors.oppTextPrimary,
                         style = TextStyle(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 20.sp
@@ -368,7 +383,7 @@ private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
                 ) {
                     Text(
                         text = "Upcoming Menus",
-                        color = White,
+                        color = currentColors.oppTextPrimary,
                         style = EateryBlueTypography.h2
                     )
                 }

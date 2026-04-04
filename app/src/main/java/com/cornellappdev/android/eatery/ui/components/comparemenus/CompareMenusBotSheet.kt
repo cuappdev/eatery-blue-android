@@ -37,10 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusBotViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -52,6 +50,7 @@ fun CompareMenusBotSheet(
     compareMenusBotViewModel: CompareMenusBotViewModel = hiltViewModel(),
     firstEatery: Eatery? = null
 ) {
+    val colors = currentColors
     val compareMenusUIState by compareMenusBotViewModel.compareMenusUiState.collectAsState()
     val filters = compareMenusUIState.filters
     val selectedEateries = compareMenusUIState.selected
@@ -75,7 +74,7 @@ fun CompareMenusBotSheet(
         ) {
             Text(
                 text = "Compare Menus", style = EateryBlueTypography.h4,
-                color = Color.Black
+                color = currentColors.textPrimary
             )
             IconButton(
                 onClick = {
@@ -84,12 +83,12 @@ fun CompareMenusBotSheet(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = colors.backgroundDefault, shape = CircleShape)
             ) {
                 Icon(
                     Icons.Default.Close,
                     contentDescription = Icons.Default.Close.name,
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
             }
         }
@@ -111,7 +110,7 @@ fun CompareMenusBotSheet(
 
         Box(
             modifier = Modifier
-                .background(Color.White)
+                .background(currentColors.backgroundDefault)
                 .fillMaxHeight(0.4f)
                 .fillMaxWidth()
         ) {
@@ -135,15 +134,15 @@ fun CompareMenusBotSheet(
                 .align(Alignment.CenterHorizontally),
             shape = RoundedCornerShape(100),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = if (selectedEateries.size < 2) GrayTwo else EateryBlue,
-                contentColor = if (selectedEateries.size < 2) GrayZero else Color.White
+                backgroundColor = if (selectedEateries.size < 2) colors.backgroundDefault92 else colors.accentPrimary,
+                contentColor = if (selectedEateries.size < 2) colors.backgroundDefault else currentColors.backgroundDefault
             )
         ) {
             Text(
                 text = if (selectedEateries.size < 2) "Select at least ${2 - selectedEateries.size} more"
                 else "Compare ${selectedEateries.size} now",
                 style = EateryBlueTypography.h5,
-                color = Color.White
+                color = colors.backgroundDefault
             )
         }
     }
@@ -185,12 +184,12 @@ private fun SelectableEateriesList(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
                                 .size(26.dp)
-                                .background(Color.Black, CircleShape)
+                                .background(currentColors.textPrimary, CircleShape)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = "Selected",
-                                tint = Color.White,
+                                tint = currentColors.backgroundDefault,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
@@ -199,8 +198,8 @@ private fun SelectableEateriesList(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier
                                 .size(26.dp)
-                                .background(Color.White, CircleShape)
-                                .border(2.dp, Color.Black, CircleShape)
+                                .background(currentColors.backgroundDefault, CircleShape)
+                                .border(2.dp, currentColors.textPrimary, CircleShape)
                         ) {
                         }
                     }
@@ -208,7 +207,7 @@ private fun SelectableEateriesList(
                 eatery.name?.let {
                     Text(
                         text = it, style = EateryBlueTypography.body1,
-                        color = Color.Black
+                        color = currentColors.textPrimary
                     )
                 }
             }

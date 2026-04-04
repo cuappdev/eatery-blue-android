@@ -43,10 +43,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.AppIcon
 import com.cornellappdev.android.eatery.util.changeIcon
 import com.cornellappdev.android.eatery.util.currentIcon
@@ -69,7 +67,7 @@ fun AppIconBottomSheet(hide: () -> Unit) {
             Text(
                 text = "App Icon",
                 style = EateryBlueTypography.h4,
-                color = Color.Black,
+                color = currentColors.textPrimary,
             )
 
             IconButton(
@@ -78,9 +76,9 @@ fun AppIconBottomSheet(hide: () -> Unit) {
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = currentColors.textPrimary)
             }
         }
         val pagerState = androidx.compose.foundation.pager.rememberPagerState()
@@ -142,8 +140,8 @@ fun AppIconBottomSheet(hide: () -> Unit) {
                 .padding(top = 12.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = EateryBlue,
-                contentColor = Color.White
+                backgroundColor = currentColors.accentPrimary,
+                contentColor = currentColors.backgroundDefault
             )
         ) {
             Text(
@@ -166,7 +164,7 @@ fun AppIconBottomSheet(hide: () -> Unit) {
             Text(
                 text = "Reset",
                 style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
-                color = if (selectedAppIcon != currentIcon) Color.Black else GrayOne
+                color = if (selectedAppIcon != currentIcon) currentColors.textPrimary else currentColors.backgroundSecondary
             )
         }
     }
@@ -183,7 +181,7 @@ fun AppIconButton(
     Surface(
         modifier = Modifier
             .padding(start = 18.dp, bottom = 12.dp)
-            .border(1.dp, GrayOne, shape = RoundedCornerShape(25.dp))
+            .border(1.dp, currentColors.backgroundSecondary, shape = RoundedCornerShape(25.dp))
             .shadow(1.dp, RoundedCornerShape(25.dp), clip = true)
     ) {
         Box {
@@ -207,7 +205,7 @@ fun AppIconButton(
                         .align(Alignment.Center),
                     imageVector = Icons.Filled.CheckCircle,
                     contentDescription = null,
-                    tint = EateryBlue
+                    tint = currentColors.backgroundSecondary
                 )
             }
         }

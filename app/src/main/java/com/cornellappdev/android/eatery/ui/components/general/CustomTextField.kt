@@ -39,8 +39,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -50,7 +49,7 @@ fun CustomTextField(
     onValueChange: (updated: String) -> Unit,
     placeholder: String,
     onSubmit: () -> Unit = {},
-    backgroundColor: Color = Color.White,
+    backgroundColor: Color = currentColors.backgroundDefault,
     enabled: Boolean = true,
     focusRequester: FocusRequester? = null,
     isPassword: Boolean = false,
@@ -87,7 +86,7 @@ fun CustomTextField(
                 singleLine = singleLine,
                 visualTransformation = if (isPassword) passwordVisualTransformation else VisualTransformation.None,
                 textStyle = TextStyle(
-                    color = if (!enabled) GrayThree else Color.Black,
+                    color = if (!enabled) currentColors.backgroundDefault10 else currentColors.textPrimary,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium
                 ),
@@ -114,7 +113,7 @@ fun CustomTextField(
                             Text(
                                 text = placeholder,
                                 style = EateryBlueTypography.subtitle2,
-                                color = GrayFive,
+                                color = currentColors.textSecondary,
                             )
                         },
                         interactionSource = interactionSource,

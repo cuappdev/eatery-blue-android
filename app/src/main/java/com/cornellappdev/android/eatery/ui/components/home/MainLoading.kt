@@ -23,8 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.shimmer
 
@@ -42,7 +41,7 @@ fun FilterItem(width: Dp, modifier: Modifier = Modifier) {
             .then(modifier)
             .width(width)
             .fillMaxHeight(),
-        backgroundColor = GrayTwo,
+        backgroundColor = currentColors.backgroundDefault92,
         shape = RoundedCornerShape(8.dp),
         content = {}
     )
@@ -65,7 +64,7 @@ fun EateryBlob(
             )
             .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(295.dp))
             .height(height),
-        color = GrayTwo
+        color = currentColors.backgroundDefault92
     ) {}
 }
 
@@ -100,7 +99,7 @@ sealed class MainLoadingItem {
                             .padding(top = 12.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
                             .height(38.dp)
                             .fillMaxWidth(),
-                        color = GrayTwo,
+                        color = currentColors.backgroundDefault92,
                         shape = RoundedCornerShape(
                             CornerSize(8.dp)
                         )
@@ -131,7 +130,7 @@ sealed class MainLoadingItem {
                         modifier = Modifier
                             .shimmer(shimmer)
                             .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
-                        color = GrayThree
+                        color = currentColors.backgroundDefault10
                     )
                 }
 
@@ -161,7 +160,7 @@ sealed class MainLoadingItem {
                         modifier = Modifier
                             .padding(start = 16.dp)
                             .shimmer(shimmer),
-                        color = GrayThree
+                        color = currentColors.backgroundDefault10
                     )
                 }
 

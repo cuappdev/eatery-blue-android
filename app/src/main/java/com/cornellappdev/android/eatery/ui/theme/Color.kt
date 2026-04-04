@@ -2,20 +2,22 @@ package com.cornellappdev.android.eatery.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-
+/*
 val EateryBlue = Color(0xFF4A90E2)
-val GrayZero = Color(0xFFEFF1F4)
-val GrayOne = Color(0xFFE1E4E8)
-val GrayTwo = Color(0xFFD1D5DA)
-val GrayThree = Color(0xFF959da5)
-val GrayFive = Color(0xFF586069)
-val GraySix = Color(0xFF444D56)
+val colors.backgroundDefault = Color(0xFFEFF1F4)
+val colors.backgroundSecondary = Color(0xFFE1E4E8)
+val backgroundDefault92 = Color(0xFFD1D5DA)
+val colors.backgroundDefault10 = Color(0xFF959da5)
+val colors.textSecondary = Color(0xFF586069)
+val colors.textPrimary = Color(0xFF444D56)
 val LightBlue = Color(0xFFE8EFF8)
 val LightRed = Color(0xFFFEF0EF)
 val Red = Color(0xFFF2655D)
 val Green = Color(0xFF63C774)
-val Yellow = Color(0xFFFEC50E)
+val colors.accentPressed = Color(0xFFFEC50E)
 val Orange = Color(0xFFFF990E)
+
+ */
 // Error colors
 val ErrorLight = Color(0xFFF2655D)
 val ErrorDark = Color(0xFFF2655D)
@@ -40,6 +42,8 @@ val BgDefault92Dark = Color(0xEB141414)   // 141414 with 92% opacity
 val BgSurfaceLight = Color(0xFFFAFAFA)
 val BgSurfaceDark = Color(0xFF121212)
 
+val OppTextPrimaryLight = Color(0xFFFFFFFF)
+val OppTextPrimaryDark = Color(0xFF050505)
 // Text colors
 val TextPrimaryLight = Color(0xFF050505)
 val TextPrimaryDark = Color(0xFFFFFFFF)
@@ -89,3 +93,54 @@ fun colorInterp(fraction: Float, color1: Color, color2: Color): Color {
 private fun interpolate(fraction: Float, a: Float, b: Float): Float {
     return a + (b - a) * fraction
 }
+
+object ColorTheme
+{
+    val lightMode = ColorMode(
+        error = ErrorLight,
+        success = SuccessLight,
+        backgroundDefault = BgDefaultLight,
+        backgroundSecondary = BgSecondaryLight,
+        backgroundDefault10 = BgDefault10Light,
+        backgroundDefault92 = BgDefault92Light,
+        backgroundSurface = BgSurfaceLight,
+        textPrimary = TextPrimaryLight,
+        oppTextPrimary = OppTextPrimaryLight,
+        textSecondary = TextSecondaryLight,
+        accentPrimary = AccentPrimaryLight,
+        accentPressed = AccentPressedLight,
+        borderDefault = BorderDefaultLight,
+    )
+    val darkMode = ColorMode(
+        error = ErrorDark,
+        success = SuccessDark,
+        backgroundDefault = BgDefaultDark,
+        backgroundSecondary = BgSecondaryDark,
+        backgroundDefault10 = BgDefault10Dark,
+        backgroundDefault92 = BgDefault92Dark,
+        backgroundSurface = BgSurfaceDark,
+        textPrimary = TextPrimaryDark,
+        oppTextPrimary = OppTextPrimaryDark,
+        textSecondary = TextSecondaryDark,
+        accentPrimary = AccentPrimaryDark,
+        accentPressed = AccentPressedDark,
+        borderDefault = BorderDefaultDark
+    )
+
+}
+
+data class ColorMode(
+    val error : Color,
+    val success : Color,
+    val backgroundDefault : Color,
+    val backgroundSecondary : Color,
+    val backgroundDefault10 : Color,
+    val backgroundDefault92 : Color,
+    val backgroundSurface : Color,
+    val textPrimary : Color,
+    val oppTextPrimary : Color,
+    val textSecondary : Color,
+    val accentPrimary : Color,
+    val accentPressed : Color,
+    val borderDefault : Color
+)

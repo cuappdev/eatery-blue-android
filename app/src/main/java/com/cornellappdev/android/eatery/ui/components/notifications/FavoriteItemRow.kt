@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun FavoriteItemRow(
@@ -58,7 +58,7 @@ fun FavoriteItemRow(
                     text = "Today",
                     fontSize = 10.sp,
                     style = EateryBlueTypography.body1,
-                    color = Color.DarkGray
+                    color = currentColors.textSecondary
                 )
             }
             Row {
@@ -70,14 +70,14 @@ fun FavoriteItemRow(
             modifier = Modifier
                 .size(24.dp)
                 .background(
-                    color = GrayZero,
+                    color = currentColors.backgroundDefault,
                     shape = CircleShape
                 )
         ) {
             Icon(
                 Icons.Default.ArrowForward,
                 contentDescription = "",
-                tint = Color.Black
+                tint = currentColors.textPrimary
             )
         }
     }

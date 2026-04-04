@@ -24,6 +24,25 @@ class UserPreferencesRepository @Inject constructor(
 ) {
     private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
 
+    val isDarkModeFlow : StateFlow<Boolean?> = userPreferencesFlow.map { prefs ->
+        if (prefs.hasIsDarkMode()) prefs.isDarkMode else null}
+        .stateIn(
+            CoroutineScope(Dispatchers.IO),
+            SharingStarted.Eagerly,
+            null
+        )
+    suspend fun setDarkMode(enabled: Boolean)
+    {
+        userPreferencesStore.updateData { prefs -> prefs.toBuilder()
+            .setIsDarkMode(enabled)
+            .build()}
+    }
+    suspend fun setSystemMode()
+    {
+        userPreferencesStore.updateData { prefs -> prefs.toBuilder()
+            .clearIsDarkMode()
+            .build()}
+    }
     /**
      * A flow automatically emitting maps indicating whether particular Eateries are favorited.
      */

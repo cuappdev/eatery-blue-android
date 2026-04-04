@@ -32,8 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.models.MenuCategory
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import kotlinx.coroutines.launch
@@ -49,6 +48,7 @@ fun EateryDetailsStickyHeader(
     onItemClick: (Int) -> Unit,
     appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
 ) {
+    val colors = currentColors
     val rowState = rememberLazyListState()
     val rowCoroutine = rememberCoroutineScope()
     val selectedEvent = nextEvent?.menu?.find { category ->
@@ -80,7 +80,7 @@ fun EateryDetailsStickyHeader(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(currentColors.backgroundDefault)
         ) {
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -143,7 +143,7 @@ fun EateryDetailsStickyHeader(
         }
 
         Divider(
-            color = GrayZero,
+            color = colors.backgroundDefault,
             thickness = 1.dp
         )
     }
@@ -156,12 +156,13 @@ fun CategoryItem(
     isHighlighted: Boolean,
     onItemClick: () -> Unit
 ) {
+
     val backgroundColor by animateColorAsState(
-        if (isHighlighted) Color.Black else Color.White,
+        if (isHighlighted) currentColors.textPrimary else currentColors.backgroundDefault,
         label = "Background Color"
     )
     val textColor by animateColorAsState(
-        if (isHighlighted) Color.White else GrayFive,
+        if (isHighlighted) currentColors.backgroundDefault else currentColors.textPrimary,
         label = "Text Color"
     )
 
