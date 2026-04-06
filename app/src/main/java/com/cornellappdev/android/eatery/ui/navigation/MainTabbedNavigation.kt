@@ -11,6 +11,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -111,7 +112,7 @@ fun NavigationSetup(hasOnboarded: Boolean) {
 @Composable
 fun BottomNavigationBar(navController: NavHostController, tabItems: List<NavigationItem>) {
     NavigationBar(
-        containerColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.surface,
         contentColor = EateryBlue
     ) {
         val currentRoute = currentRoute(navController)
