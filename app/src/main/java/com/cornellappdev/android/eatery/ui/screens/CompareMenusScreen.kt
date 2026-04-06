@@ -246,7 +246,7 @@ private fun MenuPager(
     ) { page ->
         val listState = rememberLazyListState()
         Box {
-            val currentEvent = events[page]
+            val currentEvent = events.getOrNull(page)
             val fullMenuList = mutableListOf<String>()
             currentEvent?.menu?.forEach { category ->
                 category.name?.let { fullMenuList.add(it) }
