@@ -37,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,11 +78,11 @@ fun ReportBottomSheet(
 ) {
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
-    val (textEntry, setTextEntry) = remember { mutableStateOf("") }
-    val (selectedIssue, setSelectedIssue) = remember { mutableStateOf(issue) }
+    val (textEntry, setTextEntry) = rememberSaveable { mutableStateOf("") }
+    val (selectedIssue, setSelectedIssue) = rememberSaveable(issue) { mutableStateOf(issue) }
     var showIssueSheet by remember { mutableStateOf(false) }
     var isSending by remember { mutableStateOf(false) }
-    var submissionError by remember { mutableStateOf<String?>(null) }
+    var submissionError by rememberSaveable { mutableStateOf<String?>(null) }
     val issueSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val issueEntries = Issue.entries.toTypedArray()
     if (showIssueSheet) {
