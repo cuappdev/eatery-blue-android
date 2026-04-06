@@ -186,7 +186,7 @@ fun CompareMenusScreen(
                         eateries.getOrNull(firstPagerState.currentPage)?.id?.let {
                             ReportBottomSheet(
                                 issue = issue,
-                                eateryid = it,
+                                eateryId = it,
                                 sendReport = { issue, report, eateryId ->
                                     compareMenusViewModel.sendReport(
                                         issue,

@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +45,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -51,6 +53,10 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayOne
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.Red
+import com.cornellappdev.android.eatery.util.EateryPreview
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 enum class Issue(val option: String) {
     ITEM("Inaccurate or missing item"),
@@ -65,15 +71,17 @@ enum class Issue(val option: String) {
 @Composable
 fun ReportBottomSheet(
     issue: Issue?,
-    eateryid: Int?,
-    sendReport: (issue: String, report: String, eateryid: Int?) -> Unit,
+    eateryId: Int?,
+    sendReport: suspend (issue: String, report: String, eateryId: Int?) -> Boolean,
     hide: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+    val coroutineScope = rememberCoroutineScope()
     val (textEntry, setTextEntry) = remember { mutableStateOf("") }
     val (selectedIssue, setSelectedIssue) = remember { mutableStateOf(issue) }
     var showIssueSheet by remember { mutableStateOf(false) }
     var isSending by remember { mutableStateOf(false) }
+    var submissionError by remember { mutableStateOf<String?>(null) }
     val issueSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val issueEntries = Issue.entries.toTypedArray()
     if (showIssueSheet) {
@@ -92,7 +100,10 @@ fun ReportBottomSheet(
                 HorizontalDivider(Modifier.weight(0.75f, true), color = GrayOne, thickness = 3.dp)
                 Spacer(Modifier.weight(1f, true))
             }
-            IssueBottomSheet(issueEntries, setSelectedIssue) {
+            IssueBottomSheet(issueEntries, {
+                setSelectedIssue(it)
+                submissionError = null
+            }) {
                 showIssueSheet = false
             }
         }
@@ -203,7 +214,10 @@ fun ReportBottomSheet(
                     BasicTextField(
                         modifier = Modifier.fillMaxSize(),
                         value = textEntry,
-                        onValueChange = setTextEntry,
+                        onValueChange = {
+                            setTextEntry(it)
+                            submissionError = null
+                        },
                         keyboardActions = KeyboardActions(onDone = { onSubmit() }),
                         textStyle = TextStyle(
                             color = Color.Black,
@@ -218,6 +232,15 @@ fun ReportBottomSheet(
                 }
             }
 
+            submissionError?.let {
+                Text(
+                    text = it,
+                    style = EateryBlueTypography.subtitle2,
+                    color = Red,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
             Button(
                 shape = RoundedCornerShape(corner = CornerSize(24.dp)),
                 modifier = Modifier
@@ -225,14 +248,26 @@ fun ReportBottomSheet(
                     .padding(top = 16.dp)
                     .height(48.dp),
                 onClick = {
-                    if (!isSending) {
-                        isSending = true
-                        sendReport(selectedIssue!!.option, textEntry, eateryid)
+                    if (isSending || selectedIssue == null) return@Button
+
+                    focusManager.clearFocus()
+                    isSending = true
+                    submissionError = null
+
+                    coroutineScope.launch {
+                        val success = runCatching {
+                            sendReport(selectedIssue.option, textEntry, eateryId)
+                        }.getOrDefault(false)
+
+                        if (success) {
+                            hide()
+                            setTextEntry("")
+                            setSelectedIssue(issue)
+                        } else {
+                            submissionError = "Unable to send report. Please try again."
+                        }
                         isSending = false
                     }
-                    hide()
-                    setTextEntry("")
-                    setSelectedIssue(issue)
                 },
                 enabled = textEntry.isNotEmpty() && selectedIssue != null && !isSending,
                 colors = ButtonDefaults.buttonColors(
@@ -264,7 +299,7 @@ fun ReportBottomSheet(
 }
 
 @Composable
-fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hide: () -> Unit) {
+private fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hide: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -284,4 +319,26 @@ fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hide: () ->
 
         Spacer(modifier = Modifier.height(24.dp))
     }
+}
+
+@Preview
+@Composable
+private fun ReportBottomSheetSuccessPreview() = EateryPreview {
+    ReportBottomSheet(
+        issue = null,
+        eateryId = null,
+        sendReport = { _, _, _ -> delay(1000); true },
+        hide = {}
+    )
+}
+
+@Preview
+@Composable
+private fun ReportBottomSheetErrorPreview() = EateryPreview {
+    ReportBottomSheet(
+        issue = null,
+        eateryId = null,
+        sendReport = { _, _, _ -> delay(1000); false },
+        hide = {}
+    )
 }

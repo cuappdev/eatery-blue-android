@@ -167,7 +167,7 @@ fun EateryDetailScreenContent(
     filterText: String,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
     onToggleFavorite: () -> Unit,
-    onSendReport: (issue: String, report: String, eateryId: Int?) -> Unit,
+    onSendReport: suspend (issue: String, report: String, eateryId: Int?) -> Boolean,
     onSelectEvent: (eatery: Eatery, dayIndex: Int, mealDescription: String) -> Unit,
     onSetSelectedWeekdayIndex: (Int) -> Unit,
     onResetSelectedEvent: () -> Unit,
@@ -284,7 +284,7 @@ fun EateryDetailScreenContent(
                                     eatery.id?.let {
                                         ReportBottomSheet(
                                             issue = issue,
-                                            eateryid = it,
+                                            eateryId = it,
                                             sendReport = { issue, report, eateryId ->
                                                 onSendReport(issue, report, eateryId)
                                             }
@@ -993,7 +993,7 @@ private fun EateryDetailScreenPreview() = EateryPreview {
         filterText = "",
         onCompareMenusClick = {},
         onToggleFavorite = {},
-        onSendReport = { _, _, _ -> },
+        onSendReport = { _, _, _ -> true },
         onSelectEvent = { _, _, _ -> },
         onSetSelectedWeekdayIndex = {},
         onResetSelectedEvent = {},

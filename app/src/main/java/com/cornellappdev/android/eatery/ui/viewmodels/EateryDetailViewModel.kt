@@ -213,14 +213,16 @@ class EateryDetailViewModel @Inject constructor(
         }
     }
 
-    fun sendReport(issue: String, report: String, eateryId: Int?) = viewModelScope.launch {
+    suspend fun sendReport(issue: String, report: String, eateryId: Int?): Boolean {
         when (val result = userRepository.sendReport(issue, report, eateryId)) {
             is Result.Success -> {
                 _error.value = null
+                return true
             }
 
             is Result.Error -> {
                 _error.value = NetworkUiError.Failed(NetworkAction.SendReport, result.error)
+                return false
             }
         }
     }

@@ -85,7 +85,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
         ) {
             ReportBottomSheet(
                 issue = issue,
-                eateryid = null,
+                eateryId = null,
                 sendReport = { issue, report, _ ->
                     supportViewModel.sendReport(issue, report)
                 }) {
