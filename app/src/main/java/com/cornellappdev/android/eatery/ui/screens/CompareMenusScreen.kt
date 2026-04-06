@@ -89,7 +89,8 @@ fun CompareMenusScreen(
     compareMenusViewModel: CompareMenusViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit,
 ) {
-    LaunchedEffect(eateryIds) {
+    val eateryIdsKey = remember(eateryIds) { eateryIds.hashCode() }
+    LaunchedEffect(eateryIdsKey) {
         compareMenusViewModel.openEatery(eateryIds)
     }
 
