@@ -391,8 +391,8 @@ private fun MenuPager(
                                     }
                                     if (category.items?.lastIndex == index) {
                                         HorizontalDivider(
-                                            color = GrayZero,
-                                            modifier = Modifier.height(10.dp)
+                                            thickness = 10.dp,
+                                            color = GrayZero
                                         )
                                     }
                                 }
