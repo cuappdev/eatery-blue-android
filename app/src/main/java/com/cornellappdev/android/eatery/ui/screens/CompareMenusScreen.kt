@@ -88,7 +88,9 @@ fun CompareMenusScreen(
     compareMenusViewModel: CompareMenusViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit,
 ) {
-    compareMenusViewModel.openEatery(eateryIds)
+    LaunchedEffect(eateryIds) {
+        compareMenusViewModel.openEatery(eateryIds)
+    }
 
     val eateries by compareMenusViewModel.eateryFlow.collectAsStateWithLifecycle()
     val events by compareMenusViewModel.eventFlow.collectAsStateWithLifecycle()

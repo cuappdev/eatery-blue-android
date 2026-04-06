@@ -222,30 +222,38 @@ private fun LoginWebView(
     isFirstWebView: Boolean,
     webViewLoaded: () -> Unit
 ) {
-    if (isFirstWebView) {
-        // If the web view is being loaded for the first time after user navigates to LoginPage,
-        // then reset cookies. This makes logging out work.
-        // We need the conditional since LoginWebView gets recomposed during login.
-        CookieManager.getInstance().removeAllCookies(null)
-        CookieManager.getInstance().flush()
-        webViewLoaded()
-    }
-    AndroidView(
-        factory = {
-            WebView(it).apply {
-                visibility = View.VISIBLE
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                // Necessary for displaying normal login webpage behavior.
-                settings.javaScriptEnabled = true
-                webViewClient = CustomWebViewClient(onSuccess, onLoggedIn)
-                loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
+    var canCreateWebView by remember { mutableStateOf(!isFirstWebView) }
+    LaunchedEffect(isFirstWebView) {
+        if (isFirstWebView) {
+            // If the web view is being loaded for the first time after user navigates to LoginPage,
+            // then reset cookies. This makes logging out work.
+            // We need the conditional since LoginWebView gets recomposed during login.
+            CookieManager.getInstance().removeAllCookies { _ ->
+                CookieManager.getInstance().flush()
+                webViewLoaded()
+                canCreateWebView = true
             }
         }
-    )
+    }
+    if (canCreateWebView) {
+        AndroidView(
+            factory = {
+                WebView(it).apply {
+                    visibility = View.VISIBLE
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    // Necessary for displaying normal login webpage behavior.
+                    settings.javaScriptEnabled = true
+                    webViewClient = CustomWebViewClient(onSuccess, onLoggedIn)
+                    loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
+                }
+            }
+        )
+    }
 }
+
 
 private class CustomWebViewClient(
     val onSuccess: (String) -> Unit,
