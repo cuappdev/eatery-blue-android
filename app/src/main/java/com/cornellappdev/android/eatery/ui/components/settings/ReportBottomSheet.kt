@@ -255,7 +255,8 @@ fun ReportBottomSheet(
                     submissionError = null
 
                     coroutineScope.launch {
-                        val success = sendReport(selectedIssue.option, textEntry, eateryId)
+                        val report = textEntry.trim()
+                        val success = sendReport(selectedIssue.option, report, eateryId)
                         if (success) {
                             hide()
                             setTextEntry("")
@@ -266,7 +267,7 @@ fun ReportBottomSheet(
                         isSending = false
                     }
                 },
-                enabled = textEntry.isNotEmpty() && selectedIssue != null && !isSending,
+                enabled = textEntry.isNotBlank() && selectedIssue != null && !isSending,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = EateryBlue,
                     contentColor = Color.White,
