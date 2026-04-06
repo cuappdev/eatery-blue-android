@@ -296,19 +296,20 @@ private fun MenuPager(
                                 ), color = GrayFive
                             )
                         }
-                        val openUntil = eateries[page].getOpenUntil()
+                        val eatery = eateries.getOrNull(page) ?: return@Column
+                        val openUntil = eatery.getOpenUntil()
                         Text(
                             modifier = Modifier.padding(top = 2.dp),
                             text =
                                 if (openUntil == null) "Closed"
-                                else if (eateries[page].isClosingSoon()) "Closing at $openUntil"
+                                else if (eatery.isClosingSoon()) "Closing at $openUntil"
                                 else ("Open until $openUntil"),
                             style = TextStyle(
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp
                             ),
                             color = if (openUntil == null) Red
-                            else if (eateries[page].isClosingSoon()) Yellow
+                            else if (eatery.isClosingSoon()) Yellow
                             else Green
                         )
 
