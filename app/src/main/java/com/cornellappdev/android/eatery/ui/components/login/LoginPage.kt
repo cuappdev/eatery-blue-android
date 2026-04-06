@@ -26,6 +26,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,10 +78,11 @@ fun LoginPage(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
     var isFirstWebView by remember { mutableStateOf(true) }
-    if (loggedIn) {
-        showSheet = false
-    } else if (!sheetState.isVisible && isLoading) {
-        showSheet = true
+    LaunchedEffect(loggedIn) {
+        if (loggedIn) showSheet = false
+    }
+    LaunchedEffect(sheetState.isVisible, isLoading) {
+        if (!sheetState.isVisible && isLoading) showSheet = true
     }
     if (!isPreview()) {
         Box {
