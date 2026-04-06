@@ -12,45 +12,50 @@ import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
 class CompareMenusViewModel @Inject constructor(
-    private val eateryRepository: EateryRepository,
+    eateryRepository: EateryRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
     private val _error = MutableStateFlow<NetworkUiError?>(null)
     val error = _error.asStateFlow()
 
+    private val _eateryFlow = MutableStateFlow<List<Eatery>>(emptyList())
+    val eateryFlow = _eateryFlow.asStateFlow()
+
+    private val _eventFlow = MutableStateFlow<List<Event?>>(emptyList())
+    val eventFlow = _eventFlow.asStateFlow()
+
+    private val _selectedEateryIds = MutableStateFlow<Set<Int>>(emptySet())
+
+    init {
+        eateryRepository.eateryFlow
+            .combine(_selectedEateryIds) { apiResponse, eateryIds ->
+                when (apiResponse) {
+                    is EateryApiResponse.Success -> apiResponse.data.filter { it.id in eateryIds }
+                    else -> emptyList()
+                }
+            }
+            .onEach { eateries ->
+                _eateryFlow.value = eateries
+                _eventFlow.value = eateries.map { it.getCurrentDisplayedEvent() }
+            }
+            .launchIn(viewModelScope)
+    }
+
     fun clearError() {
         _error.value = null
     }
 
-    lateinit var eateryFlow: StateFlow<List<Eatery>>
-    lateinit var eventFlow: StateFlow<List<Event?>>
-
     fun openEatery(eateryIds: List<Int>) {
-        eateryFlow = eateryRepository.eateryFlow.map { apiResponse ->
-            when (apiResponse) {
-                is EateryApiResponse.Success -> {
-                    apiResponse.data.filter { eateryIds.contains(it.id) }
-                }
-
-                else -> emptyList()
-            }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
-
-        eventFlow = eateryFlow.map { eateries ->
-            eateries.map { eatery ->
-                eatery.getCurrentDisplayedEvent()
-            }
-        }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+        _selectedEateryIds.value = eateryIds.toSet()
     }
 
     suspend fun sendReport(issue: String, report: String, eateryId: Int?): Boolean {
