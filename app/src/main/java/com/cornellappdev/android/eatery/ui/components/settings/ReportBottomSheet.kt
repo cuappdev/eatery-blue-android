@@ -255,10 +255,7 @@ fun ReportBottomSheet(
                     submissionError = null
 
                     coroutineScope.launch {
-                        val success = runCatching {
-                            sendReport(selectedIssue.option, textEntry, eateryId)
-                        }.getOrDefault(false)
-
+                        val success = sendReport(selectedIssue.option, textEntry, eateryId)
                         if (success) {
                             hide()
                             setTextEntry("")
