@@ -130,9 +130,8 @@ fun ReportBottomSheet(
                 )
 
                 IconButton(
-                    onClick = {
-                        hide()
-                    },
+                    onClick = hide,
+                    enabled = !isSending,
                     modifier = Modifier
                         .size(40.dp)
                         .background(color = GrayZero, shape = CircleShape)
@@ -323,9 +322,9 @@ private fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hid
 @Composable
 private fun ReportBottomSheetSuccessPreview() = EateryPreview {
     ReportBottomSheet(
-        issue = null,
+        issue = Issue.ITEM,
         eateryId = null,
-        sendReport = { _, _, _ -> delay(1000); true },
+        sendReport = { _, _, _ -> delay(3000); true },
         hide = {}
     )
 }
@@ -334,9 +333,9 @@ private fun ReportBottomSheetSuccessPreview() = EateryPreview {
 @Composable
 private fun ReportBottomSheetErrorPreview() = EateryPreview {
     ReportBottomSheet(
-        issue = null,
+        issue = Issue.ITEM,
         eateryId = null,
-        sendReport = { _, _, _ -> delay(1000); false },
+        sendReport = { _, _, _ -> delay(3000); false },
         hide = {}
     )
 }
