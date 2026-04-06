@@ -74,15 +74,11 @@ fun LoginPage(
     onBackClick: () -> Unit,
     onModalHidden: () -> Unit
 ) {
-    var loggedIn by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
     var isFirstWebView by remember { mutableStateOf(true) }
-    LaunchedEffect(loggedIn) {
-        if (loggedIn) showSheet = false
-    }
-    LaunchedEffect(sheetState.isVisible, isLoading) {
-        if (!sheetState.isVisible && isLoading) showSheet = true
+    LaunchedEffect(isLoading) {
+        if (isLoading) showSheet = true
     }
     if (!isPreview()) {
         Box {
@@ -102,8 +98,11 @@ fun LoginPage(
                     )
                 ) {
                     LoginWebView(
-                        onLoggedIn = { loggedIn = true },
-                        onSuccess = onSuccess,
+                        onLoggedIn = { },
+                        onSuccess = { sessionId ->
+                            showSheet = false
+                            onSuccess(sessionId)
+                        },
                         isFirstWebView = isFirstWebView,
                         webViewLoaded = { isFirstWebView = false }
                     )
