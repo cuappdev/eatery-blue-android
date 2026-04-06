@@ -82,9 +82,6 @@ fun UpcomingMenuScreen(
     var showMealBottomSheet by rememberSaveable { mutableStateOf(false) }
     val viewState = upcomingViewModel.viewStateFlow.collectAsStateWithLifecycle().value
     val coroutineScope = rememberCoroutineScope()
-
-    val listState = rememberLazyListState()
-    remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val shimmer = rememberShimmer(ShimmerBounds.View)
 
     Box(modifier = Modifier.background(White)) {
@@ -120,25 +117,17 @@ fun UpcomingMenuScreen(
             remember { derivedStateOf { innerListState.firstVisibleItemIndex > 0 } }
         when (val menus = viewState.menus) {
             is EateryApiResponse.Success -> {
-                UpcomingLazyColumn(
+                UpcomingMenuShell(
                     innerListState = innerListState,
-                    upcomingMenuHeader = { UpcomingMenuHeader(isFirstVisible) },
-                    calendarWeekSelector = {
-                        CalendarWeekSelector(
-                            selectedDay = viewState.selectedDay,
-                            selectDayOffset = upcomingViewModel::selectDayOffset
-                        )
-                    },
-                    filterRow = {
-                        UpcomingFilterRow(
-                            showModalBottomSheet = { showMealBottomSheet = true },
-                            mealFilter = viewState.mealFilter,
-                            upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
-                            selectedFilters = viewState.selectedFilters,
-                            onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
-                            filterRowState = filterRowState
-                        )
-                    }
+                    isFirstVisible = isFirstVisible,
+                    selectedDay = viewState.selectedDay,
+                    selectDayOffset = upcomingViewModel::selectDayOffset,
+                    showModalBottomSheet = { showMealBottomSheet = true },
+                    mealFilter = viewState.mealFilter,
+                    upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                    selectedFilters = viewState.selectedFilters,
+                    onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                    filterRowState = filterRowState
                 ) {
                     if (menus.data.isEmpty()) {
                         item {
@@ -183,25 +172,17 @@ fun UpcomingMenuScreen(
             }
 
             is EateryApiResponse.Pending -> {
-                UpcomingLazyColumn(
+                UpcomingMenuShell(
                     innerListState = innerListState,
-                    upcomingMenuHeader = { UpcomingMenuHeader(isFirstVisible) },
-                    calendarWeekSelector = {
-                        CalendarWeekSelector(
-                            selectedDay = viewState.selectedDay,
-                            selectDayOffset = upcomingViewModel::selectDayOffset
-                        )
-                    },
-                    filterRow = {
-                        UpcomingFilterRow(
-                            showModalBottomSheet = { showMealBottomSheet = true },
-                            mealFilter = viewState.mealFilter,
-                            upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
-                            selectedFilters = viewState.selectedFilters,
-                            onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
-                            filterRowState = filterRowState
-                        )
-                    }
+                    isFirstVisible = isFirstVisible,
+                    selectedDay = viewState.selectedDay,
+                    selectDayOffset = upcomingViewModel::selectDayOffset,
+                    showModalBottomSheet = { showMealBottomSheet = true },
+                    mealFilter = viewState.mealFilter,
+                    upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                    selectedFilters = viewState.selectedFilters,
+                    onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                    filterRowState = filterRowState
                 ) {
                     items(UpcomingLoadingItem.upcomingItems) { item ->
                         CreateUpcomingLoadingItem(
@@ -237,6 +218,43 @@ fun UpcomingMenuScreen(
             }
         }
     }
+}
+
+@Composable
+private fun UpcomingMenuShell(
+    innerListState: LazyListState,
+    isFirstVisible: State<Boolean>,
+    selectedDay: Int,
+    selectDayOffset: (Int) -> Unit,
+    showModalBottomSheet: () -> Unit,
+    mealFilter: MealFilter,
+    upcomingMenuFilters: List<Filter>,
+    selectedFilters: List<Filter>,
+    onToggleFilterClicked: (Filter) -> Unit,
+    filterRowState: LazyListState,
+    content: LazyListScope.() -> Unit,
+) {
+    UpcomingLazyColumn(
+        innerListState = innerListState,
+        upcomingMenuHeader = { UpcomingMenuHeader(isFirstVisible) },
+        calendarWeekSelector = {
+            CalendarWeekSelector(
+                selectedDay = selectedDay,
+                selectDayOffset = selectDayOffset
+            )
+        },
+        filterRow = {
+            UpcomingFilterRow(
+                showModalBottomSheet = showModalBottomSheet,
+                mealFilter = mealFilter,
+                upcomingMenuFilters = upcomingMenuFilters,
+                selectedFilters = selectedFilters,
+                onToggleFilterClicked = onToggleFilterClicked,
+                filterRowState = filterRowState
+            )
+        },
+        content = content
+    )
 }
 
 @Composable
