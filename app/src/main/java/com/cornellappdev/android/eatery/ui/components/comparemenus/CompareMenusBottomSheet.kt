@@ -50,7 +50,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun CompareMenusBotSheet(
+fun CompareMenusBottomSheet(
     onDismiss: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
     compareMenusBotViewModel: CompareMenusBotViewModel = hiltViewModel(),
@@ -62,7 +62,7 @@ fun CompareMenusBotSheet(
         compareMenusBotViewModel.initializedFirstEatery(firstEatery)
     }
 
-    CompareMenusBotSheetContent(
+    CompareMenusBottomSheetContent(
         onDismiss = {
             compareMenusBotViewModel.resetSelected()
             onDismiss()
@@ -84,7 +84,7 @@ fun CompareMenusBotSheet(
 }
 
 @Composable
-fun CompareMenusBotSheetContent(
+fun CompareMenusBottomSheetContent(
     onDismiss: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
     filters: List<Filter>,
@@ -241,14 +241,14 @@ private fun SelectableEateriesList(
 
 @Preview
 @Composable
-fun CompareMenusBotSheetContentPreview() = EateryPreview {
+fun CompareMenusBottomSheetContentPreview() = EateryPreview {
     val mockEateries = listOf(
         PreviewData.mockEatery(1).copy(name = "North Star"),
         PreviewData.mockEatery(2).copy(name = "RPCC"),
         PreviewData.mockEatery(3).copy(name = "Okenshields"),
     )
 
-    CompareMenusBotSheetContent(
+    CompareMenusBottomSheetContent(
         onDismiss = {},
         onCompareMenusClick = {},
         filters = listOf(Filter.Selected),

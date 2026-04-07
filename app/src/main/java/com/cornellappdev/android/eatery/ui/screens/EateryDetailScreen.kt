@@ -87,7 +87,7 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.models.MenuItem
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
-import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
+import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBottomSheet
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
 import com.cornellappdev.android.eatery.ui.components.details.AlertsSection
 import com.cornellappdev.android.eatery.ui.components.details.CalendarButton
@@ -324,7 +324,7 @@ fun EateryDetailScreenContent(
                                 }
 
                                 BottomSheetContent.COMPARE_MENUS -> {
-                                    CompareMenusBotSheet(
+                                    CompareMenusBottomSheet(
                                         onDismiss = closeBottomSheet,
                                         onCompareMenusClick = { selectedEateriesIds ->
                                             closeBottomSheet()
