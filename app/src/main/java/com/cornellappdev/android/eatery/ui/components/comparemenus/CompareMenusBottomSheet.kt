@@ -43,7 +43,7 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusBotViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusBottomViewModel
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import kotlinx.coroutines.delay
@@ -53,31 +53,31 @@ import kotlinx.coroutines.launch
 fun CompareMenusBottomSheet(
     onDismiss: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
-    compareMenusBotViewModel: CompareMenusBotViewModel = hiltViewModel(),
+    compareMenusBottomViewModel: CompareMenusBottomViewModel = hiltViewModel(),
     firstEatery: Eatery? = null
 ) {
-    val compareMenusUIState by compareMenusBotViewModel.compareMenusUiState.collectAsStateWithLifecycle()
+    val compareMenusUIState by compareMenusBottomViewModel.compareMenusUiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(firstEatery) {
-        compareMenusBotViewModel.initializedFirstEatery(firstEatery)
+        compareMenusBottomViewModel.initializedFirstEatery(firstEatery)
     }
 
     CompareMenusBottomSheetContent(
         onDismiss = {
-            compareMenusBotViewModel.resetSelected()
+            compareMenusBottomViewModel.resetSelected()
             onDismiss()
         },
         onCompareMenusClick = onCompareMenusClick,
         filters = compareMenusUIState.filters,
-        availableFilters = compareMenusBotViewModel.compareMenusBottomSheetFilters,
+        availableFilters = compareMenusBottomViewModel.compareMenusBottomSheetFilters,
         selectedEateries = compareMenusUIState.selected,
         eateries = compareMenusUIState.eateries,
-        onFilterClicked = compareMenusBotViewModel::toggleFilter,
+        onFilterClicked = compareMenusBottomViewModel::toggleFilter,
         onToggleEatery = { eatery ->
             if (compareMenusUIState.selected.contains(eatery)) {
-                compareMenusBotViewModel.removeSelected(eatery)
+                compareMenusBottomViewModel.removeSelected(eatery)
             } else {
-                compareMenusBotViewModel.addSelected(eatery)
+                compareMenusBottomViewModel.addSelected(eatery)
             }
         }
     )
