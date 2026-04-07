@@ -2,10 +2,10 @@ package com.cornellappdev.android.eatery.ui.components.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,6 +23,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -32,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -199,7 +199,7 @@ fun EateryMenusBottomSheet(
                         if (mealTypes.lastIndex != index) {
                             HorizontalDivider(
                                 modifier = Modifier
-                                    .padding(top = 12.dp, bottom = 12.dp)
+                                    .padding(vertical = 12.dp)
                                     .fillMaxWidth(),
                                 thickness = 1.dp,
                                 color = GrayZero
@@ -237,22 +237,24 @@ fun EateryMenusBottomSheet(
                         style = EateryBlueTypography.h5
                     )
                 }
-                Text(
-                    modifier = Modifier
-                        .padding(top = 12.dp)
-                        .clickable(role = Role.Button) {
-                            selectedDay = weekDayIndex
-                            onResetClick()
-                            onDismiss()
-                        },
-                    text = "Reset",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        lineHeight = 17.5.sp,
-                        fontWeight = FontWeight(600),
-                        color = Color(0xFF050505)
+                Spacer(modifier = Modifier.height(12.dp))
+                TextButton(
+                    onClick = {
+                        selectedDay = weekDayIndex
+                        onResetClick()
+                        onDismiss()
+                    }
+                ) {
+                    Text(
+                        text = "Reset",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            lineHeight = 17.5.sp,
+                            fontWeight = FontWeight(600),
+                            color = Color(0xFF050505)
+                        )
                     )
-                )
+                }
             }
         }
     }
