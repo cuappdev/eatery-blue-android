@@ -94,8 +94,9 @@ fun CompareMenusScreen(
         compareMenusViewModel.openEatery(eateryIds)
     }
 
-    val eateries by compareMenusViewModel.eateryFlow.collectAsStateWithLifecycle()
-    val events by compareMenusViewModel.eventFlow.collectAsStateWithLifecycle()
+    val uiState by compareMenusViewModel.uiState.collectAsStateWithLifecycle()
+    val eateries = uiState.eateries
+    val events = uiState.events
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
