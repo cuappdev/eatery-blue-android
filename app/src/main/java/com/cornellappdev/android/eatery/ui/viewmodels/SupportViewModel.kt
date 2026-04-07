@@ -1,47 +1,48 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
+import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SupportViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : ViewModel() {
-    private val _reportState = MutableStateFlow<ReportState>(ReportState.Idle)
-    val reportState: StateFlow<ReportState> = _reportState.asStateFlow()
+    private val _reportState = MutableStateFlow<ReportUiState>(ReportUiState.Idle)
+    val reportState: StateFlow<ReportUiState> = _reportState.asStateFlow()
 
-    sealed class ReportState {
-        object Idle : ReportState()
-        object Sending : ReportState()
-        object Success : ReportState()
-        data class Error(val error: NetworkUiError) : ReportState()
+    fun clearReportState() {
+        _reportState.value = ReportUiState.Idle
     }
 
-    suspend fun sendReport(issue: String, report: String): Boolean {
-        _reportState.value = ReportState.Sending
-        when (val result = userRepository.sendReport(issue, report, null)) {
-            is Result.Success -> {
-                _reportState.value = ReportState.Success
-                return true
-            }
+    fun sendReport(issue: String, report: String) {
+        viewModelScope.launch {
+            _reportState.value = ReportUiState.Sending
+            when (val result = userRepository.sendReport(issue, report, null)) {
+                is Result.Success -> {
+                    _reportState.value = ReportUiState.Success
+                }
 
-            is Result.Error -> {
-                _reportState.value =
-                    ReportState.Error(NetworkUiError.Failed(NetworkAction.SendReport, result.error))
-                return false
+                is Result.Error -> {
+                    _reportState.value =
+                        ReportUiState.Error(
+                            NetworkUiError.Failed(
+                                NetworkAction.SendReport,
+                                result.error
+                            )
+                        )
+                }
             }
         }
-    }
-
-    fun resetReportState() {
-        _reportState.value = ReportState.Idle
     }
 }

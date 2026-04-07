@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
@@ -66,6 +67,7 @@ import kotlinx.coroutines.launch
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val reportState by supportViewModel.reportState.collectAsStateWithLifecycle()
     val modalBottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
@@ -74,7 +76,10 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
 
     if (showReportSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showReportSheet = false },
+            onDismissRequest = {
+                supportViewModel.clearReportState()
+                showReportSheet = false
+            },
             sheetState = modalBottomSheetState,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
@@ -86,9 +91,12 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
             ReportBottomSheet(
                 issue = issue,
                 eateryId = null,
+                reportState = reportState,
                 sendReport = { issue, report, _ ->
                     supportViewModel.sendReport(issue, report)
-                }) {
+                },
+                clearReportState = supportViewModel::clearReportState,
+            ) {
                 coroutineScope.launch {
                     modalBottomSheetState.hide()
                 }.invokeOnCompletion {

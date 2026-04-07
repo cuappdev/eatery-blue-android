@@ -33,10 +33,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,15 +49,17 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayOne
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Red
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
+import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
 import com.cornellappdev.android.eatery.util.EateryPreview
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 enum class Issue(val option: String) {
     ITEM("Inaccurate or missing item"),
@@ -73,18 +75,27 @@ enum class Issue(val option: String) {
 fun ReportBottomSheet(
     issue: Issue?,
     eateryId: Int?,
-    sendReport: suspend (issue: String, report: String, eateryId: Int?) -> Boolean,
+    reportState: ReportUiState,
+    sendReport: (issue: String, report: String, eateryId: Int?) -> Unit,
+    clearReportState: () -> Unit,
     hide: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    val coroutineScope = rememberCoroutineScope()
     val (textEntry, setTextEntry) = rememberSaveable { mutableStateOf("") }
     val (selectedIssue, setSelectedIssue) = rememberSaveable(issue) { mutableStateOf(issue) }
     var showIssueSheet by remember { mutableStateOf(false) }
-    var isSending by remember { mutableStateOf(false) }
-    var submissionError by rememberSaveable { mutableStateOf<String?>(null) }
+    val isSending = reportState is ReportUiState.Sending
     val issueSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val issueEntries = Issue.entries.toTypedArray()
+
+    LaunchedEffect(reportState) {
+        if (reportState is ReportUiState.Success) {
+            hide()
+            setTextEntry("")
+            setSelectedIssue(issue)
+            clearReportState()
+        }
+    }
     if (showIssueSheet) {
         ModalBottomSheet(
             onDismissRequest = { showIssueSheet = false },
@@ -103,7 +114,7 @@ fun ReportBottomSheet(
             }
             IssueBottomSheet(issueEntries, {
                 setSelectedIssue(it)
-                submissionError = null
+                clearReportState()
             }) {
                 showIssueSheet = false
             }
@@ -131,7 +142,10 @@ fun ReportBottomSheet(
                 )
 
                 IconButton(
-                    onClick = hide,
+                    onClick = {
+                        clearReportState()
+                        hide()
+                    },
                     enabled = !isSending,
                     modifier = Modifier
                         .size(40.dp)
@@ -216,7 +230,7 @@ fun ReportBottomSheet(
                         value = textEntry,
                         onValueChange = {
                             setTextEntry(it)
-                            submissionError = null
+                            clearReportState()
                         },
                         keyboardActions = KeyboardActions(onDone = { onSubmit() }),
                         textStyle = TextStyle(
@@ -232,9 +246,9 @@ fun ReportBottomSheet(
                 }
             }
 
-            submissionError?.let {
+            if (reportState is ReportUiState.Error) {
                 Text(
-                    text = it,
+                    text = "Unable to send report. Please try again.",
                     style = EateryBlueTypography.subtitle2,
                     color = Red,
                     modifier = Modifier.padding(top = 8.dp)
@@ -251,21 +265,7 @@ fun ReportBottomSheet(
                     if (isSending || selectedIssue == null) return@Button
 
                     focusManager.clearFocus()
-                    isSending = true
-                    submissionError = null
-
-                    coroutineScope.launch {
-                        val report = textEntry.trim()
-                        val success = sendReport(selectedIssue.option, report, eateryId)
-                        if (success) {
-                            hide()
-                            setTextEntry("")
-                            setSelectedIssue(issue)
-                        } else {
-                            submissionError = "Unable to send report. Please try again."
-                        }
-                        isSending = false
-                    }
+                    sendReport(selectedIssue.option, textEntry.trim(), eateryId)
                 },
                 enabled = textEntry.isNotBlank() && selectedIssue != null && !isSending,
                 colors = ButtonDefaults.buttonColors(
@@ -325,7 +325,9 @@ private fun ReportBottomSheetSuccessPreview() = EateryPreview {
     ReportBottomSheet(
         issue = Issue.ITEM,
         eateryId = null,
-        sendReport = { _, _, _ -> delay(3000); true },
+        reportState = ReportUiState.Success,
+        sendReport = { _, _, _ -> },
+        clearReportState = {},
         hide = {}
     )
 }
@@ -336,7 +338,11 @@ private fun ReportBottomSheetErrorPreview() = EateryPreview {
     ReportBottomSheet(
         issue = Issue.ITEM,
         eateryId = null,
-        sendReport = { _, _, _ -> delay(3000); false },
+        reportState = ReportUiState.Error(
+            error = NetworkUiError.Failed(NetworkAction.SendReport, NetworkError.NetworkFailure)
+        ),
+        sendReport = { _, _, _ -> },
+        clearReportState = {},
         hide = {}
     )
 }

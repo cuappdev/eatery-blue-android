@@ -120,6 +120,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.MealViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
@@ -139,6 +140,7 @@ fun EateryDetailScreen(
 ) {
     val viewState = eateryDetailViewModel.eateryDetailViewState.collectAsStateWithLifecycle().value
     val error by eateryDetailViewModel.error.collectAsStateWithLifecycle()
+    val reportState by eateryDetailViewModel.reportState.collectAsStateWithLifecycle()
     val filterText by eateryDetailViewModel.searchQueryFlow.collectAsStateWithLifecycle()
 
     NetworkErrorToast(
@@ -151,7 +153,9 @@ fun EateryDetailScreen(
         filterText = filterText,
         onCompareMenusClick = onCompareMenusClick,
         onToggleFavorite = eateryDetailViewModel::toggleFavorite,
+        reportState = reportState,
         onSendReport = eateryDetailViewModel::sendReport,
+        onClearReportState = eateryDetailViewModel::clearReportState,
         onSelectEvent = eateryDetailViewModel::selectEvent,
         onSetSelectedWeekdayIndex = eateryDetailViewModel::setSelectedWeekdayIndex,
         onResetSelectedEvent = eateryDetailViewModel::resetSelectedEvent,
@@ -167,7 +171,9 @@ fun EateryDetailScreenContent(
     filterText: String,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
     onToggleFavorite: () -> Unit,
-    onSendReport: suspend (issue: String, report: String, eateryId: Int?) -> Boolean,
+    reportState: ReportUiState,
+    onSendReport: (issue: String, report: String, eateryId: Int?) -> Unit,
+    onClearReportState: () -> Unit,
     onSelectEvent: (eatery: Eatery, dayIndex: Int, mealDescription: String) -> Unit,
     onSetSelectedWeekdayIndex: (Int) -> Unit,
     onResetSelectedEvent: () -> Unit,
@@ -195,6 +201,7 @@ fun EateryDetailScreenContent(
         coroutineScope.launch {
             modalBottomSheetState.hide()
             showBottomSheet = false
+            onClearReportState()
         }
     }
     val openBottomSheet: (BottomSheetContent) -> Unit = { content ->
@@ -285,9 +292,9 @@ fun EateryDetailScreenContent(
                                         ReportBottomSheet(
                                             issue = issue,
                                             eateryId = it,
-                                            sendReport = { issue, report, eateryId ->
-                                                onSendReport(issue, report, eateryId)
-                                            }
+                                            reportState = reportState,
+                                            sendReport = onSendReport,
+                                            clearReportState = onClearReportState,
                                         ) {
                                             closeBottomSheet()
                                         }
@@ -993,7 +1000,9 @@ private fun EateryDetailScreenPreview() = EateryPreview {
         filterText = "",
         onCompareMenusClick = {},
         onToggleFavorite = {},
-        onSendReport = { _, _, _ -> true },
+        reportState = ReportUiState.Idle,
+        onSendReport = { _, _, _ -> },
+        onClearReportState = {},
         onSelectEvent = { _, _, _ -> },
         onSetSelectedWeekdayIndex = {},
         onResetSelectedEvent = {},

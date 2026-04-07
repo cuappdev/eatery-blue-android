@@ -95,6 +95,7 @@ fun CompareMenusScreen(
     }
 
     val uiState by compareMenusViewModel.uiState.collectAsStateWithLifecycle()
+    val reportState by compareMenusViewModel.reportState.collectAsStateWithLifecycle()
     val eateries = uiState.eateries
     val events = uiState.events
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -106,6 +107,7 @@ fun CompareMenusScreen(
         coroutineScope.launch {
             modalBottomSheetState.hide()
             showBottomSheet = false
+            compareMenusViewModel.clearReportState()
         }
     }
     val openBottomSheet: (BottomSheetContent) -> Unit = { content ->
@@ -192,13 +194,9 @@ fun CompareMenusScreen(
                             ReportBottomSheet(
                                 issue = issue,
                                 eateryId = it,
-                                sendReport = { issue, report, eateryId ->
-                                    compareMenusViewModel.sendReport(
-                                        issue,
-                                        report,
-                                        eateryId
-                                    )
-                                },
+                                reportState = reportState,
+                                sendReport = compareMenusViewModel::sendReport,
+                                clearReportState = compareMenusViewModel::clearReportState,
                                 hide = closeBottomSheet
                             )
                         }

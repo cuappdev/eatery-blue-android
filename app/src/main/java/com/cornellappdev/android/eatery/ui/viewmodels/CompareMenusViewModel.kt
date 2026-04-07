@@ -10,12 +10,15 @@ import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
+import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +34,8 @@ class CompareMenusViewModel @Inject constructor(
     )
 
     private val _error = MutableStateFlow<NetworkUiError?>(null)
+    private val _reportState = MutableStateFlow<ReportUiState>(ReportUiState.Idle)
+    val reportState: StateFlow<ReportUiState> = _reportState.asStateFlow()
 
     private val _selectedEateryIds = MutableStateFlow<Set<Int>>(emptySet())
 
@@ -58,16 +63,27 @@ class CompareMenusViewModel @Inject constructor(
         _selectedEateryIds.value = eateryIds.toSet()
     }
 
-    suspend fun sendReport(issue: String, report: String, eateryId: Int?): Boolean {
-        when (val result = userRepository.sendReport(issue, report, eateryId)) {
-            is Result.Success -> {
-                _error.value = null
-                return true
-            }
+    fun clearReportState() {
+        _reportState.value = ReportUiState.Idle
+    }
 
-            is Result.Error -> {
-                _error.value = NetworkUiError.Failed(NetworkAction.SendReport, result.error)
-                return false
+    fun sendReport(issue: String, report: String, eateryId: Int?) {
+        viewModelScope.launch {
+            _reportState.value = ReportUiState.Sending
+            when (val result = userRepository.sendReport(issue, report, eateryId)) {
+                is Result.Success -> {
+                    _reportState.value = ReportUiState.Success
+                }
+
+                is Result.Error -> {
+                    _reportState.value =
+                        ReportUiState.Error(
+                            NetworkUiError.Failed(
+                                NetworkAction.SendReport,
+                                result.error
+                            )
+                        )
+                }
             }
         }
     }
