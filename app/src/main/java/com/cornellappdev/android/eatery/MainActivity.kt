@@ -1,15 +1,21 @@
 package com.cornellappdev.android.eatery
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
@@ -22,6 +28,7 @@ import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -29,6 +36,10 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    companion object {
+        private const val LOG_TAG = "MainActivity"
+    }
+
     @Inject
     lateinit var eateryRepository: EateryRepository
 
@@ -39,6 +50,7 @@ class MainActivity : ComponentActivity() {
     lateinit var authTokenRepository: AuthTokenRepository
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<IntentSenderRequest>
+    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
     private val appUpdateManager by lazy { AppUpdateManagerFactory.create(applicationContext) }
     private var flexibleUpdateListener: InstallStateUpdatedListener? = null
 
@@ -48,6 +60,14 @@ class MainActivity : ComponentActivity() {
         activityResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
         ) {}
+
+        notificationPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                syncFcmTokenWithBackendIfAllowed()
+            }
+        }
 
         val hasOnboarded = runBlocking { userRepository.hasOnboarded() }
 
@@ -70,6 +90,8 @@ class MainActivity : ComponentActivity() {
         checkForUpdateAvailability()
         lifecycleScope.launch {
             configureTokens()
+            requestNotificationPermissionIfNeeded()
+            syncFcmTokenWithBackendIfAllowed()
             userRepository.updateFavorites()
             authTokenRepository.markTokensAsConfigured()
         }
@@ -153,5 +175,59 @@ class MainActivity : ComponentActivity() {
 
     private suspend fun configureTokens() {
         authTokenRepository.getTokens()
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (!BuildConfig.ENABLE_NOTIFICATIONS || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            return
+        }
+
+        val hasPermission = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasPermission) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    private fun syncFcmTokenWithBackendIfAllowed() {
+        if (!BuildConfig.ENABLE_NOTIFICATIONS) {
+            return
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!hasPermission) {
+                return
+            }
+        }
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(LOG_TAG, "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            Log.d(LOG_TAG, "Fetched FCM registration token: $token")
+            if (token.isNullOrBlank()) {
+                return@addOnCompleteListener
+            }
+
+            lifecycleScope.launch {
+                when (val result = userRepository.enableNotifications(token)) {
+                    is Result.Success -> Unit
+                    is Result.Error -> Log.w(
+                        LOG_TAG,
+                        "Failed to register FCM token: ${result.error}"
+                    )
+                }
+            }
+        }
     }
 }
