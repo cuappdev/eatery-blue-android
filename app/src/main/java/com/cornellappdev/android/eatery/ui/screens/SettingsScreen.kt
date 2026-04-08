@@ -8,29 +8,32 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Gavel
-import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.settings.AppIconBottomSheet
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
@@ -43,7 +46,7 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
@@ -52,30 +55,36 @@ fun SettingsScreen(
     // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
+        skipPartiallyExpanded = true,
     )
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 12.dp,
-            topEnd = 12.dp
-        ),
-        sheetElevation = 8.dp,
-        sheetContent = {
+    var showAppIconSheet by remember { mutableStateOf(false) }
+
+    if (showAppIconSheet) {
+        ModalBottomSheet(
+            sheetState = modalBottomSheetState,
+            onDismissRequest = { showAppIconSheet = false },
+            shape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            )
+        ) {
             AppIconBottomSheet {
                 coroutineScope.launch {
                     modalBottomSheetState.hide()
+                }.invokeOnCompletion {
+                    if (!modalBottomSheetState.isVisible) showAppIconSheet = false
                 }
             }
-        },
-        content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 48.dp, start = 16.dp, end = 16.dp)
-            ) {
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 48.dp, start = 16.dp, end = 16.dp)
+    ) {
                 Text(
                     text = "Settings",
                     color = EateryBlue,
@@ -116,9 +125,7 @@ fun SettingsScreen(
                     title = "App Icon",
                     description = "Select the Eatery app icon for your phone",
                     onClick = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.show()
-                        }
+                        showAppIconSheet = true
                     },
                     trailingIcon = {
                         Text(
@@ -224,7 +231,7 @@ fun SettingsScreen(
                 SettingsOption(
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Outlined.HelpOutline,
+                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
                             contentDescription = "Support",
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
@@ -261,13 +268,13 @@ fun SettingsScreen(
                         },
                         shape = RoundedCornerShape(25.dp),
                         colors = ButtonDefaults.buttonColors(
-                            backgroundColor = GrayZero,
+                            containerColor = GrayZero,
                             contentColor = Color.Black
                         )
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Logout,
-                            contentDescription = Icons.Default.Logout.name,
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = Icons.AutoMirrored.Filled.Logout.name,
                         )
                         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                         Text(
@@ -276,6 +283,5 @@ fun SettingsScreen(
                         )
                     }
                 }
-            }
-        })
+    }
 }

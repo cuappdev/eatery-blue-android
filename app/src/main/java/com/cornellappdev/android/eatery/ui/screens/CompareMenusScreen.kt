@@ -27,20 +27,17 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -48,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -61,8 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -79,14 +76,12 @@ import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
 @OptIn(
-    ExperimentalMaterialApi::class,
     ExperimentalFoundationApi::class,
-    ExperimentalLifecycleComposeApi::class
+    ExperimentalMaterial3Api::class,
 )
 @Composable
 fun CompareMenusScreen(
@@ -94,18 +89,31 @@ fun CompareMenusScreen(
     compareMenusViewModel: CompareMenusViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit,
 ) {
-    compareMenusViewModel.openEatery(eateryIds)
+    val eateryIdsKey = remember(eateryIds) { eateryIds.hashCode() }
+    LaunchedEffect(eateryIdsKey) {
+        compareMenusViewModel.openEatery(eateryIds)
+    }
 
-    val eateries by compareMenusViewModel.eateryFlow.collectAsStateWithLifecycle()
-    val events by compareMenusViewModel.eventFlow.collectAsStateWithLifecycle()
-    val modalBottomSheetState =
-        rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
-            skipHalfExpanded = true
-        )
+    val uiState by compareMenusViewModel.uiState.collectAsStateWithLifecycle()
+    val reportState by compareMenusViewModel.reportState.collectAsStateWithLifecycle()
+    val eateries = uiState.eateries
+    val events = uiState.events
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
+    var showBottomSheet by rememberSaveable { mutableStateOf(false) }
 
     var sheetContent by remember { mutableStateOf(BottomSheetContent.HOURS) }
+    val closeBottomSheet: () -> Unit = {
+        coroutineScope.launch {
+            modalBottomSheetState.hide()
+            showBottomSheet = false
+            compareMenusViewModel.clearReportState()
+        }
+    }
+    val openBottomSheet: (BottomSheetContent) -> Unit = { content ->
+        sheetContent = content
+        showBottomSheet = true
+    }
 
     val issue by remember { mutableStateOf<Issue?>(null) }
     Column {
@@ -122,15 +130,15 @@ fun CompareMenusScreen(
                 fontWeight = FontWeight(600)
             )
         }
-        Divider(
+        HorizontalDivider(
             color = GrayZero,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
         )
         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-        val firstPagerState = rememberPagerState()
-        val secondPagerState = rememberPagerState()
+        val firstPagerState = rememberPagerState(pageCount = { eateries.size })
+        val secondPagerState = rememberPagerState(pageCount = { eateries.size })
 
         val scrollingFollowingPair by remember {
             derivedStateOf {
@@ -149,8 +157,7 @@ fun CompareMenusScreen(
                     val divideAndRemainder = BigDecimal.valueOf(pagePart.toDouble())
                         .divideAndRemainder(BigDecimal.ONE)
                     val pageOffsetFraction =
-                        if (divideAndRemainder[1].toFloat() > 0.5f) 0.5f else Math.max(
-                            -0.5f,
+                        if (divideAndRemainder[1].toFloat() > 0.5f) 0.5f else (-0.5f).coerceAtLeast(
                             divideAndRemainder[1].toFloat()
                         )
                     followingState.scrollToPage(
@@ -159,59 +166,58 @@ fun CompareMenusScreen(
                     )
                 }
         }
-        ModalBottomSheetLayout(
-            sheetState = modalBottomSheetState, sheetContent = {
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = closeBottomSheet,
+                sheetState = modalBottomSheetState,
+                shape = RoundedCornerShape(
+                    bottomStart = 0.dp,
+                    bottomEnd = 0.dp,
+                    topStart = 12.dp,
+                    topEnd = 12.dp
+                )
+            ) {
                 when (sheetContent) {
                     BottomSheetContent.HOURS -> {
                         val eatery = eateries.getOrNull(firstPagerState.currentPage)
                         eatery?.let {
-                            EateryHourBottomSheet(onDismiss = {
-                                coroutineScope.launch {
-                                    modalBottomSheetState.hide()
-                                }
-                            }, eatery = eatery, onReportIssue = {
-                                sheetContent = BottomSheetContent.REPORT
-                            })
+                            EateryHourBottomSheet(
+                                onDismiss = closeBottomSheet,
+                                eatery = eatery,
+                                onReportIssue = { sheetContent = BottomSheetContent.REPORT }
+                            )
                         }
                     }
 
                     BottomSheetContent.REPORT -> {
-                        eateries[0].id?.let {
+                        eateries.getOrNull(firstPagerState.currentPage)?.id?.let {
                             ReportBottomSheet(
                                 issue = issue,
-                                eateryid = it,
-                                sendReport = { issue, report, eateryid ->
-                                    compareMenusViewModel.sendReport(
-                                        issue,
-                                        report,
-                                        eateryid
-                                    )
-                                }) {
-                                coroutineScope.launch {
-                                    modalBottomSheetState.hide()
-                                }
-                            }
+                                eateryId = it,
+                                reportState = reportState,
+                                sendReport = compareMenusViewModel::sendReport,
+                                clearReportState = compareMenusViewModel::clearReportState,
+                                hide = closeBottomSheet
+                            )
                         }
                     }
 
                     else -> {}
                 }
             }
-        ) {
-            Column {
-                MenuPager(
-                    eateries,
-                    firstPagerState,
-                    events,
-                    sheetContent,
-                    coroutineScope,
-                    modalBottomSheetState,
-                    onEateryClick
-                )
-                TitlePager(eateries, secondPagerState)
-            }
-
         }
+
+        Column {
+            MenuPager(
+                eateries,
+                firstPagerState,
+                events,
+                onOpenSheet = openBottomSheet,
+                onEateryClick
+            )
+            TitlePager(eateries, secondPagerState)
+        }
+
     }
 
 
@@ -219,21 +225,18 @@ fun CompareMenusScreen(
 
 @Composable
 @OptIn(
-    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class,
     ExperimentalMaterial3Api::class
 )
 private fun MenuPager(
     eateries: List<Eatery>,
     firstPagerState: PagerState,
     events: List<Event?>,
-    sheetContent: BottomSheetContent,
-    coroutineScope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState,
+    onOpenSheet: (BottomSheetContent) -> Unit,
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    var sheetContent1 = sheetContent
+    val coroutineScope = rememberCoroutineScope()
     HorizontalPager(
-        pageCount = eateries.size,
         state = firstPagerState,
         modifier = Modifier.fillMaxHeight(0.92f),
         flingBehavior = PagerDefaults.flingBehavior(
@@ -243,7 +246,7 @@ private fun MenuPager(
     ) { page ->
         val listState = rememberLazyListState()
         Box {
-            val currentEvent = events[page]
+            val currentEvent = events.getOrNull(page)
             val fullMenuList = mutableListOf<String>()
             currentEvent?.menu?.forEach { category ->
                 category.name?.let { fullMenuList.add(it) }
@@ -273,10 +276,7 @@ private fun MenuPager(
                             .padding(vertical = 12.dp)
                             .weight(1f, true)
                             .clickable {
-                                sheetContent1 = BottomSheetContent.HOURS
-                                coroutineScope.launch {
-                                    modalBottomSheetState.show()
-                                }
+                                onOpenSheet(BottomSheetContent.HOURS)
                             }
                     ) {
                         Row(
@@ -296,19 +296,20 @@ private fun MenuPager(
                                 ), color = GrayFive
                             )
                         }
-                        val openUntil = eateries[page].getOpenUntil()
+                        val eatery = eateries.getOrNull(page) ?: return@Column
+                        val openUntil = eatery.getOpenUntil()
                         Text(
                             modifier = Modifier.padding(top = 2.dp),
                             text =
                                 if (openUntil == null) "Closed"
-                                else if (eateries[page].isClosingSoon()) "Closing at $openUntil"
+                                else if (eatery.isClosingSoon()) "Closing at $openUntil"
                                 else ("Open until $openUntil"),
                             style = TextStyle(
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp
                             ),
                             color = if (openUntil == null) Red
-                            else if (eateries[page].isClosingSoon()) Yellow
+                            else if (eatery.isClosingSoon()) Yellow
                             else Green
                         )
 
@@ -389,9 +390,9 @@ private fun MenuPager(
                                         )
                                     }
                                     if (category.items?.lastIndex == index) {
-                                        Divider(
-                                            color = GrayZero,
-                                            modifier = Modifier.height(10.dp)
+                                        HorizontalDivider(
+                                            thickness = 10.dp,
+                                            color = GrayZero
                                         )
                                     }
                                 }
@@ -421,7 +422,7 @@ private fun MenuPager(
                                             fontWeight = FontWeight(500),
                                         )
                                     }
-                                    Divider(
+                                    HorizontalDivider(
                                         color = GrayZero,
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -490,7 +491,6 @@ private fun TitlePager(
     secondPagerState: PagerState
 ) {
     HorizontalPager(
-        pageCount = eateries.size,
         state = secondPagerState,
         modifier = Modifier
             .fillMaxSize()

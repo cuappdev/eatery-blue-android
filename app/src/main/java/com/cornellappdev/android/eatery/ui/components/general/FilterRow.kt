@@ -12,12 +12,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -77,7 +77,7 @@ fun FilterButton(
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = 12.dp),
         shape = RoundedCornerShape(100.dp),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = background,
+            containerColor = background,
             contentColor = contentColor
         )
     ) {

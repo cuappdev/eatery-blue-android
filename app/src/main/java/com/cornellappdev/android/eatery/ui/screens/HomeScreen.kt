@@ -12,7 +12,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,21 +29,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FabPosition
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -71,13 +67,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
+import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBottomSheet
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.EateryCardStyle
@@ -102,13 +97,11 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalPermissionsApi::class,
-    ExperimentalLifecycleComposeApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPermissionsApi::class
 )
 @Composable
 fun HomeScreen(
@@ -150,16 +143,18 @@ fun HomeScreen(
     }
 
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    var showFAB by remember { mutableStateOf(true) }
+
+    var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
 
     // Here a DisposableEffect is launched when the bottom sheet opens.
     // When it disappears it's from the view hierarchy, which will cause
     // onDispose to be called, adding/resetting the payment filters.
-    if (modalBottomSheetState.currentValue != ModalBottomSheetValue.Hidden) {
+    if (showBottomSheet && sheetContent == BottomSheetContent.PAYMENT_METHODS_AVAILABLE) {
         DisposableEffect(Unit) {
             onDispose {
                 // Handles the case where filters reset as well (by adding an empty list).
@@ -168,15 +163,19 @@ fun HomeScreen(
         }
     }
 
-    var showFAB by remember {
-        mutableStateOf(true)
+    val closeBottomSheet: () -> Unit = {
+        coroutineScope.launch {
+            modalBottomSheetState.hide()
+            showBottomSheet = false
+        }
+    }
+    val openBottomSheet: (BottomSheetContent) -> Unit = { content ->
+        sheetContent = content
+        showBottomSheet = true
     }
 
-    val scaffoldState = rememberScaffoldState()
-    var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
-
-    LaunchedEffect(modalBottomSheetState.currentValue) {
-        if (modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden) {
+    LaunchedEffect(modalBottomSheetState.isVisible, showBottomSheet) {
+        if (!modalBottomSheetState.isVisible && !showBottomSheet) {
             showFAB = true
         }
     }
@@ -190,7 +189,7 @@ fun HomeScreen(
     var isGridView: Boolean by remember { mutableStateOf(false) }
 
     Scaffold(
-        scaffoldState = scaffoldState,
+        modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             if (eateriesApiResponse is EateryApiResponse.Success && eateriesApiResponse.data.size >= 2) {
                 CompareMenusFAB(
@@ -201,10 +200,7 @@ fun HomeScreen(
                     }
 
                     showFAB = false
-                    coroutineScope.launch {
-                        sheetContent = BottomSheetContent.COMPARE_MENUS
-                        modalBottomSheetState.show()
-                    }
+                    openBottomSheet(BottomSheetContent.COMPARE_MENUS)
                 }
             }
         },
@@ -214,51 +210,56 @@ fun HomeScreen(
                 modifier = Modifier
                     .background(Color.White)
                     .padding(paddingValues)
+                    .fillMaxSize()
             ) {
-                ModalBottomSheetLayout(
-                    sheetState = modalBottomSheetState,
-                    sheetShape = RoundedCornerShape(
-                        bottomStart = 0.dp,
-                        bottomEnd = 0.dp,
-                        topStart = 12.dp,
-                        topEnd = 12.dp
-                    ),
-                    sheetElevation = 8.dp,
-                    sheetContent = SheetContent(
-                        sheetContent,
-                        selectedPaymentMethodFilters,
-                        coroutineScope,
-                        modalBottomSheetState,
-                        onCompareMenusClick
-                    ),
-                    content = {
-                        HomeScrollableMainContent(
-                            onSearchClick = onSearchClick,
-                            onEateryClick = onEateryClick,
-                            onFavoriteExpand = onFavoriteExpand,
-                            eateriesApiResponse = eateriesApiResponse,
-                            favorites = favorites,
-                            nearestEateries = nearestEateries,
-                            selectedFilters = filters,
-                            onFavoriteClick = { eatery, favorite ->
-                                if (eatery.id != null && eatery.name != null) {
-                                    if (favorite) {
-                                        homeViewModel.addFavoriteEatery(eatery.id, eatery.name)
-                                    } else {
-                                        homeViewModel.removeFavoriteEatery(eatery.id, eatery.name)
-                                    }
-                                }
-                            },
-                            onFilterClicked = homeViewModel::onToggleFilterPressed,
-                            onResetFilters = homeViewModel::onResetFiltersClicked,
-                            filters = homeViewModel.homeScreenFilters,
-                            isGridView = isGridView,
-                            onListClick = { isGridView = false },
-                            onGridClick = { isGridView = true },
-                            onNotificationsClick = onNotificationsClick,
-                            onReload = homeViewModel::pingEateries
+                if (showBottomSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = closeBottomSheet,
+                        sheetState = modalBottomSheetState,
+                        shape = RoundedCornerShape(
+                            bottomStart = 0.dp,
+                            bottomEnd = 0.dp,
+                            topStart = 12.dp,
+                            topEnd = 12.dp
+                        )
+                    ) {
+                        SheetContent(
+                            sheetContent = sheetContent,
+                            selectedPaymentMethodFilters = selectedPaymentMethodFilters,
+                            onDismiss = closeBottomSheet,
+                            onCompareMenusClick = { selectedEateriesIds ->
+                                closeBottomSheet()
+                                onCompareMenusClick(selectedEateriesIds)
+                            }
                         )
                     }
+                }
+
+                HomeScrollableMainContent(
+                    onSearchClick = onSearchClick,
+                    onEateryClick = onEateryClick,
+                    onFavoriteExpand = onFavoriteExpand,
+                    eateriesApiResponse = eateriesApiResponse,
+                    favorites = favorites,
+                    nearestEateries = nearestEateries,
+                    selectedFilters = filters,
+                    onFavoriteClick = { eatery, favorite ->
+                        if (eatery.id != null && eatery.name != null) {
+                            if (favorite) {
+                                homeViewModel.addFavoriteEatery(eatery.id, eatery.name)
+                            } else {
+                                homeViewModel.removeFavoriteEatery(eatery.id, eatery.name)
+                            }
+                        }
+                    },
+                    onFilterClicked = homeViewModel::onToggleFilterPressed,
+                    onResetFilters = homeViewModel::onResetFiltersClicked,
+                    filters = homeViewModel.homeScreenFilters,
+                    isGridView = isGridView,
+                    onListClick = { isGridView = false },
+                    onGridClick = { isGridView = true },
+                    onNotificationsClick = onNotificationsClick,
+                    onReload = homeViewModel::pingEateries
                 )
 
                 if (FirstTimeShown.firstTimeShown) {
@@ -275,39 +276,24 @@ fun HomeScreen(
 }
 
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
 private fun SheetContent(
     sheetContent: BottomSheetContent,
     selectedPaymentMethodFilters: SnapshotStateList<Filter>,
-    coroutineScope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState,
+    onDismiss: () -> Unit,
     onCompareMenusClick: (List<Int>) -> Unit
-): @Composable ColumnScope.() -> Unit = {
+) {
     when (sheetContent) {
         BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
             PaymentMethodsBottomSheet(
                 selectedFilters = selectedPaymentMethodFilters,
-                hide = {
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                    }
-                }
+                hide = onDismiss
             )
         }
 
         BottomSheetContent.COMPARE_MENUS -> {
-            CompareMenusBotSheet(
-                onDismiss = {
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                    }
-                },
-                onCompareMenusClick = { selectedEateriesIds ->
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                    }
-                    onCompareMenusClick(selectedEateriesIds)
-                }
+            CompareMenusBottomSheet(
+                onDismiss = onDismiss,
+                onCompareMenusClick = onCompareMenusClick
             )
         }
 
@@ -317,7 +303,6 @@ private fun SheetContent(
 
 @OptIn(
     ExperimentalFoundationApi::class,
-    ExperimentalMaterialApi::class,
 )
 @Composable
 private fun HomeScrollableMainContent(
@@ -516,7 +501,6 @@ private fun PreviewErrorContent() = EateryPreview {
     ErrorContent(onTryAgain = {})
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 private fun LazyListScope.regularContent(
     eateriesApiResponse: EateryApiResponse.Success<List<Eatery>>,
     selectedFilters: List<Filter>,

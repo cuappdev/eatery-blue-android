@@ -2,8 +2,7 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
@@ -14,12 +13,11 @@ import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ProfileScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onSettingsClicked: () -> Unit,
-    webViewEnabled: Boolean,
     onBackClick: () -> Unit
 ) {
     val uiState = loginViewModel.uiState.collectAsStateWithLifecycle().value
@@ -38,7 +36,6 @@ fun ProfileScreen(
         loading = uiState.isLoading,
         onLoginPressed = loginViewModel::onLoginPressed,
         onSuccess = loginViewModel::onLoginWebViewSuccess,
-        webViewEnabled = webViewEnabled,
         onBackClick = onBackClick,
         onModalHidden = loginViewModel::onLoginExited,
         onSettingsClicked = onSettingsClicked,
@@ -57,7 +54,6 @@ private fun ProfileScreenContent(
     loading: Boolean,
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
-    webViewEnabled: Boolean,
     onBackClick: () -> Unit,
     onModalHidden: () -> Unit,
     accountFilter: TransactionAccountType,
@@ -69,10 +65,9 @@ private fun ProfileScreenContent(
 ) {
     if (isLoginState) {
         LoginPage(
-            loading = loading,
+            isLoading = loading,
             onLoginPressed = onLoginPressed,
             onSuccess = onSuccess,
-            webViewEnabled = webViewEnabled,
             onBackClick = onBackClick,
             onModalHidden = onModalHidden
         )

@@ -1,10 +1,9 @@
 package com.cornellappdev.android.eatery.ui.components.details
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,20 +17,19 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
 fun EateryMealTabs(selectedMealIndex: Int, onSelectMeal: (Int) -> Unit, meals: List<String>) {
-    TabRow(selectedTabIndex = selectedMealIndex, indicator = { tabPositions ->
-        TabRowDefaults.Indicator(
-            Modifier.tabIndicatorOffset(
-                // We were having lots of users crash here, so avoiding any unsafe accesses for tab positions
-                tabPositions.getOrNull(selectedMealIndex) ?: tabPositions.firstOrNull()
-                ?: return@TabRow
-            ),
+    if (meals.isEmpty()) return
+    val safeSelectedIndex = selectedMealIndex.coerceIn(0, meals.lastIndex)
+
+    PrimaryTabRow(selectedTabIndex = safeSelectedIndex, indicator = {
+        TabRowDefaults.PrimaryIndicator(
+            modifier = Modifier.tabIndicatorOffset(safeSelectedIndex),
             color = Color.Black,
             height = 1.dp,
         )
     }) {
         meals.mapIndexed { index, meal ->
             Tab(
-                selected = index == selectedMealIndex,
+                selected = index == safeSelectedIndex,
                 onClick = {
                     onSelectMeal(index)
                 },
@@ -40,7 +38,7 @@ fun EateryMealTabs(selectedMealIndex: Int, onSelectMeal: (Int) -> Unit, meals: L
                     meal,
                     style = EateryBlueTypography.button.copy(
                         color =
-                        if (index == selectedMealIndex) {
+                            if (index == safeSelectedIndex) {
                             Color.Black
                         } else {
                             GrayThree

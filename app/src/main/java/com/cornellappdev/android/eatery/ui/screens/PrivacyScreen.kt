@@ -3,12 +3,12 @@ package com.cornellappdev.android.eatery.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowOutward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,8 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
 import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
@@ -37,7 +36,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
     Column(
         modifier = Modifier
             .padding(top = 36.dp, start = 16.dp, end = 16.dp)
-            .fillMaxWidth()
+            .fillMaxSize()
     ) {
         Text(
             text = "Privacy",
@@ -60,13 +59,11 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
             title = "Location Access",
             description = "Used to find eateries near you",
             onClick = {
-                startActivity(
-                    context,
+                context.startActivity(
                     Intent(
                         android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                         Uri.fromParts("package", context.packageName, null)
-                    ),
-                    null
+                    )
                 )
             },
             trailingIcon = {
@@ -88,7 +85,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
                 intent.putExtra("app_uid", context.applicationInfo.uid)
                 intent.putExtra("android.provider.extra.APP_PACKAGE", context.packageName)
 
-                startActivity(context, intent, null)
+                context.startActivity(intent)
             },
             trailingIcon = {
                 Icon(

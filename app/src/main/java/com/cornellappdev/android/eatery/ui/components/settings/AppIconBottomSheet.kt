@@ -10,26 +10,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,11 +48,8 @@ import com.cornellappdev.android.eatery.util.AppIcon
 import com.cornellappdev.android.eatery.util.changeIcon
 import com.cornellappdev.android.eatery.util.currentIcon
 import com.cornellappdev.android.eatery.util.iconMap
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppIconBottomSheet(hide: () -> Unit) {
     val context = LocalContext.current
@@ -83,11 +77,10 @@ fun AppIconBottomSheet(hide: () -> Unit) {
                 Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
             }
         }
-        val pagerState = androidx.compose.foundation.pager.rememberPagerState()
+        val pagerState = androidx.compose.foundation.pager.rememberPagerState(pageCount = { 2 })
         androidx.compose.foundation.pager.HorizontalPager(
-            pageCount = 2,
             state = pagerState,
-            modifier = Modifier.offset(x = -8.dp)
+            modifier = Modifier.offset(x = (-8).dp)
         ) {
             Column {
                 when (it) {
@@ -133,16 +126,16 @@ fun AppIconBottomSheet(hide: () -> Unit) {
 
         Button(
             onClick =
-            {
-                changeIcon(context, selectedAppIcon)
-                hide()
-            },
+                {
+                    changeIcon(context, selectedAppIcon)
+                    hide()
+                },
             shape = RoundedCornerShape(32.dp),
             modifier = Modifier
                 .padding(top = 12.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = EateryBlue,
+                containerColor = EateryBlue,
                 contentColor = Color.White
             )
         ) {
@@ -178,7 +171,7 @@ fun AppIconButton(
     selectedAppIcon: AppIcon,
     setSelectedAppIcon: (AppIcon) -> Unit
 ) {
-    val interactionSource = MutableInteractionSource()
+    val interactionSource = remember { MutableInteractionSource() }
 
     Surface(
         modifier = Modifier
@@ -190,12 +183,12 @@ fun AppIconButton(
             Image(
                 painter = painterResource(id = iconMap[appIcon]!!.second),
                 contentDescription = null,
-                alpha = if (appIcon == selectedAppIcon) ContentAlpha.disabled else 1f,
+                alpha = if (appIcon == selectedAppIcon) 0.38f else 1f,
                 modifier = Modifier
                     .size(72.dp)
                     .clickable(
                         interactionSource = interactionSource,
-                        indication = rememberRipple()
+                        indication = ripple()
                     ) {
                         setSelectedAppIcon(appIcon)
                     }

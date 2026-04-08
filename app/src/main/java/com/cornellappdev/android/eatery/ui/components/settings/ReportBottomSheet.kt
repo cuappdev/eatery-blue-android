@@ -1,12 +1,12 @@
 package com.cornellappdev.android.eatery.ui.components.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,27 +18,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,15 +46,20 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayOne
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import kotlinx.coroutines.launch
+import com.cornellappdev.android.eatery.ui.theme.Red
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
+import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 enum class Issue(val option: String) {
     ITEM("Inaccurate or missing item"),
@@ -66,142 +70,169 @@ enum class Issue(val option: String) {
     OTHER("Other")
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportBottomSheet(
     issue: Issue?,
-    eateryid: Int?,
-    sendReport: (issue: String, report: String, eateryid: Int?) -> Unit,
+    eateryId: Int?,
+    reportState: ReportUiState,
+    sendReport: (issue: String, report: String, eateryId: Int?) -> Unit,
+    clearReportState: () -> Unit,
     hide: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    val (textEntry, setTextEntry) = remember { mutableStateOf("") }
-    val (selectedIssue, setSelectedIssue) = remember { mutableStateOf(issue) }
-    var isSending by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true,
-    )
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 12.dp,
-            topEnd = 12.dp
-        ),
-        sheetElevation = 8.dp,
-        sheetContent = {
-            Column {
-                Row(modifier = Modifier.padding(top = 12.dp)) {
-                    Spacer(Modifier.weight(1f, true))
-                    Divider(Modifier.weight(0.75f, true), color = GrayOne, thickness = 3.dp)
-                    Spacer(Modifier.weight(1f, true))
-                }
+    val (textEntry, setTextEntry) = rememberSaveable { mutableStateOf("") }
+    val (selectedIssue, setSelectedIssue) = rememberSaveable(issue) { mutableStateOf(issue) }
+    var showIssueSheet by remember { mutableStateOf(false) }
+    val isSending = reportState is ReportUiState.Sending
+    val issueSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val issueEntries = Issue.entries.toTypedArray()
 
-                IssueBottomSheet(Issue.values(), setSelectedIssue) {
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                    }
+    LaunchedEffect(reportState) {
+        if (reportState is ReportUiState.Success) {
+            hide()
+            setTextEntry("")
+            setSelectedIssue(issue)
+            clearReportState()
+        }
+    }
+    if (showIssueSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showIssueSheet = false },
+            sheetState = issueSheetState,
+            shape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            )
+        ) {
+            Row(modifier = Modifier.padding(top = 12.dp)) {
+                Spacer(Modifier.weight(1f, true))
+                HorizontalDivider(Modifier.weight(0.75f, true), color = GrayOne, thickness = 3.dp)
+                Spacer(Modifier.weight(1f, true))
+            }
+            IssueBottomSheet(issueEntries, {
+                setSelectedIssue(it)
+                clearReportState()
+            }) {
+                showIssueSheet = false
+            }
+        }
+    }
+
+    Column {
+        Row(modifier = Modifier.statusBarsPadding()) {
+            Spacer(Modifier.weight(1f, true))
+            HorizontalDivider(Modifier.weight(0.75f, true), color = GrayOne, thickness = 3.dp)
+            Spacer(Modifier.weight(1f, true))
+        }
+
+        Column(
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Report an Issue",
+                    style = EateryBlueTypography.h4,
+                    color = Color.Black,
+                )
+
+                IconButton(
+                    onClick = {
+                        clearReportState()
+                        hide()
+                    },
+                    enabled = !isSending,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(color = GrayZero, shape = CircleShape)
+                ) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = Icons.Default.Close.name,
+                        tint = Color.Black
+                    )
                 }
             }
-        },
-        content = {
-            Column {
-                Row(modifier = Modifier.statusBarsPadding()) {
-                    Spacer(Modifier.weight(1f, true))
-                    Divider(Modifier.weight(0.75f, true), color = GrayOne, thickness = 3.dp)
-                    Spacer(Modifier.weight(1f, true))
-                }
-
-                Column(
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)
+            Text(
+                text = "Type of issue",
+                style = EateryBlueTypography.h5,
+                color = Color.Black,
+                modifier = Modifier.padding(top = 15.dp)
+            )
+            Button(
+                shape = RoundedCornerShape(corner = CornerSize(8.dp)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 5.dp),
+                onClick = {
+                    focusManager.clearFocus()
+                    showIssueSheet = true
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = GrayZero,
+                    contentColor = Color.Black
+                )
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
+                    Text(
+                        text = selectedIssue?.option ?: "Choose an option...",
+                        style = EateryBlueTypography.h6,
+                        color = if (selectedIssue == null) GrayFive else Color.Black
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ExpandMore,
+                        contentDescription = ""
+                    )
+                }
+            }
+
+            Text(
+                text = "Description",
+                style = EateryBlueTypography.h5,
+                color = Color.Black,
+                modifier = Modifier.padding(top = 15.dp, bottom = 5.dp)
+            )
+
+            val onSubmit = {
+                focusManager.clearFocus()
+            }
+
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = GrayZero,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp)
+                ) {
+                    if (textEntry.isEmpty()) {
                         Text(
-                            text = "Report an Issue",
-                            style = EateryBlueTypography.h4,
-                            color = Color.Black,
+                            text = "Tell us what's wrong...",
+                            style = EateryBlueTypography.h6,
+                            color = GrayFive
                         )
-
-                        IconButton(
-                            onClick = {
-                                hide()
-                            },
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(color = GrayZero, shape = CircleShape)
-                        ) {
-                            Icon(
-                                Icons.Default.Close,
-                                contentDescription = Icons.Default.Close.name,
-                                tint = Color.Black
-                            )
-                        }
                     }
-                    Text(
-                        text = "Type of issue",
-                        style = EateryBlueTypography.h5,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 15.dp)
-                    )
-                    Button(
-                        shape = RoundedCornerShape(corner = CornerSize(8.dp)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 5.dp),
-                        onClick = {
-                            focusManager.clearFocus()
-                            coroutineScope.launch {
-                                modalBottomSheetState.show()
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = GrayZero,
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = selectedIssue?.option ?: "Choose an option...",
-                                style = EateryBlueTypography.h6,
-                                color = if (selectedIssue == null) GrayFive else Color.Black
-                            )
-                            Icon(
-                                imageVector = Icons.Default.ExpandMore,
-                                contentDescription = ""
-                            )
-                        }
-                    }
-
-                    Text(
-                        text = "Description",
-                        style = EateryBlueTypography.h5,
-                        color = Color.Black,
-                        modifier = Modifier.padding(top = 15.dp, bottom = 5.dp)
-                    )
-
-                    val onSubmit = {
-                        focusManager.clearFocus()
-                    }
-
-                    val interactionSource = remember { MutableInteractionSource() }
                     BasicTextField(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(0.7f),
+                        modifier = Modifier.fillMaxSize(),
                         value = textEntry,
-                        onValueChange = setTextEntry,
+                        onValueChange = {
+                            setTextEntry(it)
+                            clearReportState()
+                        },
                         keyboardActions = KeyboardActions(onDone = { onSubmit() }),
-                        interactionSource = interactionSource,
                         textStyle = TextStyle(
                             color = Color.Black,
                             fontWeight = FontWeight.Medium,
@@ -209,81 +240,64 @@ fun ReportBottomSheet(
                         ),
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Sentences,
-                            autoCorrect = false,
-                        ),
-                    ) { innerTextField ->
-                        Surface(shape = RoundedCornerShape(8.dp), color = GrayZero) {
-                            TextFieldDefaults.TextFieldDecorationBox(
-                                value = textEntry,
-                                innerTextField = innerTextField,
-                                interactionSource = interactionSource,
-                                enabled = true,
-                                singleLine = false,
-                                placeholder = {
-                                    Text(
-                                        text = "Tell us what's wrong...",
-                                        style = EateryBlueTypography.h6,
-                                        color = GrayFive
-                                    )
-                                },
-                                colors = TextFieldDefaults.textFieldColors(
-                                    focusedIndicatorColor = Color.Transparent,
-                                    unfocusedIndicatorColor = Color.Transparent
-                                ),
-                                visualTransformation = VisualTransformation.None,
-                            )
-                        }
-                    }
+                            autoCorrectEnabled = false,
+                        )
+                    )
+                }
+            }
 
-                    Button(
-                        shape = RoundedCornerShape(corner = CornerSize(24.dp)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
-                            .height(48.dp),
-                        onClick = {
-                            if (!isSending) {
-                                isSending = true
-                                sendReport(selectedIssue!!.option, textEntry, eateryid)
-                                isSending = false
-                            }
-                            hide()
-                            setTextEntry("")
-                            setSelectedIssue(issue)
-                        },
-                        enabled = textEntry.isNotEmpty() && selectedIssue != null && !isSending,
-                        colors = ButtonDefaults.buttonColors(
-                            backgroundColor = EateryBlue,
-                            contentColor = Color.White,
-                            disabledBackgroundColor = GrayOne,
-                            disabledContentColor = Color.White
+            if (reportState is ReportUiState.Error) {
+                Text(
+                    text = "Unable to send report. Please try again.",
+                    style = EateryBlueTypography.subtitle2,
+                    color = Red,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+
+            Button(
+                shape = RoundedCornerShape(corner = CornerSize(24.dp)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+                    .height(48.dp),
+                onClick = {
+                    if (isSending || selectedIssue == null) return@Button
+
+                    focusManager.clearFocus()
+                    sendReport(selectedIssue.option, textEntry.trim(), eateryId)
+                },
+                enabled = textEntry.isNotBlank() && selectedIssue != null && !isSending,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = EateryBlue,
+                    contentColor = Color.White,
+                    disabledContainerColor = GrayOne,
+                    disabledContentColor = Color.White
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                )
+                {
+                    if (!isSending)
+                        Text(
+                            text = "Submit",
+                            style = EateryBlueTypography.h5,
+                            color = Color.White
                         )
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                    else
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(30.dp)
                         )
-                        {
-                            if (!isSending)
-                                Text(
-                                    text = "Submit",
-                                    style = EateryBlueTypography.h5,
-                                    color = Color.White
-                                )
-                            else
-                                CircularProgressIndicator(
-                                    color = Color.White,
-                                    modifier = Modifier.size(30.dp)
-                                )
-                        }
-                    }
                 }
             }
         }
-    )
+    }
 }
 
 @Composable
-fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hide: () -> Unit) {
+private fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hide: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -303,4 +317,32 @@ fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hide: () ->
 
         Spacer(modifier = Modifier.height(24.dp))
     }
+}
+
+@Preview
+@Composable
+private fun ReportBottomSheetSuccessPreview() = EateryPreview {
+    ReportBottomSheet(
+        issue = Issue.ITEM,
+        eateryId = null,
+        reportState = ReportUiState.Success,
+        sendReport = { _, _, _ -> },
+        clearReportState = {},
+        hide = {}
+    )
+}
+
+@Preview
+@Composable
+private fun ReportBottomSheetErrorPreview() = EateryPreview {
+    ReportBottomSheet(
+        issue = Issue.ITEM,
+        eateryId = null,
+        reportState = ReportUiState.Error(
+            error = NetworkUiError.Failed(NetworkAction.SendReport, NetworkError.NetworkFailure)
+        ),
+        sendReport = { _, _, _ -> },
+        clearReportState = {},
+        hide = {}
+    )
 }

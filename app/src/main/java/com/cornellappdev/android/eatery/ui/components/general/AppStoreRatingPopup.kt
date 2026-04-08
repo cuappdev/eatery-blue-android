@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.components.general
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -19,14 +18,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,8 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat.startActivity
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -53,7 +51,6 @@ import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun AppStoreRatingPopup(
     navigateToSupport: () -> Unit,
@@ -83,20 +80,18 @@ private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () ->
                 "Open PlayStore",
                 onButtonPress = {
                     try {
-                        startActivity(
-                            context, Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("market://details?id=$packageName")
-                            ), null
-                        )
-                    } catch (_: ActivityNotFoundException) {
-                        startActivity(
-                            context,
+                        context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-                            ),
-                            null
+                                "market://details?id=$packageName".toUri()
+                            )
+                        )
+                    } catch (_: ActivityNotFoundException) {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                "https://play.google.com/store/apps/details?id=$packageName".toUri()
+                            )
                         )
                     } finally {
                         onDismiss()
@@ -127,7 +122,7 @@ private fun ActionPrompt(
         Spacer(Modifier.height(12.dp))
         Button(
             onButtonPress,
-            colors = ButtonDefaults.buttonColors(backgroundColor = EateryBlue),
+            colors = ButtonDefaults.buttonColors(containerColor = EateryBlue),
             shape = RoundedCornerShape(100.dp)
         ) {
             Text(
@@ -195,7 +190,7 @@ private fun AppStoreRatingCardBorder(
                     .size(20.dp)
                     .background(color = GrayZero, shape = CircleShape)
             ) {
-                androidx.compose.material.Icon(
+                Icon(
                     Icons.Default.Close,
                     contentDescription = Icons.Default.Close.name,
                     tint = Color.Black

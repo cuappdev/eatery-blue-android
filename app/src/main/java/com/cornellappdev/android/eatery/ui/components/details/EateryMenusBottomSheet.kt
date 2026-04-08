@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,26 +13,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -74,8 +75,8 @@ fun EateryMenusBottomSheet(
     val days = weekDates.map { it.dayOfMonth }
     val dayNames = weekDates.map { it.dayOfWeek.toReadableShortName() }
 
-    var selectedDay by remember { mutableStateOf(weekDayIndex) }
-    var currSelectedDay by remember { mutableStateOf(selectedDay) }
+    var selectedDay by remember { mutableIntStateOf(weekDayIndex) }
+    var currSelectedDay by remember { mutableIntStateOf(selectedDay) }
 
     val closedDays: List<DayOfWeek> = eatery.getClosedDays()
     val closedDaysStrings: List<String> = closedDays.map { dayOfWeek ->
@@ -196,9 +197,9 @@ fun EateryMenusBottomSheet(
                             }
                         }
                         if (mealTypes.lastIndex != index) {
-                            Divider(
+                            HorizontalDivider(
                                 modifier = Modifier
-                                    .padding(top = 12.dp, bottom = 12.dp)
+                                    .padding(vertical = 12.dp)
                                     .fillMaxWidth(),
                                 thickness = 1.dp,
                                 color = GrayZero
@@ -227,29 +228,33 @@ fun EateryMenusBottomSheet(
                         .height(48.dp),
                     shape = RoundedCornerShape(100),
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = EateryBlue, contentColor = Color.White
+                        containerColor = EateryBlue,
+                        contentColor = Color.White
                     )
                 ) {
                     Text(
                         text = "Show menu",
-                        style = EateryBlueTypography.h5,
-                        color = Color.White
+                        style = EateryBlueTypography.h5
                     )
                 }
-                ClickableText(
-                    modifier = Modifier.padding(top = 12.dp),
-                    text = AnnotatedString("Reset"),
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        lineHeight = 17.5.sp,
-                        fontWeight = FontWeight(600),
-                        color = Color(0xFF050505)
-                    ),
+                Spacer(modifier = Modifier.height(12.dp))
+                TextButton(
                     onClick = {
                         selectedDay = weekDayIndex
                         onResetClick()
                         onDismiss()
-                    })
+                    }
+                ) {
+                    Text(
+                        text = "Reset",
+                        style = TextStyle(
+                            fontSize = 14.sp,
+                            lineHeight = 17.5.sp,
+                            fontWeight = FontWeight(600),
+                            color = Color(0xFF050505)
+                        )
+                    )
+                }
             }
         }
     }

@@ -20,27 +20,25 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.IconToggleButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,11 +64,10 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 import com.cornellappdev.android.eatery.util.EateryPreview
-import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 @OptIn(
-    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class
 )
 @Composable
@@ -83,16 +80,31 @@ fun AccountPage(
     onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
 ) {
-    val modalBottomSheetState =
-        rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
-            skipHalfExpanded = true
-        )
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBottomSheet by remember { mutableStateOf(false) }
     var sheetContent by remember { mutableStateOf(BottomSheetContent.ACCOUNT_TYPE) }
-    val coroutineScope = rememberCoroutineScope()
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetContent = {
+    AccountPageContent(
+        onSettingsClicked,
+        accountTypeBalance,
+        accountFilter,
+        showBottomSheet = { showBottomSheet = true },
+        filterText,
+        setFilterText = onQueryChanged,
+        filteredTransactions,
+        setSheetContent = { sheetContent = it },
+    )
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = modalBottomSheetState,
+            shape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            )
+        ) {
             when (sheetContent) {
                 BottomSheetContent.ACCOUNT_TYPE -> {
                     AccountTypesSelector(
@@ -103,42 +115,18 @@ fun AccountPage(
                             TransactionAccountType.LAUNDRY
                         ),
                         accountFilter = accountFilter,
-                        hide = {
-                            coroutineScope.launch {
-                                modalBottomSheetState.hide()
-                            }
-                        },
+                        hide = { showBottomSheet = false },
                         onSubmit = updateAccountFilter
                     )
                 }
 
                 else -> {}
             }
-        },
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 12.dp,
-            topEnd = 12.dp
-        ),
-        sheetElevation = 8.dp
-    ) {
-        AccountPageContent(
-            onSettingsClicked = onSettingsClicked,
-            accountTypeBalance = accountTypeBalance,
-            accountFilter = accountFilter,
-            showBottomSheet = modalBottomSheetState::show,
-            filterText = filterText,
-            setFilterText = onQueryChanged,
-            filteredTransactions = filteredTransactions,
-            setSheetContent = { sheetContent = it },
-        )
-
+        }
     }
 }
 
 @OptIn(
-    ExperimentalMaterialApi::class,
     ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class
 )
@@ -147,7 +135,7 @@ private fun AccountPageContent(
     onSettingsClicked: () -> Unit,
     accountTypeBalance: AccountBalances,
     accountFilter: TransactionAccountType,
-    showBottomSheet: suspend () -> Unit,
+    showBottomSheet: () -> Unit,
     filterText: String,
     setFilterText: (String) -> Unit,
     filteredTransactions: List<DisplayTransaction>,
@@ -175,21 +163,21 @@ private fun AccountPageContent(
                                 swipes = it
                             )
                         }
-                        Divider(color = GrayZero, thickness = 1.dp)
+                        HorizontalDivider(color = GrayZero, thickness = 1.dp)
                         accountTypeBalance.brbBalance?.let {
                             AccountBalanceRow(
                                 accountName = "Big Red Bucks",
                                 balance = it
                             )
                         }
-                        Divider(color = GrayZero, thickness = 1.dp)
+                        HorizontalDivider(color = GrayZero, thickness = 1.dp)
                         accountTypeBalance.cityBucksBalance?.let {
                             AccountBalanceRow(
                                 accountName = "City Bucks",
                                 balance = it
                             )
                         }
-                        Divider(color = GrayZero, thickness = 1.dp)
+                        HorizontalDivider(color = GrayZero, thickness = 1.dp)
                         accountTypeBalance.laundryBalance?.let {
                             AccountBalanceRow(
                                 accountName = "Laundry",
@@ -269,11 +257,10 @@ private fun AccountPagePreview() = EateryPreview {
 private fun TransactionsHeader(
     accountFilter: TransactionAccountType,
     setSheetContent: (BottomSheetContent) -> Unit,
-    showBottomSheet: suspend () -> Unit,
+    showBottomSheet: () -> Unit,
     filterText: String,
     setFilterText: ((String) -> Unit)
 ) {
-    val coroutineScope = rememberCoroutineScope()
     Column(
         modifier = Modifier
             .background(color = Color.White)
@@ -298,9 +285,7 @@ private fun TransactionsHeader(
             IconButton(
                 onClick = {
                     setSheetContent(BottomSheetContent.ACCOUNT_TYPE)
-                    coroutineScope.launch {
-                        showBottomSheet()
-                    }
+                    showBottomSheet()
                 },
                 modifier = Modifier
                     .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
@@ -321,13 +306,21 @@ private fun TransactionsHeader(
             placeholderText = "Search for transactions...",
             onCancelClicked = { setFilterText("") }
         )
-        Divider(color = GrayZero, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
+        HorizontalDivider(
+            color = GrayZero,
+            thickness = 1.dp,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
         Text(
             text = "Past 30 Days",
             modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
             style = EateryBlueTypography.h5
         )
-        Divider(color = GrayZero, thickness = 1.dp, modifier = Modifier.padding(horizontal = 16.dp))
+        HorizontalDivider(
+            color = GrayZero,
+            thickness = 1.dp,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
     }
 }
 
@@ -449,7 +442,7 @@ private fun TransactionRow(transaction: DisplayTransaction, isMealSwipes: Boolea
         )
 
     }
-    Divider(color = GrayZero, thickness = 1.dp)
+    HorizontalDivider(color = GrayZero, thickness = 1.dp)
 }
 
 
@@ -571,7 +564,7 @@ fun AccountTypesSelector(
                     }
                 }
                 if (index != selectedPaymentMethod.lastIndex) {
-                    Divider(
+                    HorizontalDivider(
                         color = GrayZero,
                         thickness = 1.dp,
                         modifier = Modifier.padding(horizontal = 16.dp)
@@ -590,7 +583,7 @@ fun AccountTypesSelector(
 
                 shape = RoundedCornerShape(100),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = EateryBlue,
+                    containerColor = EateryBlue,
                     contentColor = Color.White
                 )
             ) {

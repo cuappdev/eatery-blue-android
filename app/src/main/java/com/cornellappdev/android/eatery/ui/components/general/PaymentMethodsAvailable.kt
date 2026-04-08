@@ -13,14 +13,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,7 +49,7 @@ fun PaymentMethodsAvailable(
 ) {
     val paymentMethodsAvailableText = buildAnnotatedString {
         append("Pay with ")
-        if (selectedPaymentMethods.containsAll(PaymentMethodsAvailable.values().toList())) {
+        if (selectedPaymentMethods.containsAll(PaymentMethodsAvailable.entries)) {
             append("all payment methods")
         } else {
             selectedPaymentMethods.forEachIndexed { index, paymentMethod ->
@@ -67,7 +67,7 @@ fun PaymentMethodsAvailable(
     }
 
     val inlineContentMap =
-        PaymentMethodsAvailable.values().associate { paymentMethod ->
+        PaymentMethodsAvailable.entries.associate { paymentMethod ->
             paymentMethod.name to InlineTextContent(
                 Placeholder(18.sp, 18.sp, PlaceholderVerticalAlign.TextCenter)
             ) {
@@ -184,7 +184,7 @@ fun PaymentMethodsAvailable(
                 .padding(top = 12.dp, bottom = 12.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = GrayZero,
+                containerColor = GrayZero,
                 contentColor = Color.Black
             )
         ) {

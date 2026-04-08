@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Surface
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -242,7 +243,7 @@ fun PaymentsBlob() {
 
 @Preview(showBackground = true)
 @Composable
-fun show() {
+private fun EateryDetailLoadingScreenPreview() = EateryPreview {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     EateryDetailLoadingScreen(shimmer)
 }

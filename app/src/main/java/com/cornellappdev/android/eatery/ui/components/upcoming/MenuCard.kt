@@ -17,13 +17,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,15 +35,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.EateryStatus
+import com.cornellappdev.android.eatery.data.models.MenuItem
 import com.cornellappdev.android.eatery.ui.components.general.FavoriteIcon
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.Green
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 
 data class MenuCardViewState(
@@ -71,9 +76,9 @@ fun MenuCard(
 ) = with(menuCardViewState) {
     var openDropdown by remember { mutableStateOf(false) }
     Card(
-        elevation = 5.dp,
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         shape = RoundedCornerShape(10.dp),
-        backgroundColor = Color.White,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier.clickable {
             openDropdown = !openDropdown
             if (!openDropdown) {
@@ -147,7 +152,6 @@ fun MenuCard(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun EateryDetails(
     selectEatery: () -> Unit,
@@ -157,17 +161,16 @@ private fun EateryDetails(
         EateryEventMenu(menu)
         Card(
             shape = RoundedCornerShape(20.dp),
-            onClick = {
-                selectEatery()
-            },
-            backgroundColor = GrayZero,
+            colors = CardDefaults.cardColors(containerColor = GrayZero),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp, bottom = 8.dp)
+                .clickable { selectEatery() }
         ) {
 
             Row(
                 modifier = Modifier.padding(
+                    start = 12.dp,
                     end = 12.dp,
                     top = 10.dp,
                     bottom = 10.dp
@@ -237,4 +240,41 @@ private fun MenuItemDisplay(item: MenuItemViewState) {
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MenuCardPreview() = EateryPreview {
+    MenuCard(
+        menuCardViewState = MenuCardViewState(
+            eateryId = 1,
+            name = "North Star",
+            eateryHours = EateryHours(startTime = "11:00 AM", endTime = "2:30 PM"),
+            eateryStatus = EateryStatus(statusText = "Open", statusColor = Green),
+            menu = listOf(
+                MenuCategoryViewState(
+                    category = "Lunch",
+                    items = listOf(
+                        MenuItemViewState(
+                            isFavorite = true,
+                            item = MenuItem(name = "Chicken Tikka Masala")
+                        ),
+                        MenuItemViewState(
+                            isFavorite = false,
+                            item = MenuItem(name = "Roasted Vegetables")
+                        )
+                    )
+                ),
+                MenuCategoryViewState(
+                    category = "Dessert",
+                    items = listOf(
+                        MenuItemViewState(
+                            isFavorite = false,
+                            item = MenuItem(name = "Chocolate Chip Cookie")
+                        )
+                    )
+                )
+            )
+        )
+    )
 }

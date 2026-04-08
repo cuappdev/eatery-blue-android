@@ -13,6 +13,7 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
+import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -74,9 +75,15 @@ class EateryDetailViewModel @Inject constructor(
 
     private val _error = MutableStateFlow<NetworkUiError?>(null)
     val error = _error.asStateFlow()
+    private val _reportState = MutableStateFlow<ReportUiState>(ReportUiState.Idle)
+    val reportState = _reportState.asStateFlow()
 
     fun clearError() {
         _error.value = null
+    }
+
+    fun clearReportState() {
+        _reportState.value = ReportUiState.Idle
     }
 
     /**
@@ -213,14 +220,23 @@ class EateryDetailViewModel @Inject constructor(
         }
     }
 
-    fun sendReport(issue: String, report: String, eateryId: Int?) = viewModelScope.launch {
-        when (val result = userRepository.sendReport(issue, report, eateryId)) {
-            is Result.Success -> {
-                _error.value = null
-            }
+    fun sendReport(issue: String, report: String, eateryId: Int?) {
+        viewModelScope.launch {
+            _reportState.value = ReportUiState.Sending
+            when (val result = userRepository.sendReport(issue, report, eateryId)) {
+                is Result.Success -> {
+                    _reportState.value = ReportUiState.Success
+                }
 
-            is Result.Error -> {
-                _error.value = NetworkUiError.Failed(NetworkAction.SendReport, result.error)
+                is Result.Error -> {
+                    _reportState.value =
+                        ReportUiState.Error(
+                            NetworkUiError.Failed(
+                                NetworkAction.SendReport,
+                                result.error
+                            )
+                        )
+                }
             }
         }
     }

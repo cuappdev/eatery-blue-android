@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,23 +15,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.outlined.ArrowOutward
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,8 +46,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.core.net.toUri
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
@@ -61,43 +62,54 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.SupportViewModel
 import kotlinx.coroutines.launch
 
-
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val reportState by supportViewModel.reportState.collectAsStateWithLifecycle()
     val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true,
+        skipPartiallyExpanded = true,
     )
+    var showReportSheet by remember { mutableStateOf(false) }
     var issue by remember { mutableStateOf<Issue?>(null) }
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 12.dp,
-            topEnd = 12.dp
-        ),
-        sheetElevation = 8.dp,
-        sheetContent = {
+
+    if (showReportSheet) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                supportViewModel.clearReportState()
+                showReportSheet = false
+            },
+            sheetState = modalBottomSheetState,
+            shape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            )
+        ) {
             ReportBottomSheet(
                 issue = issue,
-                eateryid = null,
-                sendReport = { issue, report, eateryid ->
+                eateryId = null,
+                reportState = reportState,
+                sendReport = { issue, report, _ ->
                     supportViewModel.sendReport(issue, report)
-                }) {
+                },
+                clearReportState = supportViewModel::clearReportState,
+            ) {
                 coroutineScope.launch {
                     modalBottomSheetState.hide()
+                }.invokeOnCompletion {
+                    if (!modalBottomSheetState.isVisible) showReportSheet = false
                 }
             }
-        },
-        content = {
+        }
+    }
+
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp)
+                    .fillMaxSize()
                     .then(Modifier.statusBarsPadding())
             ) {
                 Text(
@@ -131,12 +143,11 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                         .height(48.dp)
                         .fillMaxWidth(),
                     onClick = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.show()
-                        }
+                        issue = null
+                        showReportSheet = true
                     },
                     colors = ButtonDefaults.buttonColors(
-                        backgroundColor = EateryBlue,
+                        containerColor = EateryBlue,
                         contentColor = Color.White
                     )
                 ) {
@@ -151,12 +162,8 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 TextButton(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
                     val email = Intent(Intent.ACTION_SENDTO)
                     email.data =
-                        Uri.parse("mailto:team@cornellappdev.com?subject=${Uri.encode("Eatery - Reporting an Issue")}")
-                    startActivity(
-                        context,
-                        Intent.createChooser(email, "Choose an Email client :"),
-                        null
-                    )
+                        "mailto:team@cornellappdev.com?subject=${Uri.encode("Eatery - Reporting an Issue")}".toUri()
+                    context.startActivity(Intent.createChooser(email, "Choose an Email client :"))
                 }) {
                     Text(
                         text = "Shoot us an email",
@@ -185,9 +192,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                     }
                 ) {
                     issue = Issue.ITEM
-                    coroutineScope.launch {
-                        modalBottomSheetState.show()
-                    }
+                    showReportSheet = true
                 }
 
                 FAQCreation(
@@ -198,9 +203,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                     }
                 ) {
                     issue = Issue.HOURS
-                    coroutineScope.launch {
-                        modalBottomSheetState.show()
-                    }
+                    showReportSheet = true
                 }
 
                 FAQCreation(
@@ -211,9 +214,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                     }
                 ) {
                     issue = Issue.WAIT_TIMES
-                    coroutineScope.launch {
-                        modalBottomSheetState.show()
-                    }
+                    showReportSheet = true
                 }
 
                 FAQCreation(
@@ -231,17 +232,11 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 ) {
                     val email = Intent(Intent.ACTION_SENDTO)
                     email.data =
-                        Uri.parse("mailto:dining@cornell.edu?subject=${Uri.encode("Ordering Food on Eatery")}")
+                        "mailto:dining@cornell.edu?subject=${Uri.encode("Ordering Food on Eatery")}".toUri()
 
-                    startActivity(
-                        context,
-                        Intent.createChooser(email, "Choose an Email client :"),
-                        null
-                    )
+                    context.startActivity(Intent.createChooser(email, "Choose an Email client :"))
                 }
             }
-        }
-    )
 }
 
 @Composable
@@ -269,7 +264,7 @@ private fun ReportButton() {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FAQCreation(
     title: String,
