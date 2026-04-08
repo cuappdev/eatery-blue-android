@@ -31,6 +31,12 @@ message UserPreferences {
   // Encrypted PIN stored as a Base64-encoded string.
   string encryptedPin = 17;
 
+  // Notification settings are stored as disabled flags so existing users default to enabled.
+  bool notificationsDisabled = 18;
+  bool favoriteItemNotificationsDisabled = 19;
+  bool favoriteEateryOpeningNotificationsDisabled = 20;
+  bool favoriteEateryClosingNotificationsDisabled = 21;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.

@@ -1,8 +1,7 @@
 package com.cornellappdev.android.eatery
 
 import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -10,7 +9,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -18,10 +16,13 @@ import androidx.lifecycle.lifecycleScope
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
+import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.navigation.NavigationSetup
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTheme
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
+import com.cornellappdev.android.eatery.util.canGetNotifications
+import com.cornellappdev.android.eatery.util.shouldRequestNotificationPermission
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.InstallStateUpdatedListener
@@ -49,6 +50,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var authTokenRepository: AuthTokenRepository
 
+    @Inject
+    lateinit var userPreferencesRepository: UserPreferencesRepository
+
     private lateinit var activityResultLauncher: ActivityResultLauncher<IntentSenderRequest>
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
     private val appUpdateManager by lazy { AppUpdateManagerFactory.create(applicationContext) }
@@ -65,7 +69,9 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.RequestPermission()
         ) { granted ->
             if (granted) {
-                syncFcmTokenWithBackendIfAllowed()
+                lifecycleScope.launch {
+                    syncFcmTokenWithBackendIfAllowed()
+                }
             }
         }
 
@@ -177,34 +183,20 @@ class MainActivity : ComponentActivity() {
         authTokenRepository.getTokens()
     }
 
-    private fun requestNotificationPermissionIfNeeded() {
-        if (!BuildConfig.ENABLE_NOTIFICATIONS || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            return
-        }
-
-        val hasPermission = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.POST_NOTIFICATIONS
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (!hasPermission) {
+    @SuppressLint("InlinedApi")
+    private suspend fun requestNotificationPermissionIfNeeded() {
+        if (shouldRequestNotificationPermission(
+                this,
+                userPreferencesRepository.notificationsEnabledFlow
+            )
+        ) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
-    private fun syncFcmTokenWithBackendIfAllowed() {
-        if (!BuildConfig.ENABLE_NOTIFICATIONS) {
+    private suspend fun syncFcmTokenWithBackendIfAllowed() {
+        if (!canGetNotifications(this, userPreferencesRepository.notificationsEnabledFlow)) {
             return
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val hasPermission = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-            if (!hasPermission) {
-                return
-            }
         }
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->

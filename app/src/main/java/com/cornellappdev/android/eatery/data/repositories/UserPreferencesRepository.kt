@@ -31,6 +31,14 @@ class UserPreferencesRepository @Inject constructor(
     val notificationFlowCompletedFlow: Flow<Boolean> =
         userPreferencesFlow.map { it.notificationFlowCompleted }
     val analyticsDisabledFlow: Flow<Boolean> = userPreferencesFlow.map { it.analyticsDisabled }
+    val notificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.notificationsDisabled }
+    val favoriteItemNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.favoriteItemNotificationsDisabled }
+    val favoriteEateryOpeningNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.favoriteEateryOpeningNotificationsDisabled }
+    val favoriteEateryClosingNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.favoriteEateryClosingNotificationsDisabled }
 
     /**
      * Emits the decrypted access token, or null if absent or decryption fails.
@@ -81,6 +89,22 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setAnalyticsDisabled(analyticsDisabled: Boolean) = setPref {
         setAnalyticsDisabled(analyticsDisabled)
+    }
+
+    suspend fun setNotificationsEnabled(enabled: Boolean) = setPref {
+        setNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setFavoriteItemNotificationsEnabled(enabled: Boolean) = setPref {
+        setFavoriteItemNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setFavoriteEateryOpeningNotificationsEnabled(enabled: Boolean) = setPref {
+        setFavoriteEateryOpeningNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setFavoriteEateryClosingNotificationsEnabled(enabled: Boolean) = setPref {
+        setFavoriteEateryClosingNotificationsDisabled(!enabled)
     }
 
     suspend fun addRecentSearch(eateryId: Int) = setPref {

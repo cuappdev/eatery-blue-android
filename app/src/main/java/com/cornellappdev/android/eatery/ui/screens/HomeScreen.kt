@@ -69,7 +69,6 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBottomSheet
@@ -733,16 +732,14 @@ private fun HomeStickyHeader(
                             color = Color.White,
                             style = EateryBlueTypography.h2
                         )
-                        if (BuildConfig.ENABLE_NOTIFICATIONS) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_bell),
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.clickable {
-                                    onNotificationsClick()
-                                }
-                            )
-                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_bell),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.clickable {
+                                onNotificationsClick()
+                            }
+                        )
                     }
                 }
             }

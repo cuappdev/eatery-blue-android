@@ -22,10 +22,12 @@ fun SwitchOption(
     title: String,
     description: String,
     onCheckedChange: (Boolean) -> Unit,
+    checked: Boolean? = null,
     enabled: Boolean = true,
     initialValue: Boolean = true
 ) {
-    var switched by remember { mutableStateOf(initialValue) }
+    var internalChecked by remember(initialValue) { mutableStateOf(initialValue) }
+    val switched = checked ?: internalChecked
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
         SettingsOption(
             title = title, description = description, onClick = { },
@@ -35,9 +37,11 @@ fun SwitchOption(
                         .width(51.dp)
                         .height(31.dp),
                     checked = switched,
-                    onCheckedChange = { checked ->
-                        switched = checked
-                        onCheckedChange(checked)
+                    onCheckedChange = { isChecked ->
+                        if (checked == null) {
+                            internalChecked = isChecked
+                        }
+                        onCheckedChange(isChecked)
                     },
                     enabled = enabled,
                     colors = SwitchDefaults.colors(

@@ -4,15 +4,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.RingtoneManager
-import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.cornellappdev.android.eatery.MainActivity
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Result
+import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -22,12 +20,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class FirebaseMessaging : FirebaseMessagingService() {
     @Inject
     lateinit var userRepository: UserRepository
+
+    @Inject
+    lateinit var userPreferencesRepository: UserPreferencesRepository
 
     companion object {
         const val LOG_TAG = "FirebaseMessaging"
@@ -65,6 +67,14 @@ class FirebaseMessaging : FirebaseMessagingService() {
         Log.d(LOG_TAG, "Refreshed token: $token")
 
         serviceScope.launch {
+            if (!canGetNotifications(
+                    this@FirebaseMessaging,
+                    userPreferencesRepository.notificationsEnabledFlow
+                )
+            ) {
+                return@launch
+            }
+
             when (val result = userRepository.enableNotifications(token)) {
                 is Result.Success -> Unit
                 is Result.Error -> Log.w(
@@ -81,14 +91,16 @@ class FirebaseMessaging : FirebaseMessagingService() {
     }
 
     private fun sendNotification(messageTitle: String, messageBody: String) {
-        if (
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-            ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d(LOG_TAG, "Skipping local notification because POST_NOTIFICATIONS is not granted")
+        if (!runBlocking {
+                canGetNotifications(
+                    this@FirebaseMessaging,
+                    userPreferencesRepository.notificationsEnabledFlow
+                )
+            }) {
+            Log.d(
+                LOG_TAG,
+                "Skipping local notification because notifications are disabled or permission is missing"
+            )
             return
         }
 
