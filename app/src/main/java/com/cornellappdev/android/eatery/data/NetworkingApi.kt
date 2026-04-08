@@ -15,7 +15,6 @@ import com.cornellappdev.android.eatery.data.models.RefreshRequest
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.SessionID
 import retrofit2.http.Body
-import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.HTTP
 import retrofit2.http.POST
@@ -58,7 +57,7 @@ interface NetworkApi {
         @Body token: FcmToken
     )
 
-    @DELETE("/users/fcm-token")
+    @HTTP(method = "DELETE", path = "/users/fcm-token", hasBody = true)
     suspend fun disableNotifications(
         @Body token: FcmToken
     )
