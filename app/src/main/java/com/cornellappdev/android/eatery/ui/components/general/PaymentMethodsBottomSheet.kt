@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,7 +49,7 @@ fun PaymentMethodsBottomSheet(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Payment Methods",
+                text = stringResource(R.string.payment_methods_title),
                 style = EateryBlueTypography.h4,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
@@ -61,7 +62,11 @@ fun PaymentMethodsBottomSheet(
                     .size(40.dp)
                     .background(color = GrayZero, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.payment_methods_close),
+                    tint = Color.Black
+                )
             }
         }
 
@@ -91,13 +96,13 @@ fun PaymentMethodsBottomSheet(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_swipes),
-                        contentDescription = "Swipes",
+                        contentDescription = stringResource(R.string.payment_methods_meal_swipes),
                         tint = if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) Color.White else GrayFive
                     )
                 }
 
                 Text(
-                    text = "Meal Swipes",
+                    text = stringResource(R.string.payment_methods_meal_swipes),
                     style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -123,13 +128,13 @@ fun PaymentMethodsBottomSheet(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_brbs),
-                        contentDescription = "BRBs",
+                        contentDescription = stringResource(R.string.payment_methods_brbs),
                         tint = if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) Color.White else GrayFive
                     )
                 }
 
                 Text(
-                    text = "BRBs",
+                    text = stringResource(R.string.payment_methods_brbs),
                     style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -154,13 +159,13 @@ fun PaymentMethodsBottomSheet(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_cash),
-                        contentDescription = "Cash or credit",
+                        contentDescription = stringResource(R.string.payment_methods_cash_or_credit),
                         tint = if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) Color.White else GrayFive
                     )
                 }
 
                 Text(
-                    text = "Cash or credit",
+                    text = stringResource(R.string.payment_methods_cash_or_credit),
                     style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -179,7 +184,7 @@ fun PaymentMethodsBottomSheet(
             )
         ) {
             Text(
-                text = "Show results",
+                text = stringResource(R.string.payment_methods_show_results),
                 style = EateryBlueTypography.h5,
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
             )
@@ -195,7 +200,7 @@ fun PaymentMethodsBottomSheet(
                 .fillMaxWidth()
         ) {
             Text(
-                text = "Reset",
+                text = stringResource(R.string.payment_methods_reset),
                 style = EateryBlueTypography.h5,
                 color = Color.Black
             )

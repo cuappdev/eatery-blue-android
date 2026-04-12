@@ -43,12 +43,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -136,7 +138,7 @@ fun ReportBottomSheet(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Report an Issue",
+                    text = stringResource(R.string.report_title),
                     style = EateryBlueTypography.h4,
                     color = Color.Black,
                 )
@@ -159,7 +161,7 @@ fun ReportBottomSheet(
                 }
             }
             Text(
-                text = "Type of issue",
+                text = stringResource(R.string.report_type_heading),
                 style = EateryBlueTypography.h5,
                 color = Color.Black,
                 modifier = Modifier.padding(top = 15.dp)
@@ -184,19 +186,20 @@ fun ReportBottomSheet(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = selectedIssue?.option ?: "Choose an option...",
+                        text = selectedIssue?.option
+                            ?: stringResource(R.string.report_choose_option),
                         style = EateryBlueTypography.h6,
                         color = if (selectedIssue == null) GrayFive else Color.Black
                     )
                     Icon(
                         imageVector = Icons.Default.ExpandMore,
-                        contentDescription = ""
+                        contentDescription = null
                     )
                 }
             }
 
             Text(
-                text = "Description",
+                text = stringResource(R.string.report_description_heading),
                 style = EateryBlueTypography.h5,
                 color = Color.Black,
                 modifier = Modifier.padding(top = 15.dp, bottom = 5.dp)
@@ -220,7 +223,7 @@ fun ReportBottomSheet(
                 ) {
                     if (textEntry.isEmpty()) {
                         Text(
-                            text = "Tell us what's wrong...",
+                            text = stringResource(R.string.report_description_hint),
                             style = EateryBlueTypography.h6,
                             color = GrayFive
                         )
@@ -248,7 +251,7 @@ fun ReportBottomSheet(
 
             if (reportState is ReportUiState.Error) {
                 Text(
-                    text = "Unable to send report. Please try again.",
+                    text = stringResource(R.string.report_error_unable_to_send),
                     style = EateryBlueTypography.subtitle2,
                     color = Red,
                     modifier = Modifier.padding(top = 8.dp)
@@ -281,7 +284,7 @@ fun ReportBottomSheet(
                 {
                     if (!isSending)
                         Text(
-                            text = "Submit",
+                            text = stringResource(R.string.report_submit),
                             style = EateryBlueTypography.h5,
                             color = Color.White
                         )

@@ -39,9 +39,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -64,19 +65,18 @@ fun AboutScreen() {
                 .fillMaxWidth()
         ) {
             Text(
-                text = "About Eatery",
+                text = stringResource(R.string.about_title),
                 color = EateryBlue,
                 style = EateryBlueTypography.h2,
                 modifier = Modifier.padding(top = 7.dp)
             )
             Text(
-                text = "Learn more about Cornell AppDev",
+                text = stringResource(R.string.about_description),
                 color = GraySix,
                 style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
                 modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
             )
-            Row(
-                horizontalArrangement = Arrangement.Center,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 36.dp)
@@ -92,7 +92,7 @@ fun AboutScreen() {
                     )
 
                     Text(
-                        text = "DESIGNED AND DEVELOPED BY",
+                        text = stringResource(R.string.about_designed_and_developed_by),
                         style = EateryBlueTypography.subtitle1,
                         color = GrayFive,
                         modifier = Modifier.padding(top = 12.dp)
@@ -105,12 +105,12 @@ fun AboutScreen() {
                             .padding(top = 4.dp)
                     ) {
                         Text(
-                            text = "Cornell",
+                            text = stringResource(R.string.about_cornell),
                             style = EateryBlueTypography.h2,
                             color = Color.Black,
                         )
                         Text(
-                            text = "AppDev",
+                            text = stringResource(R.string.about_appdev),
                             style = EateryBlueTypography.h2,
                             color = Color.Black,
                         )
@@ -147,7 +147,7 @@ fun AboutScreen() {
                 Modifier.size(ButtonDefaults.IconSpacing)
             )
             Text(
-                text = "Visit our website",
+                text = stringResource(R.string.about_website_button),
                 style = EateryBlueTypography.h5,
                 modifier = Modifier.padding(start = 8.dp)
             )
@@ -259,8 +259,7 @@ fun CreditsRow(position: TeamPosition) {
         targetValue = if (scrolled) 1.0f else 0.0f,
         animationSpec = tween(250, 0, LinearEasing)
     )
-    val configuration = LocalConfiguration.current
-    val screenDensity = configuration.densityDpi / 160f
+    val screenWidth = LocalWindowInfo.current.containerSize.width.toFloat()
 
     LazyRow(
         modifier = Modifier
@@ -271,7 +270,6 @@ fun CreditsRow(position: TeamPosition) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (!scrolled) {
-            val screenWidth = configuration.screenWidthDp.toFloat() * screenDensity
             val scrollDist = ((screenWidth / 2 + (Math.random() * screenWidth)) * .65).toFloat()
             val multFactor = 50000
             coroutineScope.launch {

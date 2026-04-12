@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
@@ -99,7 +101,7 @@ fun SearchBar(
             leadingIcon = {
                 Icon(
                     Icons.Default.Search,
-                    contentDescription = "Search",
+                    contentDescription = stringResource(R.string.search_icon),
                     tint = GrayFive
                 )
             },
@@ -128,7 +130,7 @@ fun SearchBar(
                 }
             ) {
                 Text(
-                    text = "Cancel",
+                    text = stringResource(R.string.search_cancel),
                     style = EateryBlueTypography.subtitle2,
                     color = GrayFive
                 )
@@ -143,7 +145,7 @@ fun SearchBarPreview() = EateryPreview {
     SearchBar(
         searchText = "",
         onSearchTextChange = {},
-        placeholderText = "Search the menu...",
+        placeholderText = stringResource(R.string.search_placeholder_menu),
         onCancelClicked = {}
     )
 }

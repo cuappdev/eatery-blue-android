@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
@@ -86,7 +87,7 @@ fun SettingsScreen(
             .padding(top = 48.dp, start = 16.dp, end = 16.dp)
     ) {
                 Text(
-                    text = "Settings",
+                    text = stringResource(R.string.settings_title),
                     color = EateryBlue,
                     style = EateryBlueTypography.h2,
                     modifier = Modifier.padding(top = 7.dp, bottom = 7.dp)
@@ -107,8 +108,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "About Eatery",
-                    description = "Learn more about Cornell AppDev",
+                    title = stringResource(R.string.settings_about_title),
+                    description = stringResource(R.string.settings_about_description),
                     onClick = {
                         destinations[Routes.ABOUT]?.invoke()
                     }
@@ -122,14 +123,14 @@ fun SettingsScreen(
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    title = "App Icon",
-                    description = "Select the Eatery app icon for your phone",
+                    description = stringResource(R.string.settings_app_icon_description),
+                    title = stringResource(R.string.settings_app_icon_title),
                     onClick = {
                         showAppIconSheet = true
                     },
                     trailingIcon = {
                         Text(
-                            text = "Change",
+                            text = stringResource(R.string.settings_change),
                             style = EateryBlueTypography.button,
                             color = EateryBlue,
                         )
@@ -140,7 +141,7 @@ fun SettingsScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.StarOutline,
-                            contentDescription = "Favorites",
+                            contentDescription = stringResource(R.string.settings_favorites_title),
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
@@ -152,8 +153,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "Favorites",
-                    description = "Manage your favorite eateries and items",
+                    title = stringResource(R.string.settings_favorites_title),
+                    description = stringResource(R.string.settings_favorites_description),
                     onClick = {
                         destinations[Routes.FAVORITES]?.invoke()
                     }
@@ -168,8 +169,8 @@ fun SettingsScreen(
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    title = "Notifications",
-                    description = "Manage item and promotional notifications",
+                    title = stringResource(R.string.settings_notifications_title),
+                    description = stringResource(R.string.settings_notifications_description),
                     onClick = {
                         destinations[Routes.NOTIFICATIONS_SETTING]?.invoke()
                     },
@@ -186,7 +187,7 @@ fun SettingsScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.Lock,
-                            contentDescription = "Privacy",
+                            contentDescription = stringResource(R.string.settings_privacy_title),
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
@@ -198,8 +199,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "Privacy",
-                    description = "Manage permissions and analytics",
+                    title = stringResource(R.string.settings_privacy_title),
+                    description = stringResource(R.string.settings_privacy_description),
                     onClick = {
                         destinations[Routes.PRIVACY]?.invoke()
                     }
@@ -209,7 +210,7 @@ fun SettingsScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.Gavel,
-                            contentDescription = "Legal",
+                            contentDescription = stringResource(R.string.settings_legal_title),
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
@@ -221,8 +222,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "Legal",
-                    description = "Find terms, conditions, and privacy policy",
+                    title = stringResource(R.string.settings_legal_title),
+                    description = stringResource(R.string.settings_legal_description),
                     onClick = {
                         destinations[Routes.LEGAL]?.invoke()
                     }
@@ -232,7 +233,7 @@ fun SettingsScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
-                            contentDescription = "Support",
+                            contentDescription = stringResource(R.string.settings_support_title),
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
@@ -244,8 +245,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "Support",
-                    description = "Report issues and contact Cornell Appdev",
+                    title = stringResource(R.string.settings_support_title),
+                    description = stringResource(R.string.settings_support_description),
                     onClick = {
                         destinations[Routes.SUPPORT]?.invoke()
                     }
@@ -278,7 +279,7 @@ fun SettingsScreen(
                         )
                         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                         Text(
-                            text = "Log out",
+                            text = stringResource(R.string.settings_logout),
                             style = EateryBlueTypography.button
                         )
                     }

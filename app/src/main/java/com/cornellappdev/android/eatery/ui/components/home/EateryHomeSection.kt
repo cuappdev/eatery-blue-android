@@ -26,8 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -120,7 +122,7 @@ private fun EateryHomeSectionHeader(
             ) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Favorites",
+                    contentDescription = stringResource(R.string.favorites_title),
                     tint = Color.Black
                 )
             }

@@ -37,11 +37,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -76,8 +78,8 @@ private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () ->
             0 -> RatingPrompt(rating, onChangeRating = { rating = it }, onDismiss = onDismiss)
 
             5 -> ActionPrompt(
-                "Awesome! We'd love to hear more in a review",
-                "Open PlayStore",
+                stringResource(R.string.app_store_rating_positive_message),
+                stringResource(R.string.app_store_rating_positive_button),
                 onButtonPress = {
                     try {
                         context.startActivity(
@@ -101,8 +103,8 @@ private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () ->
             )
 
             else -> ActionPrompt(
-                "Sorry to hear that.",
-                "Visit support",
+                stringResource(R.string.app_store_rating_negative_message),
+                stringResource(R.string.app_store_rating_negative_button),
                 onButtonPress = { navigateToSupport(); onDismiss() },
                 onDismiss = onDismiss,
             )
@@ -145,7 +147,10 @@ private fun ActionPromptPreview() {
 private fun RatingPrompt(rating: Int, onChangeRating: (Int) -> Unit, onDismiss: () -> Unit) {
     AppStoreRatingCardBorder(onDismiss = onDismiss) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text("How is your experience so far?", style = EateryBlueTypography.h4)
+            Text(
+                stringResource(R.string.app_store_rating_question),
+                style = EateryBlueTypography.h4
+            )
             RatingBar(rating, onChangeRating)
         }
     }

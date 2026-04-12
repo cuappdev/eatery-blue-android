@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
@@ -38,7 +39,7 @@ fun NoEateryFound(modifier: Modifier = Modifier, resetFilters: () -> Unit) {
             tint = GrayTwo
         )
         Text(
-            text = "No eatery found...",
+            text = stringResource(R.string.no_eatery_found),
             style = EateryBlueTypography.h5,
             modifier = Modifier.padding(top = 12.dp)
         )
@@ -53,7 +54,7 @@ fun NoEateryFound(modifier: Modifier = Modifier, resetFilters: () -> Unit) {
             }
         ) {
             Text(
-                text = "Reset filters",
+                text = stringResource(R.string.reset_filters),
                 color =
                 Color.White
             )

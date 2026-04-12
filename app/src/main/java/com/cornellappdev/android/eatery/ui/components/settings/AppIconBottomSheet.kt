@@ -36,10 +36,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayOne
@@ -61,7 +63,7 @@ fun AppIconBottomSheet(hide: () -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "App Icon",
+                text = stringResource(R.string.settings_app_icon_title),
                 style = EateryBlueTypography.h4,
                 color = Color.Black,
             )
@@ -140,7 +142,7 @@ fun AppIconBottomSheet(hide: () -> Unit) {
             )
         ) {
             Text(
-                text = "Done",
+                text = stringResource(R.string.done),
                 style = EateryBlueTypography.h5,
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
             )
@@ -157,7 +159,7 @@ fun AppIconBottomSheet(hide: () -> Unit) {
                 .fillMaxWidth()
         ) {
             Text(
-                text = "Reset",
+                text = stringResource(R.string.reset),
                 style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
                 color = if (selectedAppIcon != currentIcon) Color.Black else GrayOne
             )

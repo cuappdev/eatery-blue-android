@@ -33,11 +33,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.models.MealTime
@@ -107,7 +109,7 @@ fun EateryMenusBottomSheet(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Menus",
+                        text = stringResource(R.string.menus_title),
                         style = EateryBlueTypography.h4,
                     )
                 }
@@ -233,7 +235,7 @@ fun EateryMenusBottomSheet(
                     )
                 ) {
                     Text(
-                        text = "Show menu",
+                        text = stringResource(R.string.show_menu),
                         style = EateryBlueTypography.h5
                     )
                 }
@@ -246,7 +248,7 @@ fun EateryMenusBottomSheet(
                     }
                 ) {
                     Text(
-                        text = "Reset",
+                        text = stringResource(R.string.reset),
                         style = TextStyle(
                             fontSize = 14.sp,
                             lineHeight = 17.5.sp,

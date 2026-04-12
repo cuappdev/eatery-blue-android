@@ -35,11 +35,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.LocationHandler
@@ -99,13 +101,13 @@ fun PermissionRequestDialog(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Location permissions are necessary to show you " +
-                                    "eateries that are the closest to you!" +
-                                    if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
-                                        ""
-                                    } else {
-                                        "\n\nPlease click the button below to go to the settings to enable location permissions."
-                                    },
+                            text = stringResource(
+                                if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
+                                    R.string.permission_location_message
+                                } else {
+                                    R.string.permission_location_message_with_settings
+                                }
+                            ),
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Medium
                         )
@@ -124,11 +126,13 @@ fun PermissionRequestDialog(
                             colors = ButtonDefaults.buttonColors(containerColor = EateryBlue),
                         ) {
                             Text(
-                                text = if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
-                                    "Request Permission"
-                                } else {
-                                    "Open Settings"
-                                },
+                                text = stringResource(
+                                    if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
+                                        R.string.request_permission
+                                    } else {
+                                        R.string.open_settings
+                                    }
+                                ),
                                 color = Color.White,
                             )
                         }

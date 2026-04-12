@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -54,7 +55,7 @@ fun NearestScreen(
             .fillMaxSize()
     ) {
         Text(
-            text = "Nearest to You",
+            text = stringResource(R.string.nearest_title),
             color = EateryBlue,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
@@ -84,7 +85,7 @@ fun NearestScreen(
                     )
 
                     Text(
-                        text = "You currently have no favorite eateries!",
+                        text = stringResource(R.string.nearest_empty_message),
                         style = TextStyle(
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp

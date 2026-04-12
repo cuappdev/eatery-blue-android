@@ -60,6 +60,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -456,13 +457,13 @@ fun ErrorContent(onTryAgain: () -> Unit) {
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_error),
-            contentDescription = "Error Icon",
+            contentDescription = stringResource(R.string.home_error_icon_desc),
             modifier = Modifier.size(72.dp),
             tint = Color.Red
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Hmm, no chow here (yet).",
+            text = stringResource(R.string.home_error_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
             color = Color(0xFF1B1F23),
@@ -470,7 +471,7 @@ fun ErrorContent(onTryAgain: () -> Unit) {
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "We ran into an issue loading this page. Check your connection or try reloading the page.",
+            text = stringResource(R.string.home_error_description),
             fontSize = 18.sp,
             fontWeight = FontWeight.Normal,
             color = Color(0xFF1B1F23),
@@ -486,7 +487,7 @@ fun ErrorContent(onTryAgain: () -> Unit) {
             colors = ButtonDefaults.buttonColors(containerColor = EateryBlue)
         ) {
             Text(
-                text = "Try Again", color = Color.White,
+                text = stringResource(R.string.home_error_try_again), color = Color.White,
                 fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
                 lineHeight = 1.25.em
@@ -558,7 +559,7 @@ private fun LazyListScope.regularContent(
             val showFake = favorites.isEmpty() && lastFavorite != null
 
             EateryHomeSection(
-                title = "Favorites",
+                title = stringResource(R.string.favorites_title),
                 eateries = favorites,
                 overflowEatery = if (showFake) lastFavorite else null,
                 onEateryClick = onEateryClick,
@@ -577,7 +578,7 @@ private fun LazyListScope.regularContent(
                 Text(
                     modifier = Modifier
                         .padding(start = 16.dp, bottom = 12.dp),
-                    text = "All Eateries",
+                    text = stringResource(R.string.all_eateries_title),
                     style = EateryBlueTypography.h4,
                 )
                 Row(
@@ -587,13 +588,13 @@ private fun LazyListScope.regularContent(
                 ) {
                     Icon(
                         painter = painterResource(id = if (isGridView) R.drawable.ic_list_view_unselected else R.drawable.ic_list_view_selected),
-                        contentDescription = "List View",
+                        contentDescription = stringResource(R.string.list_view),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onListClick() }
                     )
                     Icon(
                         painter = painterResource(id = if (isGridView) R.drawable.ic_grid_view_selected else R.drawable.ic_grid_view_unselected),
-                        contentDescription = "Grid View",
+                        contentDescription = stringResource(R.string.grid_view),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onGridClick() }
                     )
@@ -684,7 +685,7 @@ private fun HomeStickyHeader(
                     Text(
                         modifier = Modifier.align(Alignment.Center),
                         textAlign = TextAlign.Center,
-                        text = "Eatery",
+                        text = stringResource(R.string.onboarding_eatery_title),
                         color = Color.White,
                         style = TextStyle(
                             fontWeight = FontWeight.SemiBold,
@@ -729,7 +730,7 @@ private fun HomeStickyHeader(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Eatery",
+                            text = stringResource(R.string.onboarding_eatery_title),
                             color = Color.White,
                             style = EateryBlueTypography.h2
                         )
@@ -761,7 +762,7 @@ private fun HomeMainHeader(
     SearchBar(
         searchText = "",
         onSearchTextChange = { },
-        placeholderText = "Search for grub...",
+        placeholderText = stringResource(R.string.search_placeholder_grub),
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .padding(top = 12.dp, bottom = 6.dp)

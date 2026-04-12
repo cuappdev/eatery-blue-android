@@ -72,6 +72,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -244,6 +245,10 @@ fun EateryDetailScreenContent(
 
                 is EateryDetailViewState.Loaded -> {
                     val eatery = viewState.eatery
+                    val noAppAvailableText =
+                        stringResource(R.string.no_app_available_to_open_this_link)
+                    val noMapsAppText =
+                        stringResource(R.string.no_maps_app_available_on_this_device)
                     val paymentMethods = remember(eatery) {
                         buildList {
                             if (eatery.acceptsCash()) add(PaymentMethodsAvailable.CASH)
@@ -380,7 +385,7 @@ fun EateryDetailScreenContent(
                                                         modifier = Modifier
                                                             .height(240.dp)
                                                             .fillMaxWidth(),
-                                                        contentDescription = "",
+                                                        contentDescription = null,
                                                         contentScale = ContentScale.Crop
                                                     )
                                                 }
@@ -402,7 +407,7 @@ fun EateryDetailScreenContent(
                                                                     GrayThree
                                                                 )
                                                             ),
-                                                        contentDescription = "",
+                                                        contentDescription = null,
                                                         contentScale = ContentScale.Crop
                                                     )
                                                 }
@@ -414,7 +419,7 @@ fun EateryDetailScreenContent(
                                                             .height(240.dp)
                                                             .fillMaxWidth(),
                                                         painter = painterResource(R.drawable.blank_eatery),
-                                                        contentDescription = "Eatery Image",
+                                                        contentDescription = stringResource(R.string.eatery_image),
                                                         contentScale = ContentScale.Crop,
                                                     )
                                                 }
@@ -456,14 +461,25 @@ fun EateryDetailScreenContent(
 
                             item {
                                 Text(
-                                    text = eatery.name ?: "Loading...",
+                                    text = eatery.name ?: stringResource(R.string.loading),
                                     modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                                     style = EateryBlueTypography.h3,
                                 )
                             }
                             item {
                                 Text(
-                                    text = "${eatery.location} ${if (!eatery.menuSummary.isNullOrBlank()) "· ${eatery.menuSummary}" else ""}",
+                                    text = if (!eatery.menuSummary.isNullOrBlank()) {
+                                        stringResource(
+                                            R.string.eatery_detail_location_with_summary,
+                                            eatery.location.orEmpty(),
+                                            eatery.menuSummary
+                                        )
+                                    } else {
+                                        stringResource(
+                                            R.string.eatery_detail_location_only,
+                                            eatery.location.orEmpty()
+                                        )
+                                    },
                                     modifier = Modifier.padding(start = 16.dp),
                                     style = EateryBlueTypography.subtitle2,
                                     color = GrayFive
@@ -516,7 +532,7 @@ fun EateryDetailScreenContent(
                                                             )
                                                             Toast.makeText(
                                                                 context,
-                                                                "No app available to open this link.",
+                                                                noAppAvailableText,
                                                                 Toast.LENGTH_SHORT
                                                             ).show()
                                                         }
@@ -531,12 +547,12 @@ fun EateryDetailScreenContent(
                                         ) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.ic_android_phone),
-                                                contentDescription = "Phone - Order Online"
+                                                contentDescription = stringResource(R.string.phone_order_online)
                                             )
                                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                             Text(
                                                 modifier = Modifier.padding(vertical = 6.dp),
-                                                text = "Order online",
+                                                text = stringResource(R.string.order_online),
                                                 style = EateryBlueTypography.h5,
                                                 color = Color.White
                                             )
@@ -568,7 +584,7 @@ fun EateryDetailScreenContent(
                                                     )
                                                     Toast.makeText(
                                                         context,
-                                                        "No maps app available on this device.",
+                                                        noMapsAppText,
                                                         Toast.LENGTH_SHORT
                                                     ).show()
                                                 }
@@ -585,12 +601,12 @@ fun EateryDetailScreenContent(
                                     ) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_walk),
-                                            contentDescription = "Walk - Get Directions"
+                                            contentDescription = stringResource(R.string.walk_get_directions)
                                         )
                                         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                         Text(
                                             modifier = Modifier.padding(vertical = 6.dp),
-                                            text = "Get directions",
+                                            text = stringResource(R.string.get_directions),
                                             style = EateryBlueTypography.h5,
                                             maxLines = 1
                                         )
@@ -626,12 +642,13 @@ fun EateryDetailScreenContent(
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Outlined.Schedule,
-                                                contentDescription = "Hours Icon",
+                                                contentDescription = null,
                                                 tint = GrayFive
                                             )
                                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                             Text(
-                                                text = "Hours", style = TextStyle(
+                                                text = stringResource(R.string.hours_title),
+                                                style = TextStyle(
                                                     fontWeight = FontWeight.SemiBold,
                                                     fontSize = 16.sp
                                                 ), color = GrayFive
@@ -640,10 +657,18 @@ fun EateryDetailScreenContent(
                                         val openUntil = eatery.getOpenUntil()
                                         Text(
                                             modifier = Modifier.padding(top = 2.dp),
-                                            text =
-                                                if (openUntil == null) "Closed"
-                                                else if (eatery.isClosingSoon()) "Closing at $openUntil"
-                                                else ("Open until $openUntil"),
+                                            text = when {
+                                                openUntil == null -> stringResource(R.string.closed)
+                                                eatery.isClosingSoon() -> stringResource(
+                                                    R.string.closing_at,
+                                                    openUntil
+                                                )
+
+                                                else -> stringResource(
+                                                    R.string.open_until,
+                                                    openUntil
+                                                )
+                                            },
                                             style = TextStyle(
                                                 fontWeight = FontWeight.SemiBold,
                                                 fontSize = 16.sp
@@ -685,7 +710,7 @@ fun EateryDetailScreenContent(
                                         onSearchTextChange = {
                                             onSearchQueryChange(it)
                                         },
-                                        placeholderText = "Search the menu...",
+                                        placeholderText = stringResource(R.string.search_placeholder_menu),
                                         modifier = Modifier.padding(horizontal = 16.dp),
                                         onCancelClicked = {
                                             onSearchQueryChange("")
@@ -753,12 +778,12 @@ fun EateryDetailScreenContent(
                                     )
                                 ) {
                                     Text(
-                                        text = "Make Eatery Better",
+                                        text = stringResource(R.string.make_eatery_better),
                                         style = EateryBlueTypography.h5,
                                         modifier = Modifier.padding(vertical = 8.dp)
                                     )
                                     Text(
-                                        text = "Help us make this info more accurate by letting us know what's wrong.",
+                                        text = stringResource(R.string.make_eatery_better_description),
                                         style = EateryBlueTypography.body2,
                                         modifier = Modifier.padding(bottom = 5.dp),
                                         color = GrayFive
@@ -786,7 +811,7 @@ fun EateryDetailScreenContent(
                                         )
                                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                                         Text(
-                                            text = "Report an Issue",
+                                            text = stringResource(R.string.report_an_issue),
                                             style = EateryBlueTypography.button,
                                             color = Color.Black
                                         )

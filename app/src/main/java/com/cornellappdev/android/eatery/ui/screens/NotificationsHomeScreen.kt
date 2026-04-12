@@ -7,7 +7,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.notifications.FavoriteItemRow
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -22,13 +24,13 @@ fun NotificationsHomeScreen(
             .fillMaxSize()
     ) {
         Text(
-            text = "Notifications",
+            text = stringResource(R.string.notifications_home_title),
             color = EateryBlue,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp, bottom = 20.dp)
         )
         Text(
-            text = "Favorite Items",
+            text = stringResource(R.string.notifications_home_favorite_items),
             style = EateryBlueTypography.h4,
             modifier = Modifier.padding(bottom = 20.dp)
         )
