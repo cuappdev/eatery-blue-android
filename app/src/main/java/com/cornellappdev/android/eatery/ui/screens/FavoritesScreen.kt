@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -156,7 +157,7 @@ private fun FavoritesScreenContent(
 
             is FavoritesScreenViewState.Error -> {
                 // TODO we should have a better no internet display
-                EateriesEmptyState("Failed to obtain eatery data")
+                EateriesEmptyState(stringResource(R.string.favorites_load_error))
             }
 
             is FavoritesScreenViewState.Loaded -> {
