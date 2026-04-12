@@ -193,22 +193,15 @@ class FavoritesViewModel @Inject constructor(
         else -> Int.MAX_VALUE
     }
 
-    fun toggleFavoriteMenuItem(menuItemName: String) = viewModelScope.launch {
-        val isRemoving = menuItemName in userRepository.favoriteItemsFlow.value
-        val result = if (isRemoving) {
-            userRepository.removeFavoriteItem(menuItemName)
-        } else {
-            userRepository.addFavoriteItem(menuItemName)
-        }
-
-        when (result) {
+    fun removeFavoriteMenuItem(menuItemName: String) = viewModelScope.launch {
+        when (val result = userRepository.removeFavoriteItem(menuItemName)) {
             is Result.Success -> {
                 _error.value = null
             }
 
             is Result.Error -> {
                 _error.value = NetworkUiError.Failed(
-                    if (isRemoving) NetworkAction.RemoveFavoriteItem else NetworkAction.AddFavoriteItem,
+                    NetworkAction.RemoveFavoriteItem,
                     result.error
                 )
             }
