@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,7 +40,7 @@ fun FavoriteItemRow(
         Icon(
             painter = if (newNotif) painterResource(id = R.drawable.ic_new_notif_star)
             else painterResource(id = R.drawable.ic_notif_star),
-            contentDescription = "Notification Star Icon",
+            contentDescription = stringResource(R.string.notification_star_icon),
             tint = Color.Unspecified,
             modifier = Modifier.padding(end = 12.dp)
         )
@@ -55,7 +56,7 @@ fun FavoriteItemRow(
                     modifier = Modifier.padding(end = 10.dp)
                 )
                 Text(
-                    text = "Today",
+                    text = stringResource(R.string.today),
                     fontSize = 10.sp,
                     style = EateryBlueTypography.body1,
                     color = Color.DarkGray

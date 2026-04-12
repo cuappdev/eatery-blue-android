@@ -117,7 +117,7 @@ private fun FavoritesScreenContent(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_left_chevron),
-                    contentDescription = "Back"
+                    contentDescription = stringResource(R.string.back)
                 )
             }
             IconButton(
@@ -125,13 +125,13 @@ private fun FavoritesScreenContent(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
-                    contentDescription = "Search",
+                    contentDescription = stringResource(R.string.search),
                 )
             }
 
         }
         Text(
-            text = "Favorites",
+            text = stringResource(R.string.favorites_title),
             color = EateryBlue,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(start = 6.dp, end = 6.dp)

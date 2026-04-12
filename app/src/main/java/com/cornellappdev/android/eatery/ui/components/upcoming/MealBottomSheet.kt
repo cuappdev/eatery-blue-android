@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -59,7 +60,7 @@ fun MealBottomSheet(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Menus",
+                text = stringResource(R.string.menus_title),
                 style = EateryBlueTypography.h4,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
@@ -73,7 +74,11 @@ fun MealBottomSheet(
                     .size(40.dp)
                     .background(color = GrayZero, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.close),
+                    tint = Color.Black
+                )
             }
         }
 
@@ -95,7 +100,7 @@ fun MealBottomSheet(
                 style = EateryBlueTypography.h5
             )
             Text(
-                text = "7:30 AM-10:30 AM",
+                text = stringResource(R.string.meal_time_breakfast),
                 modifier = Modifier.padding(start = 16.dp),
                 style = EateryBlueTypography.caption
             )
@@ -112,12 +117,12 @@ fun MealBottomSheet(
             if (currSelectedMeal.value == MealFilter.BREAKFAST) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
-                    contentDescription = "Breakfast",
+                    contentDescription = null,
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
-                    contentDescription = "Breakfast",
+                    contentDescription = null,
                 )
             }
         }
@@ -145,7 +150,7 @@ fun MealBottomSheet(
                 style = EateryBlueTypography.h5
             )
             Text(
-                text = "10:30 AM-4:00 PM",
+                text = stringResource(R.string.meal_time_lunch),
                 modifier = Modifier.padding(start = 16.dp),
                 style = EateryBlueTypography.caption
             )
@@ -162,12 +167,12 @@ fun MealBottomSheet(
             if (currSelectedMeal.value == MealFilter.LUNCH) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
-                    contentDescription = "Lunch",
+                    contentDescription = null,
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
-                    contentDescription = "Lunch",
+                    contentDescription = null,
                 )
             }
         }
@@ -196,7 +201,7 @@ fun MealBottomSheet(
                 style = EateryBlueTypography.h5
             )
             Text(
-                text = "5:00 PM-8:30 PM",
+                text = stringResource(R.string.meal_time_dinner),
                 modifier = Modifier.padding(start = 16.dp),
                 style = EateryBlueTypography.caption
             )
@@ -212,12 +217,12 @@ fun MealBottomSheet(
             if (currSelectedMeal.value == MealFilter.DINNER) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
-                    contentDescription = "Dinner",
+                    contentDescription = null,
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
-                    contentDescription = "Dinner",
+                    contentDescription = null,
                 )
             }
         }
@@ -245,7 +250,7 @@ fun MealBottomSheet(
                 style = EateryBlueTypography.h5
             )
             Text(
-                text = "8:30 PM-10:30 PM",
+                text = stringResource(R.string.meal_time_late_dinner),
                 modifier = Modifier.padding(start = 16.dp),
                 style = EateryBlueTypography.caption
             )
@@ -261,12 +266,12 @@ fun MealBottomSheet(
             if (currSelectedMeal.value == MealFilter.LATE_DINNER) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
-                    contentDescription = "Late Dinner",
+                    contentDescription = null,
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
-                    contentDescription = "Late Dinner",
+                    contentDescription = null,
                 )
             }
         }
@@ -286,7 +291,7 @@ fun MealBottomSheet(
         )
     ) {
         Text(
-            text = "Show Menu",
+            text = stringResource(R.string.show_menu),
             style = EateryBlueTypography.h5,
             modifier = Modifier.padding(top = 6.dp, bottom = 6.dp)
         )
@@ -302,7 +307,7 @@ fun MealBottomSheet(
             .fillMaxWidth()
     ) {
         Text(
-            text = "Reset",
+            text = stringResource(R.string.reset),
             style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
             color = Color.Black
         )

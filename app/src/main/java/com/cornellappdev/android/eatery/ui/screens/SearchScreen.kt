@@ -48,6 +48,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -150,7 +151,7 @@ fun SearchScreen(
                     onSearchTextChange = {
                         searchViewModel.queryEateries(it)
                     },
-                    placeholderText = "Search for grub...",
+                    placeholderText = stringResource(R.string.search_placeholder_grub),
                     modifier = Modifier.padding(
                         top = 64.dp,
                         bottom = 6.dp,
@@ -221,7 +222,8 @@ fun SearchScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "Favorites", style = EateryBlueTypography.h4
+                                        text = stringResource(R.string.search_favorites),
+                                        style = EateryBlueTypography.h4
                                     )
                                     IconButton(
                                         onClick = {
@@ -236,7 +238,7 @@ fun SearchScreen(
                                     ) {
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowForward,
-                                            contentDescription = "Favorites",
+                                            contentDescription = stringResource(R.string.search_favorites),
                                             tint = Color.Black
                                         )
                                     }
@@ -260,7 +262,7 @@ fun SearchScreen(
                 item {
                     Text(
                         modifier = Modifier.padding(start = 16.dp, top = 12.dp),
-                        text = "Recent Searches",
+                        text = stringResource(R.string.search_recent_searches),
                         style = EateryBlueTypography.h4
                     )
                 }
@@ -381,7 +383,7 @@ fun FavoriteItem(
                             .clip(RoundedCornerShape(10.dp)),
                         contentScale = ContentScale.Crop,
                         painter = painterResource(id = R.drawable.blank_eatery_square),
-                        contentDescription = "Eatery Image",
+                        contentDescription = stringResource(R.string.eatery_image),
                     )
                 })
 

@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,7 +50,6 @@ import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.util.EateryPreview
 
-
 data class MenuCardViewState(
     val eateryId: Int,
     val menu: List<MenuCategoryViewState>,
@@ -58,16 +58,11 @@ data class MenuCardViewState(
     val eateryStatus: EateryStatus?,
 )
 
-
 data class EateryHours(
     val startTime: String,
     val endTime: String,
 )
 
-/**
- * Represents the card for each eatery that is shown in the list
- * in the upcoming menu screen
- */
 @Composable
 fun MenuCard(
     menuCardViewState: MenuCardViewState,
@@ -75,26 +70,22 @@ fun MenuCard(
     selectEatery: (eateryId: Int) -> Unit = {},
 ) = with(menuCardViewState) {
     var openDropdown by remember { mutableStateOf(false) }
+
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier.clickable {
             openDropdown = !openDropdown
-            if (!openDropdown) {
-                onEateryCardContract()
-            }
+            if (!openDropdown) onEateryCardContract()
         }
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = menuCardViewState.name,
-                    style = EateryBlueTypography.h5,
-                )
+                Text(text = name, style = EateryBlueTypography.h5)
                 Icon(
                     imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                    contentDescription = "Expand menu",
+                    contentDescription = stringResource(R.string.expand_menu),
                     tint = Color.Black,
                     modifier = Modifier
                         .padding(top = 10.dp, end = 20.dp)
@@ -110,23 +101,26 @@ fun MenuCard(
                             color = it.statusColor
                         )
                         Text(
-                            text = " • ",
+                            text = " ${stringResource(R.string.bullet_separator)} ",
                             style = EateryBlueTypography.subtitle2,
                             color = GrayFive
                         )
                     }
                     eateryHours?.let {
                         Text(
-                            modifier = Modifier.padding(
-                                bottom = 8.dp
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            text = stringResource(
+                                R.string.menu_time_range,
+                                it.startTime,
+                                it.endTime
                             ),
-                            text = "${it.startTime} - ${it.endTime}",
                             style = EateryBlueTypography.subtitle2,
                             color = GrayFive
                         )
                     }
                 }
             }
+
             Column(
                 modifier = Modifier
                     .animateContentSize(tween(250))
@@ -167,7 +161,6 @@ private fun EateryDetails(
                 .padding(top = 8.dp, bottom = 8.dp)
                 .clickable { selectEatery() }
         ) {
-
             Row(
                 modifier = Modifier.padding(
                     start = 12.dp,
@@ -183,7 +176,7 @@ private fun EateryDetails(
                     tint = Color.Black
                 )
                 Text(
-                    text = "View Eatery Details",
+                    text = stringResource(R.string.view_eatery_details),
                     color = Color.Black,
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold
@@ -191,7 +184,6 @@ private fun EateryDetails(
             }
         }
     }
-
 }
 
 @Composable
@@ -202,9 +194,7 @@ private fun EateryEventMenu(menu: List<MenuCategoryViewState>) {
             .wrapContentHeight(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             menu.forEach { category ->
                 Text(
                     text = category.category,
@@ -229,15 +219,12 @@ private fun MenuItemDisplay(item: MenuItemViewState) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = item.item.name ?: "Unknown",
+            text = item.item.name ?: stringResource(R.string.unknown_item),
             style = EateryBlueTypography.caption,
             fontWeight = FontWeight.Normal
         )
         if (item.isFavorite) {
-            FavoriteIcon(
-                true,
-                modifier = Modifier.requiredSize(18.dp)
-            )
+            FavoriteIcon(true, modifier = Modifier.requiredSize(18.dp))
         }
     }
 }

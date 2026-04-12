@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.viewmodels.state
 
 import android.content.Context
 import android.widget.Toast
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.NetworkError
 
 /**
@@ -17,7 +18,7 @@ object NetworkErrorHandler {
 
         when (error) {
             is NetworkUiError.Failed -> {
-                val message = buildErrorMessage(error.action, error.reason)
+                val message = buildErrorMessage(context, error.action, error.reason)
                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
             }
         }
@@ -26,19 +27,27 @@ object NetworkErrorHandler {
     /**
      * Builds a user-friendly error message based on the action and network error reason.
      */
-    private fun buildErrorMessage(action: NetworkAction, reason: NetworkError): String {
-        val actionDescription = when (action) {
-            NetworkAction.AddFavoriteEatery -> "add favorite eatery"
-            NetworkAction.RemoveFavoriteEatery -> "remove favorite eatery"
-            NetworkAction.AddFavoriteItem -> "add favorite item"
-            NetworkAction.RemoveFavoriteItem -> "remove favorite item"
-            NetworkAction.UpdateFavorites -> "sync favorites"
-            NetworkAction.SendReport -> "send report"
-            NetworkAction.LinkGetAccount -> "link account"
-            NetworkAction.GetFinancials -> "load account information"
+    private fun buildErrorMessage(
+        context: Context,
+        action: NetworkAction,
+        reason: NetworkError
+    ): String {
+        val actionDescriptionRes = when (action) {
+            NetworkAction.AddFavoriteEatery -> R.string.network_action_add_favorite_eatery
+            NetworkAction.RemoveFavoriteEatery -> R.string.network_action_remove_favorite_eatery
+            NetworkAction.AddFavoriteItem -> R.string.network_action_add_favorite_item
+            NetworkAction.RemoveFavoriteItem -> R.string.network_action_remove_favorite_item
+            NetworkAction.UpdateFavorites -> R.string.network_action_update_favorites
+            NetworkAction.SendReport -> R.string.network_action_send_report
+            NetworkAction.LinkGetAccount -> R.string.network_action_link_get_account
+            NetworkAction.GetFinancials -> R.string.network_action_get_financials
         }
 
-        return "Failed to $actionDescription: $reason"
+        return context.getString(
+            R.string.network_error_message,
+            context.getString(actionDescriptionRes),
+            reason
+        )
     }
 }
 

@@ -67,6 +67,9 @@ import kotlinx.coroutines.launch
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val reportingIssueSubject = stringResource(R.string.support_reporting_issue_subject)
+    val orderFoodSubject = stringResource(R.string.support_order_food_subject)
+    val emailChooserTitle = stringResource(R.string.support_email_chooser_title)
     val reportState by supportViewModel.reportState.collectAsStateWithLifecycle()
     val modalBottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
@@ -113,26 +116,26 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                     .then(Modifier.statusBarsPadding())
             ) {
                 Text(
-                    text = "Support",
+                    text = stringResource(R.string.support_title),
                     color = EateryBlue,
                     style = EateryBlueTypography.h2,
                     modifier = Modifier.padding(top = 7.dp)
                 )
                 Text(
-                    text = "Report issues and contact Cornell AppDev",
+                    text = stringResource(R.string.support_description),
                     style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
                     color = GraySix,
                     modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
                 )
 
                 Text(
-                    text = "Make Eatery Better",
+                    text = stringResource(R.string.support_make_eatery_better),
                     color = Color.Black,
                     style = EateryBlueTypography.h4,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
                 Text(
-                    text = "Help us improve Eatery by letting us know what’s wrong.",
+                    text = stringResource(R.string.support_make_eatery_better_description),
                     color = GrayFive,
                     style = EateryBlueTypography.subtitle2,
                     modifier = Modifier.padding(bottom = 12.dp)
@@ -153,7 +156,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 ) {
                     Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
                     Text(
-                        text = "Report an Issue",
+                        text = stringResource(R.string.report_an_issue),
                         style = EateryBlueTypography.h5,
                         modifier = Modifier.padding(start = 8.dp)
                     )
@@ -162,11 +165,11 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 TextButton(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
                     val email = Intent(Intent.ACTION_SENDTO)
                     email.data =
-                        "mailto:team@cornellappdev.com?subject=${Uri.encode("Eatery - Reporting an Issue")}".toUri()
-                    context.startActivity(Intent.createChooser(email, "Choose an Email client :"))
+                        "mailto:team@cornellappdev.com?subject=${Uri.encode(reportingIssueSubject)}".toUri()
+                    context.startActivity(Intent.createChooser(email, emailChooserTitle))
                 }) {
                     Text(
-                        text = "Shoot us an email",
+                        text = stringResource(R.string.support_email_us),
                         style = EateryBlueTypography.button,
                         color = EateryBlue
                     )
@@ -179,13 +182,13 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 }
 
                 Text(
-                    text = "Frequently Asked Questions",
+                    text = stringResource(R.string.support_faqs_heading),
                     style = EateryBlueTypography.h4,
                     color = Color.Black,
                     modifier = Modifier.padding(top = 20.dp)
                 )
                 FAQCreation(
-                    title = "Why do I see wrong or empty menus?",
+                    title = stringResource(R.string.support_faq_wrong_menus_title),
                     dropdownText = stringResource(id = R.string.wrong_empty_menus),
                     action = {
                         ReportButton()
@@ -196,7 +199,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 }
 
                 FAQCreation(
-                    title = "Why is an eatery closed when it says it should be open?",
+                    title = stringResource(R.string.support_faq_closed_hours_title),
                     dropdownText = stringResource(id = R.string.eatery_closed_when_open),
                     action = {
                         ReportButton()
@@ -207,7 +210,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 }
 
                 FAQCreation(
-                    title = "Why are the wait times longer?",
+                    title = stringResource(R.string.support_faq_wait_times_title),
                     dropdownText = stringResource(id = R.string.wait_time_longer),
                     action = {
                         ReportButton()
@@ -218,12 +221,12 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 }
 
                 FAQCreation(
-                    title = "Why can’t I order food on Eatery?",
+                    title = stringResource(R.string.support_faq_order_title),
                     dropdownText = stringResource(id = R.string.order_on_eatery),
                     action = {
                         Row {
                             Text(
-                                text = "send them an email.",
+                                text = stringResource(R.string.support_faq_order_email_prompt),
                                 style = EateryBlueTypography.subtitle2,
                                 color = EateryBlue,
                             )
@@ -232,9 +235,9 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 ) {
                     val email = Intent(Intent.ACTION_SENDTO)
                     email.data =
-                        "mailto:dining@cornell.edu?subject=${Uri.encode("Ordering Food on Eatery")}".toUri()
+                        "mailto:dining@cornell.edu?subject=${Uri.encode(orderFoodSubject)}".toUri()
 
-                    context.startActivity(Intent.createChooser(email, "Choose an Email client :"))
+                    context.startActivity(Intent.createChooser(email, emailChooserTitle))
                 }
             }
 }
@@ -256,7 +259,7 @@ private fun ReportButton() {
             Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text(
-                text = "Report an Issue",
+                text = stringResource(R.string.report_an_issue),
                 style = EateryBlueTypography.button,
                 color = Color.Black,
             )
