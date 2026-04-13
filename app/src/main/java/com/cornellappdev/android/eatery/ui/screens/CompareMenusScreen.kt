@@ -54,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -124,7 +125,7 @@ fun CompareMenusScreen(
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Compare Menus",
+                text = stringResource(R.string.compare_menus_title),
                 fontSize = 20.sp,
                 style = EateryBlueTypography.h5,
                 fontWeight = FontWeight(600)
@@ -285,12 +286,12 @@ private fun MenuPager(
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Schedule,
-                                contentDescription = "Hours Icon",
+                                contentDescription = null,
                                 tint = GrayFive
                             )
                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                             Text(
-                                text = "Hours", style = TextStyle(
+                                text = stringResource(R.string.hours_title), style = TextStyle(
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 16.sp
                                 ), color = GrayFive
@@ -300,10 +301,15 @@ private fun MenuPager(
                         val openUntil = eatery.getOpenUntil()
                         Text(
                             modifier = Modifier.padding(top = 2.dp),
-                            text =
-                                if (openUntil == null) "Closed"
-                                else if (eatery.isClosingSoon()) "Closing at $openUntil"
-                                else ("Open until $openUntil"),
+                            text = when {
+                                openUntil == null -> stringResource(R.string.closed)
+                                eatery.isClosingSoon() -> stringResource(
+                                    R.string.closing_at,
+                                    openUntil
+                                )
+
+                                else -> stringResource(R.string.open_until, openUntil)
+                            },
                             style = TextStyle(
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp
@@ -415,7 +421,7 @@ private fun MenuPager(
                                         horizontalArrangement = Arrangement.Center
                                     ) {
                                         Text(
-                                            text = "Sorry, there is no menu available now.",
+                                            text = stringResource(R.string.compare_menus_no_menu),
                                             color = Color.Black,
                                             style = EateryBlueTypography.h5,
                                             modifier = Modifier.padding(start = 8.dp),
@@ -461,7 +467,7 @@ private fun MenuPager(
                                                 tint = Color.Black
                                             )
                                             Text(
-                                                text = "View Eatery Details",
+                                                text = stringResource(R.string.view_eatery_details),
                                                 color = Color.Black,
                                                 modifier = Modifier.padding(
                                                     start = 8.dp,

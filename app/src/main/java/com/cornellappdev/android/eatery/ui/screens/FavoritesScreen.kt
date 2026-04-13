@@ -34,9 +34,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,6 +56,8 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
@@ -65,16 +69,39 @@ fun FavoritesScreen(
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
-    val shimmer = rememberShimmer(ShimmerBounds.View)
     val uiState = favoriteViewModel.uiState.collectAsStateWithLifecycle().value
-    val favoritesScreenViewState = uiState.screenState
-    var toggle by remember { mutableStateOf(true) }
 
     // TODO: replace with an actual error state
     NetworkErrorToast(
         error = uiState.error,
         onErrorShown = favoriteViewModel::clearError
     )
+
+    FavoritesScreenContent(
+        favoritesScreenViewState = uiState.screenState,
+        onEateryClick = onEateryClick,
+        onSearchClick = onSearchClick,
+        onBackClick = onBackClick,
+        toggleEateryFilter = favoriteViewModel::toggleEateryFilter,
+        toggleItemFilter = favoriteViewModel::toggleItemFilter,
+        removeFavorite = favoriteViewModel::removeFavorite,
+        removeFavoriteMenuItem = favoriteViewModel::removeFavoriteMenuItem,
+    )
+}
+
+@Composable
+private fun FavoritesScreenContent(
+    favoritesScreenViewState: FavoritesScreenViewState,
+    onEateryClick: (eatery: Eatery) -> Unit,
+    onSearchClick: () -> Unit,
+    onBackClick: () -> Unit,
+    toggleEateryFilter: (filter: Filter.FromEateryFilter) -> Unit,
+    toggleItemFilter: (filter: Filter) -> Unit,
+    removeFavorite: (eateryId: Int, eateryName: String) -> Unit,
+    removeFavoriteMenuItem: (menuItem: String) -> Unit,
+) {
+    val shimmer = rememberShimmer(ShimmerBounds.View)
+    var toggle by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -90,7 +117,7 @@ fun FavoritesScreen(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_left_chevron),
-                    contentDescription = "Back"
+                    contentDescription = stringResource(R.string.back)
                 )
             }
             IconButton(
@@ -98,13 +125,13 @@ fun FavoritesScreen(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
-                    contentDescription = "Search",
+                    contentDescription = stringResource(R.string.search),
                 )
             }
 
         }
         Text(
-            text = "Favorites",
+            text = stringResource(R.string.favorites_title),
             color = EateryBlue,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(start = 6.dp, end = 6.dp)
@@ -115,7 +142,9 @@ fun FavoritesScreen(
         when (favoritesScreenViewState) {
             is FavoritesScreenViewState.Loading -> {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     items(15) {
                         EateryBlob(
@@ -128,7 +157,7 @@ fun FavoritesScreen(
 
             is FavoritesScreenViewState.Error -> {
                 // TODO we should have a better no internet display
-                EateriesEmptyState("Failed to obtain Eatery data")
+                EateriesEmptyState(stringResource(R.string.favorites_load_error))
             }
 
             is FavoritesScreenViewState.Loaded -> {
@@ -139,14 +168,67 @@ fun FavoritesScreen(
                     favoritesScreenViewState,
                     favoriteEateries,
                     onEateryClick,
-                    toggleEateryFilter = favoriteViewModel::toggleEateryFilter,
-                    toggleItemFilter = favoriteViewModel::toggleItemFilter,
-                    removeFavorite = favoriteViewModel::removeFavorite,
-                    removeFavoriteMenuItem = favoriteViewModel::toggleFavoriteMenuItem,
+                    toggleEateryFilter = toggleEateryFilter,
+                    toggleItemFilter = toggleItemFilter,
+                    removeFavorite = removeFavorite,
+                    removeFavoriteMenuItem = removeFavoriteMenuItem,
                 )
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FavoritesScreenLoadingPreview() = EateryPreview {
+    FavoritesScreenContent(
+        favoritesScreenViewState = FavoritesScreenViewState.Loading,
+        onEateryClick = {},
+        onSearchClick = {},
+        onBackClick = {},
+        toggleEateryFilter = {},
+        toggleItemFilter = {},
+        removeFavorite = { _, _ -> },
+        removeFavoriteMenuItem = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FavoritesScreenLoadedPreview() = EateryPreview {
+    FavoritesScreenContent(
+        favoritesScreenViewState = FavoritesScreenViewState.Loaded(
+            eateries = listOf(
+                PreviewData.mockEatery(1).copy(name = "Okenshields"),
+                PreviewData.mockEatery(2).copy(name = "Becker House Dining Room")
+            ),
+            favoriteCards = emptyList(),
+            selectedEateryFilters = emptyList(),
+            selectedItemFilters = emptyList(),
+        ),
+        onEateryClick = {},
+        onSearchClick = {},
+        onBackClick = {},
+        toggleEateryFilter = {},
+        toggleItemFilter = {},
+        removeFavorite = { _, _ -> },
+        removeFavoriteMenuItem = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FavoritesScreenErrorPreview() = EateryPreview {
+    FavoritesScreenContent(
+        favoritesScreenViewState = FavoritesScreenViewState.Error,
+        onEateryClick = {},
+        onSearchClick = {},
+        onBackClick = {},
+        toggleEateryFilter = {},
+        toggleItemFilter = {},
+        removeFavorite = { _, _ -> },
+        removeFavoriteMenuItem = {},
+    )
 }
 
 @Composable
@@ -287,7 +369,7 @@ private fun EateryBlob(
 ) {
     Surface(
         modifier = Modifier
-            .padding(end = 12.dp)
+            .padding(horizontal = 6.dp)
             .then(modifier)
             .clip(
                 RoundedCornerShape(

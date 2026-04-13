@@ -22,8 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 
@@ -62,7 +63,7 @@ fun FilterButton(
     onFilterClicked: () -> Unit,
     selected: Boolean,
     text: String,
-    icon: ImageVector? = null
+    hasExpandIcon: Boolean = false
 ) {
     val progress by animateFloatAsState(
         targetValue = if (selected) 0f else 1f,
@@ -82,11 +83,11 @@ fun FilterButton(
         )
     ) {
         Text(text)
-        if (icon != null) {
+        if (hasExpandIcon) {
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Icon(
                 Icons.Default.ExpandMore,
-                contentDescription = "Favorite",
+                contentDescription = stringResource(R.string.expand_filters),
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
         }

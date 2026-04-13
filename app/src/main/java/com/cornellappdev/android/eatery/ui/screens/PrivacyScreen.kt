@@ -14,11 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
 import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
@@ -39,25 +41,25 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
             .fillMaxSize()
     ) {
         Text(
-            text = "Privacy",
+            text = stringResource(R.string.privacy_title),
             color = EateryBlue,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
         Text(
-            text = "Manage permissions and analytics",
+            text = stringResource(R.string.privacy_description),
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
             color = GraySix,
             modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
         )
         Text(
-            text = "Permissions",
+            text = stringResource(R.string.privacy_permissions_heading),
             color = Color.Black,
             style = EateryBlueTypography.h4,
         )
         SettingsOption(
-            title = "Location Access",
-            description = "Used to find eateries near you",
+            title = stringResource(R.string.privacy_location_access_title),
+            description = stringResource(R.string.privacy_location_access_description),
             onClick = {
                 context.startActivity(
                     Intent(
@@ -75,8 +77,8 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
             })
         SettingsLineSeparator()
         SettingsOption(
-            title = "Notification Access",
-            description = "Used to send device notifications",
+            title = stringResource(R.string.privacy_notification_access_title),
+            description = stringResource(R.string.privacy_notification_access_description),
             onClick = {
                 val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -97,14 +99,14 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
         )
         SettingsLineSeparator()
         Text(
-            text = "Analytics",
+            text = stringResource(R.string.privacy_analytics_heading),
             color = Color.Black,
             style = EateryBlueTypography.h4,
             modifier = Modifier.padding(top = 28.dp)
         )
         SwitchOption(
-            title = "Share with Cornell AppDev",
-            description = "Help us improve products and services",
+            title = stringResource(R.string.privacy_share_with_cornell_appdev_title),
+            description = stringResource(R.string.privacy_share_with_cornell_appdev_description),
             initialValue = !privacyViewModel.analyticsDisabled,
             onCheckedChange = { switched ->
                 privacyViewModel.setAnalyticsDisabled(switched)
@@ -114,7 +116,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
         SettingsLineSeparator()
 
         SettingsOption(
-            title = "Privacy Policy",
+            title = stringResource(R.string.privacy_policy_title),
             onClick = { uriCurrent.openUri("https://www.cornellappdev.com/privacy") },
             trailingIcon = {
                 Icon(

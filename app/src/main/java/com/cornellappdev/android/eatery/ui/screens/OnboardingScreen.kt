@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +67,8 @@ fun OnboardingScreenContent(
     val pagerState = rememberPagerState(pageCount = { 2 })
     val coroutineScope = rememberCoroutineScope()
     var fadePage by rememberSaveable { mutableStateOf(false) }
+    val cornell = stringResource(R.string.onboarding_cornell)
+    val appdev = stringResource(R.string.onboarding_appdev)
     Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
             state = pagerState,
@@ -91,7 +94,7 @@ fun OnboardingScreenContent(
                         )
 
                         Text(
-                            text = "Eatery",
+                            text = stringResource(R.string.onboarding_eatery_title),
                             color = EateryBlue,
                             style = EateryBlueTypography.h1
                         )
@@ -119,7 +122,7 @@ fun OnboardingScreenContent(
                         ) {
                             Text(
                                 style = EateryBlueTypography.h6,
-                                text = "Get Started",
+                                text = stringResource(R.string.onboarding_get_started),
                                 color = Black
                             )
                         }
@@ -147,7 +150,7 @@ fun OnboardingScreenContent(
                                             fontWeight = FontWeight.Normal
                                         )
                                     ) {
-                                        append("Cornell")
+                                        append(cornell)
                                     }
                                     withStyle(
                                         style = SpanStyle(
@@ -155,7 +158,7 @@ fun OnboardingScreenContent(
                                             fontWeight = FontWeight.SemiBold
                                         )
                                     ) {
-                                        append("AppDev")
+                                        append(appdev)
                                     }
                                 }
                             )
