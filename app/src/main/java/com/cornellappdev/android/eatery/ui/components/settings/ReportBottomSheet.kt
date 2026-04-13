@@ -270,7 +270,7 @@ fun ReportBottomSheet(
                     if (isSending || selectedIssue == null) return@Button
 
                     focusManager.clearFocus()
-                    sendReport(selectedIssueLabel, textEntry.trim(), eateryId)
+                    sendReport(selectedIssue.name, textEntry.trim(), eateryId)
                 },
                 enabled = textEntry.isNotBlank() && selectedIssue != null && !isSending,
                 colors = ButtonDefaults.buttonColors(
