@@ -419,7 +419,7 @@ fun EateryDetailScreenContent(
                                                             .height(240.dp)
                                                             .fillMaxWidth(),
                                                         painter = painterResource(R.drawable.blank_eatery),
-                                                        contentDescription = stringResource(R.string.eatery_image),
+                                                        contentDescription = stringResource(R.string.a11y_eatery_image),
                                                         contentScale = ContentScale.Crop,
                                                     )
                                                 }
@@ -547,7 +547,7 @@ fun EateryDetailScreenContent(
                                         ) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.ic_android_phone),
-                                                contentDescription = stringResource(R.string.phone_order_online)
+                                                contentDescription = stringResource(R.string.a11y_phone_order_online)
                                             )
                                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                             Text(
@@ -601,7 +601,7 @@ fun EateryDetailScreenContent(
                                     ) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_walk),
-                                            contentDescription = stringResource(R.string.walk_get_directions)
+                                            contentDescription = stringResource(R.string.a11y_walk_get_directions)
                                         )
                                         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                         Text(

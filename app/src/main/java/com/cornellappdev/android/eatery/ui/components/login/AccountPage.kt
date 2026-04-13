@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.login
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -44,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -153,34 +155,34 @@ private fun AccountPageContent(
                 (Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Column {
                         Text(
-                            text = "Meal Plan",
+                            text = stringResource(R.string.account_meal_plan),
                             style = EateryBlueTypography.h4,
                             modifier = Modifier.padding(top = 16.dp)
                         )
                         accountTypeBalance.mealSwipes?.let {
                             AccountBalanceRow(
-                                accountName = "Meal Swipes",
+                                accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
                                 swipes = it
                             )
                         }
                         HorizontalDivider(color = GrayZero, thickness = 1.dp)
                         accountTypeBalance.brbBalance?.let {
                             AccountBalanceRow(
-                                accountName = "Big Red Bucks",
+                                accountName = stringResource(TransactionAccountType.BRBS.displayNameRes()),
                                 balance = it
                             )
                         }
                         HorizontalDivider(color = GrayZero, thickness = 1.dp)
                         accountTypeBalance.cityBucksBalance?.let {
                             AccountBalanceRow(
-                                accountName = "City Bucks",
+                                accountName = stringResource(TransactionAccountType.CITY_BUCKS.displayNameRes()),
                                 balance = it
                             )
                         }
                         HorizontalDivider(color = GrayZero, thickness = 1.dp)
                         accountTypeBalance.laundryBalance?.let {
                             AccountBalanceRow(
-                                accountName = "Laundry",
+                                accountName = stringResource(TransactionAccountType.LAUNDRY.displayNameRes()),
                                 balance = it
                             )
                         }
@@ -273,12 +275,7 @@ private fun TransactionsHeader(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = when (accountFilter) {
-                        TransactionAccountType.MEAL_SWIPES -> "Meal Swipes"
-                        TransactionAccountType.BRBS -> "Big Red Bucks"
-                        TransactionAccountType.LAUNDRY -> "Laundry"
-                        TransactionAccountType.CITY_BUCKS -> "City Bucks"
-                    },
+                    text = stringResource(accountFilter.displayNameRes()),
                     style = EateryBlueTypography.h4
                 )
             }
@@ -293,7 +290,7 @@ private fun TransactionsHeader(
             ) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Change Account Type",
+                    contentDescription = stringResource(R.string.a11y_change_account_type),
                     modifier = Modifier
                         .size(26.dp)
                 )
@@ -303,7 +300,7 @@ private fun TransactionsHeader(
             searchText = filterText,
             onSearchTextChange = setFilterText,
             modifier = Modifier.padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
-            placeholderText = "Search for transactions...",
+            placeholderText = stringResource(R.string.account_search_transactions_placeholder),
             onCancelClicked = { setFilterText("") }
         )
         HorizontalDivider(
@@ -312,7 +309,7 @@ private fun TransactionsHeader(
             modifier = Modifier.padding(horizontal = 16.dp)
         )
         Text(
-            text = "Past 30 Days",
+            text = stringResource(R.string.account_past_30_days),
             modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
             style = EateryBlueTypography.h5
         )
@@ -350,7 +347,7 @@ private fun AccountPageHeader(
                     Text(
                         modifier = Modifier.align(Alignment.Center),
                         textAlign = TextAlign.Center,
-                        text = "Account",
+                        text = stringResource(R.string.account_title),
                         color = Color.White,
                         style = TextStyle(
                             fontWeight = FontWeight.SemiBold,
@@ -396,7 +393,7 @@ private fun AccountPageHeader(
                             end = 16.dp,
                             top = 24.dp
                         ),
-                        text = "Account",
+                        text = stringResource(R.string.account_title),
                         color = Color.White,
                         style = EateryBlueTypography.h2
                     )
@@ -511,7 +508,7 @@ fun AccountTypesSelector(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Payment Methods",
+                text = stringResource(R.string.payment_methods_title),
                 style = EateryBlueTypography.h4,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
@@ -522,12 +519,17 @@ fun AccountTypesSelector(
                     .size(40.dp)
                     .background(color = GrayZero, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Black)
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.close),
+                    tint = Black
+                )
             }
         }
         Column {
             selectedPaymentMethod.forEachIndexed { index, account ->
                 val accountIsSelected = selected == account
+                val accountLabel = stringResource(account.displayNameRes())
                 Row(
                     modifier = Modifier
                         .height(63.dp)
@@ -539,12 +541,7 @@ fun AccountTypesSelector(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(
-                        text = when (account) {
-                            TransactionAccountType.MEAL_SWIPES -> "Meal Swipes"
-                            TransactionAccountType.BRBS -> "Big Red Bucks"
-                            TransactionAccountType.LAUNDRY -> "Laundry"
-                            TransactionAccountType.CITY_BUCKS -> "City Bucks"
-                        },
+                        text = accountLabel,
                         style = EateryBlueTypography.h5,
                         modifier = Modifier.padding(start = 16.dp)
                     )
@@ -558,7 +555,11 @@ fun AccountTypesSelector(
                             imageVector = ImageVector.vectorResource(
                                 id = if (accountIsSelected) R.drawable.ic_selected else R.drawable.ic_unselected
                             ),
-                            contentDescription = null,
+                            contentDescription = if (accountIsSelected) {
+                                stringResource(R.string.a11y_account_selected, accountLabel)
+                            } else {
+                                stringResource(R.string.a11y_account_select, accountLabel)
+                            },
                             tint = Color.Unspecified
                         )
                     }
@@ -589,7 +590,7 @@ fun AccountTypesSelector(
             ) {
                 Text(
                     modifier = Modifier.padding(vertical = 6.dp),
-                    text = "Show transactions",
+                    text = stringResource(R.string.account_show_transactions),
                     style = EateryBlueTypography.h5,
                     color = Color.White
                 )
@@ -597,3 +598,12 @@ fun AccountTypesSelector(
         }
     }
 }
+
+@StringRes
+private fun TransactionAccountType.displayNameRes(): Int = when (this) {
+    TransactionAccountType.MEAL_SWIPES -> R.string.account_type_meal_swipes
+    TransactionAccountType.BRBS -> R.string.account_type_big_red_bucks
+    TransactionAccountType.LAUNDRY -> R.string.account_type_laundry
+    TransactionAccountType.CITY_BUCKS -> R.string.account_type_city_bucks
+}
+

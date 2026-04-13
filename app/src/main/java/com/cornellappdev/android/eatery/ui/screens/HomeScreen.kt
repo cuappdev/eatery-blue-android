@@ -457,7 +457,7 @@ fun ErrorContent(onTryAgain: () -> Unit) {
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_error),
-            contentDescription = stringResource(R.string.home_error_icon_desc),
+            contentDescription = stringResource(R.string.a11y_home_error_icon_desc),
             modifier = Modifier.size(72.dp),
             tint = Color.Red
         )
@@ -588,13 +588,13 @@ private fun LazyListScope.regularContent(
                 ) {
                     Icon(
                         painter = painterResource(id = if (isGridView) R.drawable.ic_list_view_unselected else R.drawable.ic_list_view_selected),
-                        contentDescription = stringResource(R.string.list_view),
+                        contentDescription = stringResource(R.string.a11y_list_view),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onListClick() }
                     )
                     Icon(
                         painter = painterResource(id = if (isGridView) R.drawable.ic_grid_view_selected else R.drawable.ic_grid_view_unselected),
-                        contentDescription = stringResource(R.string.grid_view),
+                        contentDescription = stringResource(R.string.a11y_grid_view),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onGridClick() }
                     )

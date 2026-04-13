@@ -101,7 +101,7 @@ fun SearchBar(
             leadingIcon = {
                 Icon(
                     Icons.Default.Search,
-                    contentDescription = stringResource(R.string.search_icon),
+                    contentDescription = stringResource(R.string.a11y_search_icon),
                     tint = GrayFive
                 )
             },

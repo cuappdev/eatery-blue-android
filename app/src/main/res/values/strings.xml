@@ -85,6 +85,16 @@
     <string name="meal_time_lunch">10:30 AM-4:00 PM</string>
     <string name="meal_time_dinner">5:00 PM-8:30 PM</string>
     <string name="meal_time_late_dinner">8:30 PM-10:30 PM</string>
+    <string name="a11y_meal_selected_breakfast">Breakfast selected</string>
+    <string name="a11y_meal_select_breakfast">Select breakfast</string>
+    <string name="a11y_meal_selected_lunch">Lunch selected</string>
+    <string name="a11y_meal_select_lunch">Select lunch</string>
+    <string name="a11y_meal_selected_dinner">Dinner selected</string>
+    <string name="a11y_meal_select_dinner">Select dinner</string>
+    <string name="a11y_meal_selected_late_dinner">Late dinner selected</string>
+    <string name="a11y_meal_select_late_dinner">Select late dinner</string>
+    <string name="a11y_account_selected">%1$s selected</string>
+    <string name="a11y_account_select">Select %1$s</string>
     <string name="show_menu">Show menu</string>
     <string name="reset">Reset</string>
     <string name="close">Close</string>
@@ -103,6 +113,16 @@
     <string name="back">Back</string>
     <string name="search">Search</string>
     <string name="favorites_title">Favorites</string>
+    <string name="account_title">Account</string>
+    <string name="account_meal_plan">Meal Plan</string>
+    <string name="account_type_meal_swipes">Meal Swipes</string>
+    <string name="account_type_big_red_bucks">Big Red Bucks</string>
+    <string name="account_type_city_bucks">City Bucks</string>
+    <string name="account_type_laundry">Laundry</string>
+    <string name="account_search_transactions_placeholder">Search for transactions…</string>
+    <string name="account_past_30_days">Past 30 Days</string>
+    <string name="account_show_transactions">Show transactions</string>
+    <string name="a11y_change_account_type">Change account type</string>
 
     <string name="permission_location_message">Location permissions are necessary to show you eateries that are the closest to you!</string>
     <string name="permission_location_message_with_settings">Location permissions are necessary to show you eateries that are the closest to you!\n\nPlease click the button below to go to the settings to enable location permissions.</string>
@@ -110,12 +130,12 @@
     <string name="request_permission">Request Permission</string>
     <string name="open_settings">Open Settings</string>
 
-    <string name="home_error_icon_desc">Error Icon</string>
+    <string name="a11y_home_error_icon_desc">Error Icon</string>
     <string name="home_error_title">Hmm, no chow here (yet).</string>
     <string name="home_error_description">We ran into an issue loading this page. Check your connection or try reloading the page.</string>
     <string name="home_error_try_again">Try Again</string>
-    <string name="list_view">List View</string>
-    <string name="grid_view">Grid View</string>
+    <string name="a11y_list_view">List View</string>
+    <string name="a11y_grid_view">Grid View</string>
     <string name="all_eateries_title">All Eateries</string>
 
     <string name="eatery_detail_error">Cannot load Eatery Details</string>
@@ -127,9 +147,9 @@
     <string name="hours_title">Hours</string>
     <string name="make_eatery_better">Make Eatery Better</string>
     <string name="make_eatery_better_description">Help us make this info more accurate by letting us know what’s wrong.</string>
-    <string name="eatery_image">Eatery Image</string>
-    <string name="phone_order_online">Phone - Order Online</string>
-    <string name="walk_get_directions">Walk - Get Directions</string>
+    <string name="a11y_eatery_image">Eatery Image</string>
+    <string name="a11y_phone_order_online">Phone - Order Online</string>
+    <string name="a11y_walk_get_directions">Walk - Get Directions</string>
     <string name="no_app_available_to_open_this_link">No app available to open this link.</string>
     <string name="no_maps_app_available_on_this_device">No maps app available on this device.</string>
     <string name="closed">Closed</string>
@@ -138,7 +158,7 @@
     <string name="unknown_location">Unknown location</string>
     <string name="menu_time_range">%1$s - %2$s</string>
     <string name="week_day_time_range">%1$s - %2$s</string>
-    <string name="expand_menu">Expand menu</string>
+    <string name="a11y_expand_menu">Expand menu</string>
     <string name="bullet_separator">•</string>
     <string name="unknown_item">Unknown</string>
     <string name="view_eatery_details">View Eatery Details</string>
@@ -148,7 +168,7 @@
     <string name="closing_soon">Closing soon</string>
     <string name="closing_in_minutes">Closing in %1$d min</string>
     <string name="min_walk">%1$s min walk</string>
-    <string name="search_icon">Search</string>
+    <string name="a11y_search_icon">Search</string>
     <string name="search_cancel">Cancel</string>
     <string name="search_placeholder_menu">Search the menu…</string>
     <string name="search_placeholder_grub">Search for grub…</string>
@@ -179,7 +199,7 @@
     <string name="favorite_button_add">Add to favorites</string>
     <string name="favorite_button_remove">Remove from favorites</string>
     <string name="today">Today</string>
-    <string name="notification_star_icon">Notification Star Icon</string>
+    <string name="a11y_notification_star_icon">Notification Star Icon</string>
     <string name="compare_menus_title">Compare Menus</string>
     <string name="compare_menus_no_menu">Sorry, there is no menu available now.</string>
     <string name="done">Done</string>

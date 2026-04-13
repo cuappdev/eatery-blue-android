@@ -383,7 +383,7 @@ fun FavoriteItem(
                             .clip(RoundedCornerShape(10.dp)),
                         contentScale = ContentScale.Crop,
                         painter = painterResource(id = R.drawable.blank_eatery_square),
-                        contentDescription = stringResource(R.string.eatery_image),
+                        contentDescription = stringResource(R.string.a11y_eatery_image),
                     )
                 })
 

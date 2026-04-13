@@ -85,7 +85,7 @@ fun MenuCard(
                 Text(text = name, style = EateryBlueTypography.h5)
                 Icon(
                     imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                    contentDescription = stringResource(R.string.expand_menu),
+                    contentDescription = stringResource(R.string.a11y_expand_menu),
                     tint = Color.Black,
                     modifier = Modifier
                         .padding(top = 10.dp, end = 20.dp)

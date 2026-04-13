@@ -117,12 +117,12 @@ fun MealBottomSheet(
             if (currSelectedMeal.value == MealFilter.BREAKFAST) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.a11y_meal_selected_breakfast),
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.a11y_meal_select_breakfast),
                 )
             }
         }
@@ -167,12 +167,12 @@ fun MealBottomSheet(
             if (currSelectedMeal.value == MealFilter.LUNCH) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.a11y_meal_selected_lunch),
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.a11y_meal_select_lunch),
                 )
             }
         }
@@ -217,12 +217,12 @@ fun MealBottomSheet(
             if (currSelectedMeal.value == MealFilter.DINNER) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.a11y_meal_selected_dinner),
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.a11y_meal_select_dinner),
                 )
             }
         }
@@ -266,12 +266,12 @@ fun MealBottomSheet(
             if (currSelectedMeal.value == MealFilter.LATE_DINNER) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.a11y_meal_selected_late_dinner),
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.a11y_meal_select_late_dinner),
                 )
             }
         }

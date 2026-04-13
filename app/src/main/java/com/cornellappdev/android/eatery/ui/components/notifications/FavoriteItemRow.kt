@@ -40,7 +40,7 @@ fun FavoriteItemRow(
         Icon(
             painter = if (newNotif) painterResource(id = R.drawable.ic_new_notif_star)
             else painterResource(id = R.drawable.ic_notif_star),
-            contentDescription = stringResource(R.string.notification_star_icon),
+            contentDescription = stringResource(R.string.a11y_notification_star_icon),
             tint = Color.Unspecified,
             modifier = Modifier.padding(end = 12.dp)
         )
