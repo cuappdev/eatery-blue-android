@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 
@@ -85,7 +87,7 @@ fun FilterButton(
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Icon(
                 Icons.Default.ExpandMore,
-                contentDescription = "Expand filters",
+                contentDescription = stringResource(R.string.expand_filters),
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
         }

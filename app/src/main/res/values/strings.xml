@@ -98,6 +98,7 @@
 
     <string name="no_eatery_found">No eatery found…</string>
     <string name="reset_filters">Reset filters</string>
+    <string name="expand_filters">Expand filters</string>
     <string name="change_date">Change date</string>
     <string name="back">Back</string>
     <string name="search">Search</string>
