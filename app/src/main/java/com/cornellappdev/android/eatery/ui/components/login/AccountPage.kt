@@ -362,7 +362,7 @@ private fun AccountPageHeader(
                         Icon(
                             modifier = Modifier.size(28.dp),
                             imageVector = Icons.Outlined.Settings,
-                            contentDescription = Icons.Outlined.Settings.name,
+                            contentDescription = stringResource(R.string.a11y_settings),
                             tint = Color.White
                         )
                     }
@@ -383,7 +383,7 @@ private fun AccountPageHeader(
                         Icon(
                             modifier = Modifier.size(28.dp),
                             imageVector = Icons.Outlined.Settings,
-                            contentDescription = Icons.Outlined.Settings.name,
+                            contentDescription = stringResource(R.string.a11y_settings),
                             tint = Color.White
                         )
                     }
