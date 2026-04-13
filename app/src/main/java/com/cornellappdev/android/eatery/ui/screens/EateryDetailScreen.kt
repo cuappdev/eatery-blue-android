@@ -547,7 +547,7 @@ fun EateryDetailScreenContent(
                                         ) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.ic_android_phone),
-                                                contentDescription = stringResource(R.string.a11y_phone_order_online)
+                                                contentDescription = null
                                             )
                                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                             Text(
@@ -601,7 +601,7 @@ fun EateryDetailScreenContent(
                                     ) {
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_walk),
-                                            contentDescription = stringResource(R.string.a11y_walk_get_directions)
+                                            contentDescription = null
                                         )
                                         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                         Text(
@@ -936,7 +936,7 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
                 .widthIn(0.dp, 280.dp)
                 .align(Alignment.Center),
             textAlign = TextAlign.Center,
-            text = eatery.name ?: "Loading...",
+            text = eatery.name ?: stringResource(R.string.loading),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = Color.Black,

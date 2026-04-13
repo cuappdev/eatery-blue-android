@@ -148,8 +148,6 @@
     <string name="make_eatery_better">Make Eatery Better</string>
     <string name="make_eatery_better_description">Help us make this info more accurate by letting us know what’s wrong.</string>
     <string name="a11y_eatery_image">Eatery Image</string>
-    <string name="a11y_phone_order_online">Phone - Order Online</string>
-    <string name="a11y_walk_get_directions">Walk - Get Directions</string>
     <string name="no_app_available_to_open_this_link">No app available to open this link.</string>
     <string name="no_maps_app_available_on_this_device">No maps app available on this device.</string>
     <string name="closed">Closed</string>
