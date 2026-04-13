@@ -39,7 +39,7 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 
 /**
- * The pop up that shows up when users want to pick a different meal as the filter in the upcoming
+ * The pop-up that shows up when users want to pick a different meal as the filter in the upcoming
  * menu screen.
  */
 @Composable

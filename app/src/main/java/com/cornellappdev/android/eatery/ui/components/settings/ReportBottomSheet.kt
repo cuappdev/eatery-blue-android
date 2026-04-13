@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.settings
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,13 +64,13 @@ import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
 import com.cornellappdev.android.eatery.util.EateryPreview
 
-enum class Issue(val option: String) {
-    ITEM("Inaccurate or missing item"),
-    PRICE("Different price than listed"),
-    HOURS("Incorrect hours"),
-    WAIT_TIMES("Inaccurate wait times"),
-    DESCRIPTION("Inaccurate description"),
-    OTHER("Other")
+enum class Issue(@param:StringRes val optionRes: Int) {
+    ITEM(R.string.report_issue_item),
+    PRICE(R.string.report_issue_price),
+    HOURS(R.string.report_issue_hours),
+    WAIT_TIMES(R.string.report_issue_wait_times),
+    DESCRIPTION(R.string.report_issue_description),
+    OTHER(R.string.report_issue_other)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -89,6 +90,8 @@ fun ReportBottomSheet(
     val isSending = reportState is ReportUiState.Sending
     val issueSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val issueEntries = Issue.entries.toTypedArray()
+    val selectedIssueLabel =
+        stringResource(selectedIssue?.optionRes ?: R.string.report_choose_option)
 
     LaunchedEffect(reportState) {
         if (reportState is ReportUiState.Success) {
@@ -186,8 +189,7 @@ fun ReportBottomSheet(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = selectedIssue?.option
-                            ?: stringResource(R.string.report_choose_option),
+                        text = selectedIssueLabel,
                         style = EateryBlueTypography.h6,
                         color = if (selectedIssue == null) GrayFive else Color.Black
                     )
@@ -268,7 +270,7 @@ fun ReportBottomSheet(
                     if (isSending || selectedIssue == null) return@Button
 
                     focusManager.clearFocus()
-                    sendReport(selectedIssue.option, textEntry.trim(), eateryId)
+                    sendReport(selectedIssueLabel, textEntry.trim(), eateryId)
                 },
                 enabled = textEntry.isNotBlank() && selectedIssue != null && !isSending,
                 colors = ButtonDefaults.buttonColors(
@@ -308,7 +310,7 @@ private fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hid
     ) {
         items.forEachIndexed { index, issue ->
             SettingsOption(
-                title = issue.option,
+                title = stringResource(issue.optionRes),
                 onClick = {
                     setIssue(issue)
                     hide()
