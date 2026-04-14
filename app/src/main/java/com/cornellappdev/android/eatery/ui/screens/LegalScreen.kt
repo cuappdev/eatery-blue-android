@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.ui.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material3.Icon
@@ -27,7 +28,8 @@ fun LegalScreen() {
     val uriCurrent = LocalUriHandler.current
     Column(
         modifier = Modifier
-            .padding(top = 36.dp, start = 16.dp, end = 16.dp)
+            .padding(start = 16.dp, end = 16.dp)
+            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
         Text(
