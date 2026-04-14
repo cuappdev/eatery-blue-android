@@ -94,6 +94,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.LocationHandler
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.valentinilk.shimmer.ShimmerBounds
@@ -500,6 +501,36 @@ fun ErrorContent(onTryAgain: () -> Unit) {
 @Composable
 private fun PreviewErrorContent() = EateryPreview {
     ErrorContent(onTryAgain = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PreviewRegularContent() = EateryPreview {
+    val eateries = listOf(
+        PreviewData.mockEatery(1).copy(name = "Okenshields"),
+        PreviewData.mockEatery(2).copy(name = "Becker House Dining Room"),
+        PreviewData.mockEatery(3).copy(name = "Morrison Dining")
+    )
+    val favorites = listOf(eateries.first())
+
+    LazyColumn(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)) {
+        regularContent(
+            eateriesApiResponse = EateryApiResponse.Success(eateries),
+            selectedFilters = emptyList(),
+            favorites = favorites,
+            onFavoriteClick = { _, _ -> },
+            onEateryClick = {},
+            onResetFilters = {},
+            lastFavorite = favorites.firstOrNull(),
+            onFavoriteExpand = {},
+            isGridView = false,
+            onListClick = {},
+            onGridClick = {},
+            nearestEateries = eateries
+        )
+    }
 }
 
 private fun LazyListScope.regularContent(
