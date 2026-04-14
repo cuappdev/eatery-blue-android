@@ -86,7 +86,7 @@ private fun ProfileScreenContent(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Profile - Login", showBackground = true)
 @Composable
 private fun ProfileScreenLoginPreview() = EateryPreview {
     ProfileScreenContent(
@@ -106,7 +106,7 @@ private fun ProfileScreenLoginPreview() = EateryPreview {
     )
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Profile - Account", showBackground = true)
 @Composable
 private fun ProfileScreenAccountPreview() = EateryPreview {
     ProfileScreenContent(

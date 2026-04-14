@@ -246,7 +246,7 @@ private fun CompareMenusScreenContent(
                 events,
                 onOpenSheet = openBottomSheet,
                 onRequestRatingPopup = onRequestRatingPopup,
-                onEateryClick
+                onEateryClick = onEateryClick
             )
             TitlePager(eateries, secondPagerState)
         }

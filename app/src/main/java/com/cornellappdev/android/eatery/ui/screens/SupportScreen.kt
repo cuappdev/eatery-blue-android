@@ -79,19 +79,26 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
         clearReportState = supportViewModel::clearReportState,
         sendReport = supportViewModel::sendReport,
         onSendSupportEmail = {
-            val email = Intent(Intent.ACTION_SENDTO)
-            email.data =
-                "mailto:team@cornellappdev.com?subject=${Uri.encode(reportingIssueSubject)}".toUri()
+            val email = createMailToIntent(
+                recipient = "team@cornellappdev.com",
+                subject = reportingIssueSubject
+            )
             context.startActivity(Intent.createChooser(email, emailChooserTitle))
         },
         onSendOrderFoodEmail = {
-            val email = Intent(Intent.ACTION_SENDTO)
-            email.data =
-                "mailto:dining@cornell.edu?subject=${Uri.encode(orderFoodSubject)}".toUri()
+            val email = createMailToIntent(
+                recipient = "dining@cornell.edu",
+                subject = orderFoodSubject
+            )
             context.startActivity(Intent.createChooser(email, emailChooserTitle))
         }
     )
 }
+
+private fun createMailToIntent(recipient: String, subject: String): Intent =
+    Intent(Intent.ACTION_SENDTO).apply {
+        data = "mailto:$recipient?subject=${Uri.encode(subject)}".toUri()
+    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,130 +148,130 @@ private fun SupportScreenContent(
         }
     }
 
-            Column(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
-                    .fillMaxSize()
-                    .then(Modifier.statusBarsPadding())
-            ) {
-                Text(
-                    text = stringResource(R.string.support_title),
-                    color = EateryBlue,
-                    style = EateryBlueTypography.h2,
-                    modifier = Modifier.padding(top = 7.dp)
-                )
-                Text(
-                    text = stringResource(R.string.support_description),
-                    style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-                    color = GraySix,
-                    modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
-                )
+    Column(
+        modifier = Modifier
+            .padding(start = 16.dp, end = 16.dp)
+            .fillMaxSize()
+            .then(Modifier.statusBarsPadding())
+    ) {
+        Text(
+            text = stringResource(R.string.support_title),
+            color = EateryBlue,
+            style = EateryBlueTypography.h2,
+            modifier = Modifier.padding(top = 7.dp)
+        )
+        Text(
+            text = stringResource(R.string.support_description),
+            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
+            color = GraySix,
+            modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
+        )
 
-                Text(
-                    text = stringResource(R.string.support_make_eatery_better),
-                    color = Color.Black,
-                    style = EateryBlueTypography.h4,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                Text(
-                    text = stringResource(R.string.support_make_eatery_better_description),
-                    color = GrayFive,
-                    style = EateryBlueTypography.subtitle2,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                Button(
-                    shape = RoundedCornerShape(24.dp),
-                    modifier = Modifier
-                        .height(48.dp)
-                        .fillMaxWidth(),
-                    onClick = {
-                        issue = null
-                        showReportSheet = true
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = EateryBlue,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+        Text(
+            text = stringResource(R.string.support_make_eatery_better),
+            color = Color.Black,
+            style = EateryBlueTypography.h4,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        Text(
+            text = stringResource(R.string.support_make_eatery_better_description),
+            color = GrayFive,
+            style = EateryBlueTypography.subtitle2,
+            modifier = Modifier.padding(bottom = 12.dp)
+        )
+        Button(
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .height(48.dp)
+                .fillMaxWidth(),
+            onClick = {
+                issue = null
+                showReportSheet = true
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = EateryBlue,
+                contentColor = Color.White
+            )
+        ) {
+            Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+            Text(
+                text = stringResource(R.string.report_an_issue),
+                style = EateryBlueTypography.h5,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+
+        TextButton(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
+            onSendSupportEmail()
+        }) {
+            Text(
+                text = stringResource(R.string.support_email_us),
+                style = EateryBlueTypography.button,
+                color = EateryBlue
+            )
+            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+            Icon(
+                Icons.Outlined.ArrowOutward,
+                null,
+                tint = EateryBlue
+            )
+        }
+
+        Text(
+            text = stringResource(R.string.support_faqs_heading),
+            style = EateryBlueTypography.h4,
+            color = Color.Black,
+            modifier = Modifier.padding(top = 20.dp)
+        )
+        FAQCreation(
+            title = stringResource(R.string.support_faq_wrong_menus_title),
+            dropdownText = stringResource(id = R.string.wrong_empty_menus),
+            action = {
+                ReportButton()
+            }
+        ) {
+            issue = Issue.ITEM
+            showReportSheet = true
+        }
+
+        FAQCreation(
+            title = stringResource(R.string.support_faq_closed_hours_title),
+            dropdownText = stringResource(id = R.string.eatery_closed_when_open),
+            action = {
+                ReportButton()
+            }
+        ) {
+            issue = Issue.HOURS
+            showReportSheet = true
+        }
+
+        FAQCreation(
+            title = stringResource(R.string.support_faq_wait_times_title),
+            dropdownText = stringResource(id = R.string.wait_time_longer),
+            action = {
+                ReportButton()
+            }
+        ) {
+            issue = Issue.WAIT_TIMES
+            showReportSheet = true
+        }
+
+        FAQCreation(
+            title = stringResource(R.string.support_faq_order_title),
+            dropdownText = stringResource(id = R.string.order_on_eatery),
+            action = {
+                Row {
                     Text(
-                        text = stringResource(R.string.report_an_issue),
-                        style = EateryBlueTypography.h5,
-                        modifier = Modifier.padding(start = 8.dp)
+                        text = stringResource(R.string.support_faq_order_email_prompt),
+                        style = EateryBlueTypography.subtitle2,
+                        color = EateryBlue,
                     )
-                }
-
-                TextButton(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
-                    onSendSupportEmail()
-                }) {
-                    Text(
-                        text = stringResource(R.string.support_email_us),
-                        style = EateryBlueTypography.button,
-                        color = EateryBlue
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Icon(
-                        Icons.Outlined.ArrowOutward,
-                        null,
-                        tint = EateryBlue
-                    )
-                }
-
-                Text(
-                    text = stringResource(R.string.support_faqs_heading),
-                    style = EateryBlueTypography.h4,
-                    color = Color.Black,
-                    modifier = Modifier.padding(top = 20.dp)
-                )
-                FAQCreation(
-                    title = stringResource(R.string.support_faq_wrong_menus_title),
-                    dropdownText = stringResource(id = R.string.wrong_empty_menus),
-                    action = {
-                        ReportButton()
-                    }
-                ) {
-                    issue = Issue.ITEM
-                    showReportSheet = true
-                }
-
-                FAQCreation(
-                    title = stringResource(R.string.support_faq_closed_hours_title),
-                    dropdownText = stringResource(id = R.string.eatery_closed_when_open),
-                    action = {
-                        ReportButton()
-                    }
-                ) {
-                    issue = Issue.HOURS
-                    showReportSheet = true
-                }
-
-                FAQCreation(
-                    title = stringResource(R.string.support_faq_wait_times_title),
-                    dropdownText = stringResource(id = R.string.wait_time_longer),
-                    action = {
-                        ReportButton()
-                    }
-                ) {
-                    issue = Issue.WAIT_TIMES
-                    showReportSheet = true
-                }
-
-                FAQCreation(
-                    title = stringResource(R.string.support_faq_order_title),
-                    dropdownText = stringResource(id = R.string.order_on_eatery),
-                    action = {
-                        Row {
-                            Text(
-                                text = stringResource(R.string.support_faq_order_email_prompt),
-                                style = EateryBlueTypography.subtitle2,
-                                color = EateryBlue,
-                            )
-                        }
-                    }
-                ) {
-                    onSendOrderFoodEmail()
                 }
             }
+        ) {
+            onSendOrderFoodEmail()
+        }
+    }
 }
 
 @Composable
