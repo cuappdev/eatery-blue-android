@@ -58,6 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -77,6 +78,11 @@ import com.cornellappdev.android.eatery.ui.theme.Green
 import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
+import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
+import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
@@ -88,6 +94,7 @@ import java.math.BigDecimal
 fun CompareMenusScreen(
     eateryIds: List<Int>,
     compareMenusViewModel: CompareMenusViewModel = hiltViewModel(),
+    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onEateryClick: (eatery: Eatery) -> Unit,
 ) {
     val eateryIdsKey = remember(eateryIds) { eateryIds.hashCode() }
@@ -97,8 +104,32 @@ fun CompareMenusScreen(
 
     val uiState by compareMenusViewModel.uiState.collectAsStateWithLifecycle()
     val reportState by compareMenusViewModel.reportState.collectAsStateWithLifecycle()
-    val eateries = uiState.eateries
-    val events = uiState.events
+
+    CompareMenusScreenContent(
+        eateries = uiState.eateries,
+        events = uiState.events,
+        reportState = reportState,
+        onSendReport = compareMenusViewModel::sendReport,
+        onClearReportState = compareMenusViewModel::clearReportState,
+        onRequestRatingPopup = { appStorePopupRepository.requestRatingPopup() },
+        onEateryClick = onEateryClick,
+    )
+}
+
+@OptIn(
+    ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class,
+)
+@Composable
+private fun CompareMenusScreenContent(
+    eateries: List<Eatery>,
+    events: List<Event?>,
+    reportState: ReportUiState,
+    onSendReport: (String, String, Int?) -> Unit,
+    onClearReportState: () -> Unit,
+    onRequestRatingPopup: () -> Unit,
+    onEateryClick: (Eatery) -> Unit,
+) {
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
@@ -108,7 +139,7 @@ fun CompareMenusScreen(
         coroutineScope.launch {
             modalBottomSheetState.hide()
             showBottomSheet = false
-            compareMenusViewModel.clearReportState()
+            onClearReportState()
         }
     }
     val openBottomSheet: (BottomSheetContent) -> Unit = { content ->
@@ -196,8 +227,8 @@ fun CompareMenusScreen(
                                 issue = issue,
                                 eateryId = it,
                                 reportState = reportState,
-                                sendReport = compareMenusViewModel::sendReport,
-                                clearReportState = compareMenusViewModel::clearReportState,
+                                sendReport = onSendReport,
+                                clearReportState = onClearReportState,
                                 hide = closeBottomSheet
                             )
                         }
@@ -214,6 +245,7 @@ fun CompareMenusScreen(
                 firstPagerState,
                 events,
                 onOpenSheet = openBottomSheet,
+                onRequestRatingPopup = onRequestRatingPopup,
                 onEateryClick
             )
             TitlePager(eateries, secondPagerState)
@@ -223,6 +255,23 @@ fun CompareMenusScreen(
 
 
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun CompareMenusScreenPreview() = EateryPreview {
+    val previewState = PreviewData.compareMenusPreviewState()
+
+    CompareMenusScreenContent(
+        eateries = previewState.eateries,
+        events = previewState.events,
+        reportState = ReportUiState.Idle,
+        onSendReport = { _, _, _ -> },
+        onClearReportState = {},
+        onRequestRatingPopup = {},
+        onEateryClick = {}
+    )
+}
+
 
 @Composable
 @OptIn(
@@ -234,6 +283,7 @@ private fun MenuPager(
     firstPagerState: PagerState,
     events: List<Event?>,
     onOpenSheet: (BottomSheetContent) -> Unit,
+    onRequestRatingPopup: () -> Unit,
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -328,6 +378,7 @@ private fun MenuPager(
                     fullMenuList,
                     listState,
                     0,
+                    onRequestRatingPopup = onRequestRatingPopup,
                     onItemClick = { index ->
                         coroutineScope.launch {
                             listState.animateScrollToItem(index)

@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
@@ -45,6 +46,7 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.SettingsViewModel
+import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +54,22 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(
     settingsViewModel: SettingsViewModel = hiltViewModel(),
     destinations: HashMap<Routes, () -> Unit>
+) {
+    SettingsScreenContent(
+        destinations = destinations,
+        onLogout = {
+            settingsViewModel.onLogout(onDone = {
+                destinations[Routes.PROFILE]?.invoke()
+            })
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingsScreenContent(
+    destinations: Map<Routes, () -> Unit>,
+    onLogout: () -> Unit,
 ) {
     // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false
     val coroutineScope = rememberCoroutineScope()
@@ -263,9 +281,7 @@ fun SettingsScreen(
                 ) {
                     Button(
                         onClick = {
-                            settingsViewModel.onLogout(onDone = {
-                                destinations[Routes.PROFILE]?.invoke()
-                            })
+                            onLogout()
                         },
                         shape = RoundedCornerShape(25.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -286,3 +302,24 @@ fun SettingsScreen(
                 }
     }
 }
+
+private fun previewDestinations(): Map<Routes, () -> Unit> = hashMapOf(
+    Routes.ABOUT to {},
+    Routes.FAVORITES to {},
+    Routes.NOTIFICATIONS_SETTING to {},
+    Routes.NOTIFICATIONS_HOME to {},
+    Routes.LEGAL to {},
+    Routes.PRIVACY to {},
+    Routes.SUPPORT to {},
+    Routes.PROFILE to {}
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsScreenPreview() = EateryPreview {
+    SettingsScreenContent(
+        destinations = previewDestinations(),
+        onLogout = {}
+    )
+}
+

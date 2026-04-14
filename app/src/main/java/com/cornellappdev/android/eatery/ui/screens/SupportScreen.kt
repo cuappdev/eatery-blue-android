@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -60,17 +61,48 @@ import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GraySix
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.SupportViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
+import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val reportingIssueSubject = stringResource(R.string.support_reporting_issue_subject)
     val orderFoodSubject = stringResource(R.string.support_order_food_subject)
     val emailChooserTitle = stringResource(R.string.support_email_chooser_title)
     val reportState by supportViewModel.reportState.collectAsStateWithLifecycle()
+
+    SupportScreenContent(
+        reportState = reportState,
+        clearReportState = supportViewModel::clearReportState,
+        sendReport = supportViewModel::sendReport,
+        onSendSupportEmail = {
+            val email = Intent(Intent.ACTION_SENDTO)
+            email.data =
+                "mailto:team@cornellappdev.com?subject=${Uri.encode(reportingIssueSubject)}".toUri()
+            context.startActivity(Intent.createChooser(email, emailChooserTitle))
+        },
+        onSendOrderFoodEmail = {
+            val email = Intent(Intent.ACTION_SENDTO)
+            email.data =
+                "mailto:dining@cornell.edu?subject=${Uri.encode(orderFoodSubject)}".toUri()
+            context.startActivity(Intent.createChooser(email, emailChooserTitle))
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SupportScreenContent(
+    reportState: ReportUiState,
+    clearReportState: () -> Unit,
+    sendReport: (String, String) -> Unit,
+    onSendSupportEmail: () -> Unit,
+    onSendOrderFoodEmail: () -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
@@ -80,7 +112,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
     if (showReportSheet) {
         ModalBottomSheet(
             onDismissRequest = {
-                supportViewModel.clearReportState()
+                clearReportState()
                 showReportSheet = false
             },
             sheetState = modalBottomSheetState,
@@ -96,9 +128,9 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 eateryId = null,
                 reportState = reportState,
                 sendReport = { issue, report, _ ->
-                    supportViewModel.sendReport(issue, report)
+                    sendReport(issue, report)
                 },
-                clearReportState = supportViewModel::clearReportState,
+                clearReportState = clearReportState,
             ) {
                 coroutineScope.launch {
                     modalBottomSheetState.hide()
@@ -163,10 +195,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 }
 
                 TextButton(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
-                    val email = Intent(Intent.ACTION_SENDTO)
-                    email.data =
-                        "mailto:team@cornellappdev.com?subject=${Uri.encode(reportingIssueSubject)}".toUri()
-                    context.startActivity(Intent.createChooser(email, emailChooserTitle))
+                    onSendSupportEmail()
                 }) {
                     Text(
                         text = stringResource(R.string.support_email_us),
@@ -233,11 +262,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                         }
                     }
                 ) {
-                    val email = Intent(Intent.ACTION_SENDTO)
-                    email.data =
-                        "mailto:dining@cornell.edu?subject=${Uri.encode(orderFoodSubject)}".toUri()
-
-                    context.startActivity(Intent.createChooser(email, emailChooserTitle))
+                    onSendOrderFoodEmail()
                 }
             }
 }
@@ -324,3 +349,16 @@ fun FAQCreation(
     }
     SettingsLineSeparator()
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun SupportScreenPreview() = EateryPreview {
+    SupportScreenContent(
+        reportState = ReportUiState.Idle,
+        clearReportState = {},
+        sendReport = { _, _ -> },
+        onSendSupportEmail = {},
+        onSendOrderFoodEmail = {}
+    )
+}
+

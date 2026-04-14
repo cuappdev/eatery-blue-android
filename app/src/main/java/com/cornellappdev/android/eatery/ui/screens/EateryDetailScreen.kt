@@ -122,8 +122,10 @@ import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.MealViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
+import com.cornellappdev.android.eatery.util.AppStorePopupRepository
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
+import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
 import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import com.cornellappdev.android.eatery.util.toReadableFullName
@@ -137,6 +139,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
+    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
 ) {
     val viewState = eateryDetailViewModel.eateryDetailViewState.collectAsStateWithLifecycle().value
@@ -162,6 +165,7 @@ fun EateryDetailScreen(
         onResetSelectedEvent = eateryDetailViewModel::resetSelectedEvent,
         onSearchQueryChange = eateryDetailViewModel::setSearchQuery,
         onToggleFavoriteMenuItem = eateryDetailViewModel::toggleFavoriteMenuItem,
+        onRequestRatingPopup = { appStorePopupRepository.requestRatingPopup() }
     )
 }
 
@@ -180,6 +184,7 @@ fun EateryDetailScreenContent(
     onResetSelectedEvent: () -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onToggleFavoriteMenuItem: (String) -> Unit,
+    onRequestRatingPopup: () -> Unit = {},
 ) {
     val shimmer = rememberShimmer(ShimmerBounds.View)
     val context = LocalContext.current
@@ -856,6 +861,7 @@ fun EateryDetailScreenContent(
                                     fullMenuList,
                                     listState,
                                     5,
+                                    onRequestRatingPopup = onRequestRatingPopup,
                                     onItemClick = { index ->
                                         // The first category title has an item index of 8
                                         // ideal is listState.animateScrollToItem(index + 8, scrollOffset = -400)

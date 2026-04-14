@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -28,6 +29,7 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GraySix
 import com.cornellappdev.android.eatery.ui.viewmodels.PrivacyViewModel
+import com.cornellappdev.android.eatery.util.EateryPreview
 import com.google.firebase.analytics.FirebaseAnalytics
 
 @Composable
@@ -35,6 +37,40 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val uriCurrent = LocalUriHandler.current
 
+    PrivacyScreenContent(
+        analyticsDisabled = privacyViewModel.analyticsDisabled,
+        onOpenLocationSettings = {
+            context.startActivity(
+                Intent(
+                    android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", context.packageName, null)
+                )
+            )
+        },
+        onOpenNotificationSettings = {
+            val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra("app_package", context.packageName)
+            intent.putExtra("app_uid", context.applicationInfo.uid)
+            intent.putExtra("android.provider.extra.APP_PACKAGE", context.packageName)
+            context.startActivity(intent)
+        },
+        onAnalyticsPreferenceChange = { switched ->
+            privacyViewModel.setAnalyticsDisabled(switched)
+            FirebaseAnalytics.getInstance(context).setAnalyticsCollectionEnabled(!switched)
+        },
+        onOpenPrivacyPolicy = { uriCurrent.openUri("https://www.cornellappdev.com/privacy") }
+    )
+}
+
+@Composable
+private fun PrivacyScreenContent(
+    analyticsDisabled: Boolean,
+    onOpenLocationSettings: () -> Unit,
+    onOpenNotificationSettings: () -> Unit,
+    onAnalyticsPreferenceChange: (Boolean) -> Unit,
+    onOpenPrivacyPolicy: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .padding(top = 36.dp, start = 16.dp, end = 16.dp)
@@ -60,14 +96,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
         SettingsOption(
             title = stringResource(R.string.privacy_location_access_title),
             description = stringResource(R.string.privacy_location_access_description),
-            onClick = {
-                context.startActivity(
-                    Intent(
-                        android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.fromParts("package", context.packageName, null)
-                    )
-                )
-            },
+            onClick = onOpenLocationSettings,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
@@ -79,16 +108,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
         SettingsOption(
             title = stringResource(R.string.privacy_notification_access_title),
             description = stringResource(R.string.privacy_notification_access_description),
-            onClick = {
-                val intent = Intent(android.provider.Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-                intent.putExtra("app_package", context.packageName)
-                intent.putExtra("app_uid", context.applicationInfo.uid)
-                intent.putExtra("android.provider.extra.APP_PACKAGE", context.packageName)
-
-                context.startActivity(intent)
-            },
+            onClick = onOpenNotificationSettings,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
@@ -107,17 +127,14 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
         SwitchOption(
             title = stringResource(R.string.privacy_share_with_cornell_appdev_title),
             description = stringResource(R.string.privacy_share_with_cornell_appdev_description),
-            initialValue = !privacyViewModel.analyticsDisabled,
-            onCheckedChange = { switched ->
-                privacyViewModel.setAnalyticsDisabled(switched)
-                FirebaseAnalytics.getInstance(context).setAnalyticsCollectionEnabled(!switched)
-            }
+            initialValue = !analyticsDisabled,
+            onCheckedChange = onAnalyticsPreferenceChange
         )
         SettingsLineSeparator()
 
         SettingsOption(
             title = stringResource(R.string.privacy_policy_title),
-            onClick = { uriCurrent.openUri("https://www.cornellappdev.com/privacy") },
+            onClick = onOpenPrivacyPolicy,
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
@@ -128,3 +145,16 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun PrivacyScreenPreview() = EateryPreview {
+    PrivacyScreenContent(
+        analyticsDisabled = false,
+        onOpenLocationSettings = {},
+        onOpenNotificationSettings = {},
+        onAnalyticsPreferenceChange = {},
+        onOpenPrivacyPolicy = {}
+    )
+}
+

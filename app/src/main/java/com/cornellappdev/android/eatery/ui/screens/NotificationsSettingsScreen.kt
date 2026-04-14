@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
@@ -18,6 +19,7 @@ import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
 fun NotificationsSettingsScreen() {
@@ -81,4 +83,10 @@ fun NotificationsSettingsScreen() {
             }
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NotificationsSettingsScreenPreview() = EateryPreview {
+    NotificationsSettingsScreen()
 }

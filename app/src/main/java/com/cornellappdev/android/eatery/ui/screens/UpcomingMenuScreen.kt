@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -53,9 +54,12 @@ import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingIt
 import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingItem.Companion.CreateUpcomingLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingMenusViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -74,11 +78,41 @@ fun UpcomingMenuScreen(
     appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
     onEateryClick: (Int) -> Unit,
 ) {
+    val viewState = upcomingViewModel.viewStateFlow.collectAsStateWithLifecycle().value
+
+    UpcomingMenuScreenContent(
+        viewState = viewState,
+        upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+        onMealFilterChanged = upcomingViewModel::onMealFilterChanged,
+        onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+        onResetFiltersClicked = upcomingViewModel::onResetFiltersClicked,
+        onSelectDayOffset = upcomingViewModel::selectDayOffset,
+        onPingEateries = upcomingViewModel::pingEateries,
+        onEateryClick = onEateryClick,
+        onEateryCardContract = { appStorePopupRepository.requestRatingPopup() },
+    )
+}
+
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
+    ExperimentalAnimationApi::class
+)
+@Composable
+private fun UpcomingMenuScreenContent(
+    viewState: UpcomingMenusViewState,
+    upcomingMenuFilters: List<Filter>,
+    onMealFilterChanged: (MealFilter) -> Unit,
+    onToggleFilterClicked: (Filter) -> Unit,
+    onResetFiltersClicked: () -> Unit,
+    onSelectDayOffset: (Int) -> Unit,
+    onPingEateries: () -> Unit,
+    onEateryClick: (Int) -> Unit,
+    onEateryCardContract: () -> Unit,
+) {
     val modalBottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
     var showMealBottomSheet by rememberSaveable { mutableStateOf(false) }
-    val viewState = upcomingViewModel.viewStateFlow.collectAsStateWithLifecycle().value
     val coroutineScope = rememberCoroutineScope()
     val shimmer = rememberShimmer(ShimmerBounds.View)
 
@@ -97,7 +131,7 @@ fun UpcomingMenuScreen(
                 MealBottomSheet(
                     isVisible = modalBottomSheetState.isVisible,
                     selectedMeal = viewState.mealFilter,
-                    onSubmit = upcomingViewModel::onMealFilterChanged,
+                    onSubmit = onMealFilterChanged,
                     hide = {
                         coroutineScope.launch {
                             modalBottomSheetState.hide()
@@ -119,12 +153,12 @@ fun UpcomingMenuScreen(
                     innerListState = innerListState,
                     isFirstVisible = isFirstVisible,
                     selectedDay = viewState.selectedDay,
-                    selectDayOffset = upcomingViewModel::selectDayOffset,
+                    selectDayOffset = onSelectDayOffset,
                     showModalBottomSheet = { showMealBottomSheet = true },
                     mealFilter = viewState.mealFilter,
-                    upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                    upcomingMenuFilters = upcomingMenuFilters,
                     selectedFilters = viewState.selectedFilters,
-                    onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                    onToggleFilterClicked = onToggleFilterClicked,
                     filterRowState = filterRowState
                 ) {
                     if (menus.data.isEmpty()) {
@@ -138,7 +172,7 @@ fun UpcomingMenuScreen(
                                     modifier = Modifier.align(
                                         Alignment.Center
                                     ),
-                                    resetFilters = upcomingViewModel::onResetFiltersClicked
+                                    resetFilters = onResetFiltersClicked
                                 )
                             }
                             Spacer(modifier = Modifier.height(12.dp))
@@ -158,9 +192,7 @@ fun UpcomingMenuScreen(
                                     selectEatery = {
                                         onEateryClick(eatery.eateryId)
                                     },
-                                    onEateryCardContract = {
-                                        appStorePopupRepository.requestRatingPopup()
-                                    }
+                                    onEateryCardContract = onEateryCardContract
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
@@ -174,12 +206,12 @@ fun UpcomingMenuScreen(
                     innerListState = innerListState,
                     isFirstVisible = isFirstVisible,
                     selectedDay = viewState.selectedDay,
-                    selectDayOffset = upcomingViewModel::selectDayOffset,
+                    selectDayOffset = onSelectDayOffset,
                     showModalBottomSheet = { showMealBottomSheet = true },
                     mealFilter = viewState.mealFilter,
-                    upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                    upcomingMenuFilters = upcomingMenuFilters,
                     selectedFilters = viewState.selectedFilters,
-                    onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                    onToggleFilterClicked = onToggleFilterClicked,
                     filterRowState = filterRowState
                 ) {
                     items(UpcomingLoadingItem.upcomingItems) { item ->
@@ -196,27 +228,79 @@ fun UpcomingMenuScreen(
                     UpcomingMenuHeader(isFirstVisible)
                     CalendarWeekSelector(
                         selectedDay = viewState.selectedDay,
-                        selectDayOffset = upcomingViewModel::selectDayOffset
+                        selectDayOffset = onSelectDayOffset
                     )
                     UpcomingFilterRow(
                         showModalBottomSheet = { showMealBottomSheet = true },
                         mealFilter = viewState.mealFilter,
-                        upcomingMenuFilters = upcomingViewModel.upcomingMenuFilters,
+                        upcomingMenuFilters = upcomingMenuFilters,
                         selectedFilters = viewState.selectedFilters,
-                        onToggleFilterClicked = upcomingViewModel::onToggleFilterClicked,
+                        onToggleFilterClicked = onToggleFilterClicked,
                         filterRowState = filterRowState
                     )
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        ErrorContent(onTryAgain = upcomingViewModel::pingEateries)
+                        ErrorContent(onTryAgain = onPingEateries)
                     }
                 }
             }
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun UpcomingMenuScreenPreview() = EateryPreview {
+    val previewState = PreviewData.upcomingMenuPreviewState()
+    UpcomingMenuScreenContent(
+        viewState = previewState.viewState,
+        upcomingMenuFilters = previewState.upcomingMenuFilters,
+        onMealFilterChanged = {},
+        onToggleFilterClicked = {},
+        onResetFiltersClicked = {},
+        onSelectDayOffset = {},
+        onPingEateries = {},
+        onEateryClick = {},
+        onEateryCardContract = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun UpcomingMenuScreenEmptyPreview() = EateryPreview {
+    val previewState = PreviewData.upcomingMenuEmptyPreviewState()
+    UpcomingMenuScreenContent(
+        viewState = previewState.viewState,
+        upcomingMenuFilters = previewState.upcomingMenuFilters,
+        onMealFilterChanged = {},
+        onToggleFilterClicked = {},
+        onResetFiltersClicked = {},
+        onSelectDayOffset = {},
+        onPingEateries = {},
+        onEateryClick = {},
+        onEateryCardContract = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun UpcomingMenuScreenErrorPreview() = EateryPreview {
+    val previewState = PreviewData.upcomingMenuErrorPreviewState()
+    UpcomingMenuScreenContent(
+        viewState = previewState.viewState,
+        upcomingMenuFilters = previewState.upcomingMenuFilters,
+        onMealFilterChanged = {},
+        onToggleFilterClicked = {},
+        onResetFiltersClicked = {},
+        onSelectDayOffset = {},
+        onPingEateries = {},
+        onEateryClick = {},
+        onEateryCardContract = {}
+    )
+}
+
 
 @Composable
 private fun UpcomingMenuShell(

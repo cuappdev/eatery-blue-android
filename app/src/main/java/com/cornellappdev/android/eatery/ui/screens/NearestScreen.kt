@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -33,6 +34,8 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayTwo
 import com.cornellappdev.android.eatery.ui.viewmodels.NearestViewModel
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 
@@ -46,6 +49,24 @@ fun NearestScreen(
 ) {
     rememberShimmer(ShimmerBounds.View)
     val uiState = nearestViewModel.uiState.collectAsStateWithLifecycle().value
+
+    NearestScreenContent(
+        uiState = uiState,
+        onEateryClick = onEateryClick,
+        onFavoriteClick = { eatery, isFavorite ->
+            if (eatery.id != null && eatery.name != null) {
+                nearestViewModel.setFavorite(eatery.id, eatery.name, isFavorite)
+            }
+        }
+    )
+}
+
+@Composable
+private fun NearestScreenContent(
+    uiState: NearestViewModel.NearestUiState,
+    onEateryClick: (Eatery) -> Unit,
+    onFavoriteClick: (Eatery, Boolean) -> Unit,
+) {
     val nearestEateries = uiState.nearestEateries
     val favorites = uiState.favoriteEateries
 
@@ -109,9 +130,7 @@ fun NearestScreen(
                         eatery = eatery,
                         isFavorite = favorites.contains(eatery),
                         onFavoriteClick = {
-                            if (eatery.id != null && eatery.name != null) {
-                                nearestViewModel.setFavorite(eatery.id, eatery.name, it)
-                            }
+                            onFavoriteClick(eatery, it)
                         }) {
                         onEateryClick(it)
                     }
@@ -124,3 +143,31 @@ fun NearestScreen(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun NearestScreenPreview() = EateryPreview {
+    val eateries = listOf(
+        PreviewData.mockEatery(1).copy(name = "Okenshields"),
+        PreviewData.mockEatery(2).copy(name = "Becker House Dining Room")
+    )
+    NearestScreenContent(
+        uiState = NearestViewModel.NearestUiState(
+            nearestEateries = eateries,
+            favoriteEateries = listOf(eateries.first())
+        ),
+        onEateryClick = {},
+        onFavoriteClick = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NearestScreenEmptyPreview() = EateryPreview {
+    NearestScreenContent(
+        uiState = NearestViewModel.NearestUiState(),
+        onEateryClick = {},
+        onFavoriteClick = { _, _ -> }
+    )
+}
+
