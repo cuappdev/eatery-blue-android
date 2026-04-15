@@ -98,7 +98,7 @@ fun OnboardingCarousel(
             Box {
                 HorizontalPager(
                     modifier = Modifier
-                        .padding(top = 16.dp, start = 0.dp, end = 0.dp)
+                        .padding(top = 16.dp)
                         .zIndex(1f),
                     state = phonePagerState,
                     contentPadding = PaddingValues(horizontal = 55.dp)

@@ -38,7 +38,7 @@ fun PrivacyScreen(privacyViewModel: PrivacyViewModel = hiltViewModel()) {
 
     Column(
         modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp)
+            .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {

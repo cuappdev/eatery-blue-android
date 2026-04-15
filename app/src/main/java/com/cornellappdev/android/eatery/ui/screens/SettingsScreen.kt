@@ -85,7 +85,7 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 16.dp)
+            .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())
     ) {
                 Text(

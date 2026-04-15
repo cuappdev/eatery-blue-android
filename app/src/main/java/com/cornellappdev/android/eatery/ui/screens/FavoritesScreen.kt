@@ -106,7 +106,7 @@ private fun FavoritesScreenContent(
 
     Column(
         modifier = Modifier
-            .padding(start = 10.dp, end = 10.dp)
+            .padding(horizontal = 10.dp)
             .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
@@ -136,7 +136,7 @@ private fun FavoritesScreenContent(
             text = stringResource(R.string.favorites_title),
             color = EateryBlue,
             style = EateryBlueTypography.h2,
-            modifier = Modifier.padding(start = 6.dp, end = 6.dp)
+            modifier = Modifier.padding(horizontal = 6.dp)
         )
 
         Spacer(modifier = Modifier.height(12.dp))

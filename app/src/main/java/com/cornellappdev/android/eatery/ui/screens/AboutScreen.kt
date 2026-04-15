@@ -62,7 +62,7 @@ fun AboutScreen() {
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp)
+                .padding(horizontal = 16.dp)
                 .then(Modifier.statusBarsPadding())
                 .fillMaxWidth()
         ) {
@@ -132,7 +132,7 @@ fun AboutScreen() {
         Button(
             shape = RoundedCornerShape(24.dp),
             modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp)
+                .padding(horizontal = 16.dp)
                 .then(Modifier.navigationBarsPadding())
                 .height(48.dp)
                 .fillMaxWidth(),
@@ -321,7 +321,7 @@ fun CreditsRow(position: TeamPosition) {
                     tint = GrayOne,
                     modifier = Modifier
                         .height(7.dp)
-                        .padding(start = 12.33.dp, end = 12.33.dp)
+                        .padding(horizontal = 12.33.dp)
                         .width(7.33.dp)
                 )
             })
