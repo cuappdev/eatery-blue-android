@@ -74,7 +74,7 @@ fun PermissionRequestDialog(
             requestingPermission = false
         } else {
             Surface(
-                color = currentColors.textPrimary.copy(alpha = 0.6f),
+                color = Color.Black.copy(alpha = 0.6f),
                 modifier = Modifier.fillMaxSize()
             ) {
                 Column(

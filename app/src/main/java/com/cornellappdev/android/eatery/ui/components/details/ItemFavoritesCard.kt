@@ -56,7 +56,7 @@ fun ItemFavoritesCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .border(BorderStroke(Dp.Hairline, currentColors.backgroundDefault), RoundedCornerShape(8)),
+            .border(BorderStroke(Dp.Hairline, currentColors.backgroundDefault92), RoundedCornerShape(8)),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = currentColors.backgroundDefault

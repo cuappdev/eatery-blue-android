@@ -182,10 +182,7 @@ fun SettingsScreen(
                         title = "Favorites",
                         description = "Manage your favorite eateries and items",
                         onClick = {
-                            modalSheetType = "colorTheme"
-                            coroutineScope.launch { modalBottomSheetState.show() }
-
-
+                            destinations[Routes.FAVORITES]?.invoke()
                         }
                     )
                     SettingsLineSeparator()

@@ -81,9 +81,7 @@ fun AccountPage(
     onSettingsClicked: () -> Unit,
     getTransactionsOfType: (AccountType, String) -> List<Transaction>,
     updateAccountFilter: (AccountType) -> Unit,
-    themeViewModel: ThemeViewModel = hiltViewModel()
 ) {
-    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
     var filterText by remember { mutableStateOf("") }
     val modalBottomSheetState =
         rememberModalBottomSheetState(
