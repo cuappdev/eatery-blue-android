@@ -159,31 +159,32 @@ private fun SupportScreenContent(
             .fillMaxSize()
             .then(Modifier.statusBarsPadding())
     ) {
+        Spacer(modifier = Modifier.height(7.dp))
         Text(
             text = stringResource(R.string.support_title),
             color = EateryBlue,
             style = EateryBlueTypography.h2,
-            modifier = Modifier.padding(top = 7.dp)
         )
+        Spacer(modifier = Modifier.height(7.dp))
         Text(
             text = stringResource(R.string.support_description),
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
             color = GraySix,
-            modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
         )
+        Spacer(modifier = Modifier.height(24.dp))
 
         Text(
             text = stringResource(R.string.support_make_eatery_better),
             color = Color.Black,
             style = EateryBlueTypography.h4,
-            modifier = Modifier.padding(bottom = 12.dp)
         )
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = stringResource(R.string.support_make_eatery_better_description),
             color = GrayFive,
             style = EateryBlueTypography.subtitle2,
-            modifier = Modifier.padding(bottom = 12.dp)
         )
+        Spacer(modifier = Modifier.height(12.dp))
         Button(
             shape = RoundedCornerShape(24.dp),
             modifier = Modifier
@@ -222,11 +223,11 @@ private fun SupportScreenContent(
             )
         }
 
+        Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.support_faqs_heading),
             style = EateryBlueTypography.h4,
             color = Color.Black,
-            modifier = Modifier.padding(top = 20.dp)
         )
         FAQCreation(
             title = stringResource(R.string.support_faq_wrong_menus_title),
