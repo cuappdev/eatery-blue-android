@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.ui.screens
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,7 +21,8 @@ fun NotificationsHomeScreen(
 ) {
     Column(
         modifier = Modifier
-            .padding(top = 40.dp, start = 16.dp, end = 16.dp)
+            .padding(horizontal = 16.dp)
+            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
         Text(
