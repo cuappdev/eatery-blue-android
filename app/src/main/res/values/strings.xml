@@ -74,6 +74,9 @@
     <string name="support_email_chooser_title">Choose an Email client :</string>
     <string name="support_order_food_subject">Ordering Food on Eatery</string>
     <string name="support_reporting_issue_subject">Eatery - Reporting an Issue</string>
+    <string name="support_team_email_recipient">team@cornellappdev.com</string>
+    <string name="support_order_food_email_recipient">dining@cornell.edu</string>
+    <string name="support_mailto_template">mailto:%1$s?subject=%2$s</string>
 
     <string name="upcoming_menus_title">Upcoming Menus</string>
     <string name="menus_title">Menus</string>

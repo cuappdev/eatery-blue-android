@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -60,17 +61,60 @@ import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GraySix
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.SupportViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
+import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
-    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val supportRecipient = stringResource(R.string.support_team_email_recipient)
+    val orderFoodRecipient = stringResource(R.string.support_order_food_email_recipient)
+    val mailToTemplate = stringResource(R.string.support_mailto_template)
     val reportingIssueSubject = stringResource(R.string.support_reporting_issue_subject)
     val orderFoodSubject = stringResource(R.string.support_order_food_subject)
     val emailChooserTitle = stringResource(R.string.support_email_chooser_title)
     val reportState by supportViewModel.reportState.collectAsStateWithLifecycle()
+
+    SupportScreenContent(
+        reportState = reportState,
+        clearReportState = supportViewModel::clearReportState,
+        sendReport = supportViewModel::sendReport,
+        onSendSupportEmail = {
+            val email = createMailToIntent(
+                recipient = supportRecipient,
+                subject = reportingIssueSubject,
+                mailToTemplate = mailToTemplate
+            )
+            context.startActivity(Intent.createChooser(email, emailChooserTitle))
+        },
+        onSendOrderFoodEmail = {
+            val email = createMailToIntent(
+                recipient = orderFoodRecipient,
+                subject = orderFoodSubject,
+                mailToTemplate = mailToTemplate
+            )
+            context.startActivity(Intent.createChooser(email, emailChooserTitle))
+        }
+    )
+}
+
+private fun createMailToIntent(recipient: String, subject: String, mailToTemplate: String): Intent =
+    Intent(Intent.ACTION_SENDTO).apply {
+        data = mailToTemplate.format(recipient, Uri.encode(subject)).toUri()
+    }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SupportScreenContent(
+    reportState: ReportUiState,
+    clearReportState: () -> Unit,
+    sendReport: (String, String) -> Unit,
+    onSendSupportEmail: () -> Unit,
+    onSendOrderFoodEmail: () -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     )
@@ -80,7 +124,7 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
     if (showReportSheet) {
         ModalBottomSheet(
             onDismissRequest = {
-                supportViewModel.clearReportState()
+                clearReportState()
                 showReportSheet = false
             },
             sheetState = modalBottomSheetState,
@@ -96,9 +140,9 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
                 eateryId = null,
                 reportState = reportState,
                 sendReport = { issue, report, _ ->
-                    supportViewModel.sendReport(issue, report)
+                    sendReport(issue, report)
                 },
-                clearReportState = supportViewModel::clearReportState,
+                clearReportState = clearReportState,
             ) {
                 coroutineScope.launch {
                     modalBottomSheetState.hide()
@@ -109,137 +153,131 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
         }
     }
 
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxSize()
-                    .then(Modifier.statusBarsPadding())
-            ) {
-                Text(
-                    text = stringResource(R.string.support_title),
-                    color = EateryBlue,
-                    style = EateryBlueTypography.h2,
-                    modifier = Modifier.padding(top = 7.dp)
-                )
-                Text(
-                    text = stringResource(R.string.support_description),
-                    style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-                    color = GraySix,
-                    modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
-                )
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxSize()
+            .then(Modifier.statusBarsPadding())
+    ) {
+        Spacer(modifier = Modifier.height(7.dp))
+        Text(
+            text = stringResource(R.string.support_title),
+            color = EateryBlue,
+            style = EateryBlueTypography.h2,
+        )
+        Spacer(modifier = Modifier.height(7.dp))
+        Text(
+            text = stringResource(R.string.support_description),
+            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
+            color = GraySix,
+        )
+        Spacer(modifier = Modifier.height(24.dp))
 
-                Text(
-                    text = stringResource(R.string.support_make_eatery_better),
-                    color = Color.Black,
-                    style = EateryBlueTypography.h4,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                Text(
-                    text = stringResource(R.string.support_make_eatery_better_description),
-                    color = GrayFive,
-                    style = EateryBlueTypography.subtitle2,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                Button(
-                    shape = RoundedCornerShape(24.dp),
-                    modifier = Modifier
-                        .height(48.dp)
-                        .fillMaxWidth(),
-                    onClick = {
-                        issue = null
-                        showReportSheet = true
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = EateryBlue,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+        Text(
+            text = stringResource(R.string.support_make_eatery_better),
+            color = Color.Black,
+            style = EateryBlueTypography.h4,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.support_make_eatery_better_description),
+            color = GrayFive,
+            style = EateryBlueTypography.subtitle2,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Button(
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .height(48.dp)
+                .fillMaxWidth(),
+            onClick = {
+                issue = null
+                showReportSheet = true
+            },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = EateryBlue,
+                contentColor = Color.White
+            )
+        ) {
+            Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+            Text(
+                text = stringResource(R.string.report_an_issue),
+                style = EateryBlueTypography.h5,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+
+        TextButton(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
+            onSendSupportEmail()
+        }) {
+            Text(
+                text = stringResource(R.string.support_email_us),
+                style = EateryBlueTypography.button,
+                color = EateryBlue
+            )
+            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+            Icon(
+                Icons.Outlined.ArrowOutward,
+                null,
+                tint = EateryBlue
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = stringResource(R.string.support_faqs_heading),
+            style = EateryBlueTypography.h4,
+            color = Color.Black,
+        )
+        FAQCreation(
+            title = stringResource(R.string.support_faq_wrong_menus_title),
+            dropdownText = stringResource(id = R.string.wrong_empty_menus),
+            action = {
+                ReportButton()
+            }
+        ) {
+            issue = Issue.ITEM
+            showReportSheet = true
+        }
+
+        FAQCreation(
+            title = stringResource(R.string.support_faq_closed_hours_title),
+            dropdownText = stringResource(id = R.string.eatery_closed_when_open),
+            action = {
+                ReportButton()
+            }
+        ) {
+            issue = Issue.HOURS
+            showReportSheet = true
+        }
+
+        FAQCreation(
+            title = stringResource(R.string.support_faq_wait_times_title),
+            dropdownText = stringResource(id = R.string.wait_time_longer),
+            action = {
+                ReportButton()
+            }
+        ) {
+            issue = Issue.WAIT_TIMES
+            showReportSheet = true
+        }
+
+        FAQCreation(
+            title = stringResource(R.string.support_faq_order_title),
+            dropdownText = stringResource(id = R.string.order_on_eatery),
+            action = {
+                Row {
                     Text(
-                        text = stringResource(R.string.report_an_issue),
-                        style = EateryBlueTypography.h5,
-                        modifier = Modifier.padding(start = 8.dp)
+                        text = stringResource(R.string.support_faq_order_email_prompt),
+                        style = EateryBlueTypography.subtitle2,
+                        color = EateryBlue,
                     )
-                }
-
-                TextButton(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
-                    val email = Intent(Intent.ACTION_SENDTO)
-                    email.data =
-                        "mailto:team@cornellappdev.com?subject=${Uri.encode(reportingIssueSubject)}".toUri()
-                    context.startActivity(Intent.createChooser(email, emailChooserTitle))
-                }) {
-                    Text(
-                        text = stringResource(R.string.support_email_us),
-                        style = EateryBlueTypography.button,
-                        color = EateryBlue
-                    )
-                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                    Icon(
-                        Icons.Outlined.ArrowOutward,
-                        null,
-                        tint = EateryBlue
-                    )
-                }
-
-                Text(
-                    text = stringResource(R.string.support_faqs_heading),
-                    style = EateryBlueTypography.h4,
-                    color = Color.Black,
-                    modifier = Modifier.padding(top = 20.dp)
-                )
-                FAQCreation(
-                    title = stringResource(R.string.support_faq_wrong_menus_title),
-                    dropdownText = stringResource(id = R.string.wrong_empty_menus),
-                    action = {
-                        ReportButton()
-                    }
-                ) {
-                    issue = Issue.ITEM
-                    showReportSheet = true
-                }
-
-                FAQCreation(
-                    title = stringResource(R.string.support_faq_closed_hours_title),
-                    dropdownText = stringResource(id = R.string.eatery_closed_when_open),
-                    action = {
-                        ReportButton()
-                    }
-                ) {
-                    issue = Issue.HOURS
-                    showReportSheet = true
-                }
-
-                FAQCreation(
-                    title = stringResource(R.string.support_faq_wait_times_title),
-                    dropdownText = stringResource(id = R.string.wait_time_longer),
-                    action = {
-                        ReportButton()
-                    }
-                ) {
-                    issue = Issue.WAIT_TIMES
-                    showReportSheet = true
-                }
-
-                FAQCreation(
-                    title = stringResource(R.string.support_faq_order_title),
-                    dropdownText = stringResource(id = R.string.order_on_eatery),
-                    action = {
-                        Row {
-                            Text(
-                                text = stringResource(R.string.support_faq_order_email_prompt),
-                                style = EateryBlueTypography.subtitle2,
-                                color = EateryBlue,
-                            )
-                        }
-                    }
-                ) {
-                    val email = Intent(Intent.ACTION_SENDTO)
-                    email.data =
-                        "mailto:dining@cornell.edu?subject=${Uri.encode(orderFoodSubject)}".toUri()
-
-                    context.startActivity(Intent.createChooser(email, emailChooserTitle))
                 }
             }
+        ) {
+            onSendOrderFoodEmail()
+        }
+    }
 }
 
 @Composable
@@ -324,3 +362,16 @@ fun FAQCreation(
     }
     SettingsLineSeparator()
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun SupportScreenPreview() = EateryPreview {
+    SupportScreenContent(
+        reportState = ReportUiState.Idle,
+        clearReportState = {},
+        sendReport = { _, _ -> },
+        onSendSupportEmail = {},
+        onSendOrderFoodEmail = {}
+    )
+}
+

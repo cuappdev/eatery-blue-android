@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.AccountBalances
@@ -11,6 +12,7 @@ import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -83,3 +85,57 @@ private fun ProfileScreenContent(
         )
     }
 }
+
+@Preview(name = "Profile - Login", showBackground = true)
+@Composable
+private fun ProfileScreenLoginPreview() = EateryPreview {
+    ProfileScreenContent(
+        isLoginState = true,
+        accountTypeBalance = AccountBalances(),
+        loading = false,
+        onLoginPressed = {},
+        onSuccess = {},
+        onBackClick = {},
+        onModalHidden = {},
+        accountFilter = TransactionAccountType.BRBS,
+        filterText = "",
+        onSettingsClicked = {},
+        filteredTransactions = emptyList(),
+        onQueryChanged = {},
+        updateAccountFilter = {}
+    )
+}
+
+@Preview(name = "Profile - Account", showBackground = true)
+@Composable
+private fun ProfileScreenAccountPreview() = EateryPreview {
+    ProfileScreenContent(
+        isLoginState = false,
+        accountTypeBalance = AccountBalances(
+            brbBalance = 120.35,
+            cityBucksBalance = 42.0,
+            laundryBalance = 8.0,
+            mealSwipes = 10
+        ),
+        loading = false,
+        onLoginPressed = {},
+        onSuccess = {},
+        onBackClick = {},
+        onModalHidden = {},
+        accountFilter = TransactionAccountType.BRBS,
+        filterText = "",
+        onSettingsClicked = {},
+        filteredTransactions = listOf(
+            DisplayTransaction(
+                id = "1",
+                amount = -12.75,
+                accountType = TransactionAccountType.BRBS,
+                location = "Okenshields",
+                formattedDate = "Apr 14"
+            )
+        ),
+        onQueryChanged = {},
+        updateAccountFilter = {}
+    )
+}
+

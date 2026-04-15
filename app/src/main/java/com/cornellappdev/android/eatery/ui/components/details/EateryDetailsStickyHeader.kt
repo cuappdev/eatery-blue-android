@@ -33,8 +33,6 @@ import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.models.MenuCategory
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.util.AppStorePopupRepository
-import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import kotlinx.coroutines.launch
 
 @Composable
@@ -45,7 +43,7 @@ fun EateryDetailsStickyHeader(
     listState: LazyListState,
     startIndex: Int,
     onItemClick: (Int) -> Unit,
-    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
+    onRequestRatingPopup: () -> Unit = {},
 ) {
     val rowState = rememberLazyListState()
     val rowCoroutine = rememberCoroutineScope()
@@ -68,7 +66,7 @@ fun EateryDetailsStickyHeader(
                 if (selectedIndex >= 4) {
                     // They've scrolled decently far down and have interacted with this menu, we can
                     // request a review
-                    appStorePopupRepository.requestRatingPopup()
+                    onRequestRatingPopup()
                 }
                 rowState.animateScrollToItem(selectedIndex)
             }

@@ -51,6 +51,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,6 +67,9 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.viewmodels.SearchViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.popIn
 import com.cornellappdev.android.eatery.util.popOut
 import com.skydoves.landscapist.ImageOptions
@@ -85,22 +89,64 @@ fun SearchScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteClick: () -> Unit
 ) {
+    val uiState = searchViewModel.uiState.collectAsStateWithLifecycle().value
+
+    SearchScreenContent(
+        query = uiState.query,
+        filters = uiState.filters,
+        searchResponse = uiState.searchResponse,
+        favoriteEateries = uiState.favoriteEateries,
+        recentSearches = uiState.recentSearches,
+        error = uiState.error,
+        searchScreenFilters = searchViewModel.searchScreenFilters,
+        onClearError = searchViewModel::clearError,
+        onQueryEateries = searchViewModel::queryEateries,
+        onAddPaymentMethodFilters = searchViewModel::addPaymentMethodFilters,
+        onToggleFilter = searchViewModel::toggleFilter,
+        onAddFavorite = searchViewModel::addFavorite,
+        onRemoveFavorite = searchViewModel::removeFavorite,
+        onAddRecentSearch = searchViewModel::addRecentSearch,
+        observeEatery = { eateryId ->
+            searchViewModel.observeEatery(eateryId).collectAsStateWithLifecycle().value
+        },
+        onEateryClick = onEateryClick,
+        onFavoriteClick = onFavoriteClick,
+    )
+}
+
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
+@Composable
+private fun SearchScreenContent(
+    query: String,
+    filters: List<Filter>,
+    searchResponse: EateryApiResponse<List<Eatery>>,
+    favoriteEateries: List<Eatery>,
+    recentSearches: List<Int>,
+    error: NetworkUiError?,
+    searchScreenFilters: List<Filter>,
+    onClearError: () -> Unit,
+    onQueryEateries: (String) -> Unit,
+    onAddPaymentMethodFilters: (List<Filter>) -> Unit,
+    onToggleFilter: (Filter) -> Unit,
+    onAddFavorite: (Int, String) -> Unit,
+    onRemoveFavorite: (Int, String) -> Unit,
+    onAddRecentSearch: (Int?) -> Unit,
+    observeEatery: @Composable (Int) -> EateryApiResponse<Eatery>,
+    onEateryClick: (Eatery) -> Unit,
+    onFavoriteClick: () -> Unit,
+) {
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val focusRequester = remember { FocusRequester() }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showPaymentMethodSheet by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    val uiState = searchViewModel.uiState.collectAsStateWithLifecycle().value
-    val query = uiState.query
-    val favorites = uiState.favoriteEateries
-    val recentSearches = uiState.recentSearches
-    val filters = uiState.filters
-    val searchResponse = uiState.searchResponse
-
     NetworkErrorToast(
-        error = uiState.error,
-        onErrorShown = searchViewModel::clearError
+        error = error,
+        onErrorShown = onClearError
     )
 
     // Automatically brings the search bar into focus when the view is composed
@@ -116,7 +162,7 @@ fun SearchScreen(
         DisposableEffect(Unit) {
             onDispose {
                 // Handles the case where filters reset as well (by adding an empty list).
-                searchViewModel.addPaymentMethodFilters(selectedPaymentMethodFilters)
+                onAddPaymentMethodFilters(selectedPaymentMethodFilters)
             }
         }
     }
@@ -154,7 +200,7 @@ fun SearchScreen(
                 SearchBar(
                     searchText = query,
                     onSearchTextChange = {
-                        searchViewModel.queryEateries(it)
+                        onQueryEateries(it)
                     },
                     placeholderText = stringResource(R.string.search_placeholder_grub),
                     modifier = Modifier.padding(
@@ -182,9 +228,9 @@ fun SearchScreen(
                         FilterRow(
                             currentFiltersSelected = filters,
                             onFilterClicked = { filter ->
-                                searchViewModel.toggleFilter(filter)
+                                onToggleFilter(filter)
                             },
-                            filters = searchViewModel.searchScreenFilters,
+                            filters = searchScreenFilters,
                         )
                     }
                 }
@@ -209,7 +255,7 @@ fun SearchScreen(
                             .fillMaxWidth()
                     ) {
                         AnimatedVisibility(
-                            visible = favorites.isNotEmpty(),
+                            visible = favoriteEateries.isNotEmpty(),
                             enter = popIn(),
                             exit = popOut()
                         ) {
@@ -253,7 +299,7 @@ fun SearchScreen(
                                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                                     modifier = Modifier.padding(start = 16.dp)
                                 ) {
-                                    items(items = favorites, key = { eatery ->
+                                    items(items = favoriteEateries, key = { eatery ->
                                         eatery.id ?: eatery.hashCode()
                                     }) { eatery ->
                                         FavoriteItem(eatery, onEateryClick)
@@ -272,9 +318,7 @@ fun SearchScreen(
                     )
                 }
                 items(recentSearches) { eateryId ->
-                    val eateryResponse =
-                        searchViewModel.observeEatery(eateryId)
-                            .collectAsStateWithLifecycle().value
+                    val eateryResponse = observeEatery(eateryId)
                     if (eateryResponse is EateryApiResponse.Success) {
                         Box(
                             Modifier.padding(
@@ -284,25 +328,25 @@ fun SearchScreen(
                             val eatery = eateryResponse.data
                             EateryCard(
                                 eatery = eatery,
-                                isFavorite = favorites.any { favoriteEatery ->
+                                isFavorite = favoriteEateries.any { favoriteEatery ->
                                     favoriteEatery.id == eatery.id
                                 },
                                 onFavoriteClick = {
                                     if (eatery.id != null && eatery.name != null) {
                                         if (it) {
-                                            searchViewModel.addFavorite(
+                                            onAddFavorite(
                                                 eatery.id,
                                                 eatery.name
                                             )
                                         } else {
-                                            searchViewModel.removeFavorite(
+                                            onRemoveFavorite(
                                                 eatery.id,
                                                 eatery.name
                                             )
                                         }
                                     }
                                 }) {
-                                searchViewModel.addRecentSearch(it.id)
+                                onAddRecentSearch(it.id)
                                 onEateryClick(it)
                             }
                         }
@@ -320,28 +364,61 @@ fun SearchScreen(
                 ) {
                     EateryCard(
                         eatery = eatery,
-                        isFavorite = favorites.any { favoriteEatery ->
+                        isFavorite = favoriteEateries.any { favoriteEatery ->
                             favoriteEatery.id == eatery.id
                         },
                         onFavoriteClick = {
                             if (eatery.id != null && eatery.name != null) {
                                 if (it) {
-                                    searchViewModel.addFavorite(eatery.id, eatery.name)
+                                    onAddFavorite(eatery.id, eatery.name)
                                 } else {
-                                    searchViewModel.removeFavorite(
+                                    onRemoveFavorite(
                                         eatery.id,
                                         eatery.name
                                     )
                                 }
                             }
                         }) {
-                        searchViewModel.addRecentSearch(it.id)
+                        onAddRecentSearch(it.id)
                         onEateryClick(it)
                     }
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SearchScreenPreview() = EateryPreview {
+    SearchScreenContent(
+        query = "Ok",
+        filters = emptyList(),
+        searchResponse = EateryApiResponse.Success(
+            listOf(
+                PreviewData.mockEatery(1).copy(name = "Okenshields"),
+                PreviewData.mockEatery(2).copy(name = "Becker House Dining Room")
+            )
+        ),
+        favoriteEateries = listOf(PreviewData.mockEatery(1).copy(name = "Okenshields")),
+        recentSearches = emptyList(),
+        error = null,
+        searchScreenFilters = listOf(
+            Filter.FromEateryFilter.North,
+            Filter.FromEateryFilter.West,
+            Filter.FromEateryFilter.Central
+        ),
+        onClearError = {},
+        onQueryEateries = {},
+        onAddPaymentMethodFilters = {},
+        onToggleFilter = {},
+        onAddFavorite = { _, _ -> },
+        onRemoveFavorite = { _, _ -> },
+        onAddRecentSearch = {},
+        observeEatery = { EateryApiResponse.Pending },
+        onEateryClick = {},
+        onFavoriteClick = {}
+    )
 }
 
 
