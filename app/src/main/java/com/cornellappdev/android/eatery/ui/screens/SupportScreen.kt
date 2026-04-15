@@ -69,6 +69,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
     val context = LocalContext.current
+    val supportRecipient = stringResource(R.string.support_team_email_recipient)
+    val orderFoodRecipient = stringResource(R.string.support_order_food_email_recipient)
+    val mailToTemplate = stringResource(R.string.support_mailto_template)
     val reportingIssueSubject = stringResource(R.string.support_reporting_issue_subject)
     val orderFoodSubject = stringResource(R.string.support_order_food_subject)
     val emailChooserTitle = stringResource(R.string.support_email_chooser_title)
@@ -80,24 +83,26 @@ fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
         sendReport = supportViewModel::sendReport,
         onSendSupportEmail = {
             val email = createMailToIntent(
-                recipient = "team@cornellappdev.com",
-                subject = reportingIssueSubject
+                recipient = supportRecipient,
+                subject = reportingIssueSubject,
+                mailToTemplate = mailToTemplate
             )
             context.startActivity(Intent.createChooser(email, emailChooserTitle))
         },
         onSendOrderFoodEmail = {
             val email = createMailToIntent(
-                recipient = "dining@cornell.edu",
-                subject = orderFoodSubject
+                recipient = orderFoodRecipient,
+                subject = orderFoodSubject,
+                mailToTemplate = mailToTemplate
             )
             context.startActivity(Intent.createChooser(email, emailChooserTitle))
         }
     )
 }
 
-private fun createMailToIntent(recipient: String, subject: String): Intent =
+private fun createMailToIntent(recipient: String, subject: String, mailToTemplate: String): Intent =
     Intent(Intent.ACTION_SENDTO).apply {
-        data = "mailto:$recipient?subject=${Uri.encode(subject)}".toUri()
+        data = mailToTemplate.format(recipient, Uri.encode(subject)).toUri()
     }
 
 @OptIn(ExperimentalMaterial3Api::class)
