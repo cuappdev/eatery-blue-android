@@ -128,6 +128,7 @@ fun AccountPage(
                 .fillMaxSize()
                 .background(currentColors.backgroundDefault)
         )
+        {
         val innerListState = rememberLazyListState()
         val isFirstVisible =
             remember { derivedStateOf { innerListState.firstVisibleItemIndex > 1 } }
@@ -136,7 +137,8 @@ fun AccountPage(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-        ) {
+        )
+        {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -172,7 +174,7 @@ fun AccountPage(
                             ) {
                                 Icon(
                                     modifier = Modifier.size(28.dp),
-                                    painter = painterResource(id=R.drawable.system_setting),
+                                    painter = painterResource(id = R.drawable.system_setting),
                                     contentDescription = Icons.Outlined.Settings.name,
                                     tint = currentColors.textPrimary
                                 )
@@ -283,80 +285,82 @@ fun AccountPage(
 
                 stickyHeader {
 
-                        Row(
-                            modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                    Row(
+                        modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = when (accountFilter.name) {
-                                        "MEALSWIPES" -> "Meal Swipes"
-                                        "BRBS" -> "Big Red Bucks"
-                                        "LAUNDRY" -> "Laundry"
-                                        "CITYBUCKS" -> "City Bucks"
-                                        else -> "Account Type"
-                                    },
-                                    style = EateryBlueTypography.h4,
-                                    color = currentColors.textPrimary
-
-                                    )
-                            }
-                            IconButton(
-                                onClick = {
-                                    sheetContent = BottomSheetContent.ACCOUNT_TYPE
-                                    coroutineScope.launch {
-                                        modalBottomSheetState.show()
-                                    }
+                            Text(
+                                text = when (accountFilter.name) {
+                                    "MEALSWIPES" -> "Meal Swipes"
+                                    "BRBS" -> "Big Red Bucks"
+                                    "LAUNDRY" -> "Laundry"
+                                    "CITYBUCKS" -> "City Bucks"
+                                    else -> "Account Type"
                                 },
-                                modifier = Modifier
-                                    .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
-                                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                    contentDescription = "Change Account Type",
-                                    modifier = Modifier
-                                        .size(26.dp),
-                                    tint = currentColors.accentPrimary
-                                )
-                            }
+                                style = EateryBlueTypography.h4,
+                                color = currentColors.textPrimary
+
+                            )
                         }
-                        SearchBar(
-                            searchText = filterText,
-                            onSearchTextChange = { filterText = it },
-                            modifier = Modifier
-                            .padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
-                            placeholderText = "Search for transactions...",
-                            onCancelClicked = {
-                                filterText = ""
+                        IconButton(
+                            onClick = {
+                                sheetContent = BottomSheetContent.ACCOUNT_TYPE
+                                coroutineScope.launch {
+                                    modalBottomSheetState.show()
+                                }
                             },
-
-                        )
-                        Spacer(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(currentColors.accentPrimary, CircleShape)
-                                .padding(horizontal = 16.dp)
+                                .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                                .background(
+                                    color = currentColors.backgroundDefault,
+                                    shape = CircleShape
+                                )
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = "Change Account Type",
+                                modifier = Modifier
+                                    .size(26.dp),
+                                tint = currentColors.accentPrimary
+                            )
+                        }
+                    }
+                    SearchBar(
+                        searchText = filterText,
+                        onSearchTextChange = { filterText = it },
+                        modifier = Modifier
+                            .padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
+                        placeholderText = "Search for transactions...",
+                        onCancelClicked = {
+                            filterText = ""
+                        },
 
                         )
-                        Text(
-                            text = "Past 30 Days",
-                            modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
-                            style = EateryBlueTypography.h5,
-                            color = currentColors.textPrimary
-                        )
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(currentColors.accentPrimary, CircleShape)
-                                .padding(horizontal = 16.dp)
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(currentColors.accentPrimary, CircleShape)
+                            .padding(horizontal = 16.dp)
 
-                        )
+                    )
+                    Text(
+                        text = "Past 30 Days",
+                        modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
+                        style = EateryBlueTypography.h5,
+                        color = currentColors.textPrimary
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(currentColors.accentPrimary, CircleShape)
+                            .padding(horizontal = 16.dp)
 
+                    )
 
 
                 }
@@ -377,9 +381,11 @@ fun AccountPage(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(text = "${it.location}",
+                            Text(
+                                text = "${it.location}",
                                 style = EateryBlueTypography.button,
-                                color = currentColors.textPrimary)
+                                color = currentColors.textPrimary
+                            )
                             Text(
                                 text = outputFormatter.format(dateTime),
                                 style = EateryBlueTypography.subtitle2,
@@ -387,19 +393,19 @@ fun AccountPage(
                             )
                         }
                         val (amtString, amtColor) =
-                        when {
-                            it.transactionType == 3 -> {
-                                "+$%.2f".format(it.amount) to currentColors.success
-                            }
+                            when {
+                                it.transactionType == 3 -> {
+                                    "+$%.2f".format(it.amount) to currentColors.success
+                                }
 
-                            it.amount?.toInt() == 0 -> {
-                                "$0.00" to currentColors.textPrimary
-                            }
+                                it.amount?.toInt() == 0 -> {
+                                    "$0.00" to currentColors.textPrimary
+                                }
 
-                            else -> {
-                                "-$%.2f".format(it.amount) to currentColors.error
+                                else -> {
+                                    "-$%.2f".format(it.amount) to currentColors.error
+                                }
                             }
-                        }
                         Text(
                             text = amtString,
                             modifier = Modifier.weight(0.2f),
@@ -417,6 +423,7 @@ fun AccountPage(
                     )
                 }
             }
+        }
         }
 
     }
