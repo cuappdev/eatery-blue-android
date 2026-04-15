@@ -155,7 +155,7 @@ private fun SupportScreenContent(
 
     Column(
         modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp)
+            .padding(horizontal = 16.dp)
             .fillMaxSize()
             .then(Modifier.statusBarsPadding())
     ) {

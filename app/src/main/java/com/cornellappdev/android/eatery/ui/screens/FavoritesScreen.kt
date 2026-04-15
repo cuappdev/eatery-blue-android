@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -105,7 +106,8 @@ private fun FavoritesScreenContent(
 
     Column(
         modifier = Modifier
-            .padding(top = 36.dp, start = 10.dp, end = 10.dp)
+            .padding(horizontal = 10.dp)
+            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
         Row(
@@ -134,7 +136,7 @@ private fun FavoritesScreenContent(
             text = stringResource(R.string.favorites_title),
             color = EateryBlue,
             style = EateryBlueTypography.h2,
-            modifier = Modifier.padding(start = 6.dp, end = 6.dp)
+            modifier = Modifier.padding(horizontal = 6.dp)
         )
 
         Spacer(modifier = Modifier.height(12.dp))

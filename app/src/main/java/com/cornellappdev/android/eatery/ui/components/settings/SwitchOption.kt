@@ -26,7 +26,7 @@ fun SwitchOption(
     initialValue: Boolean = true
 ) {
     var switched by remember { mutableStateOf(initialValue) }
-    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         SettingsOption(
             title = title, description = description, onClick = { },
             trailingIcon = {

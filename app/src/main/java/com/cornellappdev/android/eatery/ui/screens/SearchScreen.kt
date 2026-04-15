@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -191,7 +192,11 @@ private fun SearchScreenContent(
 
     LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
         stickyHeader {
-            Column(modifier = Modifier.background(Color.White)) {
+            Column(
+                modifier = Modifier
+                    .background(Color.White)
+                    .then(Modifier.statusBarsPadding())
+            ) {
                 SearchBar(
                     searchText = query,
                     onSearchTextChange = {
@@ -199,7 +204,7 @@ private fun SearchScreenContent(
                     },
                     placeholderText = stringResource(R.string.search_placeholder_grub),
                     modifier = Modifier.padding(
-                        top = 64.dp,
+                        top = 12.dp,
                         bottom = 6.dp,
                         start = 16.dp,
                         end = 16.dp
