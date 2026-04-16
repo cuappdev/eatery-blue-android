@@ -12,14 +12,13 @@ import kotlin.random.Random
 @Singleton
 class GETAccountRepository @Inject constructor(
     private val networkApi: NetworkApi,
-    private val userPreferencesRepository: UserPreferencesRepository,
-    private val authTokenRepository: AuthTokenRepository
+    private val userPreferencesRepository: UserPreferencesRepository
 ) {
     suspend fun linkGETAccount(sessionId: String): Result<Unit> {
         userPreferencesRepository.setSessionId(sessionId)
         val pin = Random.nextInt(10000)
         userPreferencesRepository.setPin(pin)
-        return tryRequestWithResult {
+        return resultOfNetworkCall {
             networkApi.authorizeUser(
                 loginRequest = LoginRequest(pin.toString(), sessionId)
             )
@@ -30,15 +29,11 @@ class GETAccountRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshLogin(pin: Int): Result<Unit> = tryRequestWithResult {
+    suspend fun refreshLogin(pin: Int): Result<Unit> = resultOfNetworkCall {
         val newSessionId = networkApi.refreshAuthorizedUser(
             loginPIN = LoginPIN(pin.toString())
         ).sessionId
-        if (newSessionId == null) {
-            throw Exception("Session ID is null")
-        } else {
-            userPreferencesRepository.setSessionId(newSessionId)
-        }
+        userPreferencesRepository.setSessionId(newSessionId!!)
     }
 
     suspend fun getSessionId(): String? = userPreferencesRepository.sessionIdFlow.firstOrNull()
@@ -53,11 +48,6 @@ class GETAccountRepository @Inject constructor(
     suspend fun isLoggedIn(): Boolean =
         userPreferencesRepository.isLoggedInFlow.firstOrNull() ?: false
 
-    private suspend fun <T> tryRequestWithResult(request: suspend () -> T): Result<T> =
-        tryRequestWithTokenRefresh(
-            request = request,
-            refreshTokens = authTokenRepository::refreshTokens
-        )
 }
 
 

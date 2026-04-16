@@ -19,67 +19,54 @@ class AuthTokenRepository @Inject constructor(
     private val _tokensConfiguredFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     /**
-     * A [StateFlow] that emits whether tokens have been configured successfully.
+     * A [StateFlow] that emits whether the app has successfully stored a valid token pair.
      */
     val tokensConfiguredFlow: StateFlow<Boolean> = _tokensConfiguredFlow.asStateFlow()
 
-    suspend fun getDeviceId(): String = userPreferencesRepository.getOrCreateDeviceId()
-
     /**
-     * Fetches initial tokens from the API based on device ID.
+     * Fetches the initial token pair from the API using the device ID.
      * Called on app launch.
      */
-    suspend fun getTokens(): Result<Unit> = safeNetworkRequest {
-        val deviceId = getDeviceId()
-        val response = networkApi.verifyToken(DeviceId(deviceId))
-        val accessToken = response.accessToken
-        val refreshToken = response.refreshToken
-        if (accessToken != null) {
-            userPreferencesRepository.setAccessToken(accessToken)
-        } else {
-            throw Exception("Access token is null")
-        }
-        if (refreshToken != null) {
-            userPreferencesRepository.setRefreshToken(refreshToken)
-        } else {
-            throw Exception("Refresh token is null")
-        }
+    suspend fun getTokens(): Result<Unit> = resultOfNetworkCall {
+        val deviceId = userPreferencesRepository.getOrCreateDeviceId()
+        val tokenResponse = networkApi.verifyToken(DeviceId(deviceId))
+        storeTokens(
+            accessToken = tokenResponse.accessToken!!,
+            refreshToken = tokenResponse.refreshToken!!
+        )
     }
 
     fun markTokensAsConfigured() {
         _tokensConfiguredFlow.value = true
     }
 
-    suspend fun refreshTokens(): Result<Unit> = safeNetworkRequest {
-        val deviceId = getDeviceId()
+    /**
+     * Refreshes the current token pair using the stored refresh token.
+     */
+    suspend fun refreshTokens(): Result<Unit> = resultOfNetworkCall {
+        val deviceId = userPreferencesRepository.getOrCreateDeviceId()
         val refreshToken = userPreferencesRepository.refreshTokenFlow.firstOrNull()
             ?: throw IllegalStateException("Refresh token not available")
-        val tokens = networkApi.refreshToken(
+        val refreshedTokenResponse = networkApi.refreshToken(
             RefreshRequest(
                 deviceId = deviceId,
                 refreshToken = refreshToken
             )
         )
-        val accessToken = tokens.accessToken
-        val newRefreshToken = tokens.refreshToken
-        if (accessToken != null) {
-            userPreferencesRepository.setAccessToken(accessToken)
-        } else {
-            throw Exception("Access token is null")
-        }
-        if (newRefreshToken != null) {
-            userPreferencesRepository.setRefreshToken(newRefreshToken)
-        } else {
-            throw Exception("Refresh token is null")
-        }
+        storeTokens(
+            accessToken = refreshedTokenResponse.accessToken!!,
+            refreshToken = refreshedTokenResponse.refreshToken!!
+        )
     }
 
     suspend fun getAccessToken(): String =
-        prependBearer(
+        "Bearer ${
             userPreferencesRepository.accessTokenFlow.firstOrNull()
                 ?: throw IllegalStateException("Access token not available")
-        )
+        }"
 
-
-    private fun prependBearer(str: String) = "Bearer $str"
+    private suspend fun storeTokens(accessToken: String, refreshToken: String) {
+        userPreferencesRepository.setAccessToken(accessToken)
+        userPreferencesRepository.setRefreshToken(refreshToken)
+    }
 }

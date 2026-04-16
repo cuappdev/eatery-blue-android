@@ -26,7 +26,6 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(
     private val networkApi: NetworkApi,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val authTokenRepository: AuthTokenRepository,
     private val getAccountRepository: GETAccountRepository
 ) {
     private val _loadedUser: MutableStateFlow<User?> = MutableStateFlow(null)
@@ -61,7 +60,7 @@ class UserRepository @Inject constructor(
             return Result.Success(Unit)
         }
 
-        return tryRequestWithResult {
+        return resultOfNetworkCall {
             val matches = networkApi.getFavoriteMatches()
             _favoriteEateriesFlow.value = matches.mapNotNull { it.eateryName }
             _favoriteItemsFlow.value = run {
@@ -73,7 +72,7 @@ class UserRepository @Inject constructor(
     }
 
     suspend fun sendReport(issue: String, report: String, eateryID: Int?): Result<Any> =
-        tryRequestWithResult {
+        resultOfNetworkCall {
             networkApi.sendReport(
                 report = ReportSendBody(
                     eatery = eateryID,
@@ -91,7 +90,7 @@ class UserRepository @Inject constructor(
             return Result.Success(Unit)
         }
 
-        return tryRequestWithResult {
+        return resultOfNetworkCall {
             networkApi.addFavoriteItem(
                 item = FavoriteItem(item = name)
             )
@@ -110,7 +109,7 @@ class UserRepository @Inject constructor(
             return Result.Success(Unit)
         }
 
-        return tryRequestWithResult {
+        return resultOfNetworkCall {
             networkApi.deleteFavoriteItem(
                 item = FavoriteItem(name)
             )
@@ -129,7 +128,7 @@ class UserRepository @Inject constructor(
             return Result.Success(Unit)
         }
 
-        return tryRequestWithResult {
+        return resultOfNetworkCall {
             networkApi.addFavoriteEatery(
                 eatery = FavoriteEatery(id),
             )
@@ -148,7 +147,7 @@ class UserRepository @Inject constructor(
             return Result.Success(Unit)
         }
 
-        return tryRequestWithResult {
+        return resultOfNetworkCall {
             networkApi.deleteFavoriteEatery(
                 eatery = FavoriteEatery(id)
             )
@@ -159,7 +158,7 @@ class UserRepository @Inject constructor(
     }
 
 
-    suspend fun getFinancials(): Result<Financials> = tryRequestWithResult {
+    suspend fun getFinancials(): Result<Financials> = resultOfNetworkCall {
         var financials: Financials
         try {
             financials = networkApi.getFinancials(
@@ -215,10 +214,4 @@ class UserRepository @Inject constructor(
 
     suspend fun hasOnboarded(): Boolean =
         userPreferencesRepository.hasOnboardedFlow.firstOrNull() ?: false
-
-    private suspend fun <T> tryRequestWithResult(request: suspend () -> T): Result<T> =
-        tryRequestWithTokenRefresh(
-            request = request,
-            refreshTokens = authTokenRepository::refreshTokens
-        )
 }

@@ -9,10 +9,9 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 /**
- * OkHttp interceptor that automatically adds Bearer token to authenticated requests.
- * Also handles token refresh on 401 responses.
+ * OkHttp interceptor that automatically adds a Bearer token to protected requests.
  *
- * Uses Provider<AuthTokenRepository> to avoid circular dependency
+ * Uses [Provider] to avoid a circular dependency with [AuthTokenRepository].
  */
 class AuthInterceptor @Inject constructor(
     private val authTokenRepositoryProvider: Provider<AuthTokenRepository>
@@ -26,6 +25,11 @@ class AuthInterceptor @Inject constructor(
         )
     }
 
+    /**
+     * Intercepts outgoing HTTP requests.
+     * Adds the Bearer token to protected requests.
+     * If the response is 401 or 403, refreshes tokens and retries once.
+     */
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
 
@@ -33,7 +37,7 @@ class AuthInterceptor @Inject constructor(
             val requestWithToken = addTokenToRequest(request)
             var response = chain.proceed(requestWithToken)
 
-            if (response.code == 401) {
+            if (response.code == 401 || response.code == 403) {
                 response.close()
                 try {
                     runBlocking {
@@ -45,10 +49,8 @@ class AuthInterceptor @Inject constructor(
                     return chain.proceed(request)
                 }
             }
-
             return response
         }
-
         return chain.proceed(request)
     }
 
