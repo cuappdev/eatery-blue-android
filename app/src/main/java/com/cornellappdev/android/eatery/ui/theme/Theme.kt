@@ -46,7 +46,7 @@ fun EateryBlueTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
+    val baseColorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             dynamicLightColorScheme(context)
@@ -58,6 +58,16 @@ fun EateryBlueTheme(
         darkTheme -> LightColorScheme
         else -> LightColorScheme
     }
+
+    // For bottom sheet background colors
+    val colorScheme = baseColorScheme.copy(
+        surface = Color.White,
+        surfaceContainerLowest = Color.White,
+        surfaceContainerLow = Color.White,
+        surfaceContainer = Color.White,
+        surfaceContainerHigh = Color.White,
+        surfaceContainerHighest = Color.White
+    )
 
     MaterialTheme(
         colorScheme = colorScheme,
