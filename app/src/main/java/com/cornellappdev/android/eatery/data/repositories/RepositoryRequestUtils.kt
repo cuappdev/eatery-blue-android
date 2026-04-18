@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.data.repositories
 
 import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.data.models.Result
+import kotlinx.coroutines.CancellationException
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -12,6 +13,8 @@ import java.net.SocketTimeoutException
 internal suspend fun <T> resultOfNetworkCall(request: suspend () -> T): Result<T> {
     return try {
         Result.Success(request())
+    } catch (ce: CancellationException) {
+        throw ce
     } catch (exception: Exception) {
         val networkError = when (exception) {
             is HttpException -> when (exception.code()) {

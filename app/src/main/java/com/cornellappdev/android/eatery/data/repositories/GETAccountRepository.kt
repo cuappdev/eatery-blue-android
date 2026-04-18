@@ -32,8 +32,8 @@ class GETAccountRepository @Inject constructor(
     suspend fun refreshLogin(pin: Int): Result<Unit> = resultOfNetworkCall {
         val newSessionId = networkApi.refreshAuthorizedUser(
             loginPIN = LoginPIN(pin.toString())
-        ).sessionId
-        userPreferencesRepository.setSessionId(newSessionId!!)
+        ).sessionId ?: throw IllegalStateException("Session ID is null")
+        userPreferencesRepository.setSessionId(newSessionId)
     }
 
     suspend fun getSessionId(): String? = userPreferencesRepository.sessionIdFlow.firstOrNull()

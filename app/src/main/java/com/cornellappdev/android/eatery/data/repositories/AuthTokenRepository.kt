@@ -30,9 +30,13 @@ class AuthTokenRepository @Inject constructor(
     suspend fun getTokens(): Result<Unit> = resultOfNetworkCall {
         val deviceId = userPreferencesRepository.getOrCreateDeviceId()
         val tokenResponse = networkApi.verifyToken(DeviceId(deviceId))
+        val accessToken = tokenResponse.accessToken
+            ?: throw IllegalStateException("verifyToken returned null access token")
+        val refreshToken = tokenResponse.refreshToken
+            ?: throw IllegalStateException("verifyToken returned null refresh token")
         storeTokens(
-            accessToken = tokenResponse.accessToken!!,
-            refreshToken = tokenResponse.refreshToken!!
+            accessToken = accessToken,
+            refreshToken = refreshToken
         )
     }
 
@@ -53,9 +57,13 @@ class AuthTokenRepository @Inject constructor(
                 refreshToken = refreshToken
             )
         )
+        val accessToken = refreshedTokenResponse.accessToken
+            ?: throw IllegalStateException("refreshToken returned null access token")
+        val refreshTokenFromResponse = refreshedTokenResponse.refreshToken
+            ?: throw IllegalStateException("refreshToken returned null refresh token")
         storeTokens(
-            accessToken = refreshedTokenResponse.accessToken!!,
-            refreshToken = refreshedTokenResponse.refreshToken!!
+            accessToken = accessToken,
+            refreshToken = refreshTokenFromResponse
         )
     }
 
