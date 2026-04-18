@@ -6,36 +6,52 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.Result
+import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository
+    private val eateryRepository: EateryRepository,
+    private val userRepository: UserRepository,
+    private val authTokenRepository: AuthTokenRepository
 ) : ViewModel() {
+    data class HomeUiState(
+        val eateriesApiResponse: EateryApiResponse<List<Eatery>> = EateryApiResponse.Pending,
+        val favoriteEateries: List<Eatery> = emptyList(),
+        val nearestEateries: List<Eatery> = emptyList(),
+        val selectedFilters: List<Filter> = emptyList(),
+        val notificationFlowCompleted: Boolean = false,
+        val error: NetworkUiError? = null
+    )
+
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
 
-    /**
-     * A flow of filters applied to the screen.
-     */
-    val filtersFlow = _filtersFlow.asStateFlow()
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+
+    fun clearError() {
+        _error.value = null
+    }
 
     val homeScreenFilters = listOf(
         Filter.FromEateryFilter.North,
@@ -52,16 +68,20 @@ class HomeViewModel @Inject constructor(
      *
      * Sorted (by descending priority): Open/Closed, Alphabetically
      */
-    val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
+    private val eateryFlow: StateFlow<EateryApiResponse<List<Eatery>>> =
         combine(
-            eateryRepository.homeEateryFlow,
+            eateryRepository.eateryFlow,
             _filtersFlow,
-            userPreferencesRepository.favoritesFlow
-        ) { apiResponse, filters, favorites ->
+            userRepository.favoriteEateriesFlow
+        ) { apiResponse, filters, favoriteEateries ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> EateryApiResponse.Error
                 is EateryApiResponse.Pending -> EateryApiResponse.Pending
                 is EateryApiResponse.Success -> {
+                    val eateries = apiResponse.data
+                    val favoriteEateryIds =
+                        eateries.filter { it.id != null }
+                            .associate { it.id!! to (it.name in favoriteEateries) }
                     EateryApiResponse.Success(
                         apiResponse.data.filter { eatery ->
                             Filter.passesSelectedFilters(
@@ -69,7 +89,7 @@ class HomeViewModel @Inject constructor(
                                 selectedFilters = filters,
                                 filterData = FilterData(
                                     eatery,
-                                    favoriteEateryIds = favorites
+                                    favoriteEateryIds = favoriteEateryIds
                                 )
                             )
                         }.sortedBy { eatery ->
@@ -85,17 +105,17 @@ class HomeViewModel @Inject constructor(
     /**
      * A flow emitting all the eateries the user has favorited.
      */
-    val favoriteEateries =
+    private val favoriteEateries =
         combine(
-            eateryRepository.homeEateryFlow,
-            userPreferencesRepository.favoritesFlow
+            eateryRepository.eateryFlow,
+            userRepository.favoriteEateriesFlow
         ) { apiResponse, favorites ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> listOf()
                 is EateryApiResponse.Pending -> listOf()
                 is EateryApiResponse.Success -> {
                     apiResponse.data.filter {
-                        favorites[it.id] == true
+                        it.name in favorites
                     }
                         .sortedBy { it.name }
                         .sortedBy { it.isClosed() }
@@ -109,15 +129,42 @@ class HomeViewModel @Inject constructor(
      *
      * TODO: (from old nearestEateries function) Walk times may not be updating automatically; may have to change location to use state.
      * */
-    val eateriesByDistance: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
+    private val eateriesByDistance: StateFlow<List<Eatery>> = eateryFlow.map { apiResponse ->
         when (apiResponse) {
             is EateryApiResponse.Error -> listOf()
             is EateryApiResponse.Pending -> listOf()
             is EateryApiResponse.Success -> {
-                apiResponse.data.sortedBy { it.getWalkTimes() }.sortedBy { it.isClosed() }
+                apiResponse.data.sortedBy { it.getWalkTimeInMinutes() }.sortedBy { it.isClosed() }
             }
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+
+    private val notificationFlowCompleted: StateFlow<Boolean> =
+        userPreferencesRepository.notificationFlowCompletedFlow
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    private val homeDataState: Flow<HomeUiState> = combine(
+        eateryFlow,
+        favoriteEateries,
+        eateriesByDistance,
+        _filtersFlow,
+        notificationFlowCompleted
+    ) { eateriesApiResponse, favorites, nearest, filters, notificationFlowDone ->
+        HomeUiState(
+            eateriesApiResponse = eateriesApiResponse,
+            favoriteEateries = favorites,
+            nearestEateries = nearest,
+            selectedFilters = filters,
+            notificationFlowCompleted = notificationFlowDone
+        )
+    }
+
+    val uiState: StateFlow<HomeUiState> = combine(
+        homeDataState,
+        _error
+    ) { dataState, networkError ->
+        dataState.copy(error = networkError)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     var bigPopUp by mutableStateOf(false)
 
@@ -148,18 +195,34 @@ class HomeViewModel @Inject constructor(
         _filtersFlow.update { emptyList() }
     }
 
-    fun addFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, true)
+    fun addFavoriteEatery(eateryId: Int, eateryName: String) {
+        viewModelScope.launch {
+            when (val result = userRepository.addFavoriteEatery(eateryId, eateryName)) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.AddFavoriteEatery, result.error)
+                }
+            }
+        }
     }
 
-    fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, false)
-    }
+    fun removeFavoriteEatery(eateryId: Int, eateryName: String) {
+        viewModelScope.launch {
+            when (val result = userRepository.removeFavoriteEatery(eateryId, eateryName)) {
+                is Result.Success -> {
+                    _error.value = null
+                }
 
-    fun getNotificationFlowCompleted() = runBlocking {
-        return@runBlocking userPreferencesRepository.getNotificationFlowCompleted()
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.RemoveFavoriteEatery, result.error)
+                }
+            }
+        }
     }
 
     fun setNotificationFlowCompleted(value: Boolean) = viewModelScope.launch {
@@ -168,5 +231,22 @@ class HomeViewModel @Inject constructor(
 
     fun pingEateries() {
         eateryRepository.pingEateries()
+    }
+
+    fun updateFavoritesIfTokensConfigured() {
+        if (authTokenRepository.tokensConfiguredFlow.value) {
+            viewModelScope.launch {
+                when (val result = userRepository.updateFavorites()) {
+                    is Result.Success -> {
+                        _error.value = null
+                    }
+
+                    is Result.Error -> {
+                        _error.value =
+                            NetworkUiError.Failed(NetworkAction.UpdateFavorites, result.error)
+                    }
+                }
+            }
+        }
     }
 }

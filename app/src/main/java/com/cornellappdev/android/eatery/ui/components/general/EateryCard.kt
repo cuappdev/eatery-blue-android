@@ -22,19 +22,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,8 +48,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
@@ -64,14 +66,12 @@ import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 enum class EateryCardStyle {
     DEFAULT, COMPACT, GRID_VIEW
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-)
 @Composable
 fun EateryCard(
     eatery: Eatery,
@@ -82,7 +82,8 @@ fun EateryCard(
     style: EateryCardStyle = EateryCardStyle.DEFAULT,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
-    val xMinutesUntilClosing = eatery.calculateTimeUntilClosing()?.collectAsState()?.value
+    val xMinutesUntilClosing =
+        eatery.calculateTimeUntilClosing()?.collectAsStateWithLifecycle()?.value
 
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -108,14 +109,11 @@ fun EateryCard(
         else -> 130.dp
     }
 
-    Card(
-        elevation = 3.dp,
+    ElevatedCard(
         shape = RoundedCornerShape(10.dp),
-        onClick = {
-            selectEatery(eatery)
-        },
-        backgroundColor = Color.White,
-        modifier = modifier
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        modifier = modifier.clickable { selectEatery(eatery) }
     ) {
         Column {
             Box {
@@ -186,8 +184,10 @@ fun EateryCard(
                             .padding(top = 12.dp, end = 12.dp)
                             .align(Alignment.TopEnd),
                         shape = RoundedCornerShape(100.dp),
-                        contentColor = Orange,
-                        backgroundColor = Color.White
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White,
+                            contentColor = Orange
+                        )
                     ) {
                         Row(
                             modifier = Modifier.padding(
@@ -260,7 +260,7 @@ fun GridViewFavoriteWidget(
             .size(40.dp)
             .clickable(
                 interactionSource = interactionSource,
-                indication = rememberRipple(radius = 20.dp),
+                indication = ripple(radius = 20.dp),
                 onClick = onClick
             ),
         shape = CircleShape,
@@ -293,7 +293,7 @@ fun EateryCardPrimaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardS
 @Composable
 fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardStyle.DEFAULT) {
     if (style != EateryCardStyle.COMPACT) {
-        val walkText = eatery.getWalkTimes()?.let {
+        val walkText = eatery.getWalkTimeInMinutes()?.let {
             "${if (it > 0) it else "< 1"} min walk"
         }
         Row(
@@ -320,9 +320,9 @@ fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCar
             Text(
                 modifier = Modifier.padding(top = 2.dp),
                 text =
-                if (openUntil == null) "Closed"
-                else if (eatery.isClosingSoon()) "Closing at $openUntil"
-                else ("Open until $openUntil"),
+                    if (openUntil == null) "Closed"
+                    else if (eatery.isClosingSoon()) "Closing at $openUntil"
+                    else ("Open until $openUntil"),
                 style = EateryBlueTypography.subtitle2,
                 color = if (openUntil == null) Red
                 else if (eatery.isClosingSoon()) Yellow
@@ -382,7 +382,7 @@ fun DotSeparator() {
 
 @Composable
 fun EateryMenuSummary(eatery: Eatery) {
-    if (eatery.paymentAcceptsMealSwipes == true) {
+    if (eatery.acceptsMealSwipes()) {
         DotSeparator()
         Text(
             text = "Meal swipes allowed",
@@ -390,8 +390,8 @@ fun EateryMenuSummary(eatery: Eatery) {
             color = EateryBlue,
             style = EateryBlueTypography.subtitle2
         )
-    } else if (eatery.paymentAcceptsBrbs == false &&
-        eatery.paymentAcceptsCash == true
+    } else if (!eatery.acceptsBRB() &&
+        (eatery.acceptsCash() || eatery.acceptsCard())
     ) {
         DotSeparator()
         Text(
@@ -409,4 +409,20 @@ fun EateryMenuSummary(eatery: Eatery) {
             style = EateryBlueTypography.subtitle2
         )
     }
+}
+
+@Preview
+@Composable
+private fun EateryCardPreview() = EateryPreview {
+    EateryCard(
+        eatery = Eatery(
+            id = 1,
+            name = "Test Eatery",
+            location = "Test Location",
+            menuSummary = "Test Menu Summary"
+        ),
+        isFavorite = true,
+        onFavoriteClick = {},
+        style = EateryCardStyle.DEFAULT
+    )
 }

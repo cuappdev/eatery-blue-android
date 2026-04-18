@@ -57,6 +57,7 @@ val AccentPressedDark = Color(0xFF1C1C1C)
 // Border colors
 val BorderDefaultLight = Color(0xFFE1E4E8)
 val BorderDefaultDark = Color(0xFF282828)
+val Black = Color(0xFF050505)
 
 
 /**

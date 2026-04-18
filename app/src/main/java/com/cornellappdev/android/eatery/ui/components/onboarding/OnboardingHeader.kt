@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,11 +16,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlin.math.absoluteValue
 import kotlin.math.pow
 
@@ -93,4 +95,10 @@ fun OnboardingHeader(
             modifier = Modifier.padding(top = 7.dp, start = 16.dp)
         )
     }
+}
+
+@Preview
+@Composable
+fun OnboardingHeaderPreview() = EateryPreview {
+    OnboardingHeader(num = 0, pagerOffset = 0f, onSkipClicked = {})
 }

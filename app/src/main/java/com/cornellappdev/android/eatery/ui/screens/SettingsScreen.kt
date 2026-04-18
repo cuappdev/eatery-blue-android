@@ -7,30 +7,36 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Gavel
-import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.settings.AppIconBottomSheet
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
@@ -40,45 +46,68 @@ import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.SettingsViewModel
+import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    loginViewModel: LoginViewModel,
+    settingsViewModel: SettingsViewModel = hiltViewModel(),
     destinations: HashMap<Routes, () -> Unit>
 ) {
+    SettingsScreenContent(
+        destinations = destinations,
+        onLogout = {
+            settingsViewModel.onLogout(onDone = {
+                destinations[Routes.PROFILE]?.invoke()
+            })
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingsScreenContent(
+    destinations: Map<Routes, () -> Unit>,
+    onLogout: () -> Unit,
+) {
     // To sign out, setIsLoggedIn to false and transition back to profileView with autoLogin false
-    val state = loginViewModel.state.collectAsState().value
     val coroutineScope = rememberCoroutineScope()
     val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
+        skipPartiallyExpanded = true,
     )
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 12.dp,
-            topEnd = 12.dp
-        ),
-        sheetElevation = 8.dp,
-        sheetContent = {
+    var showAppIconSheet by remember { mutableStateOf(false) }
+
+    if (showAppIconSheet) {
+        ModalBottomSheet(
+            sheetState = modalBottomSheetState,
+            onDismissRequest = { showAppIconSheet = false },
+            shape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            )
+        ) {
             AppIconBottomSheet {
                 coroutineScope.launch {
                     modalBottomSheetState.hide()
+                }.invokeOnCompletion {
+                    if (!modalBottomSheetState.isVisible) showAppIconSheet = false
                 }
             }
-        },
-        content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 48.dp, start = 16.dp, end = 16.dp)
-            ) {
+        }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .then(Modifier.statusBarsPadding())
+    ) {
                 Text(
-                    text = "Settings",
+                    text = stringResource(R.string.settings_title),
                     color = EateryBlue,
                     style = EateryBlueTypography.h2,
                     modifier = Modifier.padding(top = 7.dp, bottom = 7.dp)
@@ -99,8 +128,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "About Eatery",
-                    description = "Learn more about Cornell AppDev",
+                    title = stringResource(R.string.settings_about_title),
+                    description = stringResource(R.string.settings_about_description),
                     onClick = {
                         destinations[Routes.ABOUT]?.invoke()
                     }
@@ -114,16 +143,14 @@ fun SettingsScreen(
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    title = "App Icon",
-                    description = "Select the Eatery app icon for your phone",
+                    description = stringResource(R.string.settings_app_icon_description),
+                    title = stringResource(R.string.settings_app_icon_title),
                     onClick = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.show()
-                        }
+                        showAppIconSheet = true
                     },
                     trailingIcon = {
                         Text(
-                            text = "Change",
+                            text = stringResource(R.string.settings_change),
                             style = EateryBlueTypography.button,
                             color = EateryBlue,
                         )
@@ -134,7 +161,7 @@ fun SettingsScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.StarOutline,
-                            contentDescription = "Favorites",
+                            contentDescription = stringResource(R.string.settings_favorites_title),
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
@@ -146,8 +173,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "Favorites",
-                    description = "Manage your favorite eateries and items",
+                    title = stringResource(R.string.settings_favorites_title),
+                    description = stringResource(R.string.settings_favorites_description),
                     onClick = {
                         destinations[Routes.FAVORITES]?.invoke()
                     }
@@ -162,8 +189,8 @@ fun SettingsScreen(
                             modifier = Modifier.size(24.dp)
                         )
                     },
-                    title = "Notifications",
-                    description = "Manage item and promotional notifications",
+                    title = stringResource(R.string.settings_notifications_title),
+                    description = stringResource(R.string.settings_notifications_description),
                     onClick = {
                         destinations[Routes.NOTIFICATIONS_SETTING]?.invoke()
                     },
@@ -180,7 +207,7 @@ fun SettingsScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.Lock,
-                            contentDescription = "Privacy",
+                            contentDescription = stringResource(R.string.settings_privacy_title),
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
@@ -192,8 +219,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "Privacy",
-                    description = "Manage permissions and analytics",
+                    title = stringResource(R.string.settings_privacy_title),
+                    description = stringResource(R.string.settings_privacy_description),
                     onClick = {
                         destinations[Routes.PRIVACY]?.invoke()
                     }
@@ -203,7 +230,7 @@ fun SettingsScreen(
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Outlined.Gavel,
-                            contentDescription = "Legal",
+                            contentDescription = stringResource(R.string.settings_legal_title),
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
@@ -215,8 +242,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "Legal",
-                    description = "Find terms, conditions, and privacy policy",
+                    title = stringResource(R.string.settings_legal_title),
+                    description = stringResource(R.string.settings_legal_description),
                     onClick = {
                         destinations[Routes.LEGAL]?.invoke()
                     }
@@ -225,8 +252,8 @@ fun SettingsScreen(
                 SettingsOption(
                     leadingIcon = {
                         Icon(
-                            imageVector = Icons.Outlined.HelpOutline,
-                            contentDescription = "Support",
+                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
+                            contentDescription = stringResource(R.string.settings_support_title),
                             tint = GrayFive,
                             modifier = Modifier.size(24.dp)
                         )
@@ -238,8 +265,8 @@ fun SettingsScreen(
                             tint = EateryBlue,
                         )
                     },
-                    title = "Support",
-                    description = "Report issues and contact Cornell Appdev",
+                    title = stringResource(R.string.settings_support_title),
+                    description = stringResource(R.string.settings_support_description),
                     onClick = {
                         destinations[Routes.SUPPORT]?.invoke()
                     }
@@ -247,47 +274,54 @@ fun SettingsScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                when (state) {
-                    is LoginViewModel.State.Login -> {
-                    }
-
-                    is LoginViewModel.State.Account -> {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 34.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Logged in as ${state.user.userName!!.substringBefore('@')}",
-                                style = EateryBlueTypography.h5,
-                                color = GrayFive
-                            )
-                            Button(
-                                onClick = {
-                                    loginViewModel.onLogoutPressed()
-                                    destinations[Routes.PROFILE]?.invoke()
-                                },
-                                shape = RoundedCornerShape(25.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = GrayZero,
-                                    contentColor = Color.Black
-                                )
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Logout,
-                                    contentDescription = Icons.Default.Logout.name,
-                                )
-                                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                                Text(
-                                    text = "Log out",
-                                    style = EateryBlueTypography.button
-                                )
-                            }
-                        }
-                    }
-                }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 34.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    onLogout()
+                },
+                shape = RoundedCornerShape(25.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = GrayZero,
+                    contentColor = Color.Black
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = Icons.AutoMirrored.Filled.Logout.name,
+                )
+                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                Text(
+                    text = stringResource(R.string.settings_logout),
+                    style = EateryBlueTypography.button
+                )
             }
-        })
+        }
+    }
 }
+
+private fun previewDestinations(): Map<Routes, () -> Unit> = hashMapOf(
+    Routes.ABOUT to {},
+    Routes.FAVORITES to {},
+    Routes.NOTIFICATIONS_SETTING to {},
+    Routes.NOTIFICATIONS_HOME to {},
+    Routes.LEGAL to {},
+    Routes.PRIVACY to {},
+    Routes.SUPPORT to {},
+    Routes.PROFILE to {}
+)
+
+@Preview(showBackground = true)
+@Composable
+private fun SettingsScreenPreview() = EateryPreview {
+    SettingsScreenContent(
+        destinations = previewDestinations(),
+        onLogout = {}
+    )
+}
+

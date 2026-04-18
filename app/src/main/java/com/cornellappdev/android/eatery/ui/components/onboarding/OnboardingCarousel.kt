@@ -14,53 +14,57 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.data.models.User
+import com.cornellappdev.android.eatery.ui.theme.Black
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.calculateCurrentOffsetForPage
-import com.google.accompanist.pager.rememberPagerState
+import com.cornellappdev.android.eatery.util.EateryPreview
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OnboardingCarousel(
     fadePage: Boolean,
     onSkipClicked: () -> Unit,
-    onLoginSuccess: (User) -> Unit,
-    onLoginError: () -> Unit = {},
     onProceed: () -> Unit = {}
 ) {
-    val headerPagerState = rememberPagerState()
-    val phonePagerState = rememberPagerState()
-    val iconPagerState = rememberPagerState()
-
-    val navController = rememberAnimatedNavController()
+    val headerPagerState = rememberPagerState(pageCount = { 6 })
+    val phonePagerState = rememberPagerState(pageCount = { 6 })
+    val iconPagerState = rememberPagerState(pageCount = { 6 })
+    val currentPageOffsetFraction by remember {
+        derivedStateOf {
+            phonePagerState.currentPageOffsetFraction
+        }
+    }
 
     // Takes in the phone's pager position and properly moves the header
     // along with it every time the state changes.
-    LaunchedEffect(Pair(phonePagerState.currentPage, phonePagerState.currentPageOffset)) {
+    LaunchedEffect(Pair(phonePagerState.currentPage, currentPageOffsetFraction)) {
         headerPagerState.scrollToPage(
             phonePagerState.currentPage,
-            phonePagerState.currentPageOffset,
+            currentPageOffsetFraction,
         )
 
         iconPagerState.scrollToPage(
             phonePagerState.currentPage,
-            phonePagerState.currentPageOffset
+            currentPageOffsetFraction
         )
     }
 
@@ -82,20 +86,19 @@ fun OnboardingCarousel(
             verticalArrangement = Arrangement.Top
         ) {
             HorizontalPager(
-                count = 6, state = headerPagerState, userScrollEnabled = false
+                state = headerPagerState, userScrollEnabled = false
             ) { page ->
                 OnboardingHeader(
                     num = page,
-                    pagerOffset = calculateCurrentOffsetForPage(page),
+                    pagerOffset = pagerOffsetForPage(headerPagerState, page),
                     onSkipClicked = onSkipClicked
                 )
             }
 
             Box {
                 HorizontalPager(
-                    count = 6,
                     modifier = Modifier
-                        .padding(top = 16.dp, start = 0.dp, end = 0.dp)
+                        .padding(top = 16.dp)
                         .zIndex(1f),
                     state = phonePagerState,
                     contentPadding = PaddingValues(horizontal = 55.dp)
@@ -104,85 +107,82 @@ fun OnboardingCarousel(
                         0 -> {
                             OnboardingPage(
                                 num = 0,
-                                pagerOffset = calculateCurrentOffsetForPage(0),
+                                pagerOffset = pagerOffsetForPage(phonePagerState, 0),
                             )
                         }
 
                         1 -> {
                             OnboardingPage(
                                 num = 1,
-                                pagerOffset = calculateCurrentOffsetForPage(1),
+                                pagerOffset = pagerOffsetForPage(phonePagerState, 1),
                             )
                         }
 
                         2 -> {
                             OnboardingPage(
                                 num = 2,
-                                pagerOffset = calculateCurrentOffsetForPage(2),
+                                pagerOffset = pagerOffsetForPage(phonePagerState, 2),
                             )
                         }
 
                         3 -> {
                             OnboardingPage(
                                 num = 3,
-                                pagerOffset = calculateCurrentOffsetForPage(3),
+                                pagerOffset = pagerOffsetForPage(phonePagerState, 3),
                             )
                         }
 
                         4 -> {
                             OnboardingPage(
                                 num = 4,
-                                pagerOffset = calculateCurrentOffsetForPage(4),
+                                pagerOffset = pagerOffsetForPage(phonePagerState, 4),
                             )
                         }
 
                         5 -> {
-                            OnboardingPage(
-                                num = 5,
-                                pagerOffset = calculateCurrentOffsetForPage(5),
-                            )
-                            //Proceed to Eatery Button
-                            Button(
-                                shape = RoundedCornerShape(24.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        start = .1f.dp,
-                                        end = .1f.dp,
-                                        bottom = 32.dp,
-                                        top = 24.dp
+                            Box {
+                                OnboardingPage(
+                                    num = 5,
+                                    pagerOffset = pagerOffsetForPage(phonePagerState, 5),
+                                )
+                                //Proceed to Eatery Button
+                                Button(
+                                    shape = RoundedCornerShape(24.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            start = .1f.dp,
+                                            end = .1f.dp,
+                                            bottom = 32.dp,
+                                            top = 24.dp
+                                        )
+                                        .height(48.dp)
+                                        .align(Alignment.BottomCenter),
+                                    onClick = {
+                                        onProceed()
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                                    elevation = ButtonDefaults.buttonElevation(
+                                        defaultElevation = 4.dp,
+                                        pressedElevation = 4.dp,
+                                        disabledElevation = 4.dp,
+                                        hoveredElevation = 4.dp
                                     )
-                                    .height(48.dp)
-                                    .align(Alignment.BottomCenter),
-                                onClick = {
-                                    onProceed()
-                                },
-                                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-                                elevation = ButtonDefaults.elevation(
-                                    defaultElevation = 4.dp,
-                                    pressedElevation = 4.dp,
-                                    disabledElevation = 4.dp,
-                                    hoveredElevation = 4.dp
-                                )
-                            ) {
-                                Text(
-                                    style = EateryBlueTypography.h6,
-                                    text = "Proceed to Eatery!"
-                                )
+                                ) {
+                                    Text(
+                                        style = EateryBlueTypography.h6,
+                                        text = "Proceed to Eatery!",
+                                        color = Black
+                                    )
+                                }
                             }
                         }
-                        // Leave this empty. The sixth page is filled by the
-                        // HorizontalPager below.
-//                        6 -> {
-//
-//                        }
                     }
                 }
 
                 // Need a separate HorizontalPager. We don't want the IconSheet + LoginPage
                 // to be affected by the contentPadding of the HorizontalPager above.
                 HorizontalPager(
-                    count = 6,
                     state = iconPagerState,
                     userScrollEnabled = false,
                     modifier = Modifier.zIndex(if (iconPagerState.currentPage == 6) 2f else -1f)
@@ -207,7 +207,7 @@ fun OnboardingCarousel(
                                         rotate = -24f
                                     )
                                 ),
-                                pagerOffset = calculateCurrentOffsetForPage(page)
+                                pagerOffset = pagerOffsetForPage(iconPagerState, page)
                             )
                         }
 
@@ -230,7 +230,7 @@ fun OnboardingCarousel(
                                         rotate = -24f
                                     )
                                 ),
-                                pagerOffset = calculateCurrentOffsetForPage(page)
+                                pagerOffset = pagerOffsetForPage(iconPagerState, page)
                             )
                         }
 
@@ -253,7 +253,7 @@ fun OnboardingCarousel(
                                         rotate = -24f
                                     )
                                 ),
-                                pagerOffset = calculateCurrentOffsetForPage(page)
+                                pagerOffset = pagerOffsetForPage(iconPagerState, page)
                             )
                         }
 
@@ -276,7 +276,7 @@ fun OnboardingCarousel(
                                         rotate = -24f
                                     )
                                 ),
-                                pagerOffset = calculateCurrentOffsetForPage(page)
+                                pagerOffset = pagerOffsetForPage(iconPagerState, page)
                             )
                         }
 
@@ -294,7 +294,7 @@ fun OnboardingCarousel(
                                         rotate = 0f
                                     )
                                 ),
-                                pagerOffset = calculateCurrentOffsetForPage(page)
+                                pagerOffset = pagerOffsetForPage(iconPagerState, page)
                             )
                         }
 
@@ -312,17 +312,26 @@ fun OnboardingCarousel(
                                         rotate = 0f
                                     )
                                 ),
-                                pagerOffset = calculateCurrentOffsetForPage(page)
+                                pagerOffset = pagerOffsetForPage(iconPagerState, page)
                             )
                         }
-//                        6 -> {
-//                            Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-//                                LoginPage(onSuccess = onLoginSuccess, onError = onLoginError)
-//                            }
-//                        }
                     }
                 }
             }
         }
     }
+}
+
+private fun pagerOffsetForPage(state: PagerState, page: Int): Float {
+    return (state.currentPage - page) + state.currentPageOffsetFraction
+}
+
+@Preview
+@Composable
+private fun OnboardingCarouselPreview() = EateryPreview {
+    OnboardingCarousel(
+        fadePage = true,
+        onSkipClicked = {},
+        onProceed = {}
+    )
 }

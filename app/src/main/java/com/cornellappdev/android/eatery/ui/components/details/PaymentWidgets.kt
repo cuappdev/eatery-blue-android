@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,21 +33,21 @@ fun PaymentWidgets(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(ButtonDefaults.IconSpacing)
         ) {
-            if (eatery.paymentAcceptsMealSwipes == true) {
+            if (eatery.acceptsMealSwipes()) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_payment_swipes),
                     contentDescription = "Accepts Swipes",
                     tint = EateryBlue
                 )
             }
-            if (eatery.paymentAcceptsBrbs == true) {
+            if (eatery.acceptsBRB()) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_payment_brbs),
                     contentDescription = "Accepts BRBs",
                     tint = Red
                 )
             }
-            if (eatery.paymentAcceptsCash == true) {
+            if (eatery.acceptsCash()) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_payment_cash),
                     contentDescription = "Accepts Cash",

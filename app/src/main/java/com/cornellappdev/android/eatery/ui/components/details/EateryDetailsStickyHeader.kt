@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.components.details
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -13,10 +14,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -29,25 +29,21 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.models.MenuCategory
 import com.cornellappdev.android.eatery.ui.theme.GrayFive
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.util.AppStorePopupRepository
-import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import kotlinx.coroutines.launch
 
 @Composable
 fun EateryDetailsStickyHeader(
     nextEvent: Event?,
-    eatery: Eatery,
     filterText: String,
     fullMenuList: MutableList<String>,
     listState: LazyListState,
     startIndex: Int,
     onItemClick: (Int) -> Unit,
-    appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository(),
+    onRequestRatingPopup: () -> Unit = {},
 ) {
     val rowState = rememberLazyListState()
     val rowCoroutine = rememberCoroutineScope()
@@ -70,7 +66,7 @@ fun EateryDetailsStickyHeader(
                 if (selectedIndex >= 4) {
                     // They've scrolled decently far down and have interacted with this menu, we can
                     // request a review
-                    appStorePopupRepository.requestRatingPopup()
+                    onRequestRatingPopup()
                 }
                 rowState.animateScrollToItem(selectedIndex)
             }
@@ -108,7 +104,7 @@ fun EateryDetailsStickyHeader(
 
                     nextEvent?.menu?.forEach { category ->
                         item {
-                            val categoryIndex = fullMenuList.indexOf(category.category)
+                            val categoryIndex = fullMenuList.indexOf(category.name)
                             val isHighlighted = highlightCategory(
                                 category,
                                 listState,
@@ -117,7 +113,7 @@ fun EateryDetailsStickyHeader(
                                 startIndex
                             )
                             CategoryItem(
-                                category.category ?: "Category",
+                                category.name ?: "Category",
                                 isHighlighted,
                             ) { onItemClick(categoryIndex) }
                         }
@@ -142,14 +138,13 @@ fun EateryDetailsStickyHeader(
             Spacer(modifier = Modifier.height(6.dp))
         }
 
-        Divider(
+        HorizontalDivider(
             color = GrayZero,
             thickness = 1.dp
         )
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CategoryItem(
     name: String,
@@ -166,10 +161,11 @@ fun CategoryItem(
     )
 
     Surface(
-        modifier = Modifier.fillMaxHeight(),
+        modifier = Modifier
+            .fillMaxHeight()
+            .clickable(onClick = onItemClick),
         shape = RoundedCornerShape(100),
-        color = backgroundColor,
-        onClick = onItemClick
+        color = backgroundColor
     ) {
         Text(
             modifier = Modifier
@@ -203,15 +199,15 @@ fun highlightCategory(
 
     if (firstMenuItemIndex >= 0 && firstMenuItemIndex < fullMenuList.size) {
         val item = fullMenuList[firstMenuItemIndex]
-        val isCategoryName = nextEvent?.menu?.any { it.category == item } ?: false
+        val isCategoryName = nextEvent?.menu?.any { it.name == item } ?: false
 
         if (isCategoryName) {
-            return category.category == item
+            return category.name == item
         } else {
             for (i in firstMenuItemIndex - 1 downTo 0) {
                 val previousItem = fullMenuList[i]
-                if (nextEvent?.menu?.any { it.category == previousItem } == true) {
-                    return category.category == previousItem
+                if (nextEvent?.menu?.any { it.name == previousItem } == true) {
+                    return category.name == previousItem
                 }
             }
         }

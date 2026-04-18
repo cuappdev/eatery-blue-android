@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,12 +15,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
 
 /**
- * Dietary widgets that are displayed at the bottom left corner of Eatery Card
+ * Dietary widgets that are displayed in the bottom left corner of Eatery Card
  */
 @Composable
 fun DietaryWidgets(eatery: Eatery, modifier: Modifier = Modifier, onClick: () -> Unit) {

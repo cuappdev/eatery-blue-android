@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
-import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
@@ -44,8 +44,8 @@ data class EateriesSection(
 
 @HiltViewModel
 class UpcomingViewModel @Inject constructor(
-    userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository
+    private val eateryRepository: EateryRepository,
+    userRepository: UserRepository
 ) : ViewModel() {
 
     private val mealFilterFlow = MutableStateFlow(nextMeal() ?: MealFilter.LATE_DINNER)
@@ -65,22 +65,22 @@ class UpcomingViewModel @Inject constructor(
     val viewStateFlow: StateFlow<UpcomingMenusViewState> = combine(
         eateryRepository.eateryFlow,
         selectedFiltersFlow,
-        userPreferencesRepository.favoriteItemsFlow,
+        userRepository.favoriteItemsFlow,
         mealFilterFlow,
         selectedDayFlow
-    ) { eateryApiResponse, filters, favoriteItemsMap, mealFilter, selectedDayOffset ->
+    ) { eateryApiResponse, filters, favoriteItems, mealFilter, selectedDayOffset ->
         val viewingDate = LocalDate.now().plusDays(selectedDayOffset.toLong())
 
         fun Eatery.toMenuCardViewState(): MenuCardViewState? {
             val currentEvent =
                 events?.find {
-                    it.description in mealFilter.text &&
-                            it.startTime?.toLocalDate() == viewingDate
+                    it.type in mealFilter.text &&
+                            it.startTimestamp?.toLocalDate() == viewingDate
                 }
                     ?: return null
             return MenuCardViewState(
-                eateryHours = currentEvent.startTime?.let { startTime ->
-                    currentEvent.endTime?.let { endTime ->
+                eateryHours = currentEvent.startTimestamp?.let { startTime ->
+                    currentEvent.endTimestamp?.let { endTime ->
                         val timePattern = "hh:mm a"
                         EateryHours(
                             startTime = startTime.format(
@@ -95,11 +95,11 @@ class UpcomingViewModel @Inject constructor(
                 eateryId = id ?: return null,
                 menu = currentEvent.menu?.map { menu ->
                     MenuCategoryViewState(
-                        menu.category ?: "",
+                        menu.name ?: "",
                         menu.items?.map { menuItem ->
                             MenuItemViewState(
                                 item = menuItem,
-                                isFavorite = favoriteItemsMap[menuItem.name] == true
+                                isFavorite = menuItem.name in favoriteItems
                             )
                         } ?: emptyList()
                     )
@@ -132,7 +132,6 @@ class UpcomingViewModel @Inject constructor(
                 )
             }
 
-
             is EateryApiResponse.Success -> {
                 val data = eateryApiResponse.data.filter { eatery ->
                     Filter.passesSelectedFilters(upcomingMenuFilters, filters, FilterData(eatery))
@@ -147,7 +146,8 @@ class UpcomingViewModel @Inject constructor(
                             }?.takeIf { it.isNotEmpty() }
                             menuCards?.let {
                                 EateriesSection(
-                                    header = location,
+                                    header = location.lowercase()
+                                        .replaceFirstChar { c -> if (c.isLowerCase()) c.titlecase() else c.toString() },
                                     menuCards = it
                                 )
                             }

@@ -5,10 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.cornellappdev.android.eatery.ui.theme.EateryBlueTheme
 
 @Composable
 fun EateryPreview(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    androidx.compose.material3.MaterialTheme {
+    EateryBlueTheme {
         Column(
             modifier = modifier
                 .background(Color.White)

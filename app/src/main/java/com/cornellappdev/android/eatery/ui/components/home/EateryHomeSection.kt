@@ -17,17 +17,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -119,8 +121,8 @@ private fun EateryHomeSectionHeader(
                     )
             ) {
                 Icon(
-                    Icons.Default.ArrowForward,
-                    contentDescription = "Favorites",
+                    Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = stringResource(R.string.favorites_title),
                     tint = Color.Black
                 )
             }
@@ -153,7 +155,7 @@ private fun EaterySectionRow(
                 isFavorite = favoritesDecider(eatery),
                 modifier = Modifier
                     .fillParentMaxWidth(0.85f)
-                    .animateItemPlacement(),
+                    .animateItem(),
                 onFavoriteClick = {
                     onFavoriteClick(eatery, it)
                 }) {
