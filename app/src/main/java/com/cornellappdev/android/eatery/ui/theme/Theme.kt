@@ -61,7 +61,7 @@ fun EateryBlueTheme(
 
     // For bottom sheet background colors
     val colorScheme = baseColorScheme.copy(
-        surface = Color.White,
+//        surface = Color.White,
         surfaceContainerLowest = Color.White,
         surfaceContainerLow = Color.White,
         surfaceContainer = Color.White,
