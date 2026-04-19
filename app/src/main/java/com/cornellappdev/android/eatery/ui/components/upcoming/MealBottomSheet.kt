@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
@@ -37,6 +38,7 @@ import com.cornellappdev.android.eatery.ui.components.general.MealFilter
 import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
  * The pop-up that shows up when users want to pick a different meal as the filter in the upcoming
@@ -118,11 +120,13 @@ fun MealBottomSheet(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
                     contentDescription = stringResource(R.string.a11y_meal_selected_breakfast),
+                    tint = Color.Unspecified
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
                     contentDescription = stringResource(R.string.a11y_meal_select_breakfast),
+                    tint = Color.Unspecified
                 )
             }
         }
@@ -168,11 +172,13 @@ fun MealBottomSheet(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
                     contentDescription = stringResource(R.string.a11y_meal_selected_lunch),
+                    tint = Color.Unspecified
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
                     contentDescription = stringResource(R.string.a11y_meal_select_lunch),
+                    tint = Color.Unspecified
                 )
             }
         }
@@ -218,11 +224,13 @@ fun MealBottomSheet(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
                     contentDescription = stringResource(R.string.a11y_meal_selected_dinner),
+                    tint = Color.Unspecified
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
                     contentDescription = stringResource(R.string.a11y_meal_select_dinner),
+                    tint = Color.Unspecified
                 )
             }
         }
@@ -267,11 +275,13 @@ fun MealBottomSheet(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_selected),
                     contentDescription = stringResource(R.string.a11y_meal_selected_late_dinner),
+                    tint = Color.Unspecified
                 )
             } else {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_unselected),
                     contentDescription = stringResource(R.string.a11y_meal_select_late_dinner),
+                    tint = Color.Unspecified
                 )
             }
         }
@@ -312,4 +322,15 @@ fun MealBottomSheet(
             color = Color.Black
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MealBottomSheetPreview() = EateryPreview {
+    MealBottomSheet(
+        isVisible = true,
+        selectedMeal = MealFilter.LUNCH,
+        onSubmit = {},
+        hide = {}
+    )
 }
