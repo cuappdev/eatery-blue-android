@@ -46,7 +46,12 @@ class AuthInterceptor @Inject constructor(
                     val retryRequest = addTokenToRequest(request)
                     response = chain.proceed(retryRequest)
                 } catch (_: Exception) {
-                    return chain.proceed(request)
+                    return Response.Builder()
+                        .code(response.code)
+                        .message(response.message)
+                        .request(request)
+                        .protocol(response.protocol)
+                        .build()
                 }
             }
             return response
