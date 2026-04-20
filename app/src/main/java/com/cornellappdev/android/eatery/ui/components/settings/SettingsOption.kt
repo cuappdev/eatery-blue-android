@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Divider
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -42,7 +42,7 @@ fun SettingsOption(
             .clickable(
                 onClick = { onClick() },
                 interactionSource = interactionSource,
-                indication = rememberRipple()
+                indication = ripple()
             ),
         verticalAlignment = CenterVertically
     ) {
@@ -79,5 +79,9 @@ fun SettingsOption(
 
 @Composable
 fun SettingsLineSeparator() {
-    Divider(color = currentColors.accentPrimary, modifier = Modifier.fillMaxWidth(), thickness = 1.dp)
+    HorizontalDivider(
+        color = currentColors.accentPrimary,
+        modifier = Modifier.fillMaxWidth(),
+        thickness = 1.dp
+    )
 }

@@ -13,19 +13,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
@@ -44,17 +45,18 @@ fun PaymentMethodsAvailable(
     hide: () -> Unit
 ) {
     val paymentMethodsAvailableText = buildAnnotatedString {
-        append("Pay with ")
-        if (selectedPaymentMethods.containsAll(PaymentMethodsAvailable.values().toList())) {
-            append("all payment methods")
+        append(stringResource(R.string.payment_methods_pay_with))
+        append(" ")
+        if (selectedPaymentMethods.containsAll(PaymentMethodsAvailable.entries)) {
+            append(stringResource(R.string.payment_methods_all))
         } else {
             selectedPaymentMethods.forEachIndexed { index, paymentMethod ->
                 appendInlineContent(id = paymentMethod.name)
                 pushStyle(SpanStyle(color = paymentMethod.color))
-                append(" ${paymentMethod.text}")
+                append(" ${stringResource(paymentMethod.textRes)}")
                 pop()
                 if (index != selectedPaymentMethods.lastIndex) {
-                    append(" or ")
+                    append(" ${stringResource(R.string.payment_methods_or)} ")
                 }
             }
         }
@@ -63,7 +65,7 @@ fun PaymentMethodsAvailable(
     }
 
     val inlineContentMap =
-        PaymentMethodsAvailable.values().associate { paymentMethod ->
+        PaymentMethodsAvailable.entries.associate { paymentMethod ->
             paymentMethod.name to InlineTextContent(
                 Placeholder(18.sp, 18.sp, PlaceholderVerticalAlign.TextCenter)
             ) {
@@ -84,7 +86,7 @@ fun PaymentMethodsAvailable(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Payment Methods",
+                text = stringResource(R.string.payment_methods_title),
                 style = EateryBlueTypography.h4,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
@@ -97,7 +99,11 @@ fun PaymentMethodsAvailable(
                     .size(40.dp)
                     .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = currentColors.textPrimary)
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.payment_methods_close),
+                    tint = currentColors.textPrimary
+                )
             }
         }
 
@@ -120,7 +126,7 @@ fun PaymentMethodsAvailable(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_swipes),
-                        contentDescription = "Swipes",
+                        contentDescription = stringResource(R.string.payment_methods_meal_swipes),
                         tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.SWIPES)) currentColors.backgroundSecondary else currentColors.backgroundDefault92
                     )
                 }
@@ -139,7 +145,7 @@ fun PaymentMethodsAvailable(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_brbs),
-                        contentDescription = "BRBs",
+                        contentDescription = stringResource(R.string.payment_methods_brbs),
                         tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.BRB)) currentColors.error else currentColors.backgroundDefault92
                     )
                 }
@@ -157,7 +163,7 @@ fun PaymentMethodsAvailable(
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_cash),
-                        contentDescription = "Cash or card",
+                        contentDescription = stringResource(R.string.payment_methods_cash_or_credit),
                         tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.CASH)) currentColors.success else currentColors.backgroundDefault92
                     )
                 }
@@ -180,12 +186,12 @@ fun PaymentMethodsAvailable(
                 .padding(top = 12.dp, bottom = 12.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = currentColors.backgroundDefault,
+                containerColor = currentColors.backgroundDefault,
                 contentColor = currentColors.textPrimary
             )
         ) {
             Text(
-                text = "Close",
+                text = stringResource(R.string.payment_methods_close),
                 style = EateryBlueTypography.h5,
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
             )
@@ -193,10 +199,20 @@ fun PaymentMethodsAvailable(
     }
 }
 
-
-
-enum class PaymentMethodsAvailable(val drawable: Int, val color: Color, val text: String) {
-    BRB(drawable = R.drawable.ic_small_brbs, color = Color.Red, text = "BRBs"),
-    CASH(drawable = R.drawable.ic_small_cash, color = Color.Green, text = "Cash or credit"),
-    SWIPES(drawable = R.drawable.ic_small_swipes, color = Color(0xFF808080), text = "Meal swipes");
+enum class PaymentMethodsAvailable(val drawable: Int, val color: Color, val textRes: Int) {
+    BRB(
+        drawable = R.drawable.ic_small_brbs,
+        color = Color.Red,
+        textRes = R.string.payment_methods_brbs
+    ),
+    CASH(
+        drawable = R.drawable.ic_small_cash,
+        color = Color.Green,
+        textRes = R.string.payment_methods_cash_or_credit
+    ),
+    SWIPES(
+        drawable = R.drawable.ic_small_swipes,
+        color = Color(0xFF808080),
+        textRes = R.string.payment_methods_meal_swipes
+    );
 }

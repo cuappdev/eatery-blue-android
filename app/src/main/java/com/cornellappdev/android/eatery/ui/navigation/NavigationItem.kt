@@ -1,8 +1,6 @@
 package com.cornellappdev.android.eatery.ui.navigation
 
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 
 /**
  * Class to represent each tab.

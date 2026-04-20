@@ -6,15 +6,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults.buttonColors
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults.buttonColors
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -37,7 +37,7 @@ fun NoEateryFound(modifier: Modifier = Modifier, resetFilters: () -> Unit) {
             tint = currentColors.backgroundDefault92
         )
         Text(
-            text = "No eatery found...",
+            text = stringResource(R.string.no_eatery_found),
             style = EateryBlueTypography.h5,
             modifier = Modifier.padding(top = 12.dp)
         )
@@ -45,14 +45,14 @@ fun NoEateryFound(modifier: Modifier = Modifier, resetFilters: () -> Unit) {
             modifier = Modifier.padding(top = 12.dp),
             shape = RoundedCornerShape(100.dp),
             colors = buttonColors(
-                backgroundColor = currentColors.accentPrimary
+                containerColor = currentColors.accentPrimary
             ),
             onClick = {
                 resetFilters()
             }
         ) {
             Text(
-                text = "Reset filters",
+                text = stringResource(R.string.reset_filters),
                 color =
                 currentColors.backgroundDefault
             )

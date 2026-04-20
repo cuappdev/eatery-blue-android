@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.login
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,424 +21,452 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.IconToggleButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.data.models.Account
-import com.cornellappdev.android.eatery.data.models.AccountType
-import com.cornellappdev.android.eatery.data.models.Transaction
+import com.cornellappdev.android.eatery.data.models.AccountBalances
+import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
-import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
-import kotlinx.coroutines.launch
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
+import com.cornellappdev.android.eatery.util.EateryPreview
+import kotlin.math.abs
 
 @OptIn(
-    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class,
+    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
     ExperimentalAnimationApi::class
 )
 @Composable
 fun AccountPage(
-    accountFilter: AccountType,
-    checkAccount: (AccountType) -> Account?,
-    checkMealPlan: () -> Account?,
+    accountFilter: TransactionAccountType,
+    accountTypeBalance: AccountBalances,
     onSettingsClicked: () -> Unit,
-    getTransactionsOfType: (AccountType, String) -> List<Transaction>,
-    updateAccountFilter: (AccountType) -> Unit,
+    filteredTransactions: List<DisplayTransaction>,
+    filterText: String,
+    onQueryChanged: (String) -> Unit,
+    updateAccountFilter: (TransactionAccountType) -> Unit
 ) {
-    var filterText by remember { mutableStateOf("") }
-    val modalBottomSheetState =
-        rememberModalBottomSheetState(
-            initialValue = ModalBottomSheetValue.Hidden,
-            skipHalfExpanded = true
-        )
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBottomSheet by remember { mutableStateOf(false) }
     var sheetContent by remember { mutableStateOf(BottomSheetContent.ACCOUNT_TYPE) }
-    val coroutineScope = rememberCoroutineScope()
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState,
-        sheetContent = {
+    AccountPageContent(
+        onSettingsClicked,
+        accountTypeBalance,
+        accountFilter,
+        showBottomSheet = { showBottomSheet = true },
+        filterText,
+        setFilterText = onQueryChanged,
+        filteredTransactions,
+        setSheetContent = { sheetContent = it },
+    )
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = modalBottomSheetState,
+            shape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            )
+        ) {
             when (sheetContent) {
                 BottomSheetContent.ACCOUNT_TYPE -> {
-                    AccountTypesAvailable(
+                    AccountTypesSelector(
                         selectedPaymentMethod = listOf(
-                            AccountType.MEALSWIPES,
-                            AccountType.BRBS,
-                            AccountType.CITYBUCKS,
-                            AccountType.LAUNDRY
+                            TransactionAccountType.MEAL_SWIPES,
+                            TransactionAccountType.BRBS,
+                            TransactionAccountType.CITY_BUCKS,
+                            TransactionAccountType.LAUNDRY
                         ),
                         accountFilter = accountFilter,
-                        hide = {
-                            coroutineScope.launch {
-                                modalBottomSheetState.hide()
-                            }
-                        }) {
-                        updateAccountFilter(it)
-                    }
+                        hide = { showBottomSheet = false },
+                        onSubmit = updateAccountFilter
+                    )
                 }
 
                 else -> {}
             }
-        },
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 12.dp,
-            topEnd = 12.dp
-        ),
-        sheetElevation = 8.dp
+        }
+    }
+}
+
+@OptIn(
+    ExperimentalFoundationApi::class,
+    ExperimentalAnimationApi::class
+)
+@Composable
+private fun AccountPageContent(
+    onSettingsClicked: () -> Unit,
+    accountTypeBalance: AccountBalances,
+    accountFilter: TransactionAccountType,
+    showBottomSheet: () -> Unit,
+    filterText: String,
+    setFilterText: (String) -> Unit,
+    filteredTransactions: List<DisplayTransaction>,
+    setSheetContent: (BottomSheetContent) -> Unit
+) {
+    val innerListState = rememberLazyListState()
+    val isFirstVisible by remember { derivedStateOf { innerListState.firstVisibleItemIndex > 1 } }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(currentColors.backgroundDefault)
-        )
-        {
-        val innerListState = rememberLazyListState()
-        val isFirstVisible =
-            remember { derivedStateOf { innerListState.firstVisibleItemIndex > 1 } }
-
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-        )
-        {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(currentColors.backgroundSecondary)
-                    .statusBarsPadding()
-                    .padding(bottom = 7.dp),
-            ) {
-                AnimatedContent(
-                    targetState = isFirstVisible.value
-                ) { isFirstVisible ->
-                    if (isFirstVisible) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 12.dp)
-                        ) {
-                            Text(
-                                modifier = Modifier.align(Alignment.Center),
-                                textAlign = TextAlign.Center,
-                                text = "Account",
-                                color = currentColors.oppTextPrimary,
-                                style = TextStyle(
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 20.sp
-                                )
-                            )
-
-                            IconButton(
-                                modifier = Modifier.align(Alignment.CenterEnd),
-                                onClick = {
-                                    onSettingsClicked()
-                                }
-                            ) {
-                                Icon(
-                                    modifier = Modifier.size(28.dp),
-                                    painter = painterResource(id = R.drawable.system_setting),
-                                    contentDescription = Icons.Outlined.Settings.name,
-                                    tint = currentColors.textPrimary
-                                )
-                            }
-                        }
-                    } else {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .then(Modifier.statusBarsPadding())
-                                .padding(bottom = 7.dp),
-                        ) {
-                            IconButton(
-                                modifier = Modifier
-                                    .padding(end = 16.dp)
-                                    .align(Alignment.End)
-                                    .size(32.dp)
-                                    .statusBarsPadding(),
-                                onClick = { onSettingsClicked() }) {
-                                Icon(
-                                    modifier = Modifier.size(28.dp),
-                                    imageVector = Icons.Outlined.Settings,
-                                    contentDescription = Icons.Outlined.Settings.name,
-                                    tint = currentColors.textPrimary
-                                )
-                            }
-                            Column(
-                                modifier = Modifier.padding(
-                                    start = 16.dp,
-                                    end = 16.dp,
-                                    top = 24.dp
-                                )
-                            ) {
-                                Text(
-                                    text = "Account",
-                                    color = currentColors.oppTextPrimary,
-                                    style = EateryBlueTypography.h2
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            LazyColumn(state = innerListState) {
-                item {
-                    (Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        Column {
-                            Text(
-                                text = "Meal Plan",
-                                style = EateryBlueTypography.h4,
-                                color = currentColors.textPrimary,
-                                modifier = Modifier.padding(top = 16.dp)
-                            )
-                            AccountBalanceRow(
-                                accountName = "Meal Swipes",
-                                accountType = AccountType.MEALSWIPES,
-                                checkAccount = checkAccount,
-                                checkMealPlan = checkMealPlan
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(currentColors.accentPrimary, CircleShape)
-                            )
-                            AccountBalanceRow(
-                                accountName = "Big Red Bucks",
-                                accountType = AccountType.BRBS,
-                                checkAccount = checkAccount,
-                                checkMealPlan = checkMealPlan
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(currentColors.accentPrimary, CircleShape)
-                            )
-                            AccountBalanceRow(
-                                accountName = "City Bucks",
-                                accountType = AccountType.CITYBUCKS,
-                                checkAccount = checkAccount,
-                                checkMealPlan = checkMealPlan
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(1.dp)
-                                    .background(currentColors.accentPrimary, CircleShape)
-                            )
-                            AccountBalanceRow(
-                                accountName = "Laundry",
-                                accountType = AccountType.LAUNDRY,
-                                checkAccount = checkAccount,
-                                checkMealPlan = checkMealPlan
-                            )
-                        }
-                    })
-                }
-
-                item {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(16.dp)
-                            .background(currentColors.accentPrimary)
-                    )
-                }
-
-                stickyHeader {
-
-                    Row(
-                        modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = when (accountFilter.name) {
-                                    "MEALSWIPES" -> "Meal Swipes"
-                                    "BRBS" -> "Big Red Bucks"
-                                    "LAUNDRY" -> "Laundry"
-                                    "CITYBUCKS" -> "City Bucks"
-                                    else -> "Account Type"
-                                },
-                                style = EateryBlueTypography.h4,
-                                color = currentColors.textPrimary
-
-                            )
-                        }
-                        IconButton(
-                            onClick = {
-                                sheetContent = BottomSheetContent.ACCOUNT_TYPE
-                                coroutineScope.launch {
-                                    modalBottomSheetState.show()
-                                }
-                            },
-                            modifier = Modifier
-                                .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
-                                .background(
-                                    color = currentColors.backgroundDefault,
-                                    shape = CircleShape
-                                )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = "Change Account Type",
-                                modifier = Modifier
-                                    .size(26.dp),
-                                tint = currentColors.accentPrimary
-                            )
-                        }
-                    }
-                    SearchBar(
-                        searchText = filterText,
-                        onSearchTextChange = { filterText = it },
-                        modifier = Modifier
-                            .padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
-                        placeholderText = "Search for transactions...",
-                        onCancelClicked = {
-                            filterText = ""
-                        },
-
-                        )
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(currentColors.accentPrimary, CircleShape)
-                            .padding(horizontal = 16.dp)
-
-                    )
-                    Text(
-                        text = "Past 30 Days",
-                        modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
-                        style = EateryBlueTypography.h5,
-                        color = currentColors.textPrimary
-                    )
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(currentColors.accentPrimary, CircleShape)
-                            .padding(horizontal = 16.dp)
-
-                    )
-
-
-                }
-                items(
-                    getTransactionsOfType(
-                        accountFilter,
-                        filterText
-                    )
-                ) { it ->
-                    val inputFormatter =
-                        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-                    val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
-                    val dateTime = LocalDateTime.parse(it.date, inputFormatter)
-                    Row(
-                        modifier = Modifier
-                            .height(64.dp)
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "${it.location}",
-                                style = EateryBlueTypography.button,
-                                color = currentColors.textPrimary
-                            )
-                            Text(
-                                text = outputFormatter.format(dateTime),
-                                style = EateryBlueTypography.subtitle2,
-                                color = currentColors.textSecondary
-                            )
-                        }
-                        val (amtString, amtColor) =
-                            when {
-                                it.transactionType == 3 -> {
-                                    "+$%.2f".format(it.amount) to currentColors.success
-                                }
-
-                                it.amount?.toInt() == 0 -> {
-                                    "$0.00" to currentColors.textPrimary
-                                }
-
-                                else -> {
-                                    "-$%.2f".format(it.amount) to currentColors.error
-                                }
-                            }
+        AccountPageHeader(isFirstVisible, onSettingsClicked)
+        LazyColumn(state = innerListState) {
+            item {
+                (Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    Column {
                         Text(
-                            text = amtString,
-                            modifier = Modifier.weight(0.2f),
-                            color = amtColor,
-                            textAlign = TextAlign.Right,
-                            style = EateryBlueTypography.button,
+                            text = stringResource(R.string.account_meal_plan),
+                            style = EateryBlueTypography.h4,
+                            modifier = Modifier.padding(top = 16.dp)
                         )
-
+                        accountTypeBalance.mealSwipes?.let {
+                            AccountBalanceRow(
+                                accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
+                                swipes = it
+                            )
+                        }
+                        HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
+                        accountTypeBalance.brbBalance?.let {
+                            AccountBalanceRow(
+                                accountName = stringResource(TransactionAccountType.BRBS.displayNameRes()),
+                                balance = it
+                            )
+                        }
+                        HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
+                        accountTypeBalance.cityBucksBalance?.let {
+                            AccountBalanceRow(
+                                accountName = stringResource(TransactionAccountType.CITY_BUCKS.displayNameRes()),
+                                balance = it
+                            )
+                        }
+                        HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
+                        accountTypeBalance.laundryBalance?.let {
+                            AccountBalanceRow(
+                                accountName = stringResource(TransactionAccountType.LAUNDRY.displayNameRes()),
+                                balance = it
+                            )
+                        }
                     }
-                    Spacer(
+                })
+            }
+
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(16.dp)
+                        .background(currentColors.accentPrimary)
+                )
+            }
+
+            stickyHeader {
+                TransactionsHeader(
+                    accountFilter,
+                    setSheetContent,
+                    showBottomSheet,
+                    filterText,
+                    setFilterText
+                )
+            }
+            items(
+                items = filteredTransactions,
+                key = { it.id }) {
+                TransactionRow(
+                    transaction = it,
+                    isMealSwipes = accountFilter == TransactionAccountType.MEAL_SWIPES
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun AccountPagePreview() = EateryPreview {
+    AccountPageContent(
+        onSettingsClicked = {},
+        accountTypeBalance = AccountBalances(
+            brbBalance = 25.50,
+            cityBucksBalance = 10.75,
+            laundryBalance = 5.00,
+            mealSwipes = 42
+        ),
+        accountFilter = TransactionAccountType.BRBS,
+        showBottomSheet = {},
+        filterText = "",
+        setFilterText = {},
+        filteredTransactions = listOf(
+            DisplayTransaction(
+                id = "2023-10-01T12:30:00.000Z|Cafe Jennie|5.25|BRBS",
+                amount = 5.25,
+                accountType = TransactionAccountType.BRBS,
+                location = "Cafe Jennie",
+                formattedDate = "12:30 PM · Sunday, October 1"
+            ),
+            DisplayTransaction(
+                id = "2023-10-02T14:00:00.000Z|Morrison Dining|15.0|BRBS",
+                amount = 15.00,
+                accountType = TransactionAccountType.BRBS,
+                location = "Morrison Dining",
+                formattedDate = "2:00 PM · Monday, October 2"
+            )
+        ),
+        setSheetContent = {}
+    )
+}
+
+@Composable
+private fun TransactionsHeader(
+    accountFilter: TransactionAccountType,
+    setSheetContent: (BottomSheetContent) -> Unit,
+    showBottomSheet: () -> Unit,
+    filterText: String,
+    setFilterText: ((String) -> Unit)
+) {
+    Column(
+        modifier = Modifier
+            .background(color = Color.White)
+    ) {
+        Row(
+            modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = stringResource(accountFilter.displayNameRes()),
+                    style = EateryBlueTypography.h4
+                )
+            }
+            IconButton(
+                onClick = {
+                    setSheetContent(BottomSheetContent.ACCOUNT_TYPE)
+                    showBottomSheet()
+                },
+                modifier = Modifier
+                    .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = stringResource(R.string.a11y_change_account_type),
+                    modifier = Modifier
+                        .size(26.dp)
+                )
+            }
+        }
+        SearchBar(
+            searchText = filterText,
+            onSearchTextChange = setFilterText,
+            modifier = Modifier.padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
+            placeholderText = stringResource(R.string.account_search_transactions_placeholder),
+            onCancelClicked = { setFilterText("") }
+        )
+        HorizontalDivider(
+            color = currentColors.accentPrimary,
+            thickness = 1.dp,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Text(
+            text = stringResource(R.string.account_past_30_days),
+            modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
+            style = EateryBlueTypography.h5
+        )
+        HorizontalDivider(
+            color = currentColors.accentPrimary,
+            thickness = 1.dp,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalAnimationApi::class)
+private fun AccountPageHeader(
+    isFirstVisible: Boolean,
+    onSettingsClicked: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(currentColors.backgroundSecondary)
+            .then(Modifier.statusBarsPadding())
+            .padding(bottom = 7.dp),
+    ) {
+        AnimatedContent(
+            targetState = isFirstVisible
+        ) { isFirstVisible ->
+            if (isFirstVisible) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.Center),
+                        textAlign = TextAlign.Center,
+                        text = stringResource(R.string.account_title),
+                        color = Color.White,
+                        style = TextStyle(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 20.sp
+                        )
+                    )
+
+                    IconButton(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        onClick = onSettingsClicked
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(28.dp),
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = stringResource(R.string.a11y_settings),
+                            tint = Color.White
+                        )
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 7.dp),
+                ) {
+                    IconButton(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(currentColors.accentPrimary, CircleShape)
+                            .padding(end = 16.dp)
+                            .align(Alignment.End)
+                            .size(32.dp),
+                        onClick = { onSettingsClicked() }) {
+                        Icon(
+                            modifier = Modifier.size(28.dp),
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = stringResource(R.string.a11y_settings),
+                            tint = currentColors.textPrimary
+                        )
+                    }
+                    Text(
+                        modifier = Modifier.padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 24.dp
+                        ),
+                        text = stringResource(R.string.account_title),
+                        color = currentColors.oppTextPrimary,
+                        style = EateryBlueTypography.h2
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun TransactionRow(transaction: DisplayTransaction, isMealSwipes: Boolean) {
+    val amount = transaction.amount
+    Row(
+        modifier = Modifier
+            .height(64.dp)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(text = transaction.location, style = EateryBlueTypography.button)
+            Text(
+                text = transaction.formattedDate,
+                style = EateryBlueTypography.subtitle2,
+                color = currentColors.textPrimary
+            )
         }
+        // TODO - when we get transaction type, update formatting as appropriate
+        // e.g., for deposits, "+$%.2f".format(amount) to Green
+        val (amtString, amtColor) = if (isMealSwipes) {
+            val numSwipes = abs(amount).toInt()
+            "-$numSwipes swipe" + (if (numSwipes > 1) "s" else "") to currentColors.error
+        } else if (amount.epsilonEqual(0.0)) {
+            "$0.00" to currentColors.textPrimary
+        } else {
+            "-$%.2f".format(abs(amount)) to currentColors.error
+        }
+        Text(
+            text = amtString,
+            modifier = Modifier.weight(0.2f),
+            color = amtColor,
+            textAlign = TextAlign.Right,
+            style = EateryBlueTypography.button,
+        )
 
     }
+    HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
+}
+
+
+private fun Double.epsilonEqual(other: Double): Boolean {
+    val epsilon = 0.00001
+    return abs(this - other) < epsilon
 }
 
 
 @Composable
 fun AccountBalanceRow(
     accountName: String,
-    accountType: AccountType,
-    checkAccount: (AccountType) -> Account?,
-    checkMealPlan: () -> Account?
+    balance: Double,
+) {
+    AccountRow(accountName, "$" + "%.2f".format(balance))
+}
+
+@Composable
+fun AccountBalanceRow(
+    accountName: String,
+    swipes: Int
+) {
+    AccountRow(accountName, "$swipes remaining")
+}
+
+@Composable
+private fun AccountRow(
+    accountName: String,
+    text: String
 ) {
     Row(
-        modifier = Modifier.height(50.dp)
+        modifier = Modifier
+            .height(50.dp)
             .background(currentColors.backgroundDefault),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -451,15 +479,7 @@ fun AccountBalanceRow(
         Text(
             modifier = Modifier.weight(1f),
             textAlign = TextAlign.Right,
-            text = if (accountType != AccountType.MEALSWIPES) {
-                "$" + "%.2f".format(
-                    checkAccount(accountType)?.balance?.toFloat() ?: 0f
-                )
-            } else {
-                "%.0f".format(
-                    checkMealPlan()?.balance?.toFloat() ?: 0f
-                ) + " remaining"
-            },
+            text = text,
             style = EateryBlueTypography.button,
             color = currentColors.textPrimary
         )
@@ -468,18 +488,17 @@ fun AccountBalanceRow(
 
 
 @Composable
-fun AccountTypesAvailable(
-    selectedPaymentMethod: List<AccountType>,
-    accountFilter: AccountType,
+fun AccountTypesSelector(
+    selectedPaymentMethod: List<TransactionAccountType>,
+    accountFilter: TransactionAccountType,
     hide: () -> Unit,
-    onSubmit: (AccountType) -> Unit
+    onSubmit: (TransactionAccountType) -> Unit
 ) {
     var selected by remember { mutableStateOf(accountFilter) }
     Column(
         modifier = Modifier
             .background(currentColors.backgroundDefault)
             .padding(vertical = 24.dp)
-
     ) {
         Row(
             modifier = Modifier
@@ -488,73 +507,70 @@ fun AccountTypesAvailable(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Payment Methods",
+                text = stringResource(R.string.payment_methods_title),
                 style = EateryBlueTypography.h4,
                 modifier = Modifier.padding(bottom = 12.dp),
                 color = currentColors.textPrimary
             )
 
             IconButton(
-                onClick = {
-                    hide()
-                },
+                onClick = hide,
                 modifier = Modifier
                     .size(40.dp)
                     .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = currentColors.textPrimary)
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.close),
+                    tint = currentColors.textPrimary
+                )
             }
         }
         Column( modifier = Modifier.background(currentColors.backgroundDefault))
         {
             selectedPaymentMethod.forEachIndexed { index, account ->
-                val select = when (selected) {
-                    account -> true
-                    else -> false
-                }
+                val accountIsSelected = selected == account
+                val accountLabel = stringResource(account.displayNameRes())
                 Row(
                     modifier = Modifier
                         .height(63.dp)
                         .fillMaxWidth()
                         .selectable(
-                            selected = (select),
+                            selected = accountIsSelected,
                             onClick = { selected = account }
                         ),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(color = currentColors.textPrimary,
-                        text = when (account.name) {
-                            "MEALSWIPES" -> "Meal Swipes"
-                            "BRBS" -> "Big Red Bucks"
-                            "LAUNDRY" -> "Laundry"
-                            "CITYBUCKS" -> "City Bucks"
-                            else -> "Account Type"
-                        },
+                    Text(
+                        color = currentColors.textPrimary,
+                        text = accountLabel,
                         style = EateryBlueTypography.h5,
                         modifier = Modifier.padding(start = 16.dp)
                     )
                     IconToggleButton(
-                        checked = (select),
+                        checked = accountIsSelected,
                         onCheckedChange = { selected = account },
                         modifier = Modifier.padding(end = 16.dp)
                     ) {
                         Icon(
                             modifier = Modifier.size(32.dp),
                             imageVector = ImageVector.vectorResource(
-                                id = if (select) R.drawable.ic_selected else R.drawable.ic_unselected
+                                id = if (accountIsSelected) R.drawable.ic_selected else R.drawable.ic_unselected
                             ),
-                            contentDescription = null,
+                            contentDescription = if (accountIsSelected) {
+                                stringResource(R.string.a11y_account_selected, accountLabel)
+                            } else {
+                                stringResource(R.string.a11y_account_select, accountLabel)
+                            },
                             tint = Color.Unspecified
                         )
                     }
                 }
-                if (index != selectedPaymentMethod.size) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(currentColors.backgroundDefault, CircleShape)
-                            .padding(horizontal = 16.dp)
+                if (index != selectedPaymentMethod.lastIndex) {
+                    HorizontalDivider(
+                        color = currentColors.backgroundDefault,
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
             }
@@ -570,13 +586,13 @@ fun AccountTypesAvailable(
 
                 shape = RoundedCornerShape(100),
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = currentColors.accentPrimary,
+                    containerColor = currentColors.accentPrimary,
                     contentColor = currentColors.textPrimary
                 )
             ) {
                 Text(
                     modifier = Modifier.padding(vertical = 6.dp),
-                    text = "Show transactions",
+                    text = stringResource(R.string.account_show_transactions),
                     style = EateryBlueTypography.h5,
                     color = currentColors.textPrimary
                 )
@@ -584,3 +600,12 @@ fun AccountTypesAvailable(
         }
     }
 }
+
+@StringRes
+private fun TransactionAccountType.displayNameRes(): Int = when (this) {
+    TransactionAccountType.MEAL_SWIPES -> R.string.account_type_meal_swipes
+    TransactionAccountType.BRBS -> R.string.account_type_big_red_bucks
+    TransactionAccountType.LAUNDRY -> R.string.account_type_laundry
+    TransactionAccountType.CITY_BUCKS -> R.string.account_type_city_bucks
+}
+

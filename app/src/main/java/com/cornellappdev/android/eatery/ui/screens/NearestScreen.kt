@@ -9,28 +9,32 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.NearestViewModel
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 
@@ -42,18 +46,37 @@ fun NearestScreen(
     nearestViewModel: NearestViewModel = hiltViewModel(),
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    val colors = currentColors
-    val shimmer = rememberShimmer(ShimmerBounds.View)
-    val nearestEateries = nearestViewModel.nearestEateries.collectAsState().value
-    val favorites = nearestViewModel.favoriteEateries.collectAsState().value
+    rememberShimmer(ShimmerBounds.View)
+    val uiState = nearestViewModel.uiState.collectAsStateWithLifecycle().value
 
+    NearestScreenContent(
+        uiState = uiState,
+        onEateryClick = onEateryClick,
+        onFavoriteClick = { eatery, isFavorite ->
+            if (eatery.id != null && eatery.name != null) {
+                nearestViewModel.setFavorite(eatery.id, eatery.name, isFavorite)
+            }
+        }
+    )
+}
+
+@Composable
+private fun NearestScreenContent(
+    uiState: NearestViewModel.NearestUiState,
+    onEateryClick: (Eatery) -> Unit,
+    onFavoriteClick: (Eatery, Boolean) -> Unit,
+) {
+    val nearestEateries = uiState.nearestEateries
+    val favorites = uiState.favoriteEateries
+    val colors = currentColors
     Column(
         modifier = Modifier
-            .padding(top = 36.dp, start = 16.dp, end = 16.dp)
+            .padding(horizontal = 16.dp)
+            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
         Text(
-            text = "Nearest to You",
+            text = stringResource(R.string.nearest_title),
             color = colors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
@@ -83,7 +106,7 @@ fun NearestScreen(
                     )
 
                     Text(
-                        text = "You currently have no favorite eateries!",
+                        text = stringResource(R.string.nearest_empty_message),
                         style = TextStyle(
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
@@ -101,13 +124,13 @@ fun NearestScreen(
                 items(
                     items = nearestEateries,
                     key = { eatery ->
-                        eatery.id!!
+                        eatery.id ?: eatery.hashCode()
                     }) { eatery ->
                     EateryCard(
                         eatery = eatery,
                         isFavorite = favorites.contains(eatery),
                         onFavoriteClick = {
-                            nearestViewModel.setFavorite(eatery.id, it)
+                            onFavoriteClick(eatery, it)
                         }) {
                         onEateryClick(it)
                     }
@@ -120,3 +143,31 @@ fun NearestScreen(
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun NearestScreenPreview() = EateryPreview {
+    val eateries = listOf(
+        PreviewData.mockEatery(1).copy(name = "Okenshields"),
+        PreviewData.mockEatery(2).copy(name = "Becker House Dining Room")
+    )
+    NearestScreenContent(
+        uiState = NearestViewModel.NearestUiState(
+            nearestEateries = eateries,
+            favoriteEateries = listOf(eateries.first())
+        ),
+        onEateryClick = {},
+        onFavoriteClick = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NearestScreenEmptyPreview() = EateryPreview {
+    NearestScreenContent(
+        uiState = NearestViewModel.NearestUiState(),
+        onEateryClick = {},
+        onFavoriteClick = { _, _ -> }
+    )
+}
+

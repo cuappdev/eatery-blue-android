@@ -7,30 +7,35 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.cornellappdev.android.eatery.ui.components.general.AppStoreRatingPopup
 import com.cornellappdev.android.eatery.ui.screens.AboutScreen
@@ -49,65 +54,39 @@ import com.cornellappdev.android.eatery.ui.screens.ProfileScreen
 import com.cornellappdev.android.eatery.ui.screens.SearchScreen
 import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
-import com.cornellappdev.android.eatery.ui.screens.ThemeSheet
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
 import com.cornellappdev.android.eatery.ui.theme.currentColors
-import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationSetup(hasOnboarded: Boolean) {
-    val navController = rememberAnimatedNavController()
+    val navController = rememberNavController()
     val showBottomBar = rememberSaveable {
         mutableStateOf(false)
     }
 
     // Subscribe to navBackStackEntry, required to get current route
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val routeWithoutBottomBar = setOf(
+        Routes.ONBOARDING.route,
+        Routes.ABOUT.route,
+        Routes.NOTIFICATIONS_SETTING.route,
+        Routes.NOTIFICATIONS_HOME.route,
+        Routes.PRIVACY.route,
+        Routes.LEGAL.route,
+        Routes.SUPPORT.route
+    )
+    val currentRoute = navBackStackEntry?.destination?.route
 
-    when (navBackStackEntry?.destination?.route) {
-        Routes.ONBOARDING.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.ABOUT.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.FAVORITES.route -> {
-            showBottomBar.value = true
-        }
-
-        Routes.NOTIFICATIONS_SETTING.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.NOTIFICATIONS_HOME.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.PRIVACY.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.LEGAL.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.SUPPORT.route -> {
-            showBottomBar.value = false
-        }
-
-        else -> {
-            showBottomBar.value = true
-        }
+    // Avoid mutating state during composition; update bottom bar visibility only when route changes.
+    LaunchedEffect(currentRoute) {
+        showBottomBar.value = currentRoute !in routeWithoutBottomBar
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             AnimatedContent(
                 targetState = showBottomBar.value,
@@ -115,7 +94,7 @@ fun NavigationSetup(hasOnboarded: Boolean) {
                     expandVertically(
                         animationSpec = tween(durationMillis = 500),
                         expandFrom = Alignment.Bottom
-                    ) with shrinkVertically(animationSpec = tween(durationMillis = 500))
+                    ).togetherWith(shrinkVertically(animationSpec = tween(durationMillis = 500)))
                 }
             ) { state ->
                 if (state) {
@@ -153,19 +132,21 @@ fun BottomNavigationBar(navController: NavHostController,
 
                 else -> item.unselectedIconId
             }
-            BottomNavigationItem(
+            NavigationBarItem(
 
                 icon = {
                     Icon(
                         painter = painterResource(
                             id = iconId
                         ),
-                        contentDescription = item.route
+                        contentDescription = item.route,
+                        tint = Color.Unspecified
                     )
                 },
                 selected = item.selectedRoutes.contains(currentRoute),
-                selectedContentColor = Color.Unspecified,
-                unselectedContentColor = Color.Unspecified,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent
+                ),
                 onClick = {
                     FirstTimeShown.firstTimeShown = false
                     navController.navigate(item.route)
@@ -175,6 +156,15 @@ fun BottomNavigationBar(navController: NavHostController,
     }
 }
 
+@Preview
+@Composable
+private fun BottomNavBarPreview() = EateryPreview {
+    BottomNavigationBar(
+        navController = rememberNavController(),
+        tabItems = NavigationItem.bottomNavTabList
+    )
+}
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SetupNavHost(
@@ -182,17 +172,13 @@ fun SetupNavHost(
     hasOnboarded: Boolean,
     navController: NavHostController,
     showBottomBar: MutableState<Boolean>,
-    loginViewModel: LoginViewModel = hiltViewModel(),
     themeViewModel : ThemeViewModel = hiltViewModel()
+
 ) {
     AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
 
-    // Need to handle here so the webview is destroyed before navigating away from profile.
-    // Otherwise it causes a crash when navigating away from the webview.
-    var webViewEnabled by remember { mutableStateOf(true) }
-
     // The starting destination switches to onboarding if it isn't completed.
-    AnimatedNavHost(
+    NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = if (hasOnboarded) Routes.HOME.route else Routes.ONBOARDING.route
@@ -307,32 +293,19 @@ fun SetupNavHost(
                 defaultValue = true
             }),
             enterTransition = {
-                webViewEnabled = true
                 fadeIn(
                     initialAlpha = 0f,
                     animationSpec = tween(durationMillis = 500)
                 )
             },
             exitTransition = {
-                webViewEnabled = false
-                if (loginViewModel.state.value is LoginViewModel.State.Login) {
-                    // not yet logged in, so reset.
-                    loginViewModel.resetLogin()
-                }
                 fadeOut(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            // need this for when user navigates from profile to itself
-            // since no guarantee of order between enterTransition and exitTransition
-            webViewEnabled = true
             ProfileScreen(
-                loginViewModel = loginViewModel,
                 onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
-                webViewEnabled = true,
-                onBackClick = {
-                    navController.popBackStack()
-                }
+                onBackClick = navController::popBackStack
             )
         }
         composable(
@@ -366,26 +339,8 @@ fun SetupNavHost(
                             }
                         }
                     }
-                ),
-                loginViewModel = loginViewModel,
-                themeViewModel = themeViewModel
+                )
             )
-
-        }
-        composable(
-            route = Routes.ACCOUNT.route,
-            enterTransition = {
-                fadeIn(
-                    initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 500)
-                )
-            },
-            exitTransition = {
-                fadeOut(
-                    animationSpec = tween(durationMillis = 500)
-                )
-            }) { backStackEntry ->
-            // TODO account page
         }
         composable(
             route = Routes.ABOUT.route,
@@ -489,7 +444,8 @@ fun SetupNavHost(
                 fadeOut(
                     animationSpec = tween(durationMillis = 500)
                 )
-            }) {
+            }
+        ) {
             LegalScreen()
         }
         composable(
@@ -548,8 +504,8 @@ private fun currentRoute(navController: NavHostController): String? {
     return navBackStackEntry?.destination?.route
 }
 
-fun NavController.isOnBackStack(route: String): Boolean = try {
+private fun NavController.isOnBackStack(route: String): Boolean = try {
     getBackStackEntry(route); true
-} catch (_: Throwable) {
+} catch (_: IllegalArgumentException) {
     false
 }

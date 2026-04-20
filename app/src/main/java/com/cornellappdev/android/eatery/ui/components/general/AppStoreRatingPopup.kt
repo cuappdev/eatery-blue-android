@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.components.general
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -19,18 +18,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,12 +35,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.core.content.ContextCompat.startActivity
+import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
@@ -57,7 +56,7 @@ fun AppStoreRatingPopup(
     navigateToSupport: () -> Unit,
     appStorePopupRepository: AppStorePopupRepository = appStorePopupRepository()
 ) {
-    val showPopup = appStorePopupRepository.popupShowing.collectAsState().value
+    val showPopup = appStorePopupRepository.popupShowing.collectAsStateWithLifecycle().value
     if (showPopup) {
         Dialog(appStorePopupRepository::dismissPopup) {
             AppStoreRatingDialog(navigateToSupport, appStorePopupRepository::dismissPopup)
@@ -77,24 +76,22 @@ private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () ->
             0 -> RatingPrompt(rating, onChangeRating = { rating = it }, onDismiss = onDismiss)
 
             5 -> ActionPrompt(
-                "Awesome! We'd love to hear more in a review",
-                "Open PlayStore",
+                stringResource(R.string.app_store_rating_positive_message),
+                stringResource(R.string.app_store_rating_positive_button),
                 onButtonPress = {
                     try {
-                        startActivity(
-                            context, Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("market://details?id=$packageName")
-                            ), null
-                        )
-                    } catch (e: ActivityNotFoundException) {
-                        startActivity(
-                            context,
+                        context.startActivity(
                             Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-                            ),
-                            null
+                                "market://details?id=$packageName".toUri()
+                            )
+                        )
+                    } catch (_: ActivityNotFoundException) {
+                        context.startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                "https://play.google.com/store/apps/details?id=$packageName".toUri()
+                            )
                         )
                     } finally {
                         onDismiss()
@@ -104,8 +101,8 @@ private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () ->
             )
 
             else -> ActionPrompt(
-                "Sorry to hear that.",
-                "Visit support",
+                stringResource(R.string.app_store_rating_negative_message),
+                stringResource(R.string.app_store_rating_negative_button),
                 onButtonPress = { navigateToSupport(); onDismiss() },
                 onDismiss = onDismiss,
             )
@@ -125,7 +122,7 @@ private fun ActionPrompt(
         Spacer(Modifier.height(12.dp))
         Button(
             onButtonPress,
-            colors = ButtonDefaults.buttonColors(backgroundColor = currentColors.accentPrimary),
+            colors = ButtonDefaults.buttonColors(containerColor = currentColors.accentPrimary),
             shape = RoundedCornerShape(100.dp)
         ) {
             Text(
@@ -148,7 +145,10 @@ private fun ActionPromptPreview() {
 private fun RatingPrompt(rating: Int, onChangeRating: (Int) -> Unit, onDismiss: () -> Unit) {
     AppStoreRatingCardBorder(onDismiss = onDismiss) {
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text("How is your experience so far?", style = EateryBlueTypography.h4)
+            Text(
+                stringResource(R.string.app_store_rating_question),
+                style = EateryBlueTypography.h4
+            )
             RatingBar(rating, onChangeRating)
         }
     }
@@ -193,7 +193,7 @@ private fun AppStoreRatingCardBorder(
                     .size(20.dp)
                     .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
-                androidx.compose.material.Icon(
+                Icon(
                     Icons.Default.Close,
                     contentDescription = Icons.Default.Close.name,
                     tint = currentColors.textPrimary

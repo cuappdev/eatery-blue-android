@@ -12,23 +12,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
@@ -59,13 +60,13 @@ fun EateryHourBottomSheet(
             Row {
                 Icon(
                     imageVector = Icons.Outlined.Schedule,
-                    contentDescription = "Hours Icon",
+                    contentDescription = null,
                     tint = currentColors.textPrimary,
                     modifier = Modifier.size(32.dp)
                 )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                 Text(
-                    text = "Hours",
+                    text = stringResource(R.string.hours_title),
                     style = EateryBlueTypography.h4,
                     color = currentColors.textPrimary
                 )
@@ -91,10 +92,11 @@ fun EateryHourBottomSheet(
         val openUntil = eatery.getOpenUntil()
         Text(
             modifier = Modifier.padding(top = 2.dp),
-            text =
-                if (openUntil == null) "Closed"
-                else if (eatery.isClosingSoon()) "Closing at $openUntil"
-                else ("Open until $openUntil"),
+            text = when {
+                openUntil == null -> stringResource(R.string.closed)
+                eatery.isClosingSoon() -> stringResource(R.string.closing_at, openUntil)
+                else -> stringResource(R.string.open_until, openUntil)
+            },
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ),
@@ -138,10 +140,16 @@ fun EateryHourBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = colors.backgroundDefault),
+            colors = ButtonDefaults.buttonColors(containerColor = colors.backgroundDefault),
             shape = RoundedCornerShape(corner = CornerSize(24.dp)),
         ) {
             Text("Close", color = currentColors.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                stringResource(R.string.close),
+                color = currentColors.textPrimary,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -151,7 +159,7 @@ fun EateryHourBottomSheet(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                "Report an issue",
+                stringResource(R.string.report_an_issue),
                 color = currentColors.textPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold

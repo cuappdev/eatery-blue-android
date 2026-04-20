@@ -25,9 +25,15 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.EateryBlue">
+            android:theme="@style/Theme.EateryBlue"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="eatery" />
             </intent-filter>
             <meta-data
                 android:name="android.app.lib_name"

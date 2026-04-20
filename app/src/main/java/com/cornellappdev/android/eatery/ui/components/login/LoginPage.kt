@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.login
 
+import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -17,14 +18,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,66 +53,61 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
-@OptIn(ExperimentalMaterialApi::class)
+/**
+ * Login page that prompts the user to log in to their GET account.
+ * [isLoading] is whether the login button should show a loading state.
+ * [onLoginPressed] is called when the user clicks the login button.
+ * [onSuccess] is called with the sessionID when the user has successfully logged in, and we
+ * have grabbed the sessionID from the validation page after log in.
+ * [onBackClick] is called when the user clicks the back button.
+ * [onModalHidden] is called when the web view modal is hidden while the user has not logged in.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginPage(
-    loading: Boolean,
+    isLoading: Boolean,
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
-    webViewEnabled: Boolean,
     onBackClick: () -> Unit,
     onModalHidden: () -> Unit
 ) {
-    var loggedIn by remember { mutableStateOf(false) }
-    val sheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
-    var webViewExpanded by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showSheet by remember { mutableStateOf(false) }
     var isFirstWebView by remember { mutableStateOf(true) }
-    if (!sheetState.isVisible && loading && !loggedIn) {
-        if (webViewExpanded) {
-            // only run if user manually hid the screen
-            // and not if it was already hidden
-            onModalHidden()
-        }
-        webViewExpanded = false
-    } else if (loggedIn) {
-        LaunchedEffect(true) {
-            sheetState.hide()
-        }
-    } else if (sheetState.isVisible) {
-        webViewExpanded = true
-    }
-    if (loading && !loggedIn && webViewEnabled && !sheetState.isVisible) {
-        LaunchedEffect(true) {
-            sheetState.show()
-        }
+    LaunchedEffect(isLoading) {
+        if (isLoading) showSheet = true
     }
     if (!isPreview()) {
-        ModalBottomSheetLayout(
-            sheetState = sheetState,
-            sheetShape = RoundedCornerShape(
-                bottomStart = 0.dp,
-                bottomEnd = 0.dp,
-                topStart = 12.dp,
-                topEnd = 12.dp
-            ),
-            sheetElevation = 8.dp,
-            sheetContent = {
-                LoginWebView(
-                    onLoggedIn = { loggedIn = true },
-                    onSuccess = onSuccess,
-                    isFirstWebView = isFirstWebView,
-                    webViewLoaded = { isFirstWebView = false }
-                )
-            },
-            modifier = Modifier.statusBarsPadding()
-        ) {
-            LoginPageMainLayer(onBackClick, loading, onLoginPressed)
+        Box {
+            LoginPageMainLayer(onBackClick, isLoading, onLoginPressed)
+            if (showSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        showSheet = false
+                        onModalHidden()
+                    },
+                    sheetState = sheetState,
+                    shape = RoundedCornerShape(
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp,
+                        topStart = 12.dp,
+                        topEnd = 12.dp
+                    )
+                ) {
+                    LoginWebView(
+                        onLoggedIn = { },
+                        onSuccess = { sessionId ->
+                            showSheet = false
+                            onSuccess(sessionId)
+                        },
+                        isFirstWebView = isFirstWebView,
+                        webViewLoaded = { isFirstWebView = false }
+                    )
+                }
+            }
         }
     } else {
-        LoginPageMainLayer(onBackClick, loading, onLoginPressed)
+        LoginPageMainLayer(onBackClick, isLoading, onLoginPressed)
     }
 }
 
@@ -195,9 +190,10 @@ private fun LoginPageMainLayer(
                     onLoginPressed()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    backgroundColor = if (clickable) currentColors.backgroundSecondary else currentColors.backgroundDefault
+                    containerColor = if (clickable) currentColors.backgroundSecondary else currentColors.backgroundDefault,
+                    disabledContainerColor = currentColors.backgroundDefault
                 ),
-                elevation = ButtonDefaults.elevation(defaultElevation = 0.dp)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
             ) {
                 Text(
                     text = if (loading) "Logging in..." else "Log in",
@@ -214,6 +210,7 @@ private fun LoginPageMainLayer(
  * [onSuccess] is called after [onLoggedIn] when we have grabbed the sessionID from the
  * validation page after log in.
  */
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun LoginWebView(
     onLoggedIn: () -> Unit,
@@ -221,30 +218,38 @@ private fun LoginWebView(
     isFirstWebView: Boolean,
     webViewLoaded: () -> Unit
 ) {
-    if (isFirstWebView) {
-        // If the web view is being loaded for the first time after user navigates to LoginPage,
-        // then reset cookies. This makes logging out work.
-        // We need the conditional since LoginWebView gets recomposed during login.
-        CookieManager.getInstance().removeAllCookies(null)
-        CookieManager.getInstance().flush()
-        webViewLoaded()
-    }
-    AndroidView(
-        factory = {
-            WebView(it).apply {
-                visibility = View.VISIBLE
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
-                // Necessary for displaying normal login webpage behavior.
-                settings.javaScriptEnabled = true
-                webViewClient = CustomWebViewClient(onSuccess, onLoggedIn)
-                loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
+    var canCreateWebView by remember { mutableStateOf(!isFirstWebView) }
+    LaunchedEffect(isFirstWebView) {
+        if (isFirstWebView) {
+            // If the web view is being loaded for the first time after user navigates to LoginPage,
+            // then reset cookies. This makes logging out work.
+            // We need the conditional since LoginWebView gets recomposed during login.
+            CookieManager.getInstance().removeAllCookies { _ ->
+                CookieManager.getInstance().flush()
+                webViewLoaded()
+                canCreateWebView = true
             }
         }
-    )
+    }
+    if (canCreateWebView) {
+        AndroidView(
+            factory = {
+                WebView(it).apply {
+                    visibility = View.VISIBLE
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+                    // Necessary for displaying normal login webpage behavior.
+                    settings.javaScriptEnabled = true
+                    webViewClient = CustomWebViewClient(onSuccess, onLoggedIn)
+                    loadUrl(BuildConfig.SESSIONID_WEBVIEW_URL)
+                }
+            }
+        )
+    }
 }
+
 
 private class CustomWebViewClient(
     val onSuccess: (String) -> Unit,
@@ -271,10 +276,9 @@ private class CustomWebViewClient(
 @Composable
 private fun LoginPagePreview() = EateryPreview {
     LoginPage(
-        loading = false,
+        isLoading = false,
         onLoginPressed = {},
         onSuccess = {},
-        webViewEnabled = false,
         onBackClick = {},
         onModalHidden = {}
     )

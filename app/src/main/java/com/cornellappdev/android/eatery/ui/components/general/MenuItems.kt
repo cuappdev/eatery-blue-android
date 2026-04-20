@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -25,7 +25,7 @@ data class MenuCategoryViewState(
     val items: List<MenuItemViewState>
 ) {
     fun toMenuCategory() = MenuCategory(
-        category = category,
+        name = category,
         items = items.map { it.toMenuItem() }
     )
 }
@@ -91,7 +91,7 @@ fun LazyListScope.menuItems(
                 )
             }
             if (category.items.lastIndex == index) {
-                Divider(
+                HorizontalDivider(
                     color = currentColors.accentPrimary,
                     modifier = Modifier.height(10.dp)
                 )

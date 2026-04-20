@@ -11,14 +11,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -52,6 +52,7 @@ fun CalendarWeekSelector(
                 targetValue = if (currSelectedDay == i) 1.0f else 0f,
                 label = "Circle Size"
             )
+            val interactionSource = remember(i) { MutableInteractionSource() }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -70,9 +71,9 @@ fun CalendarWeekSelector(
                         .then(
                             when {
                                 eateryDetail && closedDays?.contains(dayNames[i]) == true -> Modifier
-                                !eateryDetail || (eateryDetail && closedDays?.contains(dayNames[i]) == false) -> Modifier.clickable(
+                                !eateryDetail || closedDays?.contains(dayNames[i]) != true -> Modifier.clickable(
                                     indication = null,
-                                    interactionSource = MutableInteractionSource()
+                                    interactionSource = interactionSource
                                 ) { onClick(i) }
 
                                 else -> Modifier
@@ -98,7 +99,7 @@ fun CalendarWeekSelector(
                             closedDays?.contains(dayNames[i]) == true -> currentColors.backgroundDefault10
                             i != currSelectedDay && i == 0 -> currentColors.accentPrimary
                             i != currSelectedDay && i == selectedDay -> currentColors.textPrimary
-                            i == currSelectedDay || i == selectedDay -> currentColors.backgroundDefault
+                            i == currSelectedDay -> currentColors.backgroundDefault
                             else -> currentColors.textPrimary
                         },
                         style = EateryBlueTypography.h6,

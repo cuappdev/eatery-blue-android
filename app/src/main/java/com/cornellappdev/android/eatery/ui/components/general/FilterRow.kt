@@ -13,22 +13,22 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
-import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 
 @Composable
@@ -70,7 +70,7 @@ fun FilterButton(
     onFilterClicked: () -> Unit,
     selected: Boolean,
     text: String,
-    icon: ImageVector? = null,
+    hasExpandIcon: Boolean = false,
     isDarkMode: Boolean
 ) {
     val progress by animateFloatAsState(
@@ -94,16 +94,16 @@ fun FilterButton(
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = 12.dp),
         shape = RoundedCornerShape(100.dp),
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = background,
+            containerColor = background,
             contentColor = contentColor
         )
     ) {
         Text(text)
-        if (icon != null) {
+        if (hasExpandIcon) {
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Icon(
                 Icons.Default.ExpandMore,
-                contentDescription = "Favorite",
+                contentDescription = stringResource(R.string.expand_filters),
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
         }

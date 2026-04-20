@@ -3,13 +3,15 @@ package com.cornellappdev.android.eatery.ui.components.general
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,11 +20,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -33,10 +35,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.LocationHandler
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -51,17 +58,18 @@ fun PermissionRequestDialog(
     notificationFlowStatus: Boolean,
     updateNotificationFlowStatus: (Boolean) -> Unit
 ) {
-    var requestingPermission by remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) }
-    showBottomBar.value = !requestingPermission
+    val context = LocalContext.current
+    var isRequestingPermission by remember {
+        mutableStateOf(!context.hasLocationPermission())
+    }
+    showBottomBar.value = !isRequestingPermission
 
     AnimatedVisibility(
-        visible = requestingPermission,
+        visible = isRequestingPermission,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        val context = LocalContext.current
-
-        val notificationPermissionState =
+        val locationPermissionState =
             rememberMultiplePermissionsState(
                 permissions = listOf(
                     Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -69,64 +77,64 @@ fun PermissionRequestDialog(
                 )
             )
 
-        if (notificationPermissionState.allPermissionsGranted) {
+        if (locationPermissionState.allPermissionsGranted) {
             LocationHandler.instantiate(context)
-            requestingPermission = false
+            isRequestingPermission = false
         } else {
-            Surface(
-                color = Color.Black.copy(alpha = 0.6f),
-                modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f)),
+                contentAlignment = Alignment.Center
             ) {
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(horizontal = 20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
                 ) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .padding(horizontal = 20.dp),
-                        elevation = 10.dp
+                    Column(
+                        modifier = Modifier.padding(33.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier.padding(33.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
+                        Text(
+                            text = stringResource(
+                                if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
+                                    R.string.permission_location_message
+                                } else {
+                                    R.string.permission_location_message_with_settings
+                                }
+                            ),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(15.dp))
+                        Button(
+                            onClick = {
+                                if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
+                                    locationPermissionState.launchMultiplePermissionRequest()
+                                    updateNotificationFlowStatus(true)
+                                } else {
+                                    context.openSettings()
+                                }
+                                isRequestingPermission = false
+                            },
+                            shape = RoundedCornerShape(5.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = currentColors.accentPrimary),
                         ) {
                             Text(
-                                text = "Location permissions are necessary to show you " +
-                                        "eateries that are the closest to you!" +
-                                        if (notificationPermissionState.shouldShowRationale || !notificationFlowStatus) {
-                                            ""
-                                        } else {
-                                            "\n\nPlease click the button below to go to the settings to enable notifications."
-                                        },
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Spacer(modifier = Modifier.height(15.dp))
-                            Button(
-                                onClick = {
-                                    if (notificationPermissionState.shouldShowRationale || !notificationFlowStatus) {
-                                        notificationPermissionState.launchMultiplePermissionRequest()
-                                        updateNotificationFlowStatus(true)
+                                text = stringResource(
+                                    if (locationPermissionState.shouldShowRationale || !notificationFlowStatus) {
+                                        R.string.request_permission
                                     } else {
-                                        context.openSettings()
+                                        R.string.open_settings
                                     }
-                                    requestingPermission = false
-                                },
-                                shape = RoundedCornerShape(5.dp),
-                                colors = ButtonDefaults.buttonColors(backgroundColor = currentColors.accentPrimary),
-                            ) {
-                                Text(
-                                    text = if (notificationPermissionState.shouldShowRationale || !notificationFlowStatus) {
-                                        "Request Permission"
-                                    } else {
-                                        "Open Settings"
-                                    },
-                                    color = currentColors.textPrimary,
-                                )
-                            }
+                                ),
+                                color = currentColors.textPrimary,
+                            )
                         }
                     }
                 }
@@ -135,9 +143,32 @@ fun PermissionRequestDialog(
     }
 }
 
-fun Context.openSettings() {
+private fun Context.hasLocationPermission(): Boolean {
+    val coarsePermission = ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+    val finePermission = ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+    return coarsePermission && finePermission
+}
+
+private fun Context.openSettings() {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     intent.data = Uri.fromParts("package", packageName, null)
     startActivity(intent)
 }
+
+@Preview
+@Composable
+fun PermissionRequestDialogPreview() = EateryPreview {
+    PermissionRequestDialog(
+        showBottomBar = remember { mutableStateOf(true) },
+        notificationFlowStatus = false,
+        updateNotificationFlowStatus = {}
+    )
+}
+

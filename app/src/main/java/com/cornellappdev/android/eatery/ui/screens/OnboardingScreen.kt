@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,39 +27,49 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.onboarding.OnboardingCarousel
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.OnboardingViewModel
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
+import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OnboardingScreen(
     onboardingViewModel: OnboardingViewModel = hiltViewModel(),
     proceedHome: () -> Unit
 ) {
+    OnboardingScreenContent(
+        updateOnboardingCompleted = { onboardingViewModel.updateOnboardingCompleted() },
+        proceedHome = proceedHome
+    )
+}
+
+@Composable
+fun OnboardingScreenContent(
+    updateOnboardingCompleted: () -> Unit,
+    proceedHome: () -> Unit
+) {
+    val pagerState = rememberPagerState(pageCount = { 2 })
     val colors = currentColors
-    val pagerState = rememberPagerState(0)
     val coroutineScope = rememberCoroutineScope()
     var fadePage by rememberSaveable { mutableStateOf(false) }
-
-    Box {
+    val cornell = stringResource(R.string.onboarding_cornell)
+    val appdev = stringResource(R.string.onboarding_appdev)
+    Box(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
-            count = 2, state = pagerState,
+            state = pagerState,
             modifier = Modifier.fillMaxSize(), userScrollEnabled = false
         ) { page ->
             when (page) {
@@ -80,7 +92,7 @@ fun OnboardingScreen(
                         )
 
                         Text(
-                            text = "Eatery",
+                            text = stringResource(R.string.onboarding_eatery_title),
                             color = currentColors.oppTextPrimary,
                             style = EateryBlueTypography.h1
                         )
@@ -98,8 +110,8 @@ fun OnboardingScreen(
                                     fadePage = true
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(backgroundColor = currentColors.backgroundDefault),
-                            elevation = ButtonDefaults.elevation(
+                            colors = ButtonDefaults.buttonColors(containerColor = currentColors.backgroundDefault),
+                            elevation = ButtonDefaults.buttonElevation(
                                 defaultElevation = 4.dp,
                                 pressedElevation = 4.dp,
                                 disabledElevation = 4.dp,
@@ -108,7 +120,7 @@ fun OnboardingScreen(
                         ) {
                             Text(
                                 style = EateryBlueTypography.h6,
-                                text = "Get Started"
+                                text = stringResource(R.string.onboarding_get_started),
                             )
                         }
 
@@ -135,7 +147,7 @@ fun OnboardingScreen(
                                             fontWeight = FontWeight.Normal
                                         )
                                     ) {
-                                        append("Cornell")
+                                        append(cornell)
                                     }
                                     withStyle(
                                         style = SpanStyle(
@@ -143,7 +155,7 @@ fun OnboardingScreen(
                                             fontWeight = FontWeight.SemiBold
                                         )
                                     ) {
-                                        append("AppDev")
+                                        append(appdev)
                                     }
                                 }
                             )
@@ -154,15 +166,11 @@ fun OnboardingScreen(
                     OnboardingCarousel(
                         fadePage = fadePage,
                         onSkipClicked = {
-                            onboardingViewModel.updateOnboardingCompleted()
-                            proceedHome.invoke()
-                        },
-                        onLoginSuccess = {
-                            onboardingViewModel.updateOnboardingCompleted()
+                            updateOnboardingCompleted()
                             proceedHome.invoke()
                         },
                         onProceed = {
-                            onboardingViewModel.updateOnboardingCompleted()
+                            updateOnboardingCompleted()
                             proceedHome.invoke()
                         }
                     )
@@ -174,4 +182,13 @@ fun OnboardingScreen(
     BackHandler(enabled = true) {
         // Back is disabled until onboarding is done.
     }
+}
+
+@Preview
+@Composable
+private fun OnboardingScreenPreview() = EateryPreview {
+    OnboardingScreenContent(
+        updateOnboardingCompleted = {},
+        proceedHome = {}
+    )
 }

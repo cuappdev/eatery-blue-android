@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,11 +38,11 @@ fun CalendarButton(onClick: () -> Unit) {
     {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
-            contentDescription = "Change date",
+            contentDescription = stringResource(R.string.change_date),
             modifier = Modifier.size(16.dp)
         )
 
-        Text("Change date", style = EateryBlueTypography.button)
+        Text(stringResource(R.string.change_date), style = EateryBlueTypography.button)
     }
 }
 

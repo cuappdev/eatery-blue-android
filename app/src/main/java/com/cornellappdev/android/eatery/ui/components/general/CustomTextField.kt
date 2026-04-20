@@ -10,15 +10,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +40,6 @@ import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CustomTextField(
     modifier: Modifier = Modifier,
@@ -56,7 +54,7 @@ fun CustomTextField(
     singleLine: Boolean = true,
     isSentence: Boolean = false,
 ) {
-    val interactionSource = MutableInteractionSource()
+    val interactionSource = remember { MutableInteractionSource() }
     var passwordVisible by remember { mutableStateOf(false) }
     val passwordVisualTransformation =
         if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
@@ -91,7 +89,7 @@ fun CustomTextField(
                     fontWeight = FontWeight.Medium
                 ),
                 decorationBox = { innerTextField ->
-                    TextFieldDefaults.TextFieldDecorationBox(
+                    TextFieldDefaults.DecorationBox(
                         value = value,
                         innerTextField = innerTextField,
                         singleLine = singleLine,

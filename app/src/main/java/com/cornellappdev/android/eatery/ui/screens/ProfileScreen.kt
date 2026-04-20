@@ -2,106 +2,140 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
-import com.cornellappdev.android.eatery.data.models.Account
-import com.cornellappdev.android.eatery.data.models.AccountType
-import com.cornellappdev.android.eatery.data.models.Transaction
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cornellappdev.android.eatery.data.models.AccountBalances
+import com.cornellappdev.android.eatery.data.models.TransactionAccountType
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ProfileScreen(
-    loginViewModel: LoginViewModel,
+    loginViewModel: LoginViewModel = hiltViewModel(),
     onSettingsClicked: () -> Unit,
-    webViewEnabled: Boolean,
     onBackClick: () -> Unit
 ) {
-    val state = loginViewModel.state.collectAsState().value
+    val uiState = loginViewModel.uiState.collectAsStateWithLifecycle().value
+
+    // todo - replace toasts with actual error state
+    if (uiState.isLoginState) {
+        NetworkErrorToast(
+            error = uiState.error,
+            onErrorShown = loginViewModel::clearError
+        )
+    }
+
     ProfileScreenContent(
-        state,
-        loading = state is LoginViewModel.State.Login && state.loading,
+        isLoginState = uiState.isLoginState,
+        accountTypeBalance = uiState.accountTypeBalance,
+        loading = uiState.isLoading,
         onLoginPressed = loginViewModel::onLoginPressed,
         onSuccess = loginViewModel::onLoginWebViewSuccess,
-        webViewEnabled = webViewEnabled,
         onBackClick = onBackClick,
         onModalHidden = loginViewModel::onLoginExited,
-        accountFilter = if (state is LoginViewModel.State.Account) state.accountFilter else AccountType.BRBS,
-        checkAccount = loginViewModel::checkAccount,
-        checkMealPlan = loginViewModel::checkMealPlan,
         onSettingsClicked = onSettingsClicked,
-        getTransactionsOfType = loginViewModel::getTransactionsOfType,
+        accountFilter = uiState.accountFilter,
+        filterText = uiState.filterText,
+        filteredTransactions = uiState.filteredTransactions,
+        onQueryChanged = loginViewModel::setQuery,
         updateAccountFilter = loginViewModel::updateAccountFilter
     )
 }
 
 @Composable
 private fun ProfileScreenContent(
-    state: LoginViewModel.State,
+    isLoginState: Boolean,
+    accountTypeBalance: AccountBalances,
     loading: Boolean,
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
-    webViewEnabled: Boolean,
     onBackClick: () -> Unit,
     onModalHidden: () -> Unit,
-    accountFilter: AccountType,
-    checkAccount: (AccountType) -> Account?,
-    checkMealPlan: () -> Account?,
+    accountFilter: TransactionAccountType,
+    filterText: String,
     onSettingsClicked: () -> Unit,
-    getTransactionsOfType: (AccountType, String) -> List<Transaction>,
-    updateAccountFilter: (AccountType) -> Unit
+    filteredTransactions: List<DisplayTransaction>,
+    onQueryChanged: (String) -> Unit,
+    updateAccountFilter: (TransactionAccountType) -> Unit
 ) {
-    when (state) {
-        is LoginViewModel.State.Login -> {
-            LoginPage(
-                loading = loading,
-                onLoginPressed = onLoginPressed,
-                onSuccess = onSuccess,
-                webViewEnabled = webViewEnabled,
-                onBackClick = onBackClick,
-                onModalHidden = onModalHidden
-            )
-        }
-
-        is LoginViewModel.State.Account -> {
-            AccountPage(
-                accountFilter = accountFilter,
-                checkAccount = checkAccount,
-                checkMealPlan = checkMealPlan,
-                onSettingsClicked = onSettingsClicked,
-                getTransactionsOfType = getTransactionsOfType,
-                updateAccountFilter = updateAccountFilter
-            )
-        }
+    if (isLoginState) {
+        LoginPage(
+            isLoading = loading,
+            onLoginPressed = onLoginPressed,
+            onSuccess = onSuccess,
+            onBackClick = onBackClick,
+            onModalHidden = onModalHidden
+        )
+    } else {
+        AccountPage(
+            accountFilter = accountFilter,
+            accountTypeBalance = accountTypeBalance,
+            onSettingsClicked = onSettingsClicked,
+            filteredTransactions = filteredTransactions,
+            filterText = filterText,
+            onQueryChanged = onQueryChanged,
+            updateAccountFilter = updateAccountFilter
+        )
     }
 }
 
-@Preview
+@Preview(name = "Profile - Login", showBackground = true)
 @Composable
-private fun ProfileLoginScreenPreview() = EateryPreview {
-    val state = LoginViewModel.State.Login(
-        netID = "aaa00",
-        password = "myVeryLongPassword",
-        failureMessage = null,
-        loading = false
-    )
+private fun ProfileScreenLoginPreview() = EateryPreview {
     ProfileScreenContent(
-        state = state,
+        isLoginState = true,
+        accountTypeBalance = AccountBalances(),
         loading = false,
         onLoginPressed = {},
         onSuccess = {},
-        webViewEnabled = false,
         onBackClick = {},
         onModalHidden = {},
-        accountFilter = AccountType.BRBS,
-        checkAccount = { null },
-        checkMealPlan = { null },
+        accountFilter = TransactionAccountType.BRBS,
+        filterText = "",
         onSettingsClicked = {},
-        getTransactionsOfType = { _, _ -> emptyList() },
-        updateAccountFilter = {},
+        filteredTransactions = emptyList(),
+        onQueryChanged = {},
+        updateAccountFilter = {}
     )
 }
+
+@Preview(name = "Profile - Account", showBackground = true)
+@Composable
+private fun ProfileScreenAccountPreview() = EateryPreview {
+    ProfileScreenContent(
+        isLoginState = false,
+        accountTypeBalance = AccountBalances(
+            brbBalance = 120.35,
+            cityBucksBalance = 42.0,
+            laundryBalance = 8.0,
+            mealSwipes = 10
+        ),
+        loading = false,
+        onLoginPressed = {},
+        onSuccess = {},
+        onBackClick = {},
+        onModalHidden = {},
+        accountFilter = TransactionAccountType.BRBS,
+        filterText = "",
+        onSettingsClicked = {},
+        filteredTransactions = listOf(
+            DisplayTransaction(
+                id = "1",
+                amount = -12.75,
+                accountType = TransactionAccountType.BRBS,
+                location = "Okenshields",
+                formattedDate = "Apr 14"
+            )
+        ),
+        onQueryChanged = {},
+        updateAccountFilter = {}
+    )
+}
+

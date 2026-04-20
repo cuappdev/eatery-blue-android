@@ -9,11 +9,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +56,10 @@ fun ItemFavoritesCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .border(BorderStroke(Dp.Hairline, currentColors.backgroundDefault92), RoundedCornerShape(8)),
+            .border(
+                BorderStroke(Dp.Hairline, currentColors.backgroundDefault92),
+                RoundedCornerShape(8)
+            ),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = currentColors.backgroundDefault
@@ -101,7 +104,7 @@ fun ItemFavoritesCard(
 
             }
             if (isExpanded) {
-                Divider(thickness = Dp.Hairline)
+                HorizontalDivider(thickness = Dp.Hairline)
                 viewState.mealAvailability.forEach { availability ->
                     ItemInformation(availability.key, availability.value)
                 }

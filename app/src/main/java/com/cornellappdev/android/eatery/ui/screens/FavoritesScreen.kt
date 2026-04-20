@@ -14,17 +14,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,26 +32,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.details.ToggleRow
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
@@ -63,16 +68,45 @@ fun FavoritesScreen(
     onSearchClick: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    val uiState = favoriteViewModel.uiState.collectAsStateWithLifecycle().value
+
+    // TODO: replace with an actual error state
+    NetworkErrorToast(
+        error = uiState.error,
+        onErrorShown = favoriteViewModel::clearError
+    )
+
+    FavoritesScreenContent(
+        favoritesScreenViewState = uiState.screenState,
+        onEateryClick = onEateryClick,
+        onSearchClick = onSearchClick,
+        onBackClick = onBackClick,
+        toggleEateryFilter = favoriteViewModel::toggleEateryFilter,
+        toggleItemFilter = favoriteViewModel::toggleItemFilter,
+        removeFavorite = favoriteViewModel::removeFavorite,
+        removeFavoriteMenuItem = favoriteViewModel::removeFavoriteMenuItem,
+    )
+}
+
+@Composable
+private fun FavoritesScreenContent(
+    favoritesScreenViewState: FavoritesScreenViewState,
+    onEateryClick: (eatery: Eatery) -> Unit,
+    onSearchClick: () -> Unit,
+    onBackClick: () -> Unit,
+    toggleEateryFilter: (filter: Filter.FromEateryFilter) -> Unit,
+    toggleItemFilter: (filter: Filter) -> Unit,
+    removeFavorite: (eateryId: Int, eateryName: String) -> Unit,
+    removeFavoriteMenuItem: (menuItem: String) -> Unit,
+) {
     val colors = currentColors
     val shimmer = rememberShimmer(ShimmerBounds.View)
-    val favoritesScreenViewState =
-        favoriteViewModel.favoritesScreenViewState.collectAsState().value
     var toggle by remember { mutableStateOf(true) }
-
 
     Column(
         modifier = Modifier
-            .padding(top = 36.dp, start = 10.dp, end = 10.dp)
+            .padding(horizontal = 10.dp)
+            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
         Row(
@@ -84,7 +118,7 @@ fun FavoritesScreen(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_left_chevron),
-                    contentDescription = "Back"
+                    contentDescription = stringResource(R.string.back)
                 )
             }
             IconButton(
@@ -92,16 +126,16 @@ fun FavoritesScreen(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
-                    contentDescription = "Search",
+                    contentDescription = stringResource(R.string.search),
                 )
             }
 
         }
         Text(
-            text = "Favorites",
+            text = stringResource(R.string.favorites_title),
             color = colors.backgroundSecondary,
             style = EateryBlueTypography.h2,
-            modifier = Modifier.padding(start = 6.dp, end = 6.dp)
+            modifier = Modifier.padding(horizontal = 6.dp)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -109,7 +143,9 @@ fun FavoritesScreen(
         when (favoritesScreenViewState) {
             is FavoritesScreenViewState.Loading -> {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     items(15) {
                         EateryBlob(
@@ -122,7 +158,7 @@ fun FavoritesScreen(
 
             is FavoritesScreenViewState.Error -> {
                 // TODO we should have a better no internet display
-                EateriesEmptyState("Failed to obtain Eatery data")
+                EateriesEmptyState(stringResource(R.string.favorites_load_error))
             }
 
             is FavoritesScreenViewState.Loaded -> {
@@ -133,14 +169,67 @@ fun FavoritesScreen(
                     favoritesScreenViewState,
                     favoriteEateries,
                     onEateryClick,
-                    toggleEateryFilter = favoriteViewModel::toggleEateryFilter,
-                    toggleItemFilter = favoriteViewModel::toggleItemFilter,
-                    removeFavorite = favoriteViewModel::removeFavorite,
-                    removeFavoriteMenuItem = favoriteViewModel::removeFavoriteMenuItem,
+                    toggleEateryFilter = toggleEateryFilter,
+                    toggleItemFilter = toggleItemFilter,
+                    removeFavorite = removeFavorite,
+                    removeFavoriteMenuItem = removeFavoriteMenuItem,
                 )
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FavoritesScreenLoadingPreview() = EateryPreview {
+    FavoritesScreenContent(
+        favoritesScreenViewState = FavoritesScreenViewState.Loading,
+        onEateryClick = {},
+        onSearchClick = {},
+        onBackClick = {},
+        toggleEateryFilter = {},
+        toggleItemFilter = {},
+        removeFavorite = { _, _ -> },
+        removeFavoriteMenuItem = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FavoritesScreenLoadedPreview() = EateryPreview {
+    FavoritesScreenContent(
+        favoritesScreenViewState = FavoritesScreenViewState.Loaded(
+            eateries = listOf(
+                PreviewData.mockEatery(1).copy(name = "Okenshields"),
+                PreviewData.mockEatery(2).copy(name = "Becker House Dining Room")
+            ),
+            favoriteCards = emptyList(),
+            selectedEateryFilters = emptyList(),
+            selectedItemFilters = emptyList(),
+        ),
+        onEateryClick = {},
+        onSearchClick = {},
+        onBackClick = {},
+        toggleEateryFilter = {},
+        toggleItemFilter = {},
+        removeFavorite = { _, _ -> },
+        removeFavoriteMenuItem = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun FavoritesScreenErrorPreview() = EateryPreview {
+    FavoritesScreenContent(
+        favoritesScreenViewState = FavoritesScreenViewState.Error,
+        onEateryClick = {},
+        onSearchClick = {},
+        onBackClick = {},
+        toggleEateryFilter = {},
+        toggleItemFilter = {},
+        removeFavorite = { _, _ -> },
+        removeFavoriteMenuItem = {},
+    )
 }
 
 @Composable
@@ -153,7 +242,7 @@ private fun ColumnScope.MainScrollableContent(
     onEateryClick: (eatery: Eatery) -> Unit,
     toggleEateryFilter: (filter: Filter.FromEateryFilter) -> Unit,
     toggleItemFilter: (filter: Filter) -> Unit,
-    removeFavorite: (eateryId: Int?) -> Unit,
+    removeFavorite: (eateryId: Int, eateryName: String) -> Unit,
     removeFavoriteMenuItem: (menuItem: String) -> Unit,
 ) {
     LazyColumn(
@@ -195,16 +284,20 @@ private fun ColumnScope.MainScrollableContent(
             items(
                 items = favoriteEateries,
                 key = { eatery ->
-                    eatery.id!!
+                    eatery.id ?: eatery.hashCode()
                 }) { eatery ->
 
                 EateryCard(
                     eatery = eatery,
                     isFavorite = true,
-                    modifier = Modifier.animateItemPlacement(),
+                    modifier = Modifier.animateItem(),
                     onFavoriteClick = {
                         if (!it) {
-                            removeFavorite(eatery.id)
+                            eatery.id?.let { id ->
+                                eatery.name?.let { name ->
+                                    removeFavorite(id, name)
+                                }
+                            }
                         }
                     }) {
                     onEateryClick(it)
@@ -219,7 +312,7 @@ private fun ColumnScope.MainScrollableContent(
             items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
                 ItemFavoritesCard(
                     itemFavoritesCardViewState,
-                    modifier = Modifier.animateItemPlacement(),
+                    modifier = Modifier.animateItem(),
                     onFavoriteClick = {
                         removeFavoriteMenuItem(
                             itemFavoritesCardViewState.itemName
@@ -279,7 +372,7 @@ private fun EateryBlob(
     val colors = currentColors
     Surface(
         modifier = Modifier
-            .padding(end = 12.dp)
+            .padding(horizontal = 6.dp)
             .then(modifier)
             .clip(
                 RoundedCornerShape(

@@ -2,16 +2,23 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cornellappdev.android.eatery.data.models.Account
-import com.cornellappdev.android.eatery.data.models.AccountType
+import com.cornellappdev.android.eatery.data.models.AccountBalances
+import com.cornellappdev.android.eatery.data.models.NetworkError
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.Transaction
+import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
-import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.GETAccountRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
-import com.cornellappdev.android.eatery.ui.screens.CurrentUser
+import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -19,174 +26,167 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository,
     private val userRepository: UserRepository,
+    private val getAccountRepository: GETAccountRepository,
 ) : ViewModel() {
 
+    data class ProfileUiState(
+        val isLoginState: Boolean = true,
+        val isLoading: Boolean = false,
+        val accountTypeBalance: AccountBalances = AccountBalances(),
+        val accountFilter: TransactionAccountType = TransactionAccountType.BRBS,
+        val filterText: String = "",
+        val filteredTransactions: List<DisplayTransaction> = emptyList(),
+        val error: NetworkUiError? = null
+    )
+
+    private val _queryFlow = MutableStateFlow("")
+    private val _accountTypeFilterFlow = MutableStateFlow(TransactionAccountType.BRBS)
+    private val _isLoginLoadingFlow = MutableStateFlow(false)
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+
     /**
-     * State class contains the two classes that will be passed down through the flow to the login, profile, and account related views.
+     * Whether financials data of previously logged-in user is being fetched.
+     * Should show Account page if true.
      */
-    sealed class State {
-        data class Login(
-            val netID: String = "",
-            val password: String = "",
-            val failureMessage: String? = null,
-            val loading: Boolean = false
-        ) : State()
+    private val _isRestoringSessionFlow = MutableStateFlow(false)
 
-        data class Account(
-            val user: User, // Contains all user data.
-            var query: String, // Search bar query.
-            var accountFilter: AccountType // Search bar filter.
-        ) : State()
-    }
+    private val loginDataState: Flow<ProfileUiState> = combine(
+        userRepository.loadedUser,
+        _queryFlow,
+        _accountTypeFilterFlow,
+        _isRestoringSessionFlow,
+        _isLoginLoadingFlow,
+    ) { loadedUser, query, accountFilter, isRestoringSession, loginLoading ->
+        val isLoginState = loadedUser == null && !isRestoringSession
+        val lowercaseQuery = query.lowercase()
+        val thirtyDaysAgo = LocalDateTime.now().minusDays(30)
+        val filteredTransactions = loadedUser?.transactions?.filter {
+            it.location.lowercase().contains(lowercaseQuery)
+                    && it.accountType == accountFilter
+                    && it.date >= thirtyDaysAgo
+        }?.map { it.toDisplayTransaction() } ?: emptyList()
 
-    private var _state = MutableStateFlow<State>(
-        if (CurrentUser.user == null) {
-            State.Login()
-        } else {
-            State.Account(CurrentUser.user!!, "", AccountType.BRBS)
-        }
-    )
-
-    // Convert the state to a flow that can be updated by screens that use the LoginViewModel
-    val state = _state.asStateFlow()
-
-    // List of all available meal plans
-    val mealPlanList = mutableListOf(
-        AccountType.FLEX,
-        AccountType.BEAR_TRADITIONAL,
-        AccountType.BEAR_CHOICE,
-        AccountType.BEAR_BASIC,
-        AccountType.UNLIMITED,
-        AccountType.HOUSE_AFFILIATE,
-        AccountType.HOUSE_MEALPLAN,
-        AccountType.JUST_BUCKS,
-        AccountType.OFF_CAMPUS
-    )
-
-    fun resetLogin() {
-        _state.value = State.Login()
-    }
-
-    // Check what the meal plan is against our list of meal plans
-    fun checkMealPlan(): Account? {
-        if (_state.value !is State.Account || CurrentUser.user == null) return null
-        var currAccount: Account? = null
-        CurrentUser.user!!.accounts!!.forEach {
-            if (mealPlanList.contains(it.type)) {
-                currAccount = it
-            }
-        }
-        return currAccount
-    }
-
-    fun checkAccount(accountType: AccountType): Account? {
-        if (_state.value !is State.Account || CurrentUser.user == null) return null
-        return CurrentUser.user!!.accounts!!.find {
-            it.type == accountType
-        }
-    }
-
-    fun updateAccountFilter(newAccountType: AccountType) {
-        val currState = _state.value
-        if (currState !is State.Account) return
-
-        // currState is a Login state (expected).
-        val newState = State.Account(
-            currState.user,
-            "",
-            newAccountType
+        ProfileUiState(
+            isLoginState = isLoginState,
+            isLoading = loginLoading || isRestoringSession,
+            accountTypeBalance = loadedUser?.toAccountBalances() ?: AccountBalances(),
+            accountFilter = if (isLoginState) TransactionAccountType.BRBS else accountFilter,
+            filterText = if (isLoginState) "" else query,
+            filteredTransactions = filteredTransactions,
         )
-
-        // Send the new netID Login state down.
-        _state.value = newState
     }
 
-    fun getTransactionsOfType(accountType: AccountType, query: String): List<Transaction> {
-        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
-        if (_state.value !is State.Account || CurrentUser.user == null) return listOf()
-        return CurrentUser.user!!.transactions?.filter { transaction ->
-            transaction.accountType == accountType
-                    && LocalDateTime.parse(transaction.date, inputFormatter) >= LocalDateTime.now()
-                .minusDays(30)
-                    && transaction.location!!.lowercase().contains(query.lowercase())
-        } ?: listOf()
-    }
-
-    fun onLoginPressed() = updateLoginLoadingState(true)
-
-    fun onLoginExited() = updateLoginLoadingState(false)
-
-    private fun updateLoginLoadingState(isLoading: Boolean) {
-        val currState = _state.value
-        if (currState !is State.Login) return
-
-        // Send the new loading Login state down
-        _state.value = currState.copy(loading = isLoading)
-
-    }
-
-    fun onLogoutPressed() {
-        val newState = State.Login()
-        _state.value = newState
-        viewModelScope.launch {
-            CurrentUser.user = null
-            userPreferencesRepository.setIsLoggedIn(false)
-            userPreferencesRepository.saveLoginInfo("", "")
-        }
-    }
+    val uiState = combine(loginDataState, _error) { dataState, error ->
+        dataState.copy(error = error)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = ProfileUiState()
+    )
 
     init {
-        getSavedLoginInfo()
+        viewModelScope.launch {
+            if (getAccountRepository.isLoggedIn()) {
+                _isRestoringSessionFlow.value = true
+                try {
+                    getFinancials()
+                } finally {
+                    _isRestoringSessionFlow.value = false
+                }
+            }
+        }
     }
 
-    private fun getSavedLoginInfo() = viewModelScope.launch {
-        if (userPreferencesRepository.getIsLoggedIn()) {
-            val loginInfo = userPreferencesRepository.fetchLoginInfo()
-            getUser(loginInfo.first)
+    companion object {
+        private fun LocalDateTime.formatDate(): String {
+            val outputFormatter = DateTimeFormatter.ofPattern("h:mm a · EEEE, MMMM d")
+            return outputFormatter.format(this)
         }
+
+        private fun Transaction.toDisplayTransaction(): DisplayTransaction = DisplayTransaction(
+            id = listOf(
+                this.date,
+                this.location,
+                this.amount.toString(),
+                this.accountType.name
+            ).joinToString("|"),
+            amount = this.amount,
+            accountType = this.accountType,
+            location = this.location,
+            formattedDate = this.date.formatDate()
+        )
+
+        private fun User.toAccountBalances(): AccountBalances {
+            return AccountBalances(
+                brbBalance = this.brbBalance,
+                cityBucksBalance = this.cityBucksBalance,
+                laundryBalance = this.laundryBalance,
+                mealSwipes = this.mealSwipes
+            )
+        }
+    }
+
+    fun setQuery(query: String) {
+        _queryFlow.value = query
+    }
+
+    fun updateAccountFilter(newAccountType: TransactionAccountType) {
+        _accountTypeFilterFlow.value = newAccountType
+    }
+
+    fun clearError() {
+        _error.value = null
+    }
+
+    fun onLoginPressed() {
+        clearError()
+        _isLoginLoadingFlow.value = true
+    }
+
+    fun onLoginExited() {
+        _isLoginLoadingFlow.value = false
     }
 
     fun onLoginWebViewSuccess(sessionId: String) {
-        getUser(sessionId)
+        viewModelScope.launch {
+            if (linkGETAccount(sessionId)) {
+                getFinancials()
+            }
+        }
     }
 
-    private fun getUser(sessionId: String) = viewModelScope.launch {
-        try {
-            val currState = _state.value
-            val user = userRepository.getUser(sessionId).response!!
-            val account = userRepository.getAccount(sessionId, user.id!!).response!!.accounts
-            val transactions =
-                userRepository.getTransactionHistory(sessionId, user.id).response!!.transactions
-            user.accounts = account
-            user.transactions = transactions
-            CurrentUser.user = user
+    private fun onNetworkSuccess() {
+        _error.value = null
+    }
 
-            if (currState is State.Login) {
-                userPreferencesRepository.saveLoginInfo(sessionId, currState.password)
-                userPreferencesRepository.setIsLoggedIn(true)
+    private fun onNetworkFailure(action: NetworkAction, error: NetworkError) {
+        _error.value = NetworkUiError.Failed(action, error)
+        _isLoginLoadingFlow.value = false
+    }
+
+    /**
+     * Fetches user data given [sessionId] and updates the state and user preferences.
+     * Returns true if the account was linked successfully, false otherwise.
+     */
+    private suspend fun linkGETAccount(sessionId: String): Boolean {
+        return when (val result = getAccountRepository.linkGETAccount(sessionId)) {
+            is Result.Success -> {
+                onNetworkSuccess()
+                true
             }
-            val newState = State.Account(
-                user = user,
-                query = "",
-                accountFilter = AccountType.BRBS
-            )
-            _state.value = newState
-        } catch (e: Exception) {
-            val currState = _state.value
-            if (currState is State.Login) {
-                val newState = State.Login(
-                    netID = currState.netID,
-                    password = currState.password,
-                    failureMessage = e.stackTraceToString(),
-                    loading = false
-                )
-                _state.value = newState
+
+            is Result.Error -> {
+                onNetworkFailure(NetworkAction.LinkGetAccount, result.error)
+                false
             }
-            userPreferencesRepository.saveLoginInfo("", "")
-            userPreferencesRepository.setIsLoggedIn(false)
+        }
+    }
+
+    private suspend fun getFinancials() {
+        when (val result = userRepository.getFinancials()) {
+            is Result.Success -> onNetworkSuccess()
+            is Result.Error -> onNetworkFailure(NetworkAction.GetFinancials, result.error)
         }
     }
 }
-

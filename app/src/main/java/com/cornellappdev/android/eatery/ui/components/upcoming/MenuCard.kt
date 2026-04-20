@@ -17,13 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,17 +31,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.EateryStatus
+import com.cornellappdev.android.eatery.data.models.MenuItem
 import com.cornellappdev.android.eatery.ui.components.general.FavoriteIcon
 import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 
 data class MenuCardViewState(
@@ -52,16 +56,11 @@ data class MenuCardViewState(
     val eateryStatus: EateryStatus?,
 )
 
-
 data class EateryHours(
     val startTime: String,
     val endTime: String,
 )
 
-/**
- * Represents the card for each eatery that is shown in the list
- * in the upcoming menu screen
- */
 @Composable
 fun MenuCard(
     menuCardViewState: MenuCardViewState,
@@ -69,27 +68,25 @@ fun MenuCard(
     selectEatery: (eateryId: Int) -> Unit = {},
 ) = with(menuCardViewState) {
     var openDropdown by remember { mutableStateOf(false) }
+
     Card(
-        elevation = 5.dp,
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         shape = RoundedCornerShape(10.dp),
-        backgroundColor = currentColors.accentPrimary,
+        colors = CardDefaults.cardColors(containerColor = currentColors.accentPrimary),
         modifier = Modifier.clickable {
             openDropdown = !openDropdown
-            if (!openDropdown) {
-                onEateryCardContract()
-            }
+            if (!openDropdown) onEateryCardContract()
         }
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = menuCardViewState.name,
-                    style = EateryBlueTypography.h5,
+                    text = name, style = EateryBlueTypography.h5,
                     color = currentColors.textPrimary
                 )
                 Icon(
                     imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                    contentDescription = "Expand menu",
+                    contentDescription = stringResource(R.string.a11y_expand_menu),
                     tint = currentColors.textPrimary,
                     modifier = Modifier
                         .padding(top = 10.dp, end = 20.dp)
@@ -105,23 +102,26 @@ fun MenuCard(
                             color = it.statusColor
                         )
                         Text(
-                            text = " • ",
+                            text = " ${stringResource(R.string.bullet_separator)} ",
                             style = EateryBlueTypography.subtitle2,
                             color = currentColors.textSecondary
                         )
                     }
                     eateryHours?.let {
                         Text(
-                            modifier = Modifier.padding(
-                                bottom = 8.dp
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            text = stringResource(
+                                R.string.menu_time_range,
+                                it.startTime,
+                                it.endTime
                             ),
-                            text = "${it.startTime} - ${it.endTime}",
                             style = EateryBlueTypography.subtitle2,
                             color = currentColors.textSecondary
                         )
                     }
                 }
             }
+
             Column(
                 modifier = Modifier
                     .animateContentSize(tween(250))
@@ -147,7 +147,6 @@ fun MenuCard(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun EateryDetails(
     selectEatery: () -> Unit,
@@ -157,17 +156,15 @@ private fun EateryDetails(
         EateryEventMenu(menu)
         Card(
             shape = RoundedCornerShape(20.dp),
-            onClick = {
-                selectEatery()
-            },
-            backgroundColor = currentColors.backgroundDefault,
+            colors = CardDefaults.cardColors(containerColor = currentColors.backgroundDefault),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp, bottom = 8.dp)
+                .clickable { selectEatery() }
         ) {
-
             Row(
                 modifier = Modifier.padding(
+                    start = 12.dp,
                     end = 12.dp,
                     top = 10.dp,
                     bottom = 10.dp
@@ -180,7 +177,7 @@ private fun EateryDetails(
                     tint = currentColors.textPrimary
                 )
                 Text(
-                    text = "View Eatery Details",
+                    text = stringResource(R.string.view_eatery_details),
                     color = currentColors.textPrimary,
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold
@@ -188,7 +185,6 @@ private fun EateryDetails(
             }
         }
     }
-
 }
 
 @Composable
@@ -199,9 +195,7 @@ private fun EateryEventMenu(menu: List<MenuCategoryViewState>) {
             .wrapContentHeight(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             menu.forEach { category ->
                 Text(
                     text = category.category,
@@ -226,15 +220,49 @@ private fun MenuItemDisplay(item: MenuItemViewState) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = item.item.name ?: "Unknown",
+            text = item.item.name ?: stringResource(R.string.unknown_item),
             style = EateryBlueTypography.caption,
             fontWeight = FontWeight.Normal
         )
         if (item.isFavorite) {
-            FavoriteIcon(
-                true,
-                modifier = Modifier.requiredSize(18.dp)
-            )
+            FavoriteIcon(true, modifier = Modifier.requiredSize(18.dp))
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MenuCardPreview() = EateryPreview {
+    MenuCard(
+        menuCardViewState = MenuCardViewState(
+            eateryId = 1,
+            name = "North Star",
+            eateryHours = EateryHours(startTime = "11:00 AM", endTime = "2:30 PM"),
+            eateryStatus = EateryStatus(statusText = "Open", statusColor = Green),
+            menu = listOf(
+                MenuCategoryViewState(
+                    category = "Lunch",
+                    items = listOf(
+                        MenuItemViewState(
+                            isFavorite = true,
+                            item = MenuItem(name = "Chicken Tikka Masala")
+                        ),
+                        MenuItemViewState(
+                            isFavorite = false,
+                            item = MenuItem(name = "Roasted Vegetables")
+                        )
+                    )
+                ),
+                MenuCategoryViewState(
+                    category = "Dessert",
+                    items = listOf(
+                        MenuItemViewState(
+                            isFavorite = false,
+                            item = MenuItem(name = "Chocolate Chip Cookie")
+                        )
+                    )
+                )
+            )
+        )
+    )
 }

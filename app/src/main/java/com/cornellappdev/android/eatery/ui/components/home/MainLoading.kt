@@ -1,7 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,9 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -27,21 +26,15 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.shimmer
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun MainLoading() {
-
-}
-
 @Composable
 fun FilterItem(width: Dp, modifier: Modifier = Modifier) {
-    Card(
+    Surface(
         modifier = Modifier
             .padding(end = 8.dp)
             .then(modifier)
             .width(width)
             .fillMaxHeight(),
-        backgroundColor = currentColors.backgroundDefault92,
+        color = currentColors.backgroundDefault92,
         shape = RoundedCornerShape(8.dp),
         content = {}
     )
@@ -136,7 +129,7 @@ sealed class MainLoadingItem {
 
                 is EaterySectionList -> {
                     CompositionLocalProvider(
-                        LocalOverscrollConfiguration provides null
+                        LocalOverscrollFactory provides null
                     ) {
                         Row(
                             modifier = Modifier

@@ -25,7 +25,7 @@ fun SwitchOption(
     initialValue: Boolean = true
 ) {
     var switched by remember { mutableStateOf(initialValue) }
-    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         SettingsOption(
             title = title, description = description, onClick = { },
             trailingIcon = {
@@ -34,9 +34,9 @@ fun SwitchOption(
                         .width(51.dp)
                         .height(31.dp),
                     checked = switched,
-                    onCheckedChange = {
-                        switched = !switched
-                        onCheckedChange(switched)
+                    onCheckedChange = { checked ->
+                        switched = checked
+                        onCheckedChange(checked)
                     },
                     enabled = enabled,
                     colors = SwitchDefaults.colors(
