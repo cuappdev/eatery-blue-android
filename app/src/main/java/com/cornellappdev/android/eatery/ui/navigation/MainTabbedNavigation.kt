@@ -171,8 +171,7 @@ fun SetupNavHost(
     modifier: Modifier = Modifier,
     hasOnboarded: Boolean,
     navController: NavHostController,
-    showBottomBar: MutableState<Boolean>,
-    themeViewModel : ThemeViewModel = hiltViewModel()
+    showBottomBar: MutableState<Boolean>
 
 ) {
     AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
@@ -223,7 +222,13 @@ fun SetupNavHost(
                 }, onFavoriteExpand = {
                     navController.navigate(Routes.FAVORITES.route)
                 }, onCompareMenusClick = { selectedEateries ->
-                    navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
+                    navController.navigate(
+                        "${Routes.COMPAREMENUS.route}/${
+                            selectedEateries.joinToString(
+                                ","
+                            ) { it.toString() }
+                        }"
+                    )
                 },
                 onNotificationsClick = {
                     navController.navigate("notifications_home")
@@ -263,7 +268,13 @@ fun SetupNavHost(
             }) {
             EateryDetailScreen(
                 onCompareMenusClick = { selectedEateriesIds ->
-                    navController.navigate("comparemenus/${selectedEateriesIds.joinToString(",") { it.toString() }}")
+                    navController.navigate(
+                        "${Routes.COMPAREMENUS.route}/${
+                            selectedEateriesIds.joinToString(
+                                ","
+                            ) { it.toString() }
+                        }"
+                    )
                 }
             )
         }
@@ -479,7 +490,7 @@ fun SetupNavHost(
             SupportScreen()
         }
         composable(
-            route = "comparemenus/{eateryIds}",
+            route = "${Routes.COMPAREMENUS.route}/{eateryIds}",
             arguments = listOf(navArgument("eateryIds") { type = NavType.StringType }),
             enterTransition = { fadeIn(animationSpec = tween(durationMillis = 500)) },
             exitTransition = { fadeOut(animationSpec = tween(durationMillis = 500)) }

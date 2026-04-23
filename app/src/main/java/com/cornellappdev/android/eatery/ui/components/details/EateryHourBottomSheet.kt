@@ -143,7 +143,6 @@ fun EateryHourBottomSheet(
             colors = ButtonDefaults.buttonColors(containerColor = colors.backgroundDefault),
             shape = RoundedCornerShape(corner = CornerSize(24.dp)),
         ) {
-            Text("Close", color = currentColors.textPrimary, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
             Text(
                 stringResource(R.string.close),
                 color = currentColors.textPrimary,

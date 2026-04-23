@@ -10,7 +10,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
@@ -39,7 +38,7 @@ fun FavoriteButton(
 fun FavoriteIcon(isFavorite: Boolean, modifier: Modifier = Modifier) {
     Icon(
         imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-        tint = if (isFavorite) Color(0xFFFFD700) else currentColors.accentPrimary,
+        tint = if (isFavorite) currentColors.favorite else currentColors.accentPrimary,
         modifier = modifier,
         contentDescription = stringResource(
             if (isFavorite) R.string.favorite_button_remove else R.string.favorite_button_add

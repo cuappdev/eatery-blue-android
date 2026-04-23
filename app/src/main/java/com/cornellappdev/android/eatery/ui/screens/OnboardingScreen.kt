@@ -62,7 +62,6 @@ fun OnboardingScreenContent(
     proceedHome: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = { 2 })
-    val colors = currentColors
     val coroutineScope = rememberCoroutineScope()
     var fadePage by rememberSaveable { mutableStateOf(false) }
     val cornell = stringResource(R.string.onboarding_cornell)
@@ -84,7 +83,7 @@ fun OnboardingScreenContent(
 
                         Icon(
                             painter = painterResource(id = R.drawable.ic_eaterylogo_blue),
-                            tint = colors.backgroundSecondary,
+                            tint = currentColors.backgroundSecondary,
                             modifier = Modifier
                                 .width(96.dp)
                                 .height(96.dp),
@@ -110,7 +109,7 @@ fun OnboardingScreenContent(
                                     fadePage = true
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = currentColors.backgroundDefault),
+                            colors = ButtonDefaults.buttonColors(containerColor = currentColors.accentPrimary),
                             elevation = ButtonDefaults.buttonElevation(
                                 defaultElevation = 4.dp,
                                 pressedElevation = 4.dp,
@@ -137,13 +136,13 @@ fun OnboardingScreenContent(
                                 painter = painterResource(id = R.drawable.ic_appdev),
                                 modifier = Modifier.padding(end = 6.dp),
                                 contentDescription = null,
-                                tint = colors.backgroundDefault10
+                                tint = currentColors.backgroundDefault10
                             )
                             Text(
                                 buildAnnotatedString {
                                     withStyle(
                                         style = SpanStyle(
-                                            color = colors.backgroundDefault10,
+                                            color = currentColors.backgroundDefault10,
                                             fontWeight = FontWeight.Normal
                                         )
                                     ) {
@@ -151,7 +150,7 @@ fun OnboardingScreenContent(
                                     }
                                     withStyle(
                                         style = SpanStyle(
-                                            color = colors.backgroundDefault10,
+                                            color = currentColors.backgroundDefault10,
                                             fontWeight = FontWeight.SemiBold
                                         )
                                     ) {

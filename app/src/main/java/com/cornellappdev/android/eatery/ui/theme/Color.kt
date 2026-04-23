@@ -2,23 +2,7 @@ package com.cornellappdev.android.eatery.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-/*
-val EateryBlue = Color(0xFF4A90E2)
-val colors.backgroundDefault = Color(0xFFEFF1F4)
-val colors.backgroundSecondary = Color(0xFFE1E4E8)
-val backgroundDefault92 = Color(0xFFD1D5DA)
-val colors.backgroundDefault10 = Color(0xFF959da5)
-val colors.textSecondary = Color(0xFF586069)
-val colors.textPrimary = Color(0xFF444D56)
-val LightBlue = Color(0xFFE8EFF8)
-val LightRed = Color(0xFFFEF0EF)
-val Red = Color(0xFFF2655D)
-val Green = Color(0xFF63C774)
-val colors.accentPressed = Color(0xFFFEC50E)
-val Orange = Color(0xFFFF990E)
-val Black = Color(0xFF050505)
 
- */
 // Error colors
 val ErrorLight = Color(0xFFF2655D)
 val ErrorDark = Color(0xFFF2655D)
@@ -26,6 +10,10 @@ val ErrorDark = Color(0xFFF2655D)
 // Success colors
 val SuccessLight = Color(0xFF63C774)
 val SuccessDark = Color(0xFF76CE85)
+
+// Warning colors (e.g., for "Closing Soon" status)
+val WarningLight = Color(0xFFFFA500)
+val WarningDark = Color(0xFFFFA500)
 
 // Background colors
 val BgDefaultLight = Color(0xFFFFFFFF)
@@ -62,6 +50,10 @@ val AccentPressedDark = Color(0xFF1C1C1C)
 // Border colors
 val BorderDefaultLight = Color(0xFFE1E4E8)
 val BorderDefaultDark = Color(0xFF282828)
+
+// Favorite colors
+val FavoriteLight = Color(0xFFFFD700)
+val FavoriteDark = Color(0xFFFFD700)
 
 
 /**
@@ -111,6 +103,8 @@ object ColorTheme
         accentPrimary = AccentPrimaryLight,
         accentPressed = AccentPressedLight,
         borderDefault = BorderDefaultLight,
+        favorite = FavoriteLight,
+        warning = WarningLight,
     )
     val darkMode = ColorMode(
         error = ErrorDark,
@@ -125,7 +119,9 @@ object ColorTheme
         textSecondary = TextSecondaryDark,
         accentPrimary = AccentPrimaryDark,
         accentPressed = AccentPressedDark,
-        borderDefault = BorderDefaultDark
+        borderDefault = BorderDefaultDark,
+        favorite = FavoriteDark,
+        warning = WarningDark,
     )
 
 }
@@ -142,6 +138,8 @@ data class ColorMode(
     val oppTextPrimary : Color,
     val textSecondary : Color,
     val accentPrimary : Color,
-    val accentPressed : Color,
-    val borderDefault : Color
+    val accentPressed: Color,
+    val borderDefault: Color,
+    val favorite: Color,
+    val warning: Color
 )

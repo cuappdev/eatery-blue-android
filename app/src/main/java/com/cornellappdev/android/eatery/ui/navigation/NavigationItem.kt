@@ -53,8 +53,7 @@ sealed class NavigationItem(
             Routes.FAVORITES.route,
             Routes.LEGAL.route,
             Routes.PRIVACY.route,
-            Routes.SUPPORT.route,
-            Routes.THEME.route
+            Routes.SUPPORT.route
         )
     )
 
@@ -97,6 +96,5 @@ enum class Routes(override var route: String) : NavUnit {
     LEGAL("legal"),
     PRIVACY("privacy"),
     SUPPORT("support"),
-    COMPAREMENUS("compare_menus"),
-    THEME("theme")
+    COMPAREMENUS("comparemenus"),
 }

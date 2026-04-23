@@ -98,7 +98,8 @@ fun AnnouncementsPopUp(
                             Modifier
                                 .size(30.dp)
                                 .background(currentColors.backgroundDefault, CircleShape)
-                                .clip(CircleShape)
+                                .clip(CircleShape),
+                            tint = currentColors.textPrimary
                         )
                     }
                 }

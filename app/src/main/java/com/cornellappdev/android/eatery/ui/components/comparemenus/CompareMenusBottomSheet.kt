@@ -54,7 +54,6 @@ fun CompareMenusBottomSheet(
     firstEatery: Eatery? = null
 ) {
     val compareMenusUIState by compareMenusBottomViewModel.compareMenusUiState.collectAsStateWithLifecycle()
-    currentColors
 
     LaunchedEffect(firstEatery) {
         compareMenusBottomViewModel.initializedFirstEatery(firstEatery)
@@ -92,7 +91,6 @@ fun CompareMenusBottomSheetContent(
     onFilterClicked: (Filter) -> Unit,
     onToggleEatery: (Eatery) -> Unit,
 ) {
-    val colors = currentColors
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -113,7 +111,7 @@ fun CompareMenusBottomSheetContent(
                 onClick = onDismiss,
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = colors.backgroundDefault, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
                 Icon(
                     Icons.Default.Close,
@@ -151,30 +149,31 @@ fun CompareMenusBottomSheetContent(
 
         Spacer(modifier = Modifier.height(12.dp))
         val coroutineScope = rememberCoroutineScope()
+        val canCompare = selectedEateries.size >= 2
         Button(
             onClick = {
-                if (selectedEateries.size >= 2) {
-                    coroutineScope.launch {
-                        delay(100)
-                        onCompareMenusClick(selectedEateries.mapNotNull { it.id })
-                    }
+                coroutineScope.launch {
+                    delay(100)
+                    onCompareMenusClick(selectedEateries.mapNotNull { it.id })
                 }
             },
+            enabled = canCompare,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
                 .align(Alignment.CenterHorizontally),
             shape = RoundedCornerShape(100),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (selectedEateries.size < 2) colors.backgroundDefault92 else colors.accentPrimary,
-                contentColor = if (selectedEateries.size < 2) colors.backgroundDefault else currentColors.backgroundDefault
+                containerColor = currentColors.accentPrimary,
+                contentColor = currentColors.backgroundDefault,
+                disabledContainerColor = currentColors.backgroundDefault92,
+                disabledContentColor = currentColors.backgroundDefault
             )
         ) {
             Text(
                 text = if (selectedEateries.size < 2) "Select at least ${2 - selectedEateries.size} more"
                 else "Compare ${selectedEateries.size} now",
                 style = EateryBlueTypography.h5,
-                color = colors.backgroundDefault
             )
         }
     }
@@ -239,7 +238,7 @@ private fun SelectableEateriesList(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun CompareMenusBottomSheetContentPreview() = EateryPreview {
     val mockEateries = listOf(
@@ -247,21 +246,24 @@ fun CompareMenusBottomSheetContentPreview() = EateryPreview {
         PreviewData.mockEatery(2).copy(name = "RPCC"),
         PreviewData.mockEatery(3).copy(name = "Okenshields"),
     )
-
-    CompareMenusBottomSheetContent(
-        onDismiss = {},
-        onCompareMenusClick = {},
-        filters = listOf(Filter.Selected),
-        availableFilters = listOf(
-            Filter.Selected,
-            Filter.FromEateryFilter.North,
-            Filter.FromEateryFilter.West,
-            Filter.FromEateryFilter.Central,
-            Filter.FromEateryFilter.Under10,
-        ),
-        selectedEateries = mockEateries.take(1),
-        eateries = mockEateries,
-        onFilterClicked = {},
-        onToggleEatery = {},
-    )
+    Box(
+        modifier = Modifier.size(400.dp, 600.dp)
+    ) {
+        CompareMenusBottomSheetContent(
+            onDismiss = {},
+            onCompareMenusClick = {},
+            filters = listOf(Filter.Selected),
+            availableFilters = listOf(
+                Filter.Selected,
+                Filter.FromEateryFilter.North,
+                Filter.FromEateryFilter.West,
+                Filter.FromEateryFilter.Central,
+                Filter.FromEateryFilter.Under10,
+            ),
+            selectedEateries = mockEateries.take(1),
+            eateries = mockEateries,
+            onFilterClicked = {},
+            onToggleEatery = {},
+        )
+    }
 }

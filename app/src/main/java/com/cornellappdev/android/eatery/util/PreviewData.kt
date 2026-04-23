@@ -1,7 +1,5 @@
 package com.cornellappdev.android.eatery.util
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Green
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.models.Event
@@ -12,6 +10,8 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewSt
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.components.upcoming.EateryHours
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCardViewState
+import com.cornellappdev.android.eatery.ui.theme.SuccessLight
+import com.cornellappdev.android.eatery.ui.theme.WarningLight
 import com.cornellappdev.android.eatery.ui.viewmodels.EateriesSection
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingMenusViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
@@ -81,7 +81,7 @@ object PreviewData {
                                     ),
                                     eateryStatus = EateryStatus(
                                         statusText = "Open",
-                                        statusColor = Green
+                                        statusColor = SuccessLight
                                     ),
                                     menu = listOf(
                                         MenuCategoryViewState(
@@ -113,7 +113,7 @@ object PreviewData {
                                     ),
                                     eateryStatus = EateryStatus(
                                         statusText = "Closing Soon",
-                                        statusColor = Color(0xFFFFA500) // Orange
+                                        statusColor = WarningLight
                                     ),
                                     menu = listOf(
                                         MenuCategoryViewState(

@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.components.general
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -20,16 +19,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
-import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun FilterRow(
@@ -39,10 +35,7 @@ fun FilterRow(
     customItemsBefore: LazyListScope.() -> Unit = {},
     customItemsAfter: LazyListScope.() -> Unit = {},
     rowState: LazyListState = rememberLazyListState(),
-    themeViewModel : ThemeViewModel = hiltViewModel()
 ) {
-    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
-    val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -55,7 +48,6 @@ fun FilterRow(
                     onFilterClicked(filter)
                 }, selected = filter in currentFiltersSelected,
                 text = filter.text,
-                isDarkMode = resolvedDarkMode
             )
         }
         customItemsAfter()
@@ -71,23 +63,15 @@ fun FilterButton(
     selected: Boolean,
     text: String,
     hasExpandIcon: Boolean = false,
-    isDarkMode: Boolean
 ) {
     val progress by animateFloatAsState(
         targetValue = if (selected) 0f else 1f,
         label = "Button Color",
         animationSpec = tween(150)
     )
-    var background = colorInterp(progress, Color.Black, Color(0xFFEFF1F4))
-    var contentColor = colorInterp(progress, Color.White, Color.Black)
-
-    if (isDarkMode==true)
-    {
-        background = colorInterp(progress, Color.White, Color(0xFF272727))
-        contentColor = colorInterp(progress, Color.Black, Color.White)
-    }
-
-
+    val background = colorInterp(progress, currentColors.textPrimary, currentColors.accentPrimary)
+    val contentColor =
+        colorInterp(progress, currentColors.oppTextPrimary, currentColors.textPrimary)
 
     Button(
         onClick = onFilterClicked,

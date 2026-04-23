@@ -216,7 +216,7 @@ private fun AccountPageContent(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun AccountPagePreview() = EateryPreview {
     AccountPageContent(

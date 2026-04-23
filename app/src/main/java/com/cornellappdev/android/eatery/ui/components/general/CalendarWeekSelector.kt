@@ -85,9 +85,9 @@ fun CalendarWeekSelector(
                         modifier = Modifier
                             .size(size = (34 * size).dp)
                             .alpha(size),
-                        color = when {
-                            i == currSelectedDay && currSelectedDay == 0 -> currentColors.accentPrimary
-                            i == currSelectedDay || i == selectedDay -> currentColors.textSecondary
+                        color = when (i) {
+                            currSelectedDay if currSelectedDay == 0 -> currentColors.accentPrimary
+                            currSelectedDay, selectedDay -> currentColors.textSecondary
                             else -> currentColors.textSecondary
                         },
                         shape = CircleShape

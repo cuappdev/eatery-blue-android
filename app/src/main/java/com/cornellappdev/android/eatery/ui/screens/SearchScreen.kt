@@ -240,7 +240,7 @@ private fun SearchScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(colors.backgroundDefault)
+                        .background(colors.borderDefault)
                 )
             }
         }
@@ -450,7 +450,7 @@ fun FavoriteItem(
                 component = rememberImageComponent {
                     +ShimmerPlugin(
                         Shimmer.Flash(
-                            baseColor = currentColors.backgroundDefault,
+                            baseColor = currentColors.borderDefault,
                             highlightColor = colors.backgroundDefault,
                             duration = 350,
                             dropOff = 0.65f,

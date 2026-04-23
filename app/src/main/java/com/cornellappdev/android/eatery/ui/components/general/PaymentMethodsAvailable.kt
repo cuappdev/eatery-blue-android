@@ -24,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
@@ -52,7 +51,12 @@ fun PaymentMethodsAvailable(
         } else {
             selectedPaymentMethods.forEachIndexed { index, paymentMethod ->
                 appendInlineContent(id = paymentMethod.name)
-                pushStyle(SpanStyle(color = paymentMethod.color))
+                val paymentMethodColor = when (paymentMethod) {
+                    PaymentMethodsAvailable.BRB -> currentColors.error
+                    PaymentMethodsAvailable.CASH -> currentColors.success
+                    PaymentMethodsAvailable.SWIPES -> currentColors.backgroundSecondary
+                }
+                pushStyle(SpanStyle(color = paymentMethodColor))
                 append(" ${stringResource(paymentMethod.textRes)}")
                 pop()
                 if (index != selectedPaymentMethods.lastIndex) {
@@ -127,7 +131,7 @@ fun PaymentMethodsAvailable(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_swipes),
                         contentDescription = stringResource(R.string.payment_methods_meal_swipes),
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.SWIPES)) currentColors.backgroundSecondary else currentColors.backgroundDefault92
+                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.SWIPES)) currentColors.backgroundSecondary else currentColors.textSecondary
                     )
                 }
             }
@@ -146,7 +150,7 @@ fun PaymentMethodsAvailable(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_brbs),
                         contentDescription = stringResource(R.string.payment_methods_brbs),
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.BRB)) currentColors.error else currentColors.backgroundDefault92
+                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.BRB)) currentColors.error else currentColors.textSecondary
                     )
                 }
             }
@@ -164,7 +168,7 @@ fun PaymentMethodsAvailable(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_cash),
                         contentDescription = stringResource(R.string.payment_methods_cash_or_credit),
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.CASH)) currentColors.success else currentColors.backgroundDefault92
+                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.CASH)) currentColors.success else currentColors.textSecondary
                     )
                 }
             }
@@ -199,20 +203,17 @@ fun PaymentMethodsAvailable(
     }
 }
 
-enum class PaymentMethodsAvailable(val drawable: Int, val color: Color, val textRes: Int) {
+enum class PaymentMethodsAvailable(val drawable: Int, val textRes: Int) {
     BRB(
         drawable = R.drawable.ic_small_brbs,
-        color = Color.Red,
         textRes = R.string.payment_methods_brbs
     ),
     CASH(
         drawable = R.drawable.ic_small_cash,
-        color = Color.Green,
         textRes = R.string.payment_methods_cash_or_credit
     ),
     SWIPES(
         drawable = R.drawable.ic_small_swipes,
-        color = Color(0xFF808080),
         textRes = R.string.payment_methods_meal_swipes
     );
 }

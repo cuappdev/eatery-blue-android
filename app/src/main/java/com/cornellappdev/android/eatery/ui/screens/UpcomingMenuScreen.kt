@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,7 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,7 +53,6 @@ import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingIt
 import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingItem.Companion.CreateUpcomingLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
-import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingMenusViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
@@ -376,10 +373,7 @@ private fun UpcomingFilterRow(
     selectedFilters: List<Filter>,
     onToggleFilterClicked: (Filter) -> Unit,
     filterRowState: LazyListState,
-    themeViewModel : ThemeViewModel = hiltViewModel()
 ) {
-    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
-    val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
     FilterRow(
         customItemsBefore = {
             item {
@@ -390,7 +384,6 @@ private fun UpcomingFilterRow(
                     selected = true,
                     text = mealFilter.displayName,
                     hasExpandIcon = true,
-                    isDarkMode = resolvedDarkMode
                 )
             }
         },
