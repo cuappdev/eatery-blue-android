@@ -59,8 +59,10 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NavigationSetup(hasOnboarded: Boolean) {
-    val navController = rememberNavController()
+fun NavigationSetup(
+    hasOnboarded: Boolean,
+    navController: NavHostController = rememberNavController()
+) {
     val showBottomBar = rememberSaveable {
         mutableStateOf(false)
     }
