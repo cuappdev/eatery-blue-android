@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,6 +11,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
@@ -38,6 +41,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var authTokenRepository: AuthTokenRepository
 
+    private var navController: NavHostController? = null
     private lateinit var activityResultLauncher: ActivityResultLauncher<IntentSenderRequest>
     private val appUpdateManager by lazy { AppUpdateManagerFactory.create(applicationContext) }
     private var flexibleUpdateListener: InstallStateUpdatedListener? = null
@@ -54,10 +58,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
+            val controller = rememberNavController()
+            navController = controller
             LockScreenOrientation()
 
             EateryBlueTheme {
-                NavigationSetup(hasOnboarded)
+                NavigationSetup(hasOnboarded, controller)
             }
         }
         val dataRefresher = object : DefaultLifecycleObserver {
@@ -153,5 +159,11 @@ class MainActivity : ComponentActivity() {
 
     private suspend fun configureTokens() {
         authTokenRepository.getTokens()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        navController?.handleDeepLink(intent)
     }
 }

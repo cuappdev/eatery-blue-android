@@ -35,6 +35,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import com.cornellappdev.android.eatery.ui.components.general.AppStoreRatingPopup
 import com.cornellappdev.android.eatery.ui.screens.AboutScreen
 import com.cornellappdev.android.eatery.ui.screens.CompareMenusScreen
@@ -58,8 +59,10 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NavigationSetup(hasOnboarded: Boolean) {
-    val navController = rememberNavController()
+fun NavigationSetup(
+    hasOnboarded: Boolean,
+    navController: NavHostController = rememberNavController()
+) {
     val showBottomBar = rememberSaveable {
         mutableStateOf(false)
     }
@@ -232,6 +235,9 @@ fun SetupNavHost(
         composable(
             route = "${Routes.EATERY_DETAIL.route}/{eateryId}",
             arguments = listOf(navArgument("eateryId") { type = NavType.IntType }),
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "eatery://eatery_detail/{eateryId}" }
+            ),
             enterTransition = {
                 fadeIn(
                     initialAlpha = 0f,
