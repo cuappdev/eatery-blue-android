@@ -234,9 +234,7 @@ fun SetupNavHost(
             route = "${Routes.EATERY_DETAIL.route}/{eateryId}",
             arguments = listOf(navArgument("eateryId") { type = NavType.IntType }),
             deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = "eatery://eatery_detail/{eateryId}"
-                }
+                navDeepLink { uriPattern = "eatery://eatery_detail/{eateryId}" }
             ),
             enterTransition = {
                 fadeIn(
