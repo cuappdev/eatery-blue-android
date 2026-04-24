@@ -31,11 +31,13 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 
 @Composable
@@ -217,3 +219,29 @@ enum class PaymentMethodsAvailable(val drawable: Int, val textRes: Int) {
         textRes = R.string.payment_methods_meal_swipes
     );
 }
+
+@Preview(name = "Payment methods - all", showBackground = true)
+@Composable
+private fun PaymentMethodsAvailableAllPreview() {
+    EateryPreview {
+        PaymentMethodsAvailable(
+            selectedPaymentMethods = PaymentMethodsAvailable.entries,
+            hide = {}
+        )
+    }
+}
+
+@Preview(name = "Payment methods - partial (dark)", showBackground = true)
+@Composable
+private fun PaymentMethodsAvailablePartialDarkPreview() {
+    EateryPreview(darkMode = true) {
+        PaymentMethodsAvailable(
+            selectedPaymentMethods = listOf(
+                PaymentMethodsAvailable.BRB,
+                PaymentMethodsAvailable.CASH
+            ),
+            hide = {}
+        )
+    }
+}
+
