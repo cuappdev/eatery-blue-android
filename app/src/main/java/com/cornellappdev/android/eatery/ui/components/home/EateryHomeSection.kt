@@ -26,13 +26,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.popIn
 import com.cornellappdev.android.eatery.util.popOut
@@ -168,7 +168,7 @@ private fun EaterySectionRow(
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun EateryHomeSectionPreview() {
     Column(modifier = Modifier
@@ -191,3 +191,4 @@ private fun EateryHomeSectionPreview() {
         )
     }
 }
+

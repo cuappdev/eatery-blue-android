@@ -31,12 +31,12 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 
@@ -220,7 +220,7 @@ enum class PaymentMethodsAvailable(val drawable: Int, val textRes: Int) {
     );
 }
 
-@Preview(name = "Payment methods - all", showBackground = true)
+@DualModePreview
 @Composable
 private fun PaymentMethodsAvailableAllPreview() {
     EateryPreview {
@@ -231,10 +231,10 @@ private fun PaymentMethodsAvailableAllPreview() {
     }
 }
 
-@Preview(name = "Payment methods - partial (dark)", showBackground = true)
+@DualModePreview
 @Composable
 private fun PaymentMethodsAvailablePartialDarkPreview() {
-    EateryPreview(darkMode = true) {
+    EateryPreview {
         PaymentMethodsAvailable(
             selectedPaymentMethods = listOf(
                 PaymentMethodsAvailable.BRB,

@@ -30,13 +30,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
@@ -323,7 +323,7 @@ fun MealBottomSheet(
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun MealBottomSheetPreview() = EateryPreview {
     MealBottomSheet(
@@ -333,3 +333,4 @@ private fun MealBottomSheetPreview() = EateryPreview {
         hide = {}
     )
 }
+

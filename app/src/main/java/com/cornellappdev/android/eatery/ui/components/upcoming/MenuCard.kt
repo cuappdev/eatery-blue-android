@@ -35,7 +35,6 @@ import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.EateryStatus
@@ -45,6 +44,7 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewSt
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 
@@ -230,7 +230,7 @@ private fun MenuItemDisplay(item: MenuItemViewState) {
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun MenuCardPreview() = EateryPreview {
     MenuCard(
@@ -266,3 +266,4 @@ private fun MenuCardPreview() = EateryPreview {
         )
     )
 }
+

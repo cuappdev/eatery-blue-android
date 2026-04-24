@@ -17,9 +17,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
@@ -240,8 +240,7 @@ fun PaymentsBlob() {
     }
 }
 
-
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun EateryDetailLoadingScreenPreview() = EateryPreview {
     val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -256,3 +255,4 @@ private fun EateryDetailLoadingScreenPreview() = EateryPreview {
 enum class BottomSheetContent {
     PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME, REPORT, ACCOUNT_TYPE, MENUS, COMPARE_MENUS
 }
+

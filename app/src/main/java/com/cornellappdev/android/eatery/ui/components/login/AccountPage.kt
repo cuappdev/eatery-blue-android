@@ -50,7 +50,6 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
@@ -61,6 +60,7 @@ import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlin.math.abs
 
@@ -574,8 +574,7 @@ private fun TransactionAccountType.displayNameRes(): Int = when (this) {
     TransactionAccountType.CITY_BUCKS -> R.string.account_type_city_bucks
 }
 
-
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun AccountPagePreview() = EateryPreview {
     AccountPageContent(
@@ -609,3 +608,4 @@ private fun AccountPagePreview() = EateryPreview {
         setSheetContent = {}
     )
 }
+

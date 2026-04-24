@@ -67,7 +67,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -96,6 +95,7 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.LocationHandler
 import com.cornellappdev.android.eatery.util.PreviewData
@@ -509,13 +509,13 @@ fun ErrorContent(onTryAgain: () -> Unit) {
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun PreviewErrorContent() = EateryPreview {
     ErrorContent(onTryAgain = {})
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun PreviewRegularContent() = EateryPreview {
     val eateries = listOf(
@@ -637,18 +637,22 @@ private fun LazyListScope.regularContent(
                     Icon(
                         contentDescription = stringResource(R.string.a11y_list_view),
                         painter = painterResource(id =
-                            if (isGridView && isDarkMode) { R.drawable.ic_list_view_unselected_dark }
-                        else if (isGridView && !isDarkMode) {R.drawable.ic_list_view_unselected}
-                        else if (!isGridView && isDarkMode) { R.drawable.ic_list_view_selected_dark }
+                            if (isGridView && isDarkMode) { R.drawable.ic_list_view_unselected_dark } else if (isGridView) {
+                                R.drawable.ic_list_view_unselected
+                            } else if (isDarkMode) {
+                                R.drawable.ic_list_view_selected_dark
+                            }
                         else {R.drawable.ic_list_view_unselected}),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onListClick() }
                     )
                     Icon(
                         contentDescription = stringResource(R.string.a11y_grid_view),
-                        painter = painterResource(if (isGridView && isDarkMode) { R.drawable.ic_grid_view_selected_dark }
-                        else if (isGridView && !isDarkMode) {R.drawable.ic_grid_view_selected}
-                        else if (!isGridView && isDarkMode) { R.drawable.ic_grid_view_unselected_dark }
+                        painter = painterResource(if (isGridView && isDarkMode) { R.drawable.ic_grid_view_selected_dark } else if (isGridView) {
+                            R.drawable.ic_grid_view_selected
+                        } else if (isDarkMode) {
+                            R.drawable.ic_grid_view_unselected_dark
+                        }
                         else {R.drawable.ic_grid_view_unselected}),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onGridClick() }

@@ -18,10 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.shimmer
 
@@ -130,8 +130,9 @@ sealed class UpcomingLoadingItem {
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 fun DefaultPreview() {
     EateryBlob2()
 }
+

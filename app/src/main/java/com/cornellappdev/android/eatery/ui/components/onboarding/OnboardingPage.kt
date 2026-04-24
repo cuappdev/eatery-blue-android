@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.util.DualModePreview
 import kotlin.math.absoluteValue
 
 @Composable
@@ -68,7 +68,7 @@ fun OnboardingPage(
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun OnboardingPagePreview() {
     OnboardingPage(num = 0, pagerOffset = 0f)

@@ -8,10 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 
@@ -51,7 +51,7 @@ fun EateryMealTabs(selectedMealIndex: Int, onSelectMeal: (Int) -> Unit, meals: L
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 fun EateryMealTabsPreview() = EateryPreview {
     EateryMealTabs(0, {}, listOf("Breakfast", "Lunch", "Dinner"))

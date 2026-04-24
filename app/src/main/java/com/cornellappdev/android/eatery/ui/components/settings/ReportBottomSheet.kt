@@ -48,7 +48,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
@@ -58,6 +57,7 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 enum class Issue(@param:StringRes val optionRes: Int) {
@@ -328,7 +328,7 @@ private fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hid
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun ReportBottomSheetSuccessPreview() = EateryPreview {
     ReportBottomSheet(
@@ -341,7 +341,7 @@ private fun ReportBottomSheetSuccessPreview() = EateryPreview {
     )
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun ReportBottomSheetErrorPreview() = EateryPreview {
     ReportBottomSheet(

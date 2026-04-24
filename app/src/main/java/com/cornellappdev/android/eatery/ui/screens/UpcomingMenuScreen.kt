@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -57,6 +56,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingMenusViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
@@ -251,7 +251,7 @@ private fun UpcomingMenuScreenContent(
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun UpcomingMenuScreenPreview() = EateryPreview {
     val previewState = PreviewData.upcomingMenuPreviewState()
@@ -268,7 +268,7 @@ private fun UpcomingMenuScreenPreview() = EateryPreview {
     )
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun UpcomingMenuScreenEmptyPreview() = EateryPreview {
     val previewState = PreviewData.upcomingMenuEmptyPreviewState()
@@ -285,7 +285,7 @@ private fun UpcomingMenuScreenEmptyPreview() = EateryPreview {
     )
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun UpcomingMenuScreenErrorPreview() = EateryPreview {
     val previewState = PreviewData.upcomingMenuErrorPreviewState()

@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -57,6 +56,7 @@ import com.cornellappdev.android.eatery.ui.screens.SupportScreen
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -163,7 +163,7 @@ fun BottomNavigationBar(
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun BottomNavBarPreview() = EateryPreview {
     BottomNavigationBar(
@@ -528,3 +528,4 @@ private fun NavController.isOnBackStack(route: String): Boolean = try {
 } catch (_: IllegalArgumentException) {
     false
 }
+

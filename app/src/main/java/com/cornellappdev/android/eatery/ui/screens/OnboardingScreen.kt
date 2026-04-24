@@ -33,7 +33,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
@@ -41,6 +40,7 @@ import com.cornellappdev.android.eatery.ui.components.onboarding.OnboardingCarou
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.OnboardingViewModel
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
@@ -183,7 +183,7 @@ fun OnboardingScreenContent(
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun OnboardingScreenPreview() = EateryPreview {
     OnboardingScreenContent(

@@ -37,7 +37,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
@@ -47,6 +46,7 @@ import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingSc
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -134,7 +134,7 @@ private fun ActionPrompt(
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun ActionPromptPreview() {
     ActionPrompt(actionText = "Awesome! We'd love to hear more in a review.",
@@ -207,7 +207,7 @@ private fun AppStoreRatingCardBorder(
 
 
 @Composable
-@Preview
+@DualModePreview
 private fun AppStoreRatingCardPreview() {
     EateryDetailLoadingScreen(shimmer = rememberShimmer(ShimmerBounds.View))
     Dialog(onDismissRequest = {}) { AppStoreRatingDialog(navigateToSupport = {}, onDismiss = {}) }

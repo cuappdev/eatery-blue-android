@@ -78,7 +78,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -117,6 +116,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.MealViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
@@ -997,7 +997,7 @@ private fun launchIntentSafely(context: android.content.Context, intent: Intent)
 
 private const val EATERY_DETAIL_TAG = "EateryDetailScreen"
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun EateryDetailScreenPreview() = EateryPreview {
     val now = LocalDateTime.now()
@@ -1044,3 +1044,4 @@ private fun EateryDetailScreenPreview() = EateryPreview {
         onToggleFavoriteMenuItem = {},
     )
 }
+

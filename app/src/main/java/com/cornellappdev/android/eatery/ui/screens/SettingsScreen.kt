@@ -33,7 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
@@ -44,6 +43,7 @@ import com.cornellappdev.android.eatery.ui.navigation.Routes
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.SettingsViewModel
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
@@ -313,7 +313,7 @@ private fun previewDestinations(): Map<Routes, () -> Unit> = hashMapOf(
     Routes.PROFILE to {}
 )
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun SettingsScreenPreview() = EateryPreview {
     SettingsScreenContent(

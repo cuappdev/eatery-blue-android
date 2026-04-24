@@ -19,11 +19,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
@@ -72,11 +72,11 @@ fun ToggleRow(toggle: Boolean, setToggle: (Boolean) -> Unit) {
     }
 }
 
-
-@Preview
+@DualModePreview
 @Composable
 private fun FavoritesTogglePreview() = EateryPreview {
     var active by remember { mutableStateOf(false) }
     FavoritesToggle({ active = !active }, "Eateries", active)
 }
+
 
