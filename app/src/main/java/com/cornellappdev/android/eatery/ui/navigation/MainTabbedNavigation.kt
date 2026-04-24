@@ -61,11 +61,16 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NavigationSetup(hasOnboarded: Boolean) {
+fun NavigationSetup(
+    hasOnboarded: Boolean,
+    themeViewModel: ThemeViewModel = hiltViewModel()
+) {
     val navController = rememberNavController()
     val showBottomBar = rememberSaveable {
         mutableStateOf(false)
     }
+    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
+    val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
 
     // Subscribe to navBackStackEntry, required to get current route
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -98,7 +103,11 @@ fun NavigationSetup(hasOnboarded: Boolean) {
                 }
             ) { state ->
                 if (state) {
-                    BottomNavigationBar(navController, NavigationItem.bottomNavTabList)
+                    BottomNavigationBar(
+                        navController = navController,
+                        tabItems = NavigationItem.bottomNavTabList,
+                        darkMode = resolvedDarkMode
+                    )
                 }
             }
         }
@@ -113,21 +122,20 @@ fun NavigationSetup(hasOnboarded: Boolean) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController,
-                        tabItems: List<NavigationItem>,
-                        themeViewModel : ThemeViewModel = hiltViewModel()) {
+fun BottomNavigationBar(
+    navController: NavHostController,
+    tabItems: List<NavigationItem>,
+    darkMode: Boolean
+) {
     NavigationBar(
         containerColor = currentColors.accentPrimary,
         contentColor = currentColors.accentPressed
     ) {
-        val isDarkMode by themeViewModel.isDarkMode.collectAsState()
-        val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
-
         val currentRoute = currentRoute(navController)
         tabItems.forEach { item ->
-            val isSelected  = item.selectedRoutes.contains(currentRoute)
+            val isSelected = item.selectedRoutes.contains(currentRoute)
             val iconId = if (isSelected) {
-                if (resolvedDarkMode) item.selectedDarkIconId else item.selectedIconId
+                if (darkMode) item.selectedDarkIconId else item.selectedIconId
             } else {
                 item.unselectedIconId
             }
@@ -160,7 +168,8 @@ fun BottomNavigationBar(navController: NavHostController,
 private fun BottomNavBarPreview() = EateryPreview {
     BottomNavigationBar(
         navController = rememberNavController(),
-        tabItems = NavigationItem.bottomNavTabList
+        tabItems = NavigationItem.bottomNavTabList,
+        darkMode = false
     )
 }
 
