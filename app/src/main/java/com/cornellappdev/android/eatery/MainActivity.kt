@@ -7,10 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +16,7 @@ import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.navigation.NavigationSetup
 import com.cornellappdev.android.eatery.ui.theme.AppColorTheme
 import com.cornellappdev.android.eatery.ui.theme.ColorTheme
-import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
+import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
@@ -61,15 +57,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             LockScreenOrientation()
-            val themeViewModel: ThemeViewModel = hiltViewModel()
-            val userPreferenceDark by themeViewModel.isDarkMode.collectAsState()
-            val isSystemDark = isSystemInDarkTheme()
-            val activeMode = when (userPreferenceDark) {
-                true -> ColorTheme.darkMode
-                false -> ColorTheme.lightMode
-                null -> if (isSystemDark) ColorTheme.darkMode
-                else ColorTheme.lightMode
-            }
+            val resolvedDarkMode = rememberResolvedDarkMode()
+            val activeMode = if (resolvedDarkMode) ColorTheme.darkMode else ColorTheme.lightMode
 
 
             AppColorTheme(activeMode) {

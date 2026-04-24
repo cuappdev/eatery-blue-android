@@ -39,10 +39,14 @@ fun CalendarButton(onClick: () -> Unit) {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
             contentDescription = stringResource(R.string.change_date),
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(16.dp),
+            tint = colors.textPrimary
         )
 
-        Text(stringResource(R.string.change_date), style = EateryBlueTypography.button)
+        Text(
+            stringResource(R.string.change_date), style = EateryBlueTypography.button,
+            color = colors.textPrimary
+        )
     }
 }
 

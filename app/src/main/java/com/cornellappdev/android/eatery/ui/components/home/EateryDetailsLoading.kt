@@ -30,7 +30,6 @@ import com.valentinilk.shimmer.shimmer
 fun EateryDetailLoadingScreen(
     shimmer: Shimmer
 ) {
-    val colors = currentColors
     Column {
         Box {
 
@@ -40,7 +39,7 @@ fun EateryDetailLoadingScreen(
                     modifier = Modifier
                         .height(240.dp)
                         .shimmer(shimmer)
-                        .fillMaxWidth(), color = colors.backgroundDefault92
+                        .fillMaxWidth(), color = currentColors.backgroundDefault92
                 ) {}
             }
 
@@ -70,7 +69,7 @@ fun EateryDetailLoadingScreen(
                     .padding(start = 16.dp, top = 16.dp)
                     .shimmer(shimmer)
                     .height(40.dp)
-                    .fillMaxWidth(.6f), color = colors.backgroundDefault92,
+                    .fillMaxWidth(.6f), color = currentColors.backgroundDefault92,
                 shape = RoundedCornerShape(20.dp)
             ) {}
             Surface(
@@ -80,7 +79,7 @@ fun EateryDetailLoadingScreen(
                     .shimmer(shimmer)
                     .height(20.dp),
                 shape = RoundedCornerShape(20.dp),
-                color = colors.backgroundDefault92
+                color = currentColors.backgroundDefault92
             ) {}
 
             Row(
@@ -98,7 +97,7 @@ fun EateryDetailLoadingScreen(
                             .padding(horizontal = 16.dp)
                             .weight(0.3f),
                         shape = RoundedCornerShape(100),
-                        color = colors.backgroundDefault92
+                        color = currentColors.backgroundDefault92
                     ) {
                     }
                 }
@@ -132,7 +131,7 @@ fun EateryDetailLoadingScreen(
                         .align(Alignment.TopEnd)
                         .shimmer(shimmer)
                         .padding(16.dp)
-                        .size(35.dp), color = colors.backgroundDefault92,
+                        .size(35.dp), color = currentColors.backgroundDefault92,
                     shape = CircleShape
                 ) {}
 
@@ -148,7 +147,7 @@ fun EateryDetailLoadingScreen(
                                 .fillMaxWidth(.6f)
                                 .shimmer(shimmer)
                                 .padding(16.dp),
-                            color = colors.backgroundDefault92,
+                            color = currentColors.backgroundDefault92,
                             shape = RoundedCornerShape(100.dp)
                         ) {}
 
@@ -159,7 +158,8 @@ fun EateryDetailLoadingScreen(
                                 .fillMaxWidth()
                                 .shimmer(shimmer)
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
-                            shape = RoundedCornerShape(8.dp), color = colors.backgroundDefault92
+                            shape = RoundedCornerShape(8.dp),
+                            color = currentColors.backgroundDefault92
                         ) {}
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -169,7 +169,8 @@ fun EateryDetailLoadingScreen(
                                 .height(3.dp)
                                 .fillMaxWidth()
                                 .shimmer(shimmer)
-                                .padding(horizontal = 16.dp), color = colors.backgroundDefault92
+                                .padding(horizontal = 16.dp),
+                            color = currentColors.backgroundDefault92
                         ) {}
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -180,7 +181,7 @@ fun EateryDetailLoadingScreen(
                                 .fillMaxWidth(.6f)
                                 .shimmer(shimmer)
                                 .padding(horizontal = 16.dp, vertical = 5.dp),
-                            color = colors.backgroundDefault92,
+                            color = currentColors.backgroundDefault92,
                             shape = RoundedCornerShape(100.dp)
                         ) {}
 
@@ -194,7 +195,8 @@ fun EateryDetailLoadingScreen(
                                     .shimmer(shimmer)
                                     .fillMaxWidth(.45f)
                                     .padding(horizontal = 16.dp, vertical = 3.dp),
-                                shape = RoundedCornerShape(8.dp), color = colors.backgroundDefault92
+                                shape = RoundedCornerShape(8.dp),
+                                color = currentColors.backgroundDefault92
                             ) {}
 
                             Spacer(modifier = Modifier.weight(1f))
@@ -205,7 +207,8 @@ fun EateryDetailLoadingScreen(
                                     .shimmer(shimmer)
                                     .fillMaxWidth(.35f)
                                     .padding(horizontal = 16.dp, vertical = 3.dp),
-                                shape = RoundedCornerShape(8.dp), color = colors.backgroundDefault92
+                                shape = RoundedCornerShape(8.dp),
+                                color = currentColors.backgroundDefault92
                             ) {}
                         }
 
@@ -218,7 +221,8 @@ fun EateryDetailLoadingScreen(
                                 .shimmer(shimmer)
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp),
-                            shape = RoundedCornerShape(100.dp), color = colors.backgroundDefault92
+                            shape = RoundedCornerShape(100.dp),
+                            color = currentColors.backgroundDefault92
                         ) {}
                     }
                 }

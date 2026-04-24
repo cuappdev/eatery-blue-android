@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
@@ -53,12 +54,7 @@ fun PaymentMethodsAvailable(
         } else {
             selectedPaymentMethods.forEachIndexed { index, paymentMethod ->
                 appendInlineContent(id = paymentMethod.name)
-                val paymentMethodColor = when (paymentMethod) {
-                    PaymentMethodsAvailable.BRB -> currentColors.error
-                    PaymentMethodsAvailable.CASH -> currentColors.success
-                    PaymentMethodsAvailable.SWIPES -> currentColors.backgroundSecondary
-                }
-                pushStyle(SpanStyle(color = paymentMethodColor))
+                pushStyle(SpanStyle(color = paymentMethod.tintColor))
                 append(" ${stringResource(paymentMethod.textRes)}")
                 pop()
                 if (index != selectedPaymentMethods.lastIndex) {
@@ -94,7 +90,8 @@ fun PaymentMethodsAvailable(
             Text(
                 text = stringResource(R.string.payment_methods_title),
                 style = EateryBlueTypography.h4,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
+                color = currentColors.textPrimary
             )
 
             IconButton(
@@ -133,7 +130,11 @@ fun PaymentMethodsAvailable(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_swipes),
                         contentDescription = stringResource(R.string.payment_methods_meal_swipes),
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.SWIPES)) currentColors.backgroundSecondary else currentColors.textSecondary
+                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.SWIPES)) {
+                            PaymentMethodsAvailable.SWIPES.tintColor
+                        } else {
+                            currentColors.textSecondary
+                        }
                     )
                 }
             }
@@ -152,7 +153,11 @@ fun PaymentMethodsAvailable(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_brbs),
                         contentDescription = stringResource(R.string.payment_methods_brbs),
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.BRB)) currentColors.error else currentColors.textSecondary
+                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.BRB)) {
+                            PaymentMethodsAvailable.BRB.tintColor
+                        } else {
+                            currentColors.textSecondary
+                        }
                     )
                 }
             }
@@ -170,7 +175,11 @@ fun PaymentMethodsAvailable(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_payment_cash),
                         contentDescription = stringResource(R.string.payment_methods_cash_or_credit),
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.CASH)) currentColors.success else currentColors.textSecondary
+                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.CASH)) {
+                            PaymentMethodsAvailable.CASH.tintColor
+                        } else {
+                            currentColors.textSecondary
+                        }
                     )
                 }
             }
@@ -179,6 +188,7 @@ fun PaymentMethodsAvailable(
         Text(
             text = paymentMethodsAvailableText,
             style = TextStyle(fontSize = 18.sp),
+            color = currentColors.textPrimary,
             inlineContent = inlineContentMap,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
@@ -199,6 +209,7 @@ fun PaymentMethodsAvailable(
             Text(
                 text = stringResource(R.string.payment_methods_close),
                 style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
             )
         }
@@ -220,6 +231,14 @@ enum class PaymentMethodsAvailable(val drawable: Int, val textRes: Int) {
     );
 }
 
+val PaymentMethodsAvailable.tintColor: Color
+    @Composable
+    get() = when (this) {
+        PaymentMethodsAvailable.BRB -> currentColors.error
+        PaymentMethodsAvailable.CASH -> currentColors.success
+        PaymentMethodsAvailable.SWIPES -> currentColors.backgroundSecondary
+    }
+
 @DualModePreview
 @Composable
 private fun PaymentMethodsAvailableAllPreview() {
@@ -233,7 +252,7 @@ private fun PaymentMethodsAvailableAllPreview() {
 
 @DualModePreview
 @Composable
-private fun PaymentMethodsAvailablePartialDarkPreview() {
+private fun PaymentMethodsAvailablePartialPreview() {
     EateryPreview {
         PaymentMethodsAvailable(
             selectedPaymentMethods = listOf(

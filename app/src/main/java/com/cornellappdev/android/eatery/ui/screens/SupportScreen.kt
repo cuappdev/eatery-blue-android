@@ -64,8 +64,6 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SupportScreen(supportViewModel: SupportViewModel = hiltViewModel()) {
-    currentColors
-    rememberCoroutineScope()
     val context = LocalContext.current
     val supportRecipient = stringResource(R.string.support_team_email_recipient)
     val orderFoodRecipient = stringResource(R.string.support_order_food_email_recipient)
@@ -118,7 +116,6 @@ private fun SupportScreenContent(
     )
     var showReportSheet by remember { mutableStateOf(false) }
     var issue by remember { mutableStateOf<Issue?>(null) }
-    val colors = currentColors
     if (showReportSheet) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -160,14 +157,14 @@ private fun SupportScreenContent(
         Spacer(modifier = Modifier.height(7.dp))
         Text(
             text = stringResource(R.string.support_title),
-            color = colors.textPrimary,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h2,
         )
         Spacer(modifier = Modifier.height(7.dp))
         Text(
             text = stringResource(R.string.support_description),
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = colors.textPrimary,
+            color = currentColors.textPrimary,
         )
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -179,7 +176,7 @@ private fun SupportScreenContent(
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = stringResource(R.string.support_make_eatery_better_description),
-            color = colors.textSecondary,
+            color = currentColors.textSecondary,
             style = EateryBlueTypography.subtitle2,
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -193,7 +190,7 @@ private fun SupportScreenContent(
                 showReportSheet = true
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = colors.accentPrimary,
+                containerColor = currentColors.accentPrimary,
                 contentColor = currentColors.backgroundDefault
             )
         ) {
@@ -211,13 +208,13 @@ private fun SupportScreenContent(
             Text(
                 text = stringResource(R.string.support_email_us),
                 style = EateryBlueTypography.button,
-                color = colors.textPrimary
+                color = currentColors.textPrimary
             )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Icon(
                 Icons.Outlined.ArrowOutward,
                 null,
-                tint = colors.backgroundSecondary
+                tint = currentColors.backgroundSecondary
             )
         }
 
@@ -268,7 +265,7 @@ private fun SupportScreenContent(
                     Text(
                         text = stringResource(R.string.support_faq_order_email_prompt),
                         style = EateryBlueTypography.subtitle2,
-                        color = colors.textPrimary,
+                        color = currentColors.textPrimary,
                     )
                 }
             }
@@ -280,13 +277,12 @@ private fun SupportScreenContent(
 
 @Composable
 private fun ReportButton() {
-    val colors = currentColors
     Surface(
         shape = RoundedCornerShape(17.dp),
         modifier = Modifier
             .height(50.dp)
             .padding(vertical = 8.dp),
-        color = colors.backgroundDefault,
+        color = currentColors.backgroundDefault,
         contentColor = currentColors.textPrimary
     ) {
         Row(
@@ -312,7 +308,6 @@ fun FAQCreation(
     action: @Composable () -> Unit,
     onActionClick: () -> Unit
 ) {
-    val colors = currentColors
     val (expanded, setExpanded) = remember {
         mutableStateOf(false)
     }
@@ -324,14 +319,14 @@ fun FAQCreation(
                     Icon(
                         imageVector = Icons.Default.ExpandLess,
                         contentDescription = Icons.Default.ExpandLess.name,
-                        tint = colors.backgroundSecondary,
+                        tint = currentColors.backgroundSecondary,
                         modifier = Modifier.width(24.dp)
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.ExpandMore,
                         contentDescription = null,
-                        tint = colors.backgroundSecondary,
+                        tint = currentColors.backgroundSecondary,
                         modifier = Modifier.width(24.dp)
                     )
                 }
@@ -349,7 +344,7 @@ fun FAQCreation(
                 Text(
                     text = dropdownText,
                     style = EateryBlueTypography.subtitle2,
-                    color = colors.textSecondary,
+                    color = currentColors.textSecondary,
                 )
                 Box(modifier = Modifier.clickable {
                     setExpanded(false)

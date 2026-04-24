@@ -83,7 +83,7 @@ fun OnboardingScreenContent(
 
                         Icon(
                             painter = painterResource(id = R.drawable.ic_eaterylogo_blue),
-                            tint = currentColors.backgroundSecondary,
+                            tint = currentColors.contentBrand,
                             modifier = Modifier
                                 .width(96.dp)
                                 .height(96.dp),
@@ -92,7 +92,7 @@ fun OnboardingScreenContent(
 
                         Text(
                             text = stringResource(R.string.onboarding_eatery_title),
-                            color = currentColors.oppTextPrimary,
+                            color = currentColors.contentBrand,
                             style = EateryBlueTypography.h1
                         )
 
@@ -120,6 +120,7 @@ fun OnboardingScreenContent(
                             Text(
                                 style = EateryBlueTypography.h6,
                                 text = stringResource(R.string.onboarding_get_started),
+                                color = currentColors.textPrimary
                             )
                         }
 
@@ -136,13 +137,13 @@ fun OnboardingScreenContent(
                                 painter = painterResource(id = R.drawable.ic_appdev),
                                 modifier = Modifier.padding(end = 6.dp),
                                 contentDescription = null,
-                                tint = currentColors.backgroundDefault10
+                                tint = currentColors.contentSubtle
                             )
                             Text(
                                 buildAnnotatedString {
                                     withStyle(
                                         style = SpanStyle(
-                                            color = currentColors.backgroundDefault10,
+                                            color = currentColors.contentSubtle,
                                             fontWeight = FontWeight.Normal
                                         )
                                     ) {
@@ -150,7 +151,7 @@ fun OnboardingScreenContent(
                                     }
                                     withStyle(
                                         style = SpanStyle(
-                                            color = currentColors.backgroundDefault10,
+                                            color = currentColors.contentSubtle,
                                             fontWeight = FontWeight.SemiBold
                                         )
                                     ) {

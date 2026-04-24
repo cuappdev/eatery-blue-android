@@ -153,7 +153,8 @@ private fun AccountPageContent(
                         Text(
                             text = stringResource(R.string.account_meal_plan),
                             style = EateryBlueTypography.h4,
-                            modifier = Modifier.padding(top = 16.dp)
+                            modifier = Modifier.padding(top = 16.dp),
+                            color = currentColors.textPrimary
                         )
                         accountTypeBalance.mealSwipes?.let {
                             AccountBalanceRow(
@@ -237,7 +238,8 @@ private fun TransactionsHeader(
             ) {
                 Text(
                     text = stringResource(accountFilter.displayNameRes()),
-                    style = EateryBlueTypography.h4
+                    style = EateryBlueTypography.h4,
+                    color = currentColors.textPrimary
                 )
             }
             IconButton(
@@ -272,7 +274,8 @@ private fun TransactionsHeader(
         Text(
             text = stringResource(R.string.account_past_30_days),
             modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
-            style = EateryBlueTypography.h5
+            style = EateryBlueTypography.h5,
+            color = currentColors.textPrimary
         )
         HorizontalDivider(
             color = currentColors.accentPrimary,
@@ -308,7 +311,7 @@ private fun AccountPageHeader(
                         modifier = Modifier.align(Alignment.Center),
                         textAlign = TextAlign.Center,
                         text = stringResource(R.string.account_title),
-                        color = Color.White,
+                        color = currentColors.oppTextPrimary,
                         style = TextStyle(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 20.sp
@@ -323,7 +326,7 @@ private fun AccountPageHeader(
                             modifier = Modifier.size(28.dp),
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = stringResource(R.string.a11y_settings),
-                            tint = Color.White
+                            tint = currentColors.oppTextPrimary
                         )
                     }
                 }
@@ -372,7 +375,11 @@ private fun TransactionRow(transaction: DisplayTransaction, isMealSwipes: Boolea
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = transaction.location, style = EateryBlueTypography.button)
+            Text(
+                text = transaction.location,
+                style = EateryBlueTypography.button,
+                color = currentColors.textPrimary
+            )
             Text(
                 text = transaction.formattedDate,
                 style = EateryBlueTypography.subtitle2,
@@ -491,7 +498,7 @@ fun AccountTypesSelector(
                 )
             }
         }
-        Column( modifier = Modifier.background(currentColors.backgroundDefault))
+        Column(modifier = Modifier.background(currentColors.backgroundDefault))
         {
             selectedPaymentMethod.forEachIndexed { index, account ->
                 val accountIsSelected = selected == account

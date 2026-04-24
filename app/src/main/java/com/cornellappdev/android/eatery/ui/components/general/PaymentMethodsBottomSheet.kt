@@ -85,7 +85,11 @@ fun PaymentMethodsBottomSheet(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) currentColors.backgroundSecondary else currentColors.backgroundDefault,
+                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) {
+                                PaymentMethodsAvailable.SWIPES.tintColor
+                            } else {
+                                currentColors.backgroundDefault
+                            },
                             shape = CircleShape
                         )
                 ) {
@@ -117,7 +121,11 @@ fun PaymentMethodsBottomSheet(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) currentColors.error else currentColors.backgroundDefault,
+                            color = if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) {
+                                PaymentMethodsAvailable.BRB.tintColor
+                            } else {
+                                currentColors.backgroundDefault
+                            },
                             shape = CircleShape
                         )
                 ) {
@@ -148,7 +156,11 @@ fun PaymentMethodsBottomSheet(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) currentColors.success else currentColors.backgroundDefault,
+                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) {
+                                PaymentMethodsAvailable.CASH.tintColor
+                            } else {
+                                currentColors.backgroundDefault
+                            },
                             shape = CircleShape
                         )
                 ) {

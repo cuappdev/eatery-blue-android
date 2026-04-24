@@ -32,7 +32,7 @@ fun FavoritesToggle(
     label: String,
     active: Boolean
 ) {
-    val detailColor = if (active) Color(0xFFFFD700) else currentColors.accentPrimary
+    val detailColor = if (active) currentColors.favorite else currentColors.accentPrimary
     val backgroundColor = if (active) currentColors.backgroundDefault else Color.Transparent
     Row(
         modifier = Modifier

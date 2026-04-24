@@ -40,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -184,8 +183,7 @@ fun EateryCard(
                             .align(Alignment.TopEnd),
                         shape = RoundedCornerShape(100.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = currentColors.accentPrimary,
-                            contentColor = Color(0xFFFFA500)
+                            containerColor = currentColors.accentPrimary
                         )
                     ) {
                         Row(
@@ -202,7 +200,8 @@ fun EateryCard(
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                             Text(
                                 text = "Closing in $xMinutesUntilClosing min",
-                                style = EateryBlueTypography.button
+                                style = EateryBlueTypography.button,
+                                color = currentColors.warning
                             )
                         }
                     }

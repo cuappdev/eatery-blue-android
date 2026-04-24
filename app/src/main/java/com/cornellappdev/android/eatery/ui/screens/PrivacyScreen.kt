@@ -70,7 +70,6 @@ private fun PrivacyScreenContent(
     onAnalyticsPreferenceChange: (Boolean) -> Unit,
     onOpenPrivacyPolicy: () -> Unit,
 ) {
-    val colors = currentColors
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -79,14 +78,14 @@ private fun PrivacyScreenContent(
     ) {
         Text(
             text = stringResource(R.string.privacy_title),
-            color = colors.textPrimary,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
         Text(
             text = stringResource(R.string.privacy_description),
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = colors.textPrimary,
+            color = currentColors.textPrimary,
             modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
         )
         Text(
@@ -102,7 +101,7 @@ private fun PrivacyScreenContent(
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = colors.backgroundSecondary,
+                    tint = currentColors.textPrimary,
                 )
             })
         SettingsLineSeparator()
@@ -114,7 +113,7 @@ private fun PrivacyScreenContent(
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = colors.backgroundSecondary,
+                    tint = currentColors.textPrimary,
                 )
             }
         )
@@ -140,7 +139,7 @@ private fun PrivacyScreenContent(
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = colors.backgroundSecondary,
+                    tint = currentColors.textPrimary,
                 )
             }
         )

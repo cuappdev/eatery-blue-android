@@ -639,10 +639,6 @@ fun EateryDetailScreenContent(
                                             }
                                     ) {
                                         Row(
-                                            modifier = Modifier.border(
-                                                1.dp,
-                                                color = currentColors.accentPrimary
-                                            ),
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Icon(
@@ -679,7 +675,7 @@ fun EateryDetailScreenContent(
                                                 fontSize = 16.sp
                                             ),
                                             color = if (openUntil == null) colors.error
-                                            else if (eatery.isClosingSoon()) colors.accentPressed
+                                            else if (eatery.isClosingSoon()) colors.warning
                                             else colors.success
                                         )
                                     }
@@ -835,7 +831,7 @@ fun EateryDetailScreenContent(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(16.dp)
-                                        .background(colors.backgroundDefault)
+                                        .background(colors.accentPrimary)
                                 )
                             }
                         }
@@ -908,7 +904,7 @@ private fun LazyListScope.menuHeadingItem(
                     text = weekDayIndex.fromOffsetToDayOfWeek()
                         .toReadableFullName(),
                     style = EateryBlueTypography.h4,
-                    color= currentColors.textPrimary
+                    color = currentColors.textPrimary
                 )
                 if (nextEvent.startTimestamp != null && nextEvent.endTimestamp != null) {
                     Text(

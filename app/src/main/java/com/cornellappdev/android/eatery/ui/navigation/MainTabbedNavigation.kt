@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -19,7 +18,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -27,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -55,22 +52,20 @@ import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
 import com.cornellappdev.android.eatery.ui.theme.currentColors
-import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
+import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationSetup(
-    hasOnboarded: Boolean,
-    themeViewModel: ThemeViewModel = hiltViewModel()
+    hasOnboarded: Boolean
 ) {
     val navController = rememberNavController()
     val showBottomBar = rememberSaveable {
         mutableStateOf(false)
     }
-    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
-    val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
+    val resolvedDarkMode = rememberResolvedDarkMode()
 
     // Subscribe to navBackStackEntry, required to get current route
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -128,8 +123,7 @@ fun BottomNavigationBar(
     darkMode: Boolean
 ) {
     NavigationBar(
-        containerColor = currentColors.accentPrimary,
-        contentColor = currentColors.accentPressed
+        containerColor = currentColors.accentPrimary
     ) {
         val currentRoute = currentRoute(navController)
         tabItems.forEach { item ->

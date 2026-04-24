@@ -111,6 +111,10 @@ fun SearchBar(
                 )
             },
             colors = TextFieldDefaults.colors(
+                focusedContainerColor = currentColors.backgroundDefault,
+                unfocusedContainerColor = currentColors.backgroundDefault,
+                disabledContainerColor = currentColors.backgroundDefault,
+                cursorColor = currentColors.textPrimary,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent

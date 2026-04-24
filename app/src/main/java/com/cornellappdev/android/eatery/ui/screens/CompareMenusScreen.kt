@@ -128,7 +128,6 @@ private fun CompareMenusScreenContent(
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
     var showBottomSheet by rememberSaveable { mutableStateOf(false) }
-    val colors = currentColors
     var sheetContent by remember { mutableStateOf(BottomSheetContent.HOURS) }
     val closeBottomSheet: () -> Unit = {
         coroutineScope.launch {
@@ -158,7 +157,7 @@ private fun CompareMenusScreenContent(
             )
         }
         HorizontalDivider(
-            color = colors.backgroundDefault,
+            color = currentColors.borderDefault,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp)
@@ -281,7 +280,6 @@ private fun MenuPager(
     onRequestRatingPopup: () -> Unit,
     onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    val colors = currentColors
     val coroutineScope = rememberCoroutineScope()
     HorizontalPager(
         state = firstPagerState,
@@ -312,7 +310,7 @@ private fun MenuPager(
                             bottom = 12.dp
                         )
                         .border(
-                            1.dp, colors.backgroundDefault, RoundedCornerShape(8.dp)
+                            1.dp, currentColors.borderDefault, RoundedCornerShape(8.dp)
                         ),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
@@ -333,14 +331,14 @@ private fun MenuPager(
                             Icon(
                                 imageVector = Icons.Outlined.Schedule,
                                 contentDescription = null,
-                                tint = colors.textSecondary
+                                tint = currentColors.textSecondary
                             )
                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                             Text(
                                 text = stringResource(R.string.hours_title), style = TextStyle(
                                     fontWeight = FontWeight.SemiBold,
                                     fontSize = 16.sp
-                                ), color = colors.textSecondary
+                                ), color = currentColors.textSecondary
                             )
                         }
                         val eatery = eateries.getOrNull(page) ?: return@Column
@@ -360,9 +358,9 @@ private fun MenuPager(
                                 fontWeight = FontWeight.SemiBold,
                                 fontSize = 16.sp
                             ),
-                            color = if (openUntil == null) colors.error
-                            else if (eatery.isClosingSoon()) colors.accentPressed
-                            else colors.success
+                            color = if (openUntil == null) currentColors.error
+                            else if (eatery.isClosingSoon()) currentColors.warning
+                            else currentColors.success
                         )
 
                     }
@@ -387,7 +385,7 @@ private fun MenuPager(
                 if (currentEvent != null) {
                     Box(
                         modifier = Modifier
-                            .background(colors.backgroundDefault)
+                            .background(currentColors.backgroundDefault)
                             .padding(
                                 start = 8.dp,
                                 end = 8.dp,
@@ -439,13 +437,16 @@ private fun MenuPager(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .height(1.dp)
-                                                .background(colors.backgroundDefault, CircleShape)
+                                                .background(
+                                                    currentColors.borderDefault,
+                                                    CircleShape
+                                                )
                                         )
                                     }
                                     if (category.items?.lastIndex == index) {
                                         HorizontalDivider(
                                             thickness = 10.dp,
-                                            color = colors.backgroundDefault
+                                            color = currentColors.borderDefault
                                         )
                                     }
                                 }
@@ -454,7 +455,7 @@ private fun MenuPager(
                                 item {
                                     Row(
                                         modifier = Modifier
-                                            .background(colors.backgroundSurface)
+                                            .background(currentColors.backgroundSurface)
                                             .clip(
                                                 shape = RoundedCornerShape(
                                                     12.dp
@@ -469,14 +470,14 @@ private fun MenuPager(
                                     ) {
                                         Text(
                                             text = stringResource(R.string.compare_menus_no_menu),
-                                            color = colors.textPrimary,
+                                            color = currentColors.textPrimary,
                                             style = EateryBlueTypography.h5,
                                             modifier = Modifier.padding(start = 8.dp),
                                             fontWeight = FontWeight(500),
                                         )
                                     }
                                     HorizontalDivider(
-                                        color = colors.backgroundDefault,
+                                        color = currentColors.borderDefault,
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(10.dp)
@@ -490,7 +491,7 @@ private fun MenuPager(
                                         onClick = {
                                             onEateryClick(eateries[page])
                                         },
-                                        colors = CardDefaults.cardColors(containerColor = colors.backgroundDefault),
+                                        colors = CardDefaults.cardColors(containerColor = currentColors.accentPrimary),
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(
@@ -511,11 +512,11 @@ private fun MenuPager(
                                             Icon(
                                                 painter = painterResource(R.drawable.ic_eatery),
                                                 contentDescription = null,
-                                                tint = colors.textPrimary
+                                                tint = currentColors.textPrimary
                                             )
                                             Text(
                                                 text = stringResource(R.string.view_eatery_details),
-                                                color = colors.textPrimary,
+                                                color = currentColors.textPrimary,
                                                 modifier = Modifier.padding(
                                                     start = 8.dp,
                                                 ),
@@ -543,12 +544,11 @@ private fun TitlePager(
     eateries: List<Eatery>,
     secondPagerState: PagerState
 ) {
-    val colors = currentColors
     HorizontalPager(
         state = secondPagerState,
         modifier = Modifier
             .fillMaxSize()
-            .background(colors.backgroundDefault),
+            .background(currentColors.backgroundDefault),
         contentPadding = PaddingValues(horizontal = 100.dp),
         pageSpacing = 2.dp,
         verticalAlignment = Alignment.CenterVertically,
@@ -563,7 +563,7 @@ private fun TitlePager(
                 modifier = Modifier
                     .shadow(2.dp, shape = RoundedCornerShape(8.dp))
                     .clip(shape = RoundedCornerShape(8.dp))
-                    .background(colors.backgroundDefault)
+                    .background(currentColors.backgroundDefault)
                     .padding(vertical = 8.dp, horizontal = 16.dp)
             ) {
                 eateries[page].name?.let {

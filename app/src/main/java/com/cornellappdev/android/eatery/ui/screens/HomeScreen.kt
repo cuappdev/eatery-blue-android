@@ -47,7 +47,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -92,8 +91,9 @@ import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel.HomeUiState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
@@ -117,23 +117,11 @@ fun HomeScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteExpand: () -> Unit,
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
-    onNotificationsClick: () -> Unit,
-    themeViewModel : ThemeViewModel = hiltViewModel()
+    onNotificationsClick: () -> Unit
 ) {
-    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
-    val resolvedDarkMode = isDarkMode ?: isSystemInDarkTheme()
+    val resolvedDarkMode = rememberResolvedDarkMode()
     val context = LocalContext.current
     val uiState = homeViewModel.uiState.collectAsStateWithLifecycle().value
-    val favorites = uiState.favoriteEateries
-    val nearestEateries = uiState.nearestEateries
-    val eateriesApiResponse = uiState.eateriesApiResponse
-    val filters = uiState.selectedFilters
-    val notificationFlowCompleted = uiState.notificationFlowCompleted
-
-    NetworkErrorToast(
-        error = uiState.error,
-        onErrorShown = homeViewModel::clearError
-    )
 
     val notificationPermissionState =
         rememberMultiplePermissionsState(
@@ -151,6 +139,67 @@ fun HomeScreen(
         homeViewModel.updateFavoritesIfTokensConfigured()
     }
 
+    HomeScreenContent(
+        uiState = uiState,
+        showBottomBar = showBottomBar,
+        onSearchClick = onSearchClick,
+        onEateryClick = onEateryClick,
+        onFavoriteExpand = onFavoriteExpand,
+        onCompareMenusClick = onCompareMenusClick,
+        onNotificationsClick = onNotificationsClick,
+        onFavoriteClick = { eatery, favorite ->
+            if (eatery.id != null && eatery.name != null) {
+                if (favorite) {
+                    homeViewModel.addFavoriteEatery(eatery.id, eatery.name)
+                } else {
+                    homeViewModel.removeFavoriteEatery(eatery.id, eatery.name)
+                }
+            }
+        },
+        onFilterClicked = homeViewModel::onToggleFilterPressed,
+        onResetFilters = homeViewModel::onResetFiltersClicked,
+        filters = homeViewModel.homeScreenFilters,
+        onAddPaymentMethodFilters = homeViewModel::addPaymentMethodFilters,
+        onReload = homeViewModel::pingEateries,
+        onErrorShown = homeViewModel::clearError,
+        onUpdateNotificationFlowStatus = homeViewModel::setNotificationFlowCompleted,
+        isDarkMode = resolvedDarkMode,
+        showPermissionDialog = FirstTimeShown.firstTimeShown
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeScreenContent(
+    uiState: HomeUiState,
+    showBottomBar: MutableState<Boolean>,
+    onSearchClick: () -> Unit,
+    onEateryClick: (eatery: Eatery) -> Unit,
+    onFavoriteExpand: () -> Unit,
+    onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+    onNotificationsClick: () -> Unit,
+    onFavoriteClick: (Eatery, Boolean) -> Unit,
+    onFilterClicked: (Filter) -> Unit,
+    onResetFilters: () -> Unit,
+    filters: List<Filter>,
+    onAddPaymentMethodFilters: (List<Filter>) -> Unit,
+    onReload: () -> Unit,
+    onErrorShown: () -> Unit,
+    onUpdateNotificationFlowStatus: (Boolean) -> Unit,
+    isDarkMode: Boolean,
+    showPermissionDialog: Boolean,
+) {
+    val favorites = uiState.favoriteEateries
+    val nearestEateries = uiState.nearestEateries
+    val eateriesApiResponse = uiState.eateriesApiResponse
+    val selectedFilters = uiState.selectedFilters
+    val notificationFlowCompleted = uiState.notificationFlowCompleted
+
+    NetworkErrorToast(
+        error = uiState.error,
+        onErrorShown = onErrorShown
+    )
+
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
@@ -167,7 +216,7 @@ fun HomeScreen(
         DisposableEffect(Unit) {
             onDispose {
                 // Handles the case where filters reset as well (by adding an empty list).
-                homeViewModel.addPaymentMethodFilters(selectedPaymentMethodFilters)
+                onAddPaymentMethodFilters(selectedPaymentMethodFilters)
             }
         }
     }
@@ -252,38 +301,29 @@ fun HomeScreen(
                     eateriesApiResponse = eateriesApiResponse,
                     favorites = favorites,
                     nearestEateries = nearestEateries,
-                    selectedFilters = filters,
-                    onFavoriteClick = { eatery, favorite ->
-                        if (eatery.id != null && eatery.name != null) {
-                            if (favorite) {
-                                homeViewModel.addFavoriteEatery(eatery.id, eatery.name)
-                            } else {
-                                homeViewModel.removeFavoriteEatery(eatery.id, eatery.name)
-                            }
-                        }
-                    },
-                    onFilterClicked = homeViewModel::onToggleFilterPressed,
-                    onResetFilters = homeViewModel::onResetFiltersClicked,
-                    filters = homeViewModel.homeScreenFilters,
+                    selectedFilters = selectedFilters,
+                    onFavoriteClick = onFavoriteClick,
+                    onFilterClicked = onFilterClicked,
+                    onResetFilters = onResetFilters,
+                    filters = filters,
                     isGridView = isGridView,
                     onListClick = { isGridView = false },
                     onGridClick = { isGridView = true },
                     onNotificationsClick = onNotificationsClick,
-                    onReload = homeViewModel::pingEateries,
-                    isDarkMode = resolvedDarkMode
+                    onReload = onReload,
+                    isDarkMode = isDarkMode
                 )
 
-                if (FirstTimeShown.firstTimeShown) {
+                if (showPermissionDialog) {
                     PermissionRequestDialog(
                         showBottomBar = showBottomBar,
                         notificationFlowStatus = notificationFlowCompleted,
-                        updateNotificationFlowStatus = {
-                            homeViewModel.setNotificationFlowCompleted(it)
-                        }
+                        updateNotificationFlowStatus = onUpdateNotificationFlowStatus
                     )
                 }
             }
-        })
+        }
+    )
 }
 
 @Composable
@@ -333,7 +373,7 @@ private fun HomeScrollableMainContent(
     onGridClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     onReload: () -> Unit,
-    isDarkMode : Boolean
+    isDarkMode: Boolean
 ) {
     val listState = rememberLazyListState()
     val filterRowState = rememberLazyListState()
@@ -512,12 +552,14 @@ fun ErrorContent(onTryAgain: () -> Unit) {
 @DualModePreview
 @Composable
 private fun PreviewErrorContent() = EateryPreview {
-    ErrorContent(onTryAgain = {})
+    PreviewHomeScreen(
+        uiState = HomeUiState(eateriesApiResponse = EateryApiResponse.Error)
+    )
 }
 
 @DualModePreview
 @Composable
-private fun PreviewRegularContent() = EateryPreview {
+private fun PreviewSuccessContent() = EateryPreview {
     val eateries = listOf(
         PreviewData.mockEatery(1).copy(name = "Okenshields"),
         PreviewData.mockEatery(2).copy(name = "Becker House Dining Room"),
@@ -525,27 +567,52 @@ private fun PreviewRegularContent() = EateryPreview {
     )
     val favorites = listOf(eateries.first())
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        regularContent(
+    PreviewHomeScreen(
+        uiState = HomeUiState(
             eateriesApiResponse = EateryApiResponse.Success(eateries),
-            selectedFilters = emptyList(),
-            favorites = favorites,
-            onFavoriteClick = { _, _ -> },
-            onEateryClick = {},
-            onResetFilters = {},
-            lastFavorite = favorites.firstOrNull(),
-            onFavoriteExpand = {},
-            isGridView = false,
-            onListClick = {},
-            onGridClick = {},
-            nearestEateries = eateries,
-            isDarkMode = false
+            favoriteEateries = favorites,
+            nearestEateries = eateries
         )
-    }
+    )
+}
+
+@DualModePreview
+@Composable
+private fun PreviewPendingContent() = EateryPreview {
+    PreviewHomeScreen(
+        uiState = HomeUiState(eateriesApiResponse = EateryApiResponse.Pending)
+    )
+}
+
+@Composable
+private fun PreviewHomeScreen(uiState: HomeUiState) {
+    HomeScreenContent(
+        uiState = uiState,
+        showBottomBar = remember { mutableStateOf(true) },
+        onSearchClick = {},
+        onEateryClick = {},
+        onFavoriteExpand = {},
+        onCompareMenusClick = {},
+        onNotificationsClick = {},
+        onFavoriteClick = { _, _ -> },
+        onFilterClicked = {},
+        onResetFilters = {},
+        filters = listOf(
+            Filter.FromEateryFilter.North,
+            Filter.FromEateryFilter.West,
+            Filter.FromEateryFilter.Central,
+            Filter.FromEateryFilter.Swipes,
+            Filter.FromEateryFilter.BRB,
+            Filter.RequiresFavoriteEateries.Favorites,
+            Filter.FromEateryFilter.Under10,
+        ),
+        onAddPaymentMethodFilters = {},
+        onReload = {},
+        onErrorShown = {},
+        onUpdateNotificationFlowStatus = {},
+        isDarkMode = isSystemInDarkTheme(),
+        showPermissionDialog = false,
+    )
 }
 
 private fun LazyListScope.regularContent(
@@ -561,7 +628,7 @@ private fun LazyListScope.regularContent(
     onListClick: () -> Unit,
     onGridClick: () -> Unit,
     nearestEateries: List<Eatery>,
-    isDarkMode : Boolean
+    isDarkMode: Boolean
 ) {
     val eateries = eateriesApiResponse.data
 
@@ -636,24 +703,27 @@ private fun LazyListScope.regularContent(
                 ) {
                     Icon(
                         contentDescription = stringResource(R.string.a11y_list_view),
-                        painter = painterResource(id =
-                            if (isGridView && isDarkMode) { R.drawable.ic_list_view_unselected_dark } else if (isGridView) {
-                                R.drawable.ic_list_view_unselected
-                            } else if (isDarkMode) {
-                                R.drawable.ic_list_view_selected_dark
+                        painter = painterResource(
+                            id = when {
+                                isGridView && isDarkMode -> R.drawable.ic_list_view_unselected_dark
+                                isGridView -> R.drawable.ic_list_view_unselected
+                                isDarkMode -> R.drawable.ic_list_view_selected_dark
+                                else -> R.drawable.ic_list_view_unselected
                             }
-                        else {R.drawable.ic_list_view_unselected}),
+                        ),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onListClick() }
                     )
                     Icon(
                         contentDescription = stringResource(R.string.a11y_grid_view),
-                        painter = painterResource(if (isGridView && isDarkMode) { R.drawable.ic_grid_view_selected_dark } else if (isGridView) {
-                            R.drawable.ic_grid_view_selected
-                        } else if (isDarkMode) {
-                            R.drawable.ic_grid_view_unselected_dark
-                        }
-                        else {R.drawable.ic_grid_view_unselected}),
+                        painter = painterResource(
+                            when {
+                                isGridView && isDarkMode -> R.drawable.ic_grid_view_selected_dark
+                                isGridView -> R.drawable.ic_grid_view_selected
+                                isDarkMode -> R.drawable.ic_grid_view_unselected_dark
+                                else -> R.drawable.ic_grid_view_unselected
+                            }
+                        ),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onGridClick() }
                     )
@@ -725,11 +795,10 @@ private fun HomeStickyHeader(
     onSearchClick: () -> Unit,
     onNotificationsClick: () -> Unit
 ) {
-    val colors = currentColors
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colors.backgroundSecondary)
+            .background(currentColors.backgroundSecondary)
             .then(Modifier.statusBarsPadding())
             .padding(bottom = 7.dp),
     ) {

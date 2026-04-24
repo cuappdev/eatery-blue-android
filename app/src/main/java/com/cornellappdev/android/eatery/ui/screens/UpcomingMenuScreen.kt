@@ -119,6 +119,7 @@ private fun UpcomingMenuScreenContent(
         if (showMealBottomSheet) {
             ModalBottomSheet(
                 sheetState = modalBottomSheetState,
+                containerColor = currentColors.backgroundDefault,
                 contentColor = currentColors.textPrimary,
                 onDismissRequest = { showMealBottomSheet = false },
                 shape = RoundedCornerShape(
