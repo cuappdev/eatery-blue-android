@@ -137,7 +137,6 @@ private fun SearchScreenContent(
     onEateryClick: (Eatery) -> Unit,
     onFavoriteClick: () -> Unit,
 ) {
-    val colors = currentColors
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val focusRequester = remember { FocusRequester() }
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -240,7 +239,7 @@ private fun SearchScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(colors.borderDefault)
+                        .background(currentColors.borderDefault)
                 )
             }
         }
@@ -283,7 +282,7 @@ private fun SearchScreenContent(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .background(
-                                                color = colors.backgroundDefault,
+                                                color = currentColors.backgroundDefault,
                                                 shape = CircleShape
                                             )
                                     ) {
@@ -429,7 +428,6 @@ private fun SearchScreenPreview() = EateryPreview {
 fun FavoriteItem(
     eatery: Eatery, onEateryClick: (eatery: Eatery) -> Unit
 ) {
-    val colors = currentColors
     Column(
         modifier = Modifier
             .width(96.dp)
@@ -451,7 +449,7 @@ fun FavoriteItem(
                     +ShimmerPlugin(
                         Shimmer.Flash(
                             baseColor = currentColors.borderDefault,
-                            highlightColor = colors.backgroundDefault,
+                            highlightColor = currentColors.backgroundDefault,
                             duration = 350,
                             dropOff = 0.65f,
                             tilt = 20f

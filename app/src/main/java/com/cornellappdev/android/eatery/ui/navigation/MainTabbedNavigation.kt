@@ -126,11 +126,10 @@ fun BottomNavigationBar(navController: NavHostController,
         val currentRoute = currentRoute(navController)
         tabItems.forEach { item ->
             val isSelected  = item.selectedRoutes.contains(currentRoute)
-            val iconId = when {
-                resolvedDarkMode && isSelected -> item.selectedDarkIconId
-                !resolvedDarkMode && isSelected -> item.selectedIconId
-
-                else -> item.unselectedIconId
+            val iconId = if (isSelected) {
+                if (resolvedDarkMode) item.selectedDarkIconId else item.selectedIconId
+            } else {
+                item.unselectedIconId
             }
             NavigationBarItem(
 
@@ -143,7 +142,7 @@ fun BottomNavigationBar(navController: NavHostController,
                         tint = Color.Unspecified
                     )
                 },
-                selected = item.selectedRoutes.contains(currentRoute),
+                selected = isSelected,
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = Color.Transparent
                 ),
