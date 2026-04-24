@@ -190,7 +190,7 @@ fun PaymentMethodsAvailable(
                 .padding(top = 12.dp, bottom = 12.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = currentColors.backgroundDefault,
+                containerColor = currentColors.backgroundDefault92,
                 contentColor = currentColors.textPrimary
             )
         ) {

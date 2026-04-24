@@ -216,41 +216,6 @@ private fun AccountPageContent(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun AccountPagePreview() = EateryPreview {
-    AccountPageContent(
-        onSettingsClicked = {},
-        accountTypeBalance = AccountBalances(
-            brbBalance = 25.50,
-            cityBucksBalance = 10.75,
-            laundryBalance = 5.00,
-            mealSwipes = 42
-        ),
-        accountFilter = TransactionAccountType.BRBS,
-        showBottomSheet = {},
-        filterText = "",
-        setFilterText = {},
-        filteredTransactions = listOf(
-            DisplayTransaction(
-                id = "2023-10-01T12:30:00.000Z|Cafe Jennie|5.25|BRBS",
-                amount = 5.25,
-                accountType = TransactionAccountType.BRBS,
-                location = "Cafe Jennie",
-                formattedDate = "12:30 PM · Sunday, October 1"
-            ),
-            DisplayTransaction(
-                id = "2023-10-02T14:00:00.000Z|Morrison Dining|15.0|BRBS",
-                amount = 15.00,
-                accountType = TransactionAccountType.BRBS,
-                location = "Morrison Dining",
-                formattedDate = "2:00 PM · Monday, October 2"
-            )
-        ),
-        setSheetContent = {}
-    )
-}
-
 @Composable
 private fun TransactionsHeader(
     accountFilter: TransactionAccountType,
@@ -261,7 +226,7 @@ private fun TransactionsHeader(
 ) {
     Column(
         modifier = Modifier
-            .background(color = Color.White)
+            .background(color = currentColors.backgroundDefault)
     ) {
         Row(
             modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
@@ -568,7 +533,7 @@ fun AccountTypesSelector(
                 }
                 if (index != selectedPaymentMethod.lastIndex) {
                     HorizontalDivider(
-                        color = currentColors.backgroundDefault,
+                        color = currentColors.accentPrimary,
                         thickness = 1.dp,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
@@ -609,3 +574,38 @@ private fun TransactionAccountType.displayNameRes(): Int = when (this) {
     TransactionAccountType.CITY_BUCKS -> R.string.account_type_city_bucks
 }
 
+
+@Preview(showBackground = true)
+@Composable
+private fun AccountPagePreview() = EateryPreview {
+    AccountPageContent(
+        onSettingsClicked = {},
+        accountTypeBalance = AccountBalances(
+            brbBalance = 25.50,
+            cityBucksBalance = 10.75,
+            laundryBalance = 5.00,
+            mealSwipes = 42
+        ),
+        accountFilter = TransactionAccountType.BRBS,
+        showBottomSheet = {},
+        filterText = "",
+        setFilterText = {},
+        filteredTransactions = listOf(
+            DisplayTransaction(
+                id = "2023-10-01T12:30:00.000Z|Cafe Jennie|5.25|BRBS",
+                amount = 5.25,
+                accountType = TransactionAccountType.BRBS,
+                location = "Cafe Jennie",
+                formattedDate = "12:30 PM · Sunday, October 1"
+            ),
+            DisplayTransaction(
+                id = "2023-10-02T14:00:00.000Z|Morrison Dining|15.0|BRBS",
+                amount = 15.00,
+                accountType = TransactionAccountType.BRBS,
+                location = "Morrison Dining",
+                formattedDate = "2:00 PM · Monday, October 2"
+            )
+        ),
+        setSheetContent = {}
+    )
+}
