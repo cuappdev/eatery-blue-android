@@ -99,7 +99,6 @@ private fun FavoritesScreenContent(
     removeFavorite: (eateryId: Int, eateryName: String) -> Unit,
     removeFavoriteMenuItem: (menuItem: String) -> Unit,
 ) {
-    val colors = currentColors
     val shimmer = rememberShimmer(ShimmerBounds.View)
     var toggle by remember { mutableStateOf(true) }
 
@@ -133,7 +132,7 @@ private fun FavoritesScreenContent(
         }
         Text(
             text = stringResource(R.string.favorites_title),
-            color = colors.backgroundSecondary,
+            color = currentColors.backgroundSecondary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(horizontal = 6.dp)
         )
@@ -330,7 +329,6 @@ private fun ColumnScope.MainScrollableContent(
 
 @Composable
 private fun EateriesEmptyState(message: String) {
-    val colors = currentColors
     Box(
         modifier = Modifier
             .fillMaxHeight(0.7f)
@@ -347,7 +345,7 @@ private fun EateriesEmptyState(message: String) {
                 modifier = Modifier
                     .height(72.dp)
                     .width(72.dp),
-                tint = colors.backgroundDefault92,
+                tint = currentColors.backgroundDefault92,
             )
 
             Text(
@@ -369,7 +367,6 @@ private fun EateryBlob(
     fillMaxWidth: Boolean = true,
     height: Dp = 186.dp
 ) {
-    val colors = currentColors
     Surface(
         modifier = Modifier
             .padding(horizontal = 6.dp)
@@ -381,6 +378,6 @@ private fun EateryBlob(
             )
             .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(295.dp))
             .height(height),
-        color = colors.backgroundDefault92
+        color = currentColors.backgroundDefault92
     ) {}
 }

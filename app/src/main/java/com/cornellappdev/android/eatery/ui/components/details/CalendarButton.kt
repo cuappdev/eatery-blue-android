@@ -25,11 +25,10 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
 fun CalendarButton(onClick: () -> Unit) {
-    val colors = currentColors
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(100))
-            .background(colors.backgroundDefault)
+            .background(currentColors.backgroundDefault)
             .clickable { onClick() }
             .padding(vertical = 8.dp, horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -40,12 +39,12 @@ fun CalendarButton(onClick: () -> Unit) {
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
             contentDescription = stringResource(R.string.change_date),
             modifier = Modifier.size(16.dp),
-            tint = colors.textPrimary
+            tint = currentColors.textPrimary
         )
 
         Text(
             stringResource(R.string.change_date), style = EateryBlueTypography.button,
-            color = colors.textPrimary
+            color = currentColors.textPrimary
         )
     }
 }

@@ -27,7 +27,6 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 @Composable
 fun LegalScreen() {
     val uriCurrent = LocalUriHandler.current
-    val colors = currentColors
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -36,14 +35,14 @@ fun LegalScreen() {
     ) {
         Text(
             text = stringResource(R.string.legal_title),
-            color = colors.textPrimary,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
         Text(
             text = stringResource(R.string.legal_description),
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = colors.textPrimary,
+            color = currentColors.textPrimary,
             modifier = Modifier.padding(top = 7.dp, bottom = 12.dp)
         )
 
@@ -54,7 +53,7 @@ fun LegalScreen() {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = colors.backgroundSecondary,
+                    tint = currentColors.backgroundSecondary,
                 )
             }
         )
@@ -66,7 +65,7 @@ fun LegalScreen() {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = colors.backgroundSecondary,
+                    tint = currentColors.backgroundSecondary,
                 )
             }
         )

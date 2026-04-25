@@ -427,11 +427,10 @@ private fun UpcomingLazyColumn(
 @Composable
 @OptIn(ExperimentalAnimationApi::class)
 private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
-    val colors = currentColors
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colors.backgroundSecondary)
+            .background(currentColors.backgroundSecondary)
             .then(Modifier.statusBarsPadding())
             .padding(bottom = 7.dp),
     ) {

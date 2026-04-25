@@ -66,7 +66,6 @@ fun EateryMenusBottomSheet(
     onShowMenuClick: (Int, String, Int) -> Unit,
     onResetClick: () -> Unit
 ) {
-    val colors = currentColors
     val zoneId: ZoneId? = ZoneId.of("America/New_York")
     val today = LocalDate.now(zoneId)
     val currentDay by remember { mutableStateOf(today) }
@@ -118,7 +117,7 @@ fun EateryMenusBottomSheet(
                     },
                     modifier = Modifier
                         .padding(all = 8.dp)
-                        .background(color = colors.backgroundDefault, shape = CircleShape)
+                        .background(color = currentColors.backgroundDefault, shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,

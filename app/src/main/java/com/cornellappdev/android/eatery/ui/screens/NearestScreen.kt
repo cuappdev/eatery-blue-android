@@ -68,7 +68,6 @@ private fun NearestScreenContent(
 ) {
     val nearestEateries = uiState.nearestEateries
     val favorites = uiState.favoriteEateries
-    val colors = currentColors
     Column(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -77,7 +76,7 @@ private fun NearestScreenContent(
     ) {
         Text(
             text = stringResource(R.string.nearest_title),
-            color = colors.textPrimary,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
@@ -102,7 +101,7 @@ private fun NearestScreenContent(
                         modifier = Modifier
                             .height(72.dp)
                             .width(72.dp),
-                        tint = colors.backgroundDefault92,
+                        tint = currentColors.backgroundDefault92,
                     )
 
                     Text(

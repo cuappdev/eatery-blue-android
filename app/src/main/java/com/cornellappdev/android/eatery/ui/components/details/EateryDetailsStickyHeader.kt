@@ -43,7 +43,6 @@ fun EateryDetailsStickyHeader(
     onItemClick: (Int) -> Unit,
     onRequestRatingPopup: () -> Unit = {},
 ) {
-    val colors = currentColors
     val rowState = rememberLazyListState()
     val rowCoroutine = rememberCoroutineScope()
     val selectedEvent = nextEvent?.menu?.find { category ->
@@ -138,7 +137,7 @@ fun EateryDetailsStickyHeader(
         }
 
         HorizontalDivider(
-            color = colors.backgroundDefault,
+            color = currentColors.backgroundDefault,
             thickness = 1.dp
         )
     }

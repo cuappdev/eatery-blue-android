@@ -45,7 +45,6 @@ fun EateryHourBottomSheet(
     onDismiss: () -> Unit,
     onReportIssue: () -> Unit
 ) {
-    val colors = currentColors
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,7 +76,7 @@ fun EateryHourBottomSheet(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = colors.backgroundDefault, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
                 Icon(
                     Icons.Default.Close,
@@ -101,7 +100,7 @@ fun EateryHourBottomSheet(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ),
             color = if (openUntil == null) currentColors.error
-            else if (eatery.isClosingSoon()) colors.accentPressed
+            else if (eatery.isClosingSoon()) currentColors.accentPressed
             else currentColors.success
         )
 
@@ -114,7 +113,7 @@ fun EateryHourBottomSheet(
                 Text(
                     text = dayRange,
                     fontSize = 16.sp,
-                    color = colors.textSecondary,
+                    color = currentColors.textSecondary,
                     fontWeight = FontWeight(500)
                 )
                 hours.forEach { hour ->
@@ -140,7 +139,7 @@ fun EateryHourBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = colors.backgroundDefault),
+            colors = ButtonDefaults.buttonColors(containerColor = currentColors.backgroundDefault),
             shape = RoundedCornerShape(corner = CornerSize(24.dp)),
         ) {
             Text(

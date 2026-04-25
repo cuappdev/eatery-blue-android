@@ -23,7 +23,6 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
 fun NotificationsSettingsScreen() {
-    val colors = currentColors
 
     Column(
         modifier = Modifier
@@ -33,7 +32,7 @@ fun NotificationsSettingsScreen() {
     ) {
         Text(
             text = stringResource(R.string.notifications_title),
-            color = colors.textPrimary,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
@@ -41,7 +40,7 @@ fun NotificationsSettingsScreen() {
         Text(
             text = stringResource(R.string.notifications_description),
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = colors.textPrimary,
+            color = currentColors.textPrimary,
             modifier = Modifier.padding(top = 7.dp, bottom = 12.dp)
         )
 

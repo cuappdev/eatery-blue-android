@@ -29,7 +29,6 @@ import java.time.LocalDateTime
  */
 @Composable
 fun AlertsSection(eatery: Eatery) {
-    val colors = currentColors
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 12.dp)
     ) {
@@ -47,16 +46,18 @@ fun AlertsSection(eatery: Eatery) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(colors.accentPrimary)
+                        .background(currentColors.accentPrimary)
                 ) {
                     Icon(
-                        Icons.Default.Info, contentDescription = "Warning", tint = colors.backgroundSecondary
+                        Icons.Default.Info,
+                        contentDescription = "Warning",
+                        tint = currentColors.backgroundSecondary
                     )
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Text(
                         text = it.description,
                         style = EateryBlueTypography.body2,
-                        color = colors.textPrimary,
+                        color = currentColors.textPrimary,
                         modifier = Modifier.padding(start = 5.dp)
                     )
                 }
