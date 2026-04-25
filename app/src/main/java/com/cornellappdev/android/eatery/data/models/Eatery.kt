@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Date
-import java.util.Locale
+import java.util.Locale.getDefault
 
 typealias DayToOperatingHours = Map<DayOfWeek, List<String>>
 typealias OperatingHoursToDays = Map<List<String>, List<DayOfWeek>>
@@ -127,9 +127,12 @@ data class Eatery(
      */
     fun getSelectedEvent(dayIndex: Int, mealDescription: String): Event? {
         val targetDate = LocalDate.now().plusDays(dayIndex.toLong())
+        val formattedMealDescription =
+            mealDescription.uppercase(getDefault())
+                .split(' ').joinToString("_")
 
         val ans = events?.find {
-            it.type.equals(mealDescription, ignoreCase = true) &&
+            it.type.equals(formattedMealDescription, ignoreCase = true) &&
                     (it.startTimestamp?.toLocalDate()?.isEqual(targetDate) == true)
         }
         return ans
@@ -309,7 +312,7 @@ data class Eatery(
             }
             var curStrings = mutableListOf<String>()
             for (i in days.indices) {
-                val curDay = days[i].getDisplayName(TextStyle.FULL, Locale.getDefault())
+                val curDay = days[i].getDisplayName(TextStyle.FULL, getDefault())
                 if (i == days.size - 1) {
                     curStrings.add(curDay)
                     val formattedString = formatString(curStrings)
@@ -329,7 +332,7 @@ data class Eatery(
             val firstDay = entry.first.split(" to ", " ", limit = 2).first()
             // Find the matching day and get its sort value
             DayOfWeek.entries.find {
-                it.getDisplayName(TextStyle.FULL, Locale.getDefault()) == firstDay
+                it.getDisplayName(TextStyle.FULL, getDefault()) == firstDay
             }?.let { (it.value % 7) } ?: Int.MAX_VALUE
         }
         return formattedHoursList
