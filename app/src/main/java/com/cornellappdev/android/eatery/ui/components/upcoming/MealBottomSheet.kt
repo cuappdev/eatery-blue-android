@@ -55,6 +55,7 @@ fun MealBottomSheet(
     if (!isVisible) currSelectedMeal.value = selectedMeal
     Column(
         modifier = Modifier
+            .background(currentColors.backgroundDefault)
             .padding(start = 16.dp, end = 16.dp, top = 24.dp)
     ) {
         Row(

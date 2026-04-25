@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -70,6 +71,7 @@ private fun NearestScreenContent(
     val favorites = uiState.favoriteEateries
     Column(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())
             .fillMaxSize()

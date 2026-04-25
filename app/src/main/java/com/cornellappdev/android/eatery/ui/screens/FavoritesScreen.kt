@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.ui.screens
 import ItemFavoritesCard
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -104,6 +105,7 @@ private fun FavoritesScreenContent(
 
     Column(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .padding(horizontal = 10.dp)
             .then(Modifier.statusBarsPadding())
             .fillMaxSize()

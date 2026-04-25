@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,7 @@ fun NotificationsSettingsScreen() {
 
     Column(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())
             .fillMaxSize()

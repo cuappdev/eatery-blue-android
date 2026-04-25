@@ -7,6 +7,7 @@ import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -87,6 +88,8 @@ fun LoginPage(
                         onModalHidden()
                     },
                     sheetState = sheetState,
+                    containerColor = currentColors.backgroundDefault,
+                    contentColor = currentColors.textPrimary,
                     shape = RoundedCornerShape(
                         bottomStart = 0.dp,
                         bottomEnd = 0.dp,
@@ -125,6 +128,7 @@ private fun LoginPageMainLayer(
                 start = 16.dp,
                 end = 16.dp
             )
+            .background(currentColors.backgroundDefault)
             .then(Modifier.statusBarsPadding())
     ) {
         Row(

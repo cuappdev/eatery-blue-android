@@ -54,7 +54,11 @@ fun AppIconBottomSheet(hide: () -> Unit) {
     val context = LocalContext.current
     val (selectedAppIcon, setSelectedAppIcon) = remember { mutableStateOf(currentIcon(context)) }
     val currentIcon = currentIcon(context)
-    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp)) {
+    Column(
+        modifier = Modifier
+            .background(currentColors.backgroundDefault)
+            .padding(start = 16.dp, end = 16.dp, top = 24.dp)
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()

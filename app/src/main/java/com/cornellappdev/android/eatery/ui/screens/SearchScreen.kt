@@ -170,6 +170,8 @@ private fun SearchScreenContent(
         ModalBottomSheet(
             onDismissRequest = { showPaymentMethodSheet = false },
             sheetState = modalBottomSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,
@@ -189,7 +191,12 @@ private fun SearchScreenContent(
 
     val listState = rememberLazyListState()
 
-    LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
+            .fillMaxSize()
+    ) {
         stickyHeader {
             Column(
                 modifier = Modifier

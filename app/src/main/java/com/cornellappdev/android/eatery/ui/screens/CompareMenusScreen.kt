@@ -142,7 +142,11 @@ private fun CompareMenusScreenContent(
     }
 
     val issue by remember { mutableStateOf<Issue?>(null) }
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = currentColors.backgroundDefault)
+    ) {
         Row(
             modifier = Modifier
                 .padding(start = 16.dp, end = 16.dp, top = 56.dp, bottom = 12.dp)
@@ -197,6 +201,8 @@ private fun CompareMenusScreenContent(
             ModalBottomSheet(
                 onDismissRequest = closeBottomSheet,
                 sheetState = modalBottomSheetState,
+                containerColor = currentColors.backgroundDefault,
+                contentColor = currentColors.textPrimary,
                 shape = RoundedCornerShape(
                     bottomStart = 0.dp,
                     bottomEnd = 0.dp,

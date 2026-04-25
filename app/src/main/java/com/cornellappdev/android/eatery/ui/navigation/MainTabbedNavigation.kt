@@ -86,6 +86,7 @@ fun NavigationSetup(
     }
 
     Scaffold(
+        containerColor = currentColors.backgroundDefault,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             AnimatedContent(

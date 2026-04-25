@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,7 +67,11 @@ fun OnboardingScreenContent(
     var fadePage by rememberSaveable { mutableStateOf(false) }
     val cornell = stringResource(R.string.onboarding_cornell)
     val appdev = stringResource(R.string.onboarding_appdev)
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
+            .fillMaxSize()
+    ) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(), userScrollEnabled = false

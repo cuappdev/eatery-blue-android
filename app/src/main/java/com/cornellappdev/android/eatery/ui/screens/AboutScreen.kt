@@ -57,7 +57,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun AboutScreen() {
     val uriCurrent = LocalUriHandler.current
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = currentColors.backgroundDefault)
+    ) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)

@@ -101,6 +101,8 @@ fun ReportBottomSheet(
         ModalBottomSheet(
             onDismissRequest = { showIssueSheet = false },
             sheetState = issueSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,
@@ -126,7 +128,7 @@ fun ReportBottomSheet(
         }
     }
 
-    Column {
+    Column(modifier = Modifier.background(currentColors.backgroundDefault)) {
         Row(modifier = Modifier.statusBarsPadding()) {
             Spacer(Modifier.weight(1f, true))
             HorizontalDivider(
@@ -217,7 +219,7 @@ fun ReportBottomSheet(
 
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = currentColors.textPrimary,
+                color = currentColors.accentPrimary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)

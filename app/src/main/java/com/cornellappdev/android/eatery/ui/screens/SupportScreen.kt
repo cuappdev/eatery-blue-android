@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -123,6 +124,8 @@ private fun SupportScreenContent(
                 showReportSheet = false
             },
             sheetState = modalBottomSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,
@@ -150,9 +153,10 @@ private fun SupportScreenContent(
 
     Column(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .padding(horizontal = 16.dp)
-            .fillMaxSize()
             .then(Modifier.statusBarsPadding())
+            .fillMaxSize()
     ) {
         Spacer(modifier = Modifier.height(7.dp))
         Text(

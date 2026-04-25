@@ -96,6 +96,8 @@ fun AccountPage(
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
             sheetState = modalBottomSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,

@@ -247,7 +247,9 @@ private fun HomeScreenContent(
     var isGridView: Boolean by remember { mutableStateOf(false) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(currentColors.backgroundDefault),
         floatingActionButton = {
             if (eateriesApiResponse is EateryApiResponse.Success && eateriesApiResponse.data.size >= 2) {
                 CompareMenusFAB(
@@ -267,14 +269,16 @@ private fun HomeScreenContent(
         content = { paddingValues ->
             Box(
                 modifier = Modifier
-                    .background(currentColors.backgroundDefault)
                     .padding(paddingValues)
                     .fillMaxSize()
+                    .background(currentColors.backgroundDefault)
             ) {
                 if (showBottomSheet) {
                     ModalBottomSheet(
                         onDismissRequest = closeBottomSheet,
                         sheetState = modalBottomSheetState,
+                        containerColor = currentColors.backgroundDefault,
+                        contentColor = currentColors.textPrimary,
                         shape = RoundedCornerShape(
                             bottomStart = 0.dp,
                             bottomEnd = 0.dp,

@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -80,6 +81,8 @@ private fun SettingsScreenContent(
         ModalBottomSheet(
             sheetState = modalBottomSheetState,
             onDismissRequest = { showAppIconSheet = false },
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,
@@ -99,6 +102,7 @@ private fun SettingsScreenContent(
 
     Column(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())

@@ -94,6 +94,7 @@ fun CompareMenusBottomSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(currentColors.backgroundDefault)
             .padding(top = 14.dp)
             .padding(16.dp),
         horizontalAlignment = Alignment.Start
@@ -130,6 +131,7 @@ fun CompareMenusBottomSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(currentColors.backgroundDefault)
             .padding(16.dp, 10.dp, 16.dp, 16.dp),
         horizontalAlignment = Alignment.Start
     ) {

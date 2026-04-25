@@ -233,7 +233,7 @@ fun EateryDetailScreenContent(
     ) { paddingValues ->
         Box(
             modifier = Modifier
-                .background(currentColors.backgroundDefault)
+                .background(color = currentColors.backgroundDefault)
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
@@ -278,6 +278,8 @@ fun EateryDetailScreenContent(
                         ModalBottomSheet(
                             onDismissRequest = closeBottomSheet,
                             sheetState = modalBottomSheetState,
+                            containerColor = currentColors.backgroundDefault,
+                            contentColor = currentColors.textPrimary,
                             shape = RoundedCornerShape(
                                 bottomStart = 0.dp,
                                 bottomEnd = 0.dp,
