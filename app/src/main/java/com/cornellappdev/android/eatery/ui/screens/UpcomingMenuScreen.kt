@@ -33,6 +33,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterButton
@@ -255,58 +257,6 @@ private fun UpcomingMenuScreenContent(
     }
 }
 
-@DualModePreview
-@Composable
-private fun UpcomingMenuScreenPreview() = EateryPreview {
-    val previewState = PreviewData.upcomingMenuPreviewState()
-    UpcomingMenuScreenContent(
-        viewState = previewState.viewState,
-        upcomingMenuFilters = previewState.upcomingMenuFilters,
-        onMealFilterChanged = {},
-        onToggleFilterClicked = {},
-        onResetFiltersClicked = {},
-        onSelectDayOffset = {},
-        onPingEateries = {},
-        onEateryClick = {},
-        onEateryCardContract = {}
-    )
-}
-
-@DualModePreview
-@Composable
-private fun UpcomingMenuScreenEmptyPreview() = EateryPreview {
-    val previewState = PreviewData.upcomingMenuEmptyPreviewState()
-    UpcomingMenuScreenContent(
-        viewState = previewState.viewState,
-        upcomingMenuFilters = previewState.upcomingMenuFilters,
-        onMealFilterChanged = {},
-        onToggleFilterClicked = {},
-        onResetFiltersClicked = {},
-        onSelectDayOffset = {},
-        onPingEateries = {},
-        onEateryClick = {},
-        onEateryCardContract = {}
-    )
-}
-
-@DualModePreview
-@Composable
-private fun UpcomingMenuScreenErrorPreview() = EateryPreview {
-    val previewState = PreviewData.upcomingMenuErrorPreviewState()
-    UpcomingMenuScreenContent(
-        viewState = previewState.viewState,
-        upcomingMenuFilters = previewState.upcomingMenuFilters,
-        onMealFilterChanged = {},
-        onToggleFilterClicked = {},
-        onResetFiltersClicked = {},
-        onSelectDayOffset = {},
-        onPingEateries = {},
-        onEateryClick = {},
-        onEateryCardContract = {}
-    )
-}
-
-
 @Composable
 private fun UpcomingMenuShell(
     innerListState: LazyListState,
@@ -452,7 +402,7 @@ private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
                     Text(
                         modifier = Modifier.align(Alignment.Center),
                         textAlign = TextAlign.Center,
-                        text = "Upcoming Menus",
+                        text = stringResource(R.string.upcoming_menus_title),
                         color = currentColors.oppTextPrimary,
                         style = TextStyle(
                             fontWeight = FontWeight.SemiBold,
@@ -469,7 +419,7 @@ private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
                     )
                 ) {
                     Text(
-                        text = "Upcoming Menus",
+                        text = stringResource(R.string.upcoming_menus_title),
                         color = currentColors.oppTextPrimary,
                         style = EateryBlueTypography.h2
                     )
@@ -477,4 +427,55 @@ private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
             }
         }
     }
+}
+
+@DualModePreview
+@Composable
+private fun UpcomingMenuScreenPreview() = EateryPreview {
+    val previewState = PreviewData.upcomingMenuPreviewState()
+    UpcomingMenuScreenContent(
+        viewState = previewState.viewState,
+        upcomingMenuFilters = previewState.upcomingMenuFilters,
+        onMealFilterChanged = {},
+        onToggleFilterClicked = {},
+        onResetFiltersClicked = {},
+        onSelectDayOffset = {},
+        onPingEateries = {},
+        onEateryClick = {},
+        onEateryCardContract = {}
+    )
+}
+
+@DualModePreview
+@Composable
+private fun UpcomingMenuScreenEmptyPreview() = EateryPreview {
+    val previewState = PreviewData.upcomingMenuEmptyPreviewState()
+    UpcomingMenuScreenContent(
+        viewState = previewState.viewState,
+        upcomingMenuFilters = previewState.upcomingMenuFilters,
+        onMealFilterChanged = {},
+        onToggleFilterClicked = {},
+        onResetFiltersClicked = {},
+        onSelectDayOffset = {},
+        onPingEateries = {},
+        onEateryClick = {},
+        onEateryCardContract = {}
+    )
+}
+
+@DualModePreview
+@Composable
+private fun UpcomingMenuScreenErrorPreview() = EateryPreview {
+    val previewState = PreviewData.upcomingMenuErrorPreviewState()
+    UpcomingMenuScreenContent(
+        viewState = previewState.viewState,
+        upcomingMenuFilters = previewState.upcomingMenuFilters,
+        onMealFilterChanged = {},
+        onToggleFilterClicked = {},
+        onResetFiltersClicked = {},
+        onSelectDayOffset = {},
+        onPingEateries = {},
+        onEateryClick = {},
+        onEateryCardContract = {}
+    )
 }
