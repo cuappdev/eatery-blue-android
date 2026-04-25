@@ -229,4 +229,11 @@
     <string name="network_action_link_get_account">link account</string>
     <string name="network_action_get_financials">load account information</string>
     <string name="network_error_message">Failed to %1$s: %2$s</string>
+
+    <string name="login_title">Log into Eatery</string>
+    <string name="login_description">Log in with your Cornell NetID to see your account balance and history</string>
+    <string name="login_button_log_in">Log in</string>
+    <string name="login_button_logging_in">Logging in…</string>
+    <string name="a11y_login_back_arrow">Back Arrow</string>
+    <string name="a11y_login_eatery_logo">Eatery logo</string>
 </resources>
