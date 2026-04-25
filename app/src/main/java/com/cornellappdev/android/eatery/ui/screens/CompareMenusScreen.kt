@@ -153,7 +153,8 @@ private fun CompareMenusScreenContent(
                 text = stringResource(R.string.compare_menus_title),
                 fontSize = 20.sp,
                 style = EateryBlueTypography.h5,
-                fontWeight = FontWeight(600)
+                fontWeight = FontWeight(600),
+                color = currentColors.textPrimary
             )
         }
         HorizontalDivider(
@@ -408,7 +409,8 @@ private fun MenuPager(
                                         modifier = Modifier.padding(
                                             horizontal = 16.dp,
                                             vertical = 12.dp
-                                        )
+                                        ),
+                                        color = currentColors.textPrimary
                                     )
                                 }
 
@@ -428,7 +430,8 @@ private fun MenuPager(
                                         Text(
                                             text = menuItem.name ?: "Item Name",
                                             style = EateryBlueTypography.button,
-                                            modifier = Modifier.weight(1f)
+                                            modifier = Modifier.weight(1f),
+                                            color = currentColors.textPrimary
                                         )
                                     }
 
@@ -571,7 +574,8 @@ private fun TitlePager(
                         text = it,
                         style = EateryBlueTypography.button,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = currentColors.textPrimary
                     )
                 }
             }

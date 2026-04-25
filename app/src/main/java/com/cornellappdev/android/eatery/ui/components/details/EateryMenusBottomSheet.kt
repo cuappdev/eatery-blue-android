@@ -109,6 +109,7 @@ fun EateryMenusBottomSheet(
                     Text(
                         text = stringResource(R.string.menus_title),
                         style = EateryBlueTypography.h4,
+                        color = currentColors.textPrimary,
                     )
                 }
                 IconButton(

@@ -77,7 +77,12 @@ fun ItemFavoritesCard(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                Text(viewState.itemName, fontSize = 20.sp, style = EateryBlueTypography.button)
+                Text(
+                    viewState.itemName,
+                    fontSize = 20.sp,
+                    style = EateryBlueTypography.button,
+                    color = currentColors.textPrimary
+                )
                 FavoriteButton(isFavorite = true, onFavoriteClick = { onFavoriteClick() })
             }
             Row(
@@ -118,7 +123,12 @@ fun ItemInformation(meal: String, eateryName: List<String>) {
     Column(
         modifier = Modifier.padding(top = 8.dp)
     ) {
-        Text(meal, fontSize = 20.sp, style = EateryBlueTypography.button)
+        Text(
+            meal,
+            fontSize = 20.sp,
+            style = EateryBlueTypography.button,
+            color = currentColors.textPrimary
+        )
         eateryName.forEach { eatery ->
             Text(eatery, style = EateryBlueTypography.caption, color = Color(0xff7D8288))
         }

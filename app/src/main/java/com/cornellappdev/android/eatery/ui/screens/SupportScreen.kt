@@ -198,7 +198,8 @@ private fun SupportScreenContent(
             Text(
                 text = stringResource(R.string.report_an_issue),
                 style = EateryBlueTypography.h5,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp),
+                color = currentColors.textPrimary
             )
         }
 

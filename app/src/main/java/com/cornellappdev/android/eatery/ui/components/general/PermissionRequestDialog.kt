@@ -109,7 +109,8 @@ fun PermissionRequestDialog(
                                 }
                             ),
                             textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black
                         )
                         Spacer(modifier = Modifier.height(15.dp))
                         Button(

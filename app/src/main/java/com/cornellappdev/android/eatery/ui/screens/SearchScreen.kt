@@ -273,7 +273,8 @@ private fun SearchScreenContent(
                                 ) {
                                     Text(
                                         text = stringResource(R.string.search_favorites),
-                                        style = EateryBlueTypography.h4
+                                        style = EateryBlueTypography.h4,
+                                        color = currentColors.textPrimary
                                     )
                                     IconButton(
                                         onClick = {
@@ -313,7 +314,8 @@ private fun SearchScreenContent(
                     Text(
                         modifier = Modifier.padding(start = 16.dp, top = 12.dp),
                         text = stringResource(R.string.search_recent_searches),
-                        style = EateryBlueTypography.h4
+                        style = EateryBlueTypography.h4,
+                        color = currentColors.textPrimary
                     )
                 }
                 items(recentSearches) { eateryId ->
@@ -485,7 +487,8 @@ fun FavoriteItem(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(top = 8.dp)
+                    .padding(top = 8.dp),
+                color = currentColors.textPrimary
             )
         }
     }

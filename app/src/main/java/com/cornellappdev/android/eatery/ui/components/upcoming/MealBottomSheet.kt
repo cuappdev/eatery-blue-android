@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.ui.components.upcoming
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -63,7 +64,8 @@ fun MealBottomSheet(
             Text(
                 text = stringResource(R.string.menus_title),
                 style = EateryBlueTypography.h4,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
+                color = currentColors.textPrimary
             )
 
             IconButton(
@@ -98,12 +100,14 @@ fun MealBottomSheet(
             Text(
                 text = MealFilter.BREAKFAST.displayName,
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.h5
+                style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary
             )
             Text(
                 text = stringResource(R.string.meal_time_breakfast),
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.caption
+                style = EateryBlueTypography.caption,
+                color = currentColors.textSecondary
             )
         }
         IconButton(
@@ -150,12 +154,14 @@ fun MealBottomSheet(
             Text(
                 text = MealFilter.LUNCH.displayName,
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.h5
+                style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary
             )
             Text(
                 text = stringResource(R.string.meal_time_lunch),
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.caption
+                style = EateryBlueTypography.caption,
+                color = currentColors.textSecondary
             )
         }
         IconButton(
@@ -203,12 +209,14 @@ fun MealBottomSheet(
             Text(
                 text = MealFilter.DINNER.displayName,
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.h5
+                style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary
             )
             Text(
                 text = stringResource(R.string.meal_time_dinner),
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.caption
+                style = EateryBlueTypography.caption,
+                color = currentColors.textSecondary
             )
         }
         IconButton(
@@ -254,12 +262,14 @@ fun MealBottomSheet(
             Text(
                 text = MealFilter.LATE_DINNER.displayName,
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.h5
+                style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary
             )
             Text(
                 text = stringResource(R.string.meal_time_late_dinner),
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.caption
+                style = EateryBlueTypography.caption,
+                color = currentColors.textSecondary
             )
         }
         IconButton(
@@ -302,7 +312,8 @@ fun MealBottomSheet(
         Text(
             text = stringResource(R.string.show_menu),
             style = EateryBlueTypography.h5,
-            modifier = Modifier.padding(top = 6.dp, bottom = 6.dp)
+            modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
+            color = currentColors.textPrimary
         )
     }
 
@@ -326,11 +337,13 @@ fun MealBottomSheet(
 @DualModePreview
 @Composable
 private fun MealBottomSheetPreview() = EateryPreview {
-    MealBottomSheet(
-        isVisible = true,
-        selectedMeal = MealFilter.LUNCH,
-        onSubmit = {},
-        hide = {}
-    )
+    Box(modifier = Modifier.size(300.dp, 400.dp)) {
+        MealBottomSheet(
+            isVisible = true,
+            selectedMeal = MealFilter.LUNCH,
+            onSubmit = {},
+            hide = {}
+        )
+    }
 }
 

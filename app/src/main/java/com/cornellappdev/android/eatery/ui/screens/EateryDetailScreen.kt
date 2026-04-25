@@ -240,7 +240,7 @@ fun EateryDetailScreenContent(
             when (viewState) {
                 is EateryDetailViewState.Error -> {
                     // TODO we should have an error state for this screen lol
-                    Text("Cannot load Eatery Details")
+                    Text("Cannot load Eatery Details", color = currentColors.textPrimary)
                 }
 
                 is EateryDetailViewState.Loaded -> {
@@ -609,7 +609,8 @@ fun EateryDetailScreenContent(
                                             modifier = Modifier.padding(vertical = 6.dp),
                                             text = stringResource(R.string.get_directions),
                                             style = EateryBlueTypography.h5,
-                                            maxLines = 1
+                                            maxLines = 1,
+                                            color = currentColors.textPrimary
                                         )
                                     }
                                 }
@@ -782,7 +783,8 @@ fun EateryDetailScreenContent(
                                     Text(
                                         text = stringResource(R.string.make_eatery_better),
                                         style = EateryBlueTypography.h5,
-                                        modifier = Modifier.padding(vertical = 8.dp)
+                                        modifier = Modifier.padding(vertical = 8.dp),
+                                        color = currentColors.textPrimary
                                     )
                                     Text(
                                         text = stringResource(R.string.make_eatery_better_description),

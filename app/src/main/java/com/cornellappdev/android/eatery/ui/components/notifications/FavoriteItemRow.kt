@@ -53,7 +53,8 @@ fun FavoriteItemRow(
                 Text(
                     text = itemName,
                     style = EateryBlueTypography.h5,
-                    modifier = Modifier.padding(end = 10.dp)
+                    modifier = Modifier.padding(end = 10.dp),
+                    color = currentColors.textPrimary
                 )
                 Text(
                     text = stringResource(R.string.today),
@@ -124,16 +125,19 @@ private fun CondenseEateriesName(eateries: List<String>) {
 
     Text(
         text = "At ",
-        fontSize = 12.sp
+        fontSize = 12.sp,
+        color = currentColors.textSecondary
     )
     Text(
         text = text,
         fontWeight = FontWeight(600),
-        fontSize = 12.sp
+        fontSize = 12.sp,
+        color = currentColors.textSecondary
     )
     Text(
         text = " $suffix",
-        fontSize = 12.sp
+        fontSize = 12.sp,
+        color = currentColors.textSecondary
     )
 }
 

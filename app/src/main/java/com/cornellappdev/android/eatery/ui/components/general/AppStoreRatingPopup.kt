@@ -118,7 +118,11 @@ private fun ActionPrompt(
     onDismiss: () -> Unit
 ) {
     AppStoreRatingCardBorder(onDismiss) {
-        Text(actionText, style = EateryBlueTypography.h6)
+        Text(
+            actionText,
+            style = EateryBlueTypography.h6,
+            color = currentColors.textPrimary
+        )
         Spacer(Modifier.height(12.dp))
         Button(
             onButtonPress,
@@ -147,7 +151,8 @@ private fun RatingPrompt(rating: Int, onChangeRating: (Int) -> Unit, onDismiss: 
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(
                 stringResource(R.string.app_store_rating_question),
-                style = EateryBlueTypography.h4
+                style = EateryBlueTypography.h4,
+                color = currentColors.textPrimary
             )
             RatingBar(rating, onChangeRating)
         }

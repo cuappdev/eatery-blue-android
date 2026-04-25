@@ -46,7 +46,8 @@ fun PaymentMethodsBottomSheet(
             Text(
                 text = stringResource(R.string.payment_methods_title),
                 style = EateryBlueTypography.h4,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
+                color = currentColors.textPrimary
             )
 
             IconButton(
@@ -103,7 +104,8 @@ fun PaymentMethodsBottomSheet(
                 Text(
                     text = stringResource(R.string.payment_methods_meal_swipes),
                     style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp),
+                    color = currentColors.textPrimary
                 )
             }
 
@@ -139,7 +141,8 @@ fun PaymentMethodsBottomSheet(
                 Text(
                     text = stringResource(R.string.payment_methods_brbs),
                     style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp),
+                    color = currentColors.textPrimary
                 )
             }
             Column(
@@ -174,7 +177,8 @@ fun PaymentMethodsBottomSheet(
                 Text(
                     text = stringResource(R.string.payment_methods_cash_or_credit),
                     style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp),
+                    color = currentColors.textPrimary
                 )
             }
         }
@@ -193,7 +197,8 @@ fun PaymentMethodsBottomSheet(
             Text(
                 text = stringResource(R.string.payment_methods_show_results),
                 style = EateryBlueTypography.h5,
-                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                color = currentColors.textPrimary
             )
         }
 

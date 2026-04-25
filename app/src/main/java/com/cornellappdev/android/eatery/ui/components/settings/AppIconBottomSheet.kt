@@ -141,7 +141,8 @@ fun AppIconBottomSheet(hide: () -> Unit) {
             Text(
                 text = stringResource(R.string.done),
                 style = EateryBlueTypography.h5,
-                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                color = currentColors.textPrimary
             )
         }
 

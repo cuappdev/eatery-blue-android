@@ -105,6 +105,7 @@ private fun EateryHomeSectionHeader(
         Text(
             text = title,
             style = EateryBlueTypography.h4,
+            color = currentColors.textPrimary,
         )
 
         if (onExpandClick != null) {

@@ -39,7 +39,8 @@ fun NoEateryFound(modifier: Modifier = Modifier, resetFilters: () -> Unit) {
         Text(
             text = stringResource(R.string.no_eatery_found),
             style = EateryBlueTypography.h5,
-            modifier = Modifier.padding(top = 12.dp)
+            modifier = Modifier.padding(top = 12.dp),
+            color = currentColors.textPrimary
         )
         Button(
             modifier = Modifier.padding(top = 12.dp),

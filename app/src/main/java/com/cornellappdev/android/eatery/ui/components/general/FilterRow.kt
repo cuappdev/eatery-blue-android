@@ -82,7 +82,7 @@ fun FilterButton(
             contentColor = contentColor
         )
     ) {
-        Text(text)
+        Text(text = text, color = contentColor)
         if (hasExpandIcon) {
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Icon(

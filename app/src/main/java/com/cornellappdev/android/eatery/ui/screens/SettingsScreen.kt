@@ -295,7 +295,8 @@ private fun SettingsScreenContent(
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                 Text(
                     text = stringResource(R.string.settings_logout),
-                    style = EateryBlueTypography.button
+                    style = EateryBlueTypography.button,
+                    color = currentColors.textPrimary
                 )
             }
         }

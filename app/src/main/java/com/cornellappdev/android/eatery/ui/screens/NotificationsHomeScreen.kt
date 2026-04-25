@@ -36,7 +36,8 @@ fun NotificationsHomeScreen(
         Text(
             text = stringResource(R.string.notifications_home_favorite_items),
             style = EateryBlueTypography.h4,
-            modifier = Modifier.padding(bottom = 20.dp)
+            modifier = Modifier.padding(bottom = 20.dp),
+            color = currentColors.textPrimary
         )
 
         LazyColumn {

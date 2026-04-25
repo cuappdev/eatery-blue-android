@@ -174,6 +174,7 @@ fun CompareMenusBottomSheetContent(
                 text = if (selectedEateries.size < 2) "Select at least ${2 - selectedEateries.size} more"
                 else "Compare ${selectedEateries.size} now",
                 style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary,
             )
         }
     }
