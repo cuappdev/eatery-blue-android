@@ -32,7 +32,7 @@ fun FavoritesToggle(
     label: String,
     active: Boolean
 ) {
-    val detailColor = if (active) currentColors.favorite else currentColors.accentPrimary
+    val detailColor = if (active) currentColors.contentBrand else currentColors.textSecondary
     val backgroundColor = if (active) currentColors.backgroundDefault else Color.Transparent
     Row(
         modifier = Modifier
@@ -76,7 +76,7 @@ fun ToggleRow(toggle: Boolean, setToggle: (Boolean) -> Unit) {
 @Composable
 private fun FavoritesTogglePreview() = EateryPreview {
     var active by remember { mutableStateOf(false) }
-    FavoritesToggle({ active = !active }, "Eateries", active)
+    ToggleRow(toggle = active, setToggle = { active = it })
 }
 
 
