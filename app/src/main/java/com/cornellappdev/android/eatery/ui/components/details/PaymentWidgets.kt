@@ -12,9 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.data.models.PaymentMethod
+import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
+import com.cornellappdev.android.eatery.ui.components.general.isAcceptedBy
+import com.cornellappdev.android.eatery.ui.components.general.tintColor
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 
 /**
  * Payment widgets that are displayed at the top right region eatery details screen
@@ -24,33 +29,36 @@ fun PaymentWidgets(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
     Surface(
         modifier = modifier.clickable {
             onClick.invoke()
-        }, shape = CircleShape, color = currentColors.backgroundDefault
+        }, shape = CircleShape
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(ButtonDefaults.IconSpacing)
         ) {
-            if (eatery.acceptsMealSwipes()) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_swipes),
-                    contentDescription = "Accepts Swipes",
-                    tint = currentColors.accentPrimary
-                )
-            }
-            if (eatery.acceptsBRB()) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_brbs),
-                    contentDescription = "Accepts BRBs",
-                    tint = currentColors.error
-                )
-            }
-            if (eatery.acceptsCash()) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_payment_cash),
-                    contentDescription = "Accepts Cash",
-                    tint = currentColors.success
-                )
+            PaymentMethodsAvailable.entries.forEach { paymentMethod ->
+                if (paymentMethod.isAcceptedBy(eatery)) {
+                    Icon(
+                        painter = painterResource(id = paymentMethod.drawable),
+                        contentDescription = "Accepts ${paymentMethod.name}",
+                        tint = paymentMethod.tintColor
+                    )
+                }
             }
         }
     }
+}
+
+@DualModePreview
+@Composable
+private fun PaymentWidgetsPreview() = EateryPreview {
+    PaymentWidgets(
+        eatery = PreviewData.mockEatery().copy(
+            paymentMethods = listOf(
+                PaymentMethod.MEAL_SWIPE,
+                PaymentMethod.BRB,
+                PaymentMethod.CASH
+            )
+        ),
+        onClick = {}
+    )
 }

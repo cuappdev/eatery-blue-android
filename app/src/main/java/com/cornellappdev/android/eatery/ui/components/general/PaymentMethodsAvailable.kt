@@ -35,6 +35,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.DualModePreview
@@ -44,7 +45,7 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 @Composable
 fun PaymentMethodsAvailable(
     selectedPaymentMethods: List<PaymentMethodsAvailable>,
-    hide: () -> Unit
+    hide: () -> Unit,
 ) {
     val paymentMethodsAvailableText = buildAnnotatedString {
         append(stringResource(R.string.payment_methods_pay_with))
@@ -63,21 +64,25 @@ fun PaymentMethodsAvailable(
             }
         }
         append(".")
-        toAnnotatedString()
     }
 
     val inlineContentMap =
-        PaymentMethodsAvailable.entries.associate { paymentMethod ->
-            paymentMethod.name to InlineTextContent(
-                Placeholder(18.sp, 18.sp, PlaceholderVerticalAlign.TextCenter)
-            ) {
-                Image(
-                    painter = painterResource(id = paymentMethod.drawable),
-                    modifier = Modifier.fillMaxSize(),
-                    contentDescription = paymentMethod.name
-                )
+        PaymentMethodsAvailable.entries.associateBy(
+            keySelector = { it.name },
+            valueTransform = { paymentMethod ->
+                InlineTextContent(
+                    Placeholder(18.sp, 18.sp, PlaceholderVerticalAlign.TextCenter)
+                ) {
+                    Image(
+                        painter = painterResource(id = paymentMethod.drawable),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = Color.Transparent),
+                        contentDescription = paymentMethod.name
+                    )
+                }
             }
-        }
+        )
 
     Column(
         modifier = Modifier
@@ -116,72 +121,11 @@ fun PaymentMethodsAvailable(
                 .padding(top = 12.dp, bottom = 24.dp, start = 16.dp, end = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(
-                            color = currentColors.backgroundDefault,
-                            shape = CircleShape
-                        )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_payment_swipes),
-                        contentDescription = stringResource(R.string.payment_methods_meal_swipes),
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.SWIPES)) {
-                            PaymentMethodsAvailable.SWIPES.tintColor
-                        } else {
-                            currentColors.textSecondary
-                        }
-                    )
-                }
-            }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(
-                            color = currentColors.backgroundDefault,
-                            shape = CircleShape
-                        )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_payment_brbs),
-                        contentDescription = stringResource(R.string.payment_methods_brbs),
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.BRB)) {
-                            PaymentMethodsAvailable.BRB.tintColor
-                        } else {
-                            currentColors.textSecondary
-                        }
-                    )
-                }
-            }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(
-                            color = currentColors.backgroundDefault,
-                            shape = CircleShape
-                        )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_payment_cash),
-                        contentDescription = stringResource(R.string.payment_methods_cash_or_credit),
-                        tint = if (selectedPaymentMethods.contains(PaymentMethodsAvailable.CASH)) {
-                            PaymentMethodsAvailable.CASH.tintColor
-                        } else {
-                            currentColors.textSecondary
-                        }
-                    )
-                }
+            PaymentMethodsAvailable.entries.forEach { paymentMethod ->
+                PaymentMethodIcon(
+                    paymentMethod = paymentMethod,
+                    isSelected = selectedPaymentMethods.contains(paymentMethod)
+                )
             }
         }
 
@@ -216,27 +160,61 @@ fun PaymentMethodsAvailable(
     }
 }
 
+@Composable
+private fun PaymentMethodIcon(
+    paymentMethod: PaymentMethodsAvailable,
+    isSelected: Boolean
+) {
+    Surface(
+        modifier = Modifier.size(64.dp),
+        color = currentColors.backgroundDefault
+    ) {
+        Icon(
+            painter = painterResource(id = paymentMethod.drawable),
+            contentDescription = stringResource(paymentMethod.textRes),
+            tint = if (isSelected) {
+                paymentMethod.tintColor
+            } else {
+                currentColors.textSecondary
+            }
+        )
+    }
+}
+
 enum class PaymentMethodsAvailable(val drawable: Int, val textRes: Int) {
+    SWIPES(
+        drawable = R.drawable.ic_payment_swipes,
+        textRes = R.string.payment_methods_meal_swipes
+    ),
     BRB(
-        drawable = R.drawable.ic_small_brbs,
+        drawable = R.drawable.ic_payment_brbs,
         textRes = R.string.payment_methods_brbs
     ),
     CASH(
-        drawable = R.drawable.ic_small_cash,
+        drawable = R.drawable.ic_payment_cash,
         textRes = R.string.payment_methods_cash_or_credit
-    ),
-    SWIPES(
-        drawable = R.drawable.ic_small_swipes,
-        textRes = R.string.payment_methods_meal_swipes
     );
 }
 
 val PaymentMethodsAvailable.tintColor: Color
     @Composable
     get() = when (this) {
+        PaymentMethodsAvailable.SWIPES -> currentColors.contentBrand
         PaymentMethodsAvailable.BRB -> currentColors.error
         PaymentMethodsAvailable.CASH -> currentColors.success
-        PaymentMethodsAvailable.SWIPES -> currentColors.backgroundSecondary
+    }
+
+fun PaymentMethodsAvailable.isAcceptedBy(eatery: Eatery): Boolean = when (this) {
+    PaymentMethodsAvailable.SWIPES -> eatery.acceptsMealSwipes()
+    PaymentMethodsAvailable.BRB -> eatery.acceptsBRB()
+    PaymentMethodsAvailable.CASH -> eatery.acceptsCash() || eatery.acceptsCard()
+}
+
+val PaymentMethodsAvailable.filter: Filter.FromEateryFilter
+    get() = when (this) {
+        PaymentMethodsAvailable.SWIPES -> Filter.FromEateryFilter.Swipes
+        PaymentMethodsAvailable.BRB -> Filter.FromEateryFilter.BRB
+        PaymentMethodsAvailable.CASH -> Filter.FromEateryFilter.Cash
     }
 
 @DualModePreview
