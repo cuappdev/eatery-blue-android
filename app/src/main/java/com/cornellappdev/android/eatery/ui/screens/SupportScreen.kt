@@ -194,7 +194,7 @@ private fun SupportScreenContent(
                 showReportSheet = true
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = currentColors.accentPrimary,
+                containerColor = currentColors.contentBrand,
                 contentColor = currentColors.backgroundDefault
             )
         ) {
@@ -202,8 +202,7 @@ private fun SupportScreenContent(
             Text(
                 text = stringResource(R.string.report_an_issue),
                 style = EateryBlueTypography.h5,
-                modifier = Modifier.padding(start = 8.dp),
-                color = currentColors.textPrimary
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
 
@@ -213,13 +212,13 @@ private fun SupportScreenContent(
             Text(
                 text = stringResource(R.string.support_email_us),
                 style = EateryBlueTypography.button,
-                color = currentColors.textPrimary
+                color = currentColors.contentBrand
             )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Icon(
                 Icons.Outlined.ArrowOutward,
                 null,
-                tint = currentColors.backgroundSecondary
+                tint = currentColors.contentBrand
             )
         }
 
@@ -292,7 +291,10 @@ private fun ReportButton() {
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(ButtonDefaults.ContentPadding)
+            modifier = Modifier
+                .padding(ButtonDefaults.ContentPadding)
+                .background(color = currentColors.backgroundDefault)
+                .fillMaxSize(),
         ) {
             Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
@@ -344,8 +346,11 @@ fun FAQCreation(
             onDismissRequest = { setExpanded(false) },
             modifier = Modifier
                 .exposedDropdownSize()
+                .background(color = currentColors.backgroundDefault)
         ) {
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(
+                modifier = Modifier.padding(10.dp)
+            ) {
                 Text(
                     text = dropdownText,
                     style = EateryBlueTypography.subtitle2,
