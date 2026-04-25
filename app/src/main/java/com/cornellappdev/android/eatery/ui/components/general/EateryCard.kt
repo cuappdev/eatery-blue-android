@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -193,13 +194,17 @@ fun EateryCard(
                             )
                         ) {
                             Icon(
-                                Icons.Outlined.Warning,
-                                contentDescription = "Closing soon",
+                                imageVector = Icons.Outlined.Warning,
+                                tint = currentColors.warning,
+                                contentDescription = stringResource(R.string.closing_soon),
                                 modifier = Modifier.size(ButtonDefaults.IconSize)
                             )
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                             Text(
-                                text = "Closing in $xMinutesUntilClosing min",
+                                text = stringResource(
+                                    R.string.closing_in_minutes,
+                                    xMinutesUntilClosing
+                                ),
                                 style = EateryBlueTypography.button,
                                 color = currentColors.warning
                             )

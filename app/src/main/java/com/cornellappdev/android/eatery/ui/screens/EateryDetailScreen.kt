@@ -442,7 +442,7 @@ fun EateryDetailScreenContent(
                                     ) {
                                         Icon(
                                             imageVector = if (viewState.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                                            tint = if (viewState.isFavorite) colors.accentPressed else colors.textSecondary,
+                                            tint = if (viewState.isFavorite) colors.favorite else colors.textSecondary,
                                             contentDescription = null
                                         )
                                     }
@@ -969,7 +969,7 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
         ) {
             Icon(
                 imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                tint = if (isFavorite) colors.accentPressed else colors.textSecondary,
+                tint = if (isFavorite) colors.favorite else colors.textSecondary,
                 contentDescription = null
             )
         }

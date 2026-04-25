@@ -190,14 +190,14 @@ private fun LoginPageMainLayer(
                     onLoginPressed()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (clickable) currentColors.backgroundSecondary else currentColors.backgroundDefault,
+                    containerColor = currentColors.contentBrand,
                     disabledContainerColor = currentColors.backgroundDefault
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
             ) {
                 Text(
                     text = if (loading) "Logging in..." else "Log in",
-                    color = if (clickable) currentColors.backgroundDefault else currentColors.backgroundDefault10,
+                    color = currentColors.oppTextPrimary,
                     style = EateryBlueTypography.h5
                 )
             }

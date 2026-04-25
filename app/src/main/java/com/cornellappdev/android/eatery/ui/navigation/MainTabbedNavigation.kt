@@ -131,6 +131,7 @@ fun BottomNavigationBar(
             val iconId = if (isSelected) {
                 if (darkMode) item.selectedDarkIconId else item.selectedIconId
             } else {
+                // Same icon for dark and light mode when unselected
                 item.unselectedIconId
             }
             NavigationBarItem(
