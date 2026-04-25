@@ -38,7 +38,7 @@ fun FavoriteButton(
 fun FavoriteIcon(isFavorite: Boolean, modifier: Modifier = Modifier) {
     Icon(
         imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-        tint = if (isFavorite) currentColors.favorite else currentColors.accentPrimary,
+        tint = if (isFavorite) currentColors.favorite else currentColors.textSecondary,
         modifier = modifier,
         contentDescription = stringResource(
             if (isFavorite) R.string.favorite_button_remove else R.string.favorite_button_add

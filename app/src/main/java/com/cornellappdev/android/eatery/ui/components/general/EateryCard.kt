@@ -430,3 +430,20 @@ private fun EateryCardPreview() = EateryPreview {
         style = EateryCardStyle.DEFAULT
     )
 }
+
+@DualModePreview
+@Composable
+private fun EateryCardUnfavoritedPreview() = EateryPreview {
+    EateryCard(
+        eatery = Eatery(
+            id = 1,
+            name = "Test Eatery",
+            location = "Test Location",
+            menuSummary = "Test Menu Summary"
+        ),
+        isFavorite = false,
+        onFavoriteClick = {},
+        modifier = Modifier.fillMaxWidth(),
+        style = EateryCardStyle.DEFAULT
+    )
+}
