@@ -78,17 +78,17 @@ fun PaymentMethodsBottomSheet(
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
             PaymentMethodsAvailable.entries.forEach { paymentMethod ->
-                val filter = paymentMethod.filter
-                val isSelected = selectedFilters.contains(filter)
+                val filters = paymentMethod.filters
+                val isSelected = selectedFilters.intersect(filters).isNotEmpty()
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     IconButton(
                         onClick = {
                             if (isSelected) {
-                                selectedFilters.remove(filter)
+                                selectedFilters.removeAll(filters)
                             } else {
-                                selectedFilters.add(filter)
+                                selectedFilters.addAll(filters)
                             }
                         },
                         modifier = Modifier.size(64.dp)

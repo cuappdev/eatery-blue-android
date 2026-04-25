@@ -190,7 +190,7 @@ enum class PaymentMethodsAvailable(val drawable: Int, val textRes: Int) {
         drawable = R.drawable.ic_payment_brbs,
         textRes = R.string.payment_methods_brbs
     ),
-    CASH(
+    CASH_OR_CARD(
         drawable = R.drawable.ic_payment_cash,
         textRes = R.string.payment_methods_cash_or_credit
     );
@@ -201,20 +201,23 @@ val PaymentMethodsAvailable.tintColor: Color
     get() = when (this) {
         PaymentMethodsAvailable.SWIPES -> currentColors.contentBrand
         PaymentMethodsAvailable.BRB -> currentColors.error
-        PaymentMethodsAvailable.CASH -> currentColors.success
+        PaymentMethodsAvailable.CASH_OR_CARD -> currentColors.success
     }
 
 fun PaymentMethodsAvailable.isAcceptedBy(eatery: Eatery): Boolean = when (this) {
     PaymentMethodsAvailable.SWIPES -> eatery.acceptsMealSwipes()
     PaymentMethodsAvailable.BRB -> eatery.acceptsBRB()
-    PaymentMethodsAvailable.CASH -> eatery.acceptsCash() || eatery.acceptsCard()
+    PaymentMethodsAvailable.CASH_OR_CARD -> eatery.acceptsCash() || eatery.acceptsCard()
 }
 
-val PaymentMethodsAvailable.filter: Filter.FromEateryFilter
+val PaymentMethodsAvailable.filters: Set<Filter.FromEateryFilter>
     get() = when (this) {
-        PaymentMethodsAvailable.SWIPES -> Filter.FromEateryFilter.Swipes
-        PaymentMethodsAvailable.BRB -> Filter.FromEateryFilter.BRB
-        PaymentMethodsAvailable.CASH -> Filter.FromEateryFilter.Cash
+        PaymentMethodsAvailable.SWIPES -> setOf(Filter.FromEateryFilter.Swipes)
+        PaymentMethodsAvailable.BRB -> setOf(Filter.FromEateryFilter.BRB)
+        PaymentMethodsAvailable.CASH_OR_CARD -> setOf(
+            Filter.FromEateryFilter.Cash,
+            Filter.FromEateryFilter.Card
+        )
     }
 
 @DualModePreview
@@ -235,7 +238,7 @@ private fun PaymentMethodsAvailablePartialPreview() {
         PaymentMethodsAvailable(
             selectedPaymentMethods = listOf(
                 PaymentMethodsAvailable.BRB,
-                PaymentMethodsAvailable.CASH
+                PaymentMethodsAvailable.CASH_OR_CARD
             ),
             hide = {}
         )

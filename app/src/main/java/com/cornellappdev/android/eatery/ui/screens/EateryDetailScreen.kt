@@ -251,7 +251,9 @@ fun EateryDetailScreenContent(
                         stringResource(R.string.no_maps_app_available_on_this_device)
                     val paymentMethods = remember(eatery) {
                         buildList {
-                            if (eatery.acceptsCash()) add(PaymentMethodsAvailable.CASH)
+                            if (eatery.acceptsCash() || eatery.acceptsCard()) add(
+                                PaymentMethodsAvailable.CASH_OR_CARD
+                            )
                             if (eatery.acceptsBRB()) add(PaymentMethodsAvailable.BRB)
                             if (eatery.acceptsMealSwipes()) add(PaymentMethodsAvailable.SWIPES)
                         }
