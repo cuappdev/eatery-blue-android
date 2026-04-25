@@ -144,6 +144,7 @@ private fun AccountPageContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(currentColors.backgroundDefault)
     ) {
         AccountPageHeader(isFirstVisible, onSettingsClicked)
         LazyColumn(state = innerListState) {

@@ -200,6 +200,7 @@ private fun EateryEventMenu(menu: List<MenuCategoryViewState>) {
                 Text(
                     text = category.category,
                     style = EateryBlueTypography.h5,
+                    color = currentColors.textPrimary,
                     modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                 )
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -222,6 +223,7 @@ private fun MenuItemDisplay(item: MenuItemViewState) {
         Text(
             text = item.item.name ?: stringResource(R.string.unknown_item),
             style = EateryBlueTypography.caption,
+            color = currentColors.textSecondary,
             fontWeight = FontWeight.Normal
         )
         if (item.isFavorite) {

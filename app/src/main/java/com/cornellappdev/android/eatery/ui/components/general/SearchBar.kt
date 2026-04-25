@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -70,7 +69,6 @@ fun SearchBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = currentColors.accentPrimary)
             .then(modifier),
         verticalAlignment = Alignment.CenterVertically
     ) {
