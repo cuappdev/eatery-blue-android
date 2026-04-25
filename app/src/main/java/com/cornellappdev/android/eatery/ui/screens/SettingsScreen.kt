@@ -109,7 +109,7 @@ private fun SettingsScreenContent(
     ) {
         Text(
             text = stringResource(R.string.settings_title),
-            color = currentColors.backgroundSecondary,
+            color = currentColors.contentBrand,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp, bottom = 7.dp)
         )
@@ -288,7 +288,7 @@ private fun SettingsScreenContent(
                 },
                 shape = RoundedCornerShape(25.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = currentColors.backgroundDefault,
+                    containerColor = currentColors.accentPrimary,
                     contentColor = currentColors.textPrimary
                 )
             ) {

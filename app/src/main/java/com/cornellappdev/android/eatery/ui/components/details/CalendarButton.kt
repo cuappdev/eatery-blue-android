@@ -28,7 +28,7 @@ fun CalendarButton(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(100))
-            .background(currentColors.backgroundDefault)
+            .background(currentColors.accentPrimary)
             .clickable { onClick() }
             .padding(vertical = 8.dp, horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,

@@ -161,7 +161,7 @@ private fun SupportScreenContent(
         Spacer(modifier = Modifier.height(7.dp))
         Text(
             text = stringResource(R.string.support_title),
-            color = currentColors.textPrimary,
+            color = currentColors.contentBrand,
             style = EateryBlueTypography.h2,
         )
         Spacer(modifier = Modifier.height(7.dp))
@@ -293,7 +293,7 @@ private fun ReportButton() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .padding(ButtonDefaults.ContentPadding)
-                .background(color = currentColors.backgroundDefault)
+                .background(color = currentColors.accentPrimary)
                 .fillMaxSize(),
         ) {
             Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)

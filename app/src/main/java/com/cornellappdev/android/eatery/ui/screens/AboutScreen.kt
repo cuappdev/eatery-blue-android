@@ -142,7 +142,7 @@ fun AboutScreen() {
                 uriCurrent.openUri("https://www.cornellappdev.com/")
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = currentColors.backgroundSecondary,
+                containerColor = currentColors.accentPrimary,
                 contentColor = currentColors.textPrimary
             )
         ) {
@@ -306,7 +306,7 @@ fun CreditsRow(position: TeamPosition) {
                         modifier = Modifier
                             .height(34.dp)
                             .clip(RoundedCornerShape(17.dp))
-                            .background(currentColors.backgroundSecondary)
+                            .background(currentColors.accentPrimary)
                     ) {
                         Text(
                             text = item as String,
@@ -325,7 +325,7 @@ fun CreditsRow(position: TeamPosition) {
                 Icon(
                     Icons.Filled.Star,
                     contentDescription = null,
-                    tint = currentColors.backgroundSecondary,
+                    tint = currentColors.accentPrimary,
                     modifier = Modifier
                         .height(7.dp)
                         .padding(horizontal = 12.33.dp)

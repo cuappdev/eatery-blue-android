@@ -80,7 +80,7 @@ private fun PrivacyScreenContent(
     ) {
         Text(
             text = stringResource(R.string.privacy_title),
-            color = currentColors.textPrimary,
+            color = currentColors.contentBrand,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )

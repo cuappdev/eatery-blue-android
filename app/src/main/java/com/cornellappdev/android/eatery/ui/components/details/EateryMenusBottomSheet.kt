@@ -234,8 +234,8 @@ fun EateryMenusBottomSheet(
                         .height(48.dp),
                     shape = RoundedCornerShape(100),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = currentColors.accentPrimary,
-                        contentColor = currentColors.backgroundDefault
+                        containerColor = currentColors.contentBrand,
+                        contentColor = currentColors.oppTextPrimary
                     )
                 ) {
                     Text(

@@ -134,7 +134,7 @@ private fun FavoritesScreenContent(
         }
         Text(
             text = stringResource(R.string.favorites_title),
-            color = currentColors.backgroundSecondary,
+            color = currentColors.contentBrand,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(horizontal = 6.dp)
         )
