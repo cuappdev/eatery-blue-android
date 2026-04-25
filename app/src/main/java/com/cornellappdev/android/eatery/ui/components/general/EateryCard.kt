@@ -70,8 +70,7 @@ fun EateryCard(
     eatery: Eatery,
     isFavorite: Boolean,
     onFavoriteClick: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-        .fillMaxWidth(),
+    modifier: Modifier = Modifier,
     style: EateryCardStyle = EateryCardStyle.DEFAULT,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
@@ -427,6 +426,7 @@ private fun EateryCardPreview() = EateryPreview {
         ),
         isFavorite = true,
         onFavoriteClick = {},
+        modifier = Modifier.fillMaxWidth(),
         style = EateryCardStyle.DEFAULT
     )
 }

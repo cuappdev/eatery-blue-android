@@ -129,6 +129,7 @@ private fun NearestScreenContent(
                     EateryCard(
                         eatery = eatery,
                         isFavorite = favorites.contains(eatery),
+                        modifier = Modifier.fillMaxWidth(),
                         onFavoriteClick = {
                             onFavoriteClick(eatery, it)
                         }) {

@@ -646,6 +646,7 @@ private fun LazyListScope.regularContent(
                         isFavorite = favorites.any { favoriteEatery ->
                             favoriteEatery.id == eatery.id
                         },
+                        modifier = Modifier.fillMaxWidth(),
                         onFavoriteClick = {
                             onFavoriteClick(eatery, it)
                         }
@@ -748,6 +749,7 @@ private fun LazyListScope.regularContent(
                             EateryCard(
                                 eatery = eatery,
                                 isFavorite = favorites.any { it.id == eatery.id },
+                                modifier = Modifier.fillMaxWidth(),
                                 onFavoriteClick = { isFavorite ->
                                     onFavoriteClick(eatery, isFavorite)
                                 },
@@ -775,6 +777,7 @@ private fun LazyListScope.regularContent(
                         isFavorite = favorites.any { favoriteEatery ->
                             favoriteEatery.id == eatery.id
                         },
+                        modifier = Modifier.fillMaxWidth(),
                         onFavoriteClick = {
                             onFavoriteClick(eatery, it)
                         }

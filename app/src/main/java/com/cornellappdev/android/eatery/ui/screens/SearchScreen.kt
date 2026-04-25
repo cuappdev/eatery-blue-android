@@ -330,6 +330,7 @@ private fun SearchScreenContent(
                                 isFavorite = favoriteEateries.any { favoriteEatery ->
                                     favoriteEatery.id == eatery.id
                                 },
+                                modifier = Modifier.fillMaxWidth(),
                                 onFavoriteClick = {
                                     if (eatery.id != null && eatery.name != null) {
                                         if (it) {
@@ -366,6 +367,7 @@ private fun SearchScreenContent(
                         isFavorite = favoriteEateries.any { favoriteEatery ->
                             favoriteEatery.id == eatery.id
                         },
+                        modifier = Modifier.fillMaxWidth(),
                         onFavoriteClick = {
                             if (eatery.id != null && eatery.name != null) {
                                 if (it) {
