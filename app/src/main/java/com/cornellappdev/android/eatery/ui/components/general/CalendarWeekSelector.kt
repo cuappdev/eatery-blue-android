@@ -24,6 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
  * Reusable UI component that displays today and the next six days
@@ -86,7 +88,7 @@ fun CalendarWeekSelector(
                             .size(size = (34 * size).dp)
                             .alpha(size),
                         color = when (i) {
-                            currSelectedDay if currSelectedDay == 0 -> currentColors.accentPrimary
+                            currSelectedDay if currSelectedDay == 0 -> currentColors.contentBrand
                             currSelectedDay, selectedDay -> currentColors.textSecondary
                             else -> currentColors.textSecondary
                         },
@@ -96,10 +98,10 @@ fun CalendarWeekSelector(
                     Text(
                         text = days[i].toString(),
                         color = when {
-                            closedDays?.contains(dayNames[i]) == true -> currentColors.backgroundDefault10
-                            i != currSelectedDay && i == 0 -> currentColors.accentPrimary
+                            closedDays?.contains(dayNames[i]) == true -> currentColors.textSecondary
+                            i != currSelectedDay && i == 0 -> currentColors.contentBrand
                             i != currSelectedDay && i == selectedDay -> currentColors.textPrimary
-                            i == currSelectedDay -> currentColors.backgroundDefault
+                            i == currSelectedDay -> currentColors.oppTextPrimary
                             else -> currentColors.textPrimary
                         },
                         style = EateryBlueTypography.h6,
@@ -112,5 +114,22 @@ fun CalendarWeekSelector(
                 }
             }
         }
+    }
+}
+
+@DualModePreview
+@Composable
+private fun CalendarWeekSelectorPreview() {
+    val dayNames = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+    val days = listOf(1, 2, 3, 4, 5, 6, 7)
+    EateryPreview {
+        CalendarWeekSelector(
+            dayNames = dayNames,
+            currSelectedDay = 0,
+            selectedDay = 0,
+            days = days,
+            onClick = {},
+            closedDays = listOf("Sat", "Sun")
+        )
     }
 }
