@@ -93,7 +93,7 @@ sealed class Filter(open val text: String) {
                 eatery.acceptsCash()
         }
 
-        data object Card : FromEateryFilter(text = "Cash") {
+        data object Card : FromEateryFilter(text = "Card") {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.acceptsCard()
         }

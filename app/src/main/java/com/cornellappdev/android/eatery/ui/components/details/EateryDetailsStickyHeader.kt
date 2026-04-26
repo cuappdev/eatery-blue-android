@@ -137,7 +137,7 @@ fun EateryDetailsStickyHeader(
         }
 
         HorizontalDivider(
-            color = currentColors.backgroundDefault,
+            color = currentColors.borderDefault,
             thickness = 1.dp
         )
     }

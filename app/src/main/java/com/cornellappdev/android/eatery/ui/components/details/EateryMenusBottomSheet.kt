@@ -120,7 +120,7 @@ fun EateryMenusBottomSheet(
                     },
                     modifier = Modifier
                         .padding(all = 8.dp)
-                        .background(color = currentColors.backgroundDefault, shape = CircleShape)
+                        .background(color = currentColors.accentPrimary, shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -208,7 +208,7 @@ fun EateryMenusBottomSheet(
                                     .padding(vertical = 12.dp)
                                     .fillMaxWidth(),
                                 thickness = 1.dp,
-                                color = currentColors.backgroundDefault
+                                color = currentColors.borderDefault
                             )
                         }
                     }
