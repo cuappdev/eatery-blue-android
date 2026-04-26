@@ -563,12 +563,24 @@ fun EateryDetailScreenContent(
                                             )
                                         }
                                     }
+                                    val unknownLocationText =
+                                        stringResource(R.string.unknown_location)
                                     Button(
                                         onClick = {
+                                            val lat = eatery.latitude
+                                            val lon = eatery.longitude
+                                            if (lat == null || lon == null) {
+                                                Toast.makeText(
+                                                    context,
+                                                    unknownLocationText,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                return@Button
+                                            }
                                             val mapIntent =
                                                 Intent(Intent.ACTION_VIEW).apply {
                                                     data =
-                                                        "google.navigation:q=${eatery.latitude},${eatery.longitude}&mode=w".toUri()
+                                                        "google.navigation:q=$lat,$lon&mode=w".toUri()
                                                     setPackage("com.google.android.apps.maps")
                                                 }
 
@@ -578,7 +590,7 @@ fun EateryDetailScreenContent(
                                                 val fallbackMapIntent =
                                                     Intent(
                                                         Intent.ACTION_VIEW,
-                                                        "geo:${eatery.latitude},${eatery.longitude}".toUri()
+                                                        "geo:$lat,$lon".toUri()
                                                     )
                                                 val launchedFallback =
                                                     launchIntentSafely(context, fallbackMapIntent)
