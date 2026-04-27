@@ -42,7 +42,7 @@ val TextSecondaryDark = Color(0xFF9EA8B5)
 
 // Accent colors
 val AccentPrimaryLight = Color(0xFFEFF1F4)
-val AccentPrimaryDark = Color(0xFF272727)
+val AccentPrimaryDark = Color(0xFF2E2E2E)
 
 val AccentPressedLight = Color(0xFFE8EFF8)
 val AccentPressedDark = Color(0xFF1C1C1C)

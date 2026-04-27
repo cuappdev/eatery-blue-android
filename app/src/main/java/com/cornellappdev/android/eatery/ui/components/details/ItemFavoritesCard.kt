@@ -1,3 +1,5 @@
+package com.cornellappdev.android.eatery.ui.components.details
+
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
@@ -57,12 +59,12 @@ fun ItemFavoritesCard(
         modifier = modifier
             .fillMaxWidth()
             .border(
-                BorderStroke(Dp.Hairline, currentColors.accentPrimary),
+                BorderStroke(Dp.Hairline, currentColors.borderDefault),
                 RoundedCornerShape(8)
             ),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = currentColors.backgroundDefault
+            containerColor = currentColors.accentPrimary
         ),
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
@@ -79,8 +81,7 @@ fun ItemFavoritesCard(
             ) {
                 Text(
                     viewState.itemName,
-                    fontSize = 20.sp,
-                    style = EateryBlueTypography.button,
+                    style = EateryBlueTypography.h5,
                     color = currentColors.textPrimary,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -129,8 +130,7 @@ fun ItemInformation(meal: String, eateryName: List<String>) {
     ) {
         Text(
             meal,
-            fontSize = 20.sp,
-            style = EateryBlueTypography.button,
+            style = EateryBlueTypography.h5,
             color = currentColors.textPrimary
         )
         eateryName.forEach { eatery ->

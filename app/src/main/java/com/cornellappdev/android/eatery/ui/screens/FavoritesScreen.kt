@@ -1,6 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
-import ItemFavoritesCard
+import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCard
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

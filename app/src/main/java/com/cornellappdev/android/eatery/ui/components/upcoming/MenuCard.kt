@@ -72,7 +72,7 @@ fun MenuCard(
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = currentColors.backgroundDefault),
+        colors = CardDefaults.cardColors(containerColor = currentColors.accentPrimary),
         modifier = Modifier.clickable {
             openDropdown = !openDropdown
             if (!openDropdown) onEateryCardContract()

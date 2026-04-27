@@ -15,8 +15,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -36,10 +34,9 @@ fun FavoritesToggle(
     val shape = RoundedCornerShape(8.dp)
     Button(
         onClick = onClick,
-        modifier = modifier
-            .shadow(elevation = if (active) 4.dp else 0.dp, shape = shape),
+        modifier = modifier,
         shape = shape,
-        border = BorderStroke(Dp.Hairline, borderColor),
+        border = BorderStroke(1.dp, borderColor),
         contentPadding = PaddingValues(vertical = 8.dp, horizontal = 10.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = currentColors.backgroundDefault,

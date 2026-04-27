@@ -329,7 +329,7 @@ private fun AccountPageHeader(
                             modifier = Modifier.size(28.dp),
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = stringResource(R.string.a11y_settings),
-                            tint = Color.White
+                            tint = currentColors.oppTextPrimary
                         )
                     }
                 }
@@ -349,7 +349,7 @@ private fun AccountPageHeader(
                             modifier = Modifier.size(28.dp),
                             imageVector = Icons.Outlined.Settings,
                             contentDescription = stringResource(R.string.a11y_settings),
-                            tint = currentColors.textPrimary
+                            tint = currentColors.oppTextPrimary
                         )
                     }
                     Text(

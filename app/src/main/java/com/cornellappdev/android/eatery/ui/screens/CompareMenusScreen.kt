@@ -17,7 +17,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
@@ -79,7 +83,6 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 
 @OptIn(
     ExperimentalFoundationApi::class,
@@ -169,34 +172,6 @@ private fun CompareMenusScreenContent(
         )
         Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
         val firstPagerState = rememberPagerState(pageCount = { eateries.size })
-        val secondPagerState = rememberPagerState(pageCount = { eateries.size })
-
-        val scrollingFollowingPair by remember {
-            derivedStateOf {
-                if (firstPagerState.isScrollInProgress) {
-                    firstPagerState to secondPagerState
-                } else if (secondPagerState.isScrollInProgress) {
-                    secondPagerState to firstPagerState
-                } else null
-            }
-        }
-        LaunchedEffect(scrollingFollowingPair) {
-            val (scrollingState, followingState) = scrollingFollowingPair
-                ?: return@LaunchedEffect
-            snapshotFlow { scrollingState.currentPage + scrollingState.currentPageOffsetFraction }
-                .collect { pagePart ->
-                    val divideAndRemainder = BigDecimal.valueOf(pagePart.toDouble())
-                        .divideAndRemainder(BigDecimal.ONE)
-                    val pageOffsetFraction =
-                        if (divideAndRemainder[1].toFloat() > 0.5f) 0.5f else (-0.5f).coerceAtLeast(
-                            divideAndRemainder[1].toFloat()
-                        )
-                    followingState.scrollToPage(
-                        divideAndRemainder[0].toInt(),
-                        pageOffsetFraction,
-                    )
-                }
-        }
         if (showBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = closeBottomSheet,
@@ -249,7 +224,9 @@ private fun CompareMenusScreenContent(
                 onRequestRatingPopup = onRequestRatingPopup,
                 onEateryClick = onEateryClick
             )
-            TitlePager(eateries, secondPagerState)
+            TitlePager(eateries, firstPagerState) { page ->
+                coroutineScope.launch { firstPagerState.scrollToPage(page) }
+            }
         }
 
     }
@@ -299,12 +276,10 @@ private fun MenuPager(
         val listState = rememberLazyListState()
         Box {
             val currentEvent = events.getOrNull(page)
+            // Only category names: one LazyColumn item per category card, so index == category index
             val fullMenuList = mutableListOf<String>()
             currentEvent?.menu?.forEach { category ->
                 category.name?.let { fullMenuList.add(it) }
-                category.items?.forEach { item ->
-                    item.name?.let { fullMenuList.add(it) }
-                }
             }
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
@@ -517,38 +492,60 @@ private fun MenuPager(
 @OptIn(ExperimentalFoundationApi::class)
 private fun TitlePager(
     eateries: List<Eatery>,
-    secondPagerState: PagerState
+    pagerState: PagerState,
+    onPageSelected: (Int) -> Unit,
 ) {
-    HorizontalPager(
-        state = secondPagerState,
+    val rowState = rememberLazyListState()
+    val currentPage by remember { derivedStateOf { pagerState.currentPage } }
+
+    BoxWithConstraints(
         modifier = Modifier
-            .fillMaxSize()
-            .background(currentColors.backgroundDefault),
-        contentPadding = PaddingValues(horizontal = 100.dp),
-        pageSpacing = 2.dp,
-        verticalAlignment = Alignment.CenterVertically,
-        flingBehavior = PagerDefaults.flingBehavior(
-            state = secondPagerState,
-            //pager snap distance literally does nothing
-            pagerSnapDistance = PagerSnapDistance.atMost(1),
-        ),
-    ) { page ->
-        Column(modifier = Modifier.fillMaxHeight(), verticalArrangement = Arrangement.Center) {
-            Box(
-                modifier = Modifier
-                    .shadow(2.dp, shape = RoundedCornerShape(8.dp))
-                    .clip(shape = RoundedCornerShape(8.dp))
-                    .background(currentColors.backgroundDefault)
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-            ) {
-                eateries[page].name?.let {
-                    Text(
-                        text = it,
-                        style = EateryBlueTypography.button,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = if (page == secondPagerState.currentPage) currentColors.textPrimary else currentColors.textSecondary
-                    )
+            .fillMaxWidth()
+            .background(currentColors.backgroundDefault)
+            .padding(vertical = 8.dp)
+    ) {
+        // Each tab is 45% of viewport width; side padding centers each tab when scrolled to it.
+        // scrollOffset = -sidePaddingPx in animateScrollToItem positions the item's leading edge
+        // at sidePadding from the viewport left = centered.
+        val tabWidth = maxWidth * 0.45f
+        val sidePadding = (maxWidth - tabWidth) / 2
+
+        LaunchedEffect(pagerState) {
+            snapshotFlow { pagerState.currentPage }
+                .collect { page ->
+                    // contentPadding = sidePadding on both sides, so scrollOffset = 0 places
+                    // each item's leading edge at sidePadding from the viewport = centered.
+                    rowState.animateScrollToItem(index = page, scrollOffset = 0)
+                }
+        }
+
+        LazyRow(
+            state = rowState,
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = sidePadding)
+        ) {
+            itemsIndexed(eateries) { index, eatery ->
+                val isSelected = index == currentPage
+                Box(
+                    modifier = Modifier
+                        .width(tabWidth)
+                        .shadow(if (isSelected) 2.dp else 0.dp, shape = RoundedCornerShape(8.dp))
+                        .clip(shape = RoundedCornerShape(8.dp))
+                        .background(currentColors.accentPrimary)
+                        .clickable { onPageSelected(index) }
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    eatery.name?.let {
+                        Text(
+                            text = it,
+                            style = EateryBlueTypography.button,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = if (isSelected) currentColors.textPrimary else currentColors.textSecondary
+                        )
+                    }
                 }
             }
         }
