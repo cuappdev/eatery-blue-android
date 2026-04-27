@@ -29,7 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -67,7 +67,7 @@ fun AppStoreRatingPopup(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () -> Unit) {
-    var rating by remember { mutableStateOf(0) }
+    var rating by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
     val packageName = context.packageName
 
@@ -162,7 +162,7 @@ private fun RatingPrompt(rating: Int, onChangeRating: (Int) -> Unit, onDismiss: 
 @Composable
 private fun RatingBar(rating: Int, onChangeRating: (Int) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        (1..5).map {
+        (1..5).forEach {
             val selected = it <= rating
             Icon(
                 if (selected) Icons.Default.Star else Icons.Outlined.StarOutline,

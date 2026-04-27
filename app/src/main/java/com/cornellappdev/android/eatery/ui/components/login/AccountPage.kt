@@ -394,7 +394,7 @@ private fun TransactionRow(transaction: DisplayTransaction, isMealSwipes: Boolea
         val (amtString, amtColor) = if (isMealSwipes) {
             val numSwipes = abs(amount).toInt()
             "-$numSwipes swipe" + (if (numSwipes > 1) "s" else "") to currentColors.error
-        } else if (amount.epsilonEqual(0.0)) {
+        } else if (abs(amount) < 0.001) {
             "$0.00" to currentColors.textPrimary
         } else {
             "-$%.2f".format(abs(amount)) to currentColors.error
@@ -409,12 +409,6 @@ private fun TransactionRow(transaction: DisplayTransaction, isMealSwipes: Boolea
 
     }
     HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
-}
-
-
-private fun Double.epsilonEqual(other: Double): Boolean {
-    val epsilon = 0.00001
-    return abs(this - other) < epsilon
 }
 
 

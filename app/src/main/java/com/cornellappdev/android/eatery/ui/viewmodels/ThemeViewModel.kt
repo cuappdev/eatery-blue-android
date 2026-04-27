@@ -1,18 +1,11 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import android.annotation.SuppressLint
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
-import com.cornellappdev.android.eatery.data.repositories.UserRepository
-import com.cornellappdev.android.eatery.ui.theme.ColorMode
-import com.cornellappdev.android.eatery.ui.theme.ColorTheme
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
