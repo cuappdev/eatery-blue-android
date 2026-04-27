@@ -47,6 +47,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.theme.BorderBlueLight
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.DualModePreview
@@ -181,7 +182,7 @@ private fun LoginPageMainLayer(
                     modifier = Modifier
                         .fillMaxWidth(0.5f)
                         .fillMaxHeight(),
-                    colorFilter = ColorFilter.tint(Color(0xFFB7D3F3))
+                    colorFilter = ColorFilter.tint(BorderBlueLight)
                 )
             }
             Button(

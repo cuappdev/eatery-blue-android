@@ -195,7 +195,7 @@ private fun SupportScreenContent(
             },
             colors = ButtonDefaults.buttonColors(
                 containerColor = currentColors.contentBrand,
-                contentColor = currentColors.backgroundDefault
+                contentColor = currentColors.oppTextPrimary
             )
         ) {
             Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)

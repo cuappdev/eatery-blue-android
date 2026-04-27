@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -43,8 +42,6 @@ import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusBottomViewMode
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun CompareMenusBottomSheet(
@@ -150,14 +147,10 @@ fun CompareMenusBottomSheetContent(
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        val coroutineScope = rememberCoroutineScope()
         val canCompare = selectedEateries.size >= 2
         Button(
             onClick = {
-                coroutineScope.launch {
-                    delay(100)
-                    onCompareMenusClick(selectedEateries.mapNotNull { it.id })
-                }
+                onCompareMenusClick(selectedEateries.mapNotNull { it.id })
             },
             enabled = canCompare,
             modifier = Modifier

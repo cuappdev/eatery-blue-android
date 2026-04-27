@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -35,10 +36,12 @@ fun FilterRow(
     customItemsBefore: LazyListScope.() -> Unit = {},
     customItemsAfter: LazyListScope.() -> Unit = {},
     rowState: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
 ) {
     LazyRow(
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = contentPadding,
         state = rowState
     ) {
         customItemsBefore()

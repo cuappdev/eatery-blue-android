@@ -271,7 +271,7 @@ fun GridViewFavoriteWidget(
     ) {
         Icon(
             imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-            tint = if (isFavorite) currentColors.accentPressed else currentColors.textSecondary,
+            tint = if (isFavorite) currentColors.favorite else currentColors.textSecondary,
             modifier = Modifier
                 .padding(8.dp),
             contentDescription = null
@@ -328,7 +328,7 @@ fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCar
                     else ("Open until $openUntil"),
                 style = EateryBlueTypography.subtitle2,
                 color = if (openUntil == null) currentColors.error
-                else if (eatery.isClosingSoon()) currentColors.accentPressed
+                else if (eatery.isClosingSoon()) currentColors.warning
                 else currentColors.success
             )
         }

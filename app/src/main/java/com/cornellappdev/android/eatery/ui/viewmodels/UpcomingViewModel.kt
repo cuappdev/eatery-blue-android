@@ -1,6 +1,8 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import androidx.compose.ui.graphics.Color
+import com.cornellappdev.android.eatery.ui.theme.ErrorLight
+import com.cornellappdev.android.eatery.ui.theme.SuccessLight
+import com.cornellappdev.android.eatery.ui.theme.WarningLight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -104,9 +106,9 @@ class UpcomingViewModel @Inject constructor(
                 } ?: emptyList(),
                 name = name ?: "Unknown Eatery",
                 eateryStatus = when {
-                    isClosed() -> EateryStatus("Closed", Color.Red)
-                    isClosingSoon() -> EateryStatus("Closing Soon", Color(0xFFFFA500))
-                    else -> EateryStatus("Open", Color.Green)
+                    isClosed() -> EateryStatus("Closed", ErrorLight)
+                    isClosingSoon() -> EateryStatus("Closing Soon", WarningLight)
+                    else -> EateryStatus("Open", SuccessLight)
                 },
             )
         }

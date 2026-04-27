@@ -42,7 +42,7 @@ val TextSecondaryDark = Color(0xFF9EA8B5)
 
 // Accent colors
 val AccentPrimaryLight = Color(0xFFEFF1F4)
-val AccentPrimaryDark = Color(0xFF272727)
+val AccentPrimaryDark = Color(0xFF2E2E2E)
 
 val AccentPressedLight = Color(0xFFE8EFF8)
 val AccentPressedDark = Color(0xFF1C1C1C)
@@ -50,6 +50,10 @@ val AccentPressedDark = Color(0xFF1C1C1C)
 // Border colors
 val BorderDefaultLight = Color(0xFFE1E4E8)
 val BorderDefaultDark = Color(0xFF282828)
+
+// Blue border (active tab/toggle state)
+val BorderBlueLight = Color(0xFFB7D3F3)
+val BorderBlueDark = Color(0xFF1D4A7A)
 
 // Favorite colors
 val FavoriteLight = Color(0xFFFFD700)
@@ -105,6 +109,7 @@ object ColorTheme
         accentPrimary = AccentPrimaryLight,
         accentPressed = AccentPressedLight,
         borderDefault = BorderDefaultLight,
+        borderBlue = BorderBlueLight,
         favorite = FavoriteLight,
         warning = WarningLight,
     )
@@ -124,6 +129,7 @@ object ColorTheme
         accentPrimary = AccentPrimaryDark,
         accentPressed = AccentPressedDark,
         borderDefault = BorderDefaultDark,
+        borderBlue = BorderBlueDark,
         favorite = FavoriteDark,
         warning = WarningDark,
     )
@@ -146,6 +152,7 @@ data class ColorMode(
     val accentPrimary : Color,
     val accentPressed: Color,
     val borderDefault: Color,
+    val borderBlue: Color,
     val favorite: Color,
     val warning: Color
 )

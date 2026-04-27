@@ -17,6 +17,7 @@ import com.cornellappdev.android.eatery.data.models.PaymentMethod
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
 import com.cornellappdev.android.eatery.ui.components.general.isAcceptedBy
 import com.cornellappdev.android.eatery.ui.components.general.tintColor
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
@@ -29,7 +30,9 @@ fun PaymentWidgets(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
     Surface(
         modifier = modifier.clickable {
             onClick.invoke()
-        }, shape = CircleShape
+        },
+        shape = CircleShape,
+        color = currentColors.accentPrimary
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
