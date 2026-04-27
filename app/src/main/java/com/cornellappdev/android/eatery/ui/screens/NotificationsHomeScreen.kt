@@ -1,16 +1,22 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.notifications.FavoriteItemRow
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
 fun NotificationsHomeScreen(
@@ -18,19 +24,22 @@ fun NotificationsHomeScreen(
 ) {
     Column(
         modifier = Modifier
-            .padding(top = 40.dp, start = 16.dp, end = 16.dp)
+            .background(color = currentColors.backgroundDefault)
+            .padding(horizontal = 16.dp)
+            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
         Text(
-            text = "Notifications",
-            color = EateryBlue,
+            text = stringResource(R.string.notifications_home_title),
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp, bottom = 20.dp)
         )
         Text(
-            text = "Favorite Items",
+            text = stringResource(R.string.notifications_home_favorite_items),
             style = EateryBlueTypography.h4,
-            modifier = Modifier.padding(bottom = 20.dp)
+            modifier = Modifier.padding(bottom = 20.dp),
+            color = currentColors.textPrimary
         )
 
         LazyColumn {
@@ -63,4 +72,10 @@ fun NotificationsHomeScreen(
             }
         }
     }
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsHomeScreenPreview() = EateryPreview {
+    NotificationsHomeScreen()
 }

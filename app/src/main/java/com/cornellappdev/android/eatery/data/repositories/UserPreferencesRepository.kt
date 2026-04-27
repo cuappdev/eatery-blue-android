@@ -4,8 +4,13 @@ import androidx.datastore.core.DataStore
 import com.cornellappdev.android.eatery.UserPreferences
 import com.cornellappdev.android.eatery.util.decryptData
 import com.cornellappdev.android.eatery.util.encryptData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,6 +54,25 @@ class UserPreferencesRepository @Inject constructor(
 
     val isLoggedInFlow: Flow<Boolean> = userPreferencesFlow.map { it.isLoggedIn }
 
+    val isDarkModeFlow : StateFlow<Boolean?> = userPreferencesFlow.map { prefs ->
+        if (prefs.hasIsDarkMode()) prefs.isDarkMode else null}
+        .stateIn(
+            CoroutineScope(Dispatchers.IO),
+            SharingStarted.Eagerly,
+            null
+        )
+    suspend fun setDarkMode(enabled: Boolean)
+    {
+        userPreferencesStore.updateData { prefs -> prefs.toBuilder()
+            .setIsDarkMode(enabled)
+            .build()}
+    }
+    suspend fun setSystemMode()
+    {
+        userPreferencesStore.updateData { prefs -> prefs.toBuilder()
+            .clearIsDarkMode()
+            .build()}
+    }
     /**
      * Emits the decrypted PIN from [UserPreferences.encryptedPin].
      * Emits 0 if absent, decryption fails, or the decrypted value is invalid.

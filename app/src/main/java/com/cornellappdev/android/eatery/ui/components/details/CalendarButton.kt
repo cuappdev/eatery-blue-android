@@ -14,12 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
@@ -27,7 +28,7 @@ fun CalendarButton(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(100))
-            .background(GrayZero)
+            .background(currentColors.accentPrimary)
             .clickable { onClick() }
             .padding(vertical = 8.dp, horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -36,15 +37,19 @@ fun CalendarButton(onClick: () -> Unit) {
     {
         Icon(
             imageVector = ImageVector.vectorResource(id = R.drawable.ic_calendar),
-            contentDescription = "Change date",
-            modifier = Modifier.size(16.dp)
+            contentDescription = stringResource(R.string.change_date),
+            modifier = Modifier.size(16.dp),
+            tint = currentColors.textPrimary
         )
 
-        Text("Change date", style = EateryBlueTypography.button)
+        Text(
+            stringResource(R.string.change_date), style = EateryBlueTypography.button,
+            color = currentColors.textPrimary
+        )
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun CalendarButtonPreview() = EateryPreview {
     CalendarButton { }

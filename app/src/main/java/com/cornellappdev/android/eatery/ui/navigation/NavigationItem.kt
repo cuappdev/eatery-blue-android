@@ -14,12 +14,15 @@ sealed class NavigationItem(
     val route: String,
     val unselectedIconId: Int,
     val selectedIconId: Int,
-    val selectedRoutes: Set<String>
+    val selectedDarkIconId: Int,
+    val selectedRoutes: Set<String>,
 ) {
+
     object Home : NavigationItem(
         route = Routes.HOME.route,
         unselectedIconId = R.drawable.ic_home_unselected,
         selectedIconId = R.drawable.ic_home_selected,
+        selectedDarkIconId = R.drawable.ic_home_selected_dark,
         selectedRoutes = setOf(
             Routes.HOME.route,
             Routes.SEARCH.route,
@@ -31,6 +34,7 @@ sealed class NavigationItem(
         route = Routes.UPCOMING.route,
         unselectedIconId = R.drawable.ic_calendar_unselected,
         selectedIconId = R.drawable.ic_calendar_selected,
+        selectedDarkIconId = R.drawable.ic_calendar_selected_dark,
         selectedRoutes = setOf(
             Routes.UPCOMING.route
         )
@@ -40,6 +44,7 @@ sealed class NavigationItem(
         route = "${Routes.PROFILE.route}/true",
         unselectedIconId = R.drawable.ic_profile_unselected,
         selectedIconId = R.drawable.ic_profile_selected,
+        selectedDarkIconId = R.drawable.ic_profile_selected_dark,
         selectedRoutes = setOf(
             "${Routes.PROFILE.route}/{autoLogin}",
             Routes.ACCOUNT.route,
@@ -91,5 +96,5 @@ enum class Routes(override var route: String) : NavUnit {
     LEGAL("legal"),
     PRIVACY("privacy"),
     SUPPORT("support"),
-    COMPAREMENUS("compare_menus")
+    COMPAREMENUS("comparemenus"),
 }

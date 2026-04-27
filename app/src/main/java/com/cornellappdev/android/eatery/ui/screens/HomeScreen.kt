@@ -9,12 +9,13 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,21 +31,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FabPosition
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -64,20 +62,19 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBotSheet
+import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBottomSheet
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.EateryCardStyle
@@ -92,23 +89,25 @@ import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.EateryHomeSection
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
+import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel.HomeUiState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.LocationHandler
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalPermissionsApi::class,
-    ExperimentalLifecycleComposeApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPermissionsApi::class
 )
 @Composable
 fun HomeScreen(
@@ -120,18 +119,9 @@ fun HomeScreen(
     onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
     onNotificationsClick: () -> Unit
 ) {
+    val resolvedDarkMode = rememberResolvedDarkMode()
     val context = LocalContext.current
     val uiState = homeViewModel.uiState.collectAsStateWithLifecycle().value
-    val favorites = uiState.favoriteEateries
-    val nearestEateries = uiState.nearestEateries
-    val eateriesApiResponse = uiState.eateriesApiResponse
-    val filters = uiState.selectedFilters
-    val notificationFlowCompleted = uiState.notificationFlowCompleted
-
-    NetworkErrorToast(
-        error = uiState.error,
-        onErrorShown = homeViewModel::clearError
-    )
 
     val notificationPermissionState =
         rememberMultiplePermissionsState(
@@ -149,34 +139,101 @@ fun HomeScreen(
         homeViewModel.updateFavoritesIfTokensConfigured()
     }
 
-    val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
+    HomeScreenContent(
+        uiState = uiState,
+        showBottomBar = showBottomBar,
+        onSearchClick = onSearchClick,
+        onEateryClick = onEateryClick,
+        onFavoriteExpand = onFavoriteExpand,
+        onCompareMenusClick = onCompareMenusClick,
+        onNotificationsClick = onNotificationsClick,
+        onFavoriteClick = { eatery, favorite ->
+            if (eatery.id != null && eatery.name != null) {
+                if (favorite) {
+                    homeViewModel.addFavoriteEatery(eatery.id, eatery.name)
+                } else {
+                    homeViewModel.removeFavoriteEatery(eatery.id, eatery.name)
+                }
+            }
+        },
+        onFilterClicked = homeViewModel::onToggleFilterPressed,
+        onResetFilters = homeViewModel::onResetFiltersClicked,
+        filters = homeViewModel.homeScreenFilters,
+        onAddPaymentMethodFilters = homeViewModel::addPaymentMethodFilters,
+        onReload = homeViewModel::pingEateries,
+        onErrorShown = homeViewModel::clearError,
+        onUpdateNotificationFlowStatus = homeViewModel::setNotificationFlowCompleted,
+        isDarkMode = resolvedDarkMode,
+        showPermissionDialog = FirstTimeShown.firstTimeShown
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeScreenContent(
+    uiState: HomeUiState,
+    showBottomBar: MutableState<Boolean>,
+    onSearchClick: () -> Unit,
+    onEateryClick: (eatery: Eatery) -> Unit,
+    onFavoriteExpand: () -> Unit,
+    onCompareMenusClick: (selectedEateriesIds: List<Int>) -> Unit,
+    onNotificationsClick: () -> Unit,
+    onFavoriteClick: (Eatery, Boolean) -> Unit,
+    onFilterClicked: (Filter) -> Unit,
+    onResetFilters: () -> Unit,
+    filters: List<Filter>,
+    onAddPaymentMethodFilters: (List<Filter>) -> Unit,
+    onReload: () -> Unit,
+    onErrorShown: () -> Unit,
+    onUpdateNotificationFlowStatus: (Boolean) -> Unit,
+    isDarkMode: Boolean,
+    showPermissionDialog: Boolean,
+) {
+    val favorites = uiState.favoriteEateries
+    val nearestEateries = uiState.nearestEateries
+    val eateriesApiResponse = uiState.eateriesApiResponse
+    val selectedFilters = uiState.selectedFilters
+    val notificationFlowCompleted = uiState.notificationFlowCompleted
+
+    NetworkErrorToast(
+        error = uiState.error,
+        onErrorShown = onErrorShown
+    )
+
+    val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    var showFAB by remember { mutableStateOf(true) }
+
+    var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
 
     // Here a DisposableEffect is launched when the bottom sheet opens.
     // When it disappears it's from the view hierarchy, which will cause
     // onDispose to be called, adding/resetting the payment filters.
-    if (modalBottomSheetState.currentValue != ModalBottomSheetValue.Hidden) {
+    if (showBottomSheet && sheetContent == BottomSheetContent.PAYMENT_METHODS_AVAILABLE) {
         DisposableEffect(Unit) {
             onDispose {
                 // Handles the case where filters reset as well (by adding an empty list).
-                homeViewModel.addPaymentMethodFilters(selectedPaymentMethodFilters)
+                onAddPaymentMethodFilters(selectedPaymentMethodFilters)
             }
         }
     }
 
-    var showFAB by remember {
-        mutableStateOf(true)
+    val closeBottomSheet: () -> Unit = {
+        coroutineScope.launch {
+            modalBottomSheetState.hide()
+            showBottomSheet = false
+        }
+    }
+    val openBottomSheet: (BottomSheetContent) -> Unit = { content ->
+        sheetContent = content
+        showBottomSheet = true
     }
 
-    val scaffoldState = rememberScaffoldState()
-    var sheetContent by remember { mutableStateOf(BottomSheetContent.PAYMENT_METHODS_AVAILABLE) }
-
-    LaunchedEffect(modalBottomSheetState.currentValue) {
-        if (modalBottomSheetState.currentValue == ModalBottomSheetValue.Hidden) {
+    LaunchedEffect(modalBottomSheetState.isVisible, showBottomSheet) {
+        if (!modalBottomSheetState.isVisible && !showBottomSheet) {
             showFAB = true
         }
     }
@@ -190,7 +247,9 @@ fun HomeScreen(
     var isGridView: Boolean by remember { mutableStateOf(false) }
 
     Scaffold(
-        scaffoldState = scaffoldState,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(currentColors.backgroundDefault),
         floatingActionButton = {
             if (eateriesApiResponse is EateryApiResponse.Success && eateriesApiResponse.data.size >= 2) {
                 CompareMenusFAB(
@@ -201,113 +260,95 @@ fun HomeScreen(
                     }
 
                     showFAB = false
-                    coroutineScope.launch {
-                        sheetContent = BottomSheetContent.COMPARE_MENUS
-                        modalBottomSheetState.show()
-                    }
+                    openBottomSheet(BottomSheetContent.COMPARE_MENUS)
                 }
             }
         },
         floatingActionButtonPosition = FabPosition.End,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         content = { paddingValues ->
             Box(
                 modifier = Modifier
-                    .background(Color.White)
                     .padding(paddingValues)
+                    .fillMaxSize()
+                    .background(currentColors.backgroundDefault)
             ) {
-                ModalBottomSheetLayout(
-                    sheetState = modalBottomSheetState,
-                    sheetShape = RoundedCornerShape(
-                        bottomStart = 0.dp,
-                        bottomEnd = 0.dp,
-                        topStart = 12.dp,
-                        topEnd = 12.dp
-                    ),
-                    sheetElevation = 8.dp,
-                    sheetContent = SheetContent(
-                        sheetContent,
-                        selectedPaymentMethodFilters,
-                        coroutineScope,
-                        modalBottomSheetState,
-                        onCompareMenusClick
-                    ),
-                    content = {
-                        HomeScrollableMainContent(
-                            onSearchClick = onSearchClick,
-                            onEateryClick = onEateryClick,
-                            onFavoriteExpand = onFavoriteExpand,
-                            eateriesApiResponse = eateriesApiResponse,
-                            favorites = favorites,
-                            nearestEateries = nearestEateries,
-                            selectedFilters = filters,
-                            onFavoriteClick = { eatery, favorite ->
-                                if (eatery.id != null && eatery.name != null) {
-                                    if (favorite) {
-                                        homeViewModel.addFavoriteEatery(eatery.id, eatery.name)
-                                    } else {
-                                        homeViewModel.removeFavoriteEatery(eatery.id, eatery.name)
-                                    }
-                                }
-                            },
-                            onFilterClicked = homeViewModel::onToggleFilterPressed,
-                            onResetFilters = homeViewModel::onResetFiltersClicked,
-                            filters = homeViewModel.homeScreenFilters,
-                            isGridView = isGridView,
-                            onListClick = { isGridView = false },
-                            onGridClick = { isGridView = true },
-                            onNotificationsClick = onNotificationsClick,
-                            onReload = homeViewModel::pingEateries
+                if (showBottomSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = closeBottomSheet,
+                        sheetState = modalBottomSheetState,
+                        containerColor = currentColors.backgroundDefault,
+                        contentColor = currentColors.textPrimary,
+                        shape = RoundedCornerShape(
+                            bottomStart = 0.dp,
+                            bottomEnd = 0.dp,
+                            topStart = 12.dp,
+                            topEnd = 12.dp
+                        )
+                    ) {
+                        SheetContent(
+                            sheetContent = sheetContent,
+                            selectedPaymentMethodFilters = selectedPaymentMethodFilters,
+                            onDismiss = closeBottomSheet,
+                            onCompareMenusClick = { selectedEateriesIds ->
+                                closeBottomSheet()
+                                onCompareMenusClick(selectedEateriesIds)
+                            }
                         )
                     }
+                }
+
+                HomeScrollableMainContent(
+                    onSearchClick = onSearchClick,
+                    onEateryClick = onEateryClick,
+                    onFavoriteExpand = onFavoriteExpand,
+                    eateriesApiResponse = eateriesApiResponse,
+                    favorites = favorites,
+                    nearestEateries = nearestEateries,
+                    selectedFilters = selectedFilters,
+                    onFavoriteClick = onFavoriteClick,
+                    onFilterClicked = onFilterClicked,
+                    onResetFilters = onResetFilters,
+                    filters = filters,
+                    isGridView = isGridView,
+                    onListClick = { isGridView = false },
+                    onGridClick = { isGridView = true },
+                    onNotificationsClick = onNotificationsClick,
+                    onReload = onReload,
+                    isDarkMode = isDarkMode
                 )
 
-                if (FirstTimeShown.firstTimeShown) {
+                if (showPermissionDialog) {
                     PermissionRequestDialog(
                         showBottomBar = showBottomBar,
                         notificationFlowStatus = notificationFlowCompleted,
-                        updateNotificationFlowStatus = {
-                            homeViewModel.setNotificationFlowCompleted(it)
-                        }
+                        updateNotificationFlowStatus = onUpdateNotificationFlowStatus
                     )
                 }
             }
-        })
+        }
+    )
 }
 
 @Composable
-@OptIn(ExperimentalMaterialApi::class)
 private fun SheetContent(
     sheetContent: BottomSheetContent,
     selectedPaymentMethodFilters: SnapshotStateList<Filter>,
-    coroutineScope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState,
+    onDismiss: () -> Unit,
     onCompareMenusClick: (List<Int>) -> Unit
-): @Composable ColumnScope.() -> Unit = {
+) {
     when (sheetContent) {
         BottomSheetContent.PAYMENT_METHODS_AVAILABLE -> {
             PaymentMethodsBottomSheet(
                 selectedFilters = selectedPaymentMethodFilters,
-                hide = {
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                    }
-                }
+                hide = onDismiss
             )
         }
 
         BottomSheetContent.COMPARE_MENUS -> {
-            CompareMenusBotSheet(
-                onDismiss = {
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                    }
-                },
-                onCompareMenusClick = { selectedEateriesIds ->
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                    }
-                    onCompareMenusClick(selectedEateriesIds)
-                }
+            CompareMenusBottomSheet(
+                onDismiss = onDismiss,
+                onCompareMenusClick = onCompareMenusClick
             )
         }
 
@@ -317,7 +358,6 @@ private fun SheetContent(
 
 @OptIn(
     ExperimentalFoundationApi::class,
-    ExperimentalMaterialApi::class,
 )
 @Composable
 private fun HomeScrollableMainContent(
@@ -336,7 +376,8 @@ private fun HomeScrollableMainContent(
     onListClick: () -> Unit,
     onGridClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    onReload: () -> Unit
+    onReload: () -> Unit,
+    isDarkMode: Boolean
 ) {
     val listState = rememberLazyListState()
     val filterRowState = rememberLazyListState()
@@ -374,7 +415,8 @@ private fun HomeScrollableMainContent(
                     isGridView,
                     onListClick,
                     onGridClick,
-                    nearestEateries
+                    nearestEateries,
+                    isDarkMode
                 )
             }
         }
@@ -471,24 +513,24 @@ fun ErrorContent(onTryAgain: () -> Unit) {
     ) {
         Icon(
             painter = painterResource(R.drawable.ic_error),
-            contentDescription = "Error Icon",
+            contentDescription = stringResource(R.string.a11y_home_error_icon_desc),
             modifier = Modifier.size(72.dp),
-            tint = Color.Red
+            tint = currentColors.error
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Hmm, no chow here (yet).",
+            text = stringResource(R.string.home_error_title),
             fontSize = 20.sp,
             fontWeight = FontWeight.SemiBold,
-            color = Color(0xFF1B1F23),
+            color = currentColors.textPrimary,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "We ran into an issue loading this page. Check your connection or try reloading the page.",
+            text = stringResource(R.string.home_error_description),
             fontSize = 18.sp,
             fontWeight = FontWeight.Normal,
-            color = Color(0xFF1B1F23),
+            color = currentColors.textPrimary,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -498,10 +540,11 @@ fun ErrorContent(onTryAgain: () -> Unit) {
                 .width(109.dp)
                 .height(34.dp)
                 .clip(RoundedCornerShape(17.dp)),
-            colors = ButtonDefaults.buttonColors(containerColor = EateryBlue)
+            colors = ButtonDefaults.buttonColors(containerColor = currentColors.accentPrimary)
         ) {
             Text(
-                text = "Try Again", color = Color.White,
+                text = stringResource(R.string.home_error_try_again),
+                color = currentColors.textPrimary,
                 fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
                 lineHeight = 1.25.em
@@ -510,13 +553,72 @@ fun ErrorContent(onTryAgain: () -> Unit) {
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun PreviewErrorContent() = EateryPreview {
-    ErrorContent(onTryAgain = {})
+    PreviewHomeScreen(
+        uiState = HomeUiState(eateriesApiResponse = EateryApiResponse.Error)
+    )
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@DualModePreview
+@Composable
+private fun PreviewSuccessContent() = EateryPreview {
+    val eateries = listOf(
+        PreviewData.mockEatery(1).copy(name = "Okenshields"),
+        PreviewData.mockEatery(2).copy(name = "Becker House Dining Room"),
+        PreviewData.mockEatery(3).copy(name = "Morrison Dining")
+    )
+    val favorites = listOf(eateries.first())
+
+    PreviewHomeScreen(
+        uiState = HomeUiState(
+            eateriesApiResponse = EateryApiResponse.Success(eateries),
+            favoriteEateries = favorites,
+            nearestEateries = eateries
+        )
+    )
+}
+
+@DualModePreview
+@Composable
+private fun PreviewPendingContent() = EateryPreview {
+    PreviewHomeScreen(
+        uiState = HomeUiState(eateriesApiResponse = EateryApiResponse.Pending)
+    )
+}
+
+@Composable
+private fun PreviewHomeScreen(uiState: HomeUiState) {
+    HomeScreenContent(
+        uiState = uiState,
+        showBottomBar = remember { mutableStateOf(true) },
+        onSearchClick = {},
+        onEateryClick = {},
+        onFavoriteExpand = {},
+        onCompareMenusClick = {},
+        onNotificationsClick = {},
+        onFavoriteClick = { _, _ -> },
+        onFilterClicked = {},
+        onResetFilters = {},
+        filters = listOf(
+            Filter.FromEateryFilter.North,
+            Filter.FromEateryFilter.West,
+            Filter.FromEateryFilter.Central,
+            Filter.FromEateryFilter.Swipes,
+            Filter.FromEateryFilter.BRB,
+            Filter.RequiresFavoriteEateries.Favorites,
+            Filter.FromEateryFilter.Under10,
+        ),
+        onAddPaymentMethodFilters = {},
+        onReload = {},
+        onErrorShown = {},
+        onUpdateNotificationFlowStatus = {},
+        isDarkMode = isSystemInDarkTheme(),
+        showPermissionDialog = false,
+    )
+}
+
 private fun LazyListScope.regularContent(
     eateriesApiResponse: EateryApiResponse.Success<List<Eatery>>,
     selectedFilters: List<Filter>,
@@ -529,7 +631,8 @@ private fun LazyListScope.regularContent(
     isGridView: Boolean,
     onListClick: () -> Unit,
     onGridClick: () -> Unit,
-    nearestEateries: List<Eatery>
+    nearestEateries: List<Eatery>,
+    isDarkMode: Boolean
 ) {
     val eateries = eateriesApiResponse.data
 
@@ -547,6 +650,7 @@ private fun LazyListScope.regularContent(
                         isFavorite = favorites.any { favoriteEatery ->
                             favoriteEatery.id == eatery.id
                         },
+                        modifier = Modifier.fillMaxWidth(),
                         onFavoriteClick = {
                             onFavoriteClick(eatery, it)
                         }
@@ -574,7 +678,7 @@ private fun LazyListScope.regularContent(
             val showFake = favorites.isEmpty() && lastFavorite != null
 
             EateryHomeSection(
-                title = "Favorites",
+                title = stringResource(R.string.favorites_title),
                 eateries = favorites,
                 overflowEatery = if (showFake) lastFavorite else null,
                 onEateryClick = onEateryClick,
@@ -593,8 +697,9 @@ private fun LazyListScope.regularContent(
                 Text(
                     modifier = Modifier
                         .padding(start = 16.dp, bottom = 12.dp),
-                    text = "All Eateries",
+                    text = stringResource(R.string.all_eateries_title),
                     style = EateryBlueTypography.h4,
+                    color = currentColors.textPrimary
                 )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -602,14 +707,28 @@ private fun LazyListScope.regularContent(
                         .padding(end = 12.dp)
                 ) {
                     Icon(
-                        painter = painterResource(id = if (isGridView) R.drawable.ic_list_view_unselected else R.drawable.ic_list_view_selected),
-                        contentDescription = "List View",
+                        contentDescription = stringResource(R.string.a11y_list_view),
+                        painter = painterResource(
+                            id = when {
+                                isGridView && isDarkMode -> R.drawable.ic_list_view_unselected_dark
+                                isGridView -> R.drawable.ic_list_view_unselected
+                                isDarkMode -> R.drawable.ic_list_view_selected_dark
+                                else -> R.drawable.ic_list_view_unselected
+                            }
+                        ),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onListClick() }
                     )
                     Icon(
-                        painter = painterResource(id = if (isGridView) R.drawable.ic_grid_view_selected else R.drawable.ic_grid_view_unselected),
-                        contentDescription = "Grid View",
+                        contentDescription = stringResource(R.string.a11y_grid_view),
+                        painter = painterResource(
+                            when {
+                                isGridView && isDarkMode -> R.drawable.ic_grid_view_selected_dark
+                                isGridView -> R.drawable.ic_grid_view_selected
+                                isDarkMode -> R.drawable.ic_grid_view_unselected_dark
+                                else -> R.drawable.ic_grid_view_unselected
+                            }
+                        ),
                         tint = Color.Unspecified,
                         modifier = Modifier.clickable { onGridClick() }
                     )
@@ -634,6 +753,7 @@ private fun LazyListScope.regularContent(
                             EateryCard(
                                 eatery = eatery,
                                 isFavorite = favorites.any { it.id == eatery.id },
+                                modifier = Modifier.fillMaxWidth(),
                                 onFavoriteClick = { isFavorite ->
                                     onFavoriteClick(eatery, isFavorite)
                                 },
@@ -661,6 +781,7 @@ private fun LazyListScope.regularContent(
                         isFavorite = favorites.any { favoriteEatery ->
                             favoriteEatery.id == eatery.id
                         },
+                        modifier = Modifier.fillMaxWidth(),
                         onFavoriteClick = {
                             onFavoriteClick(eatery, it)
                         }
@@ -684,7 +805,7 @@ private fun HomeStickyHeader(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(EateryBlue)
+            .background(currentColors.backgroundSecondary)
             .then(Modifier.statusBarsPadding())
             .padding(bottom = 7.dp),
     ) {
@@ -700,8 +821,8 @@ private fun HomeStickyHeader(
                     Text(
                         modifier = Modifier.align(Alignment.Center),
                         textAlign = TextAlign.Center,
-                        text = "Eatery",
-                        color = Color.White,
+                        text = stringResource(R.string.onboarding_eatery_title),
+                        color = currentColors.oppTextPrimary,
                         style = TextStyle(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 20.sp
@@ -718,7 +839,7 @@ private fun HomeStickyHeader(
                         Icon(
                             Icons.Default.Search,
                             contentDescription = Icons.Default.Search.name,
-                            tint = Color.White
+                            tint = currentColors.backgroundDefault
                         )
                     }
                 }
@@ -736,7 +857,7 @@ private fun HomeStickyHeader(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_eaterylogo),
                             contentDescription = null,
-                            tint = Color.White
+                            tint = currentColors.backgroundDefault
                         )
                     }
                     Row(
@@ -745,15 +866,15 @@ private fun HomeStickyHeader(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Eatery",
-                            color = Color.White,
+                            text = stringResource(R.string.onboarding_eatery_title),
+                            color = currentColors.oppTextPrimary,
                             style = EateryBlueTypography.h2
                         )
                         if (BuildConfig.ENABLE_NOTIFICATIONS) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_bell),
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = currentColors.backgroundDefault,
                                 modifier = Modifier.clickable {
                                     onNotificationsClick()
                                 }
@@ -777,7 +898,7 @@ private fun HomeMainHeader(
     SearchBar(
         searchText = "",
         onSearchTextChange = { },
-        placeholderText = "Search for grub...",
+        placeholderText = stringResource(R.string.search_placeholder_grub),
         modifier = Modifier
             .padding(horizontal = 16.dp)
             .padding(top = 12.dp, bottom = 6.dp)

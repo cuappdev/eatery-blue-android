@@ -1,5 +1,3 @@
-@file:Suppress("AddExplicitTargetToParameterAnnotation")
-
 package com.cornellappdev.android.eatery.data.models
 
 import com.squareup.moshi.Json

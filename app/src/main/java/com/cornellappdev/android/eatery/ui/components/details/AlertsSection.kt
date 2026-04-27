@@ -10,19 +10,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.LightBlue
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import java.time.LocalDateTime
 
 /**
@@ -47,16 +46,18 @@ fun AlertsSection(eatery: Eatery) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(LightBlue)
+                        .background(currentColors.accentPrimary)
                 ) {
                     Icon(
-                        Icons.Default.Info, contentDescription = "Warning", tint = EateryBlue
+                        Icons.Default.Info,
+                        contentDescription = "Warning",
+                        tint = currentColors.backgroundSecondary
                     )
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Text(
                         text = it.description,
                         style = EateryBlueTypography.body2,
-                        color = EateryBlue,
+                        color = currentColors.textPrimary,
                         modifier = Modifier.padding(start = 5.dp)
                     )
                 }

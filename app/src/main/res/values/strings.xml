@@ -1,7 +1,239 @@
 <resources>
     <string name="app_name">Eatery</string>
+
+    <string name="favorites_load_error">Failed to obtain eatery data</string>
     <string name="wrong_empty_menus">We work with Cornell Dining to get the most accurate menus to students. Sometimes, eateries change menus on the fly or run out of a certain item and have to serve something different.\n\nIf you see inaccurate menus, help us improve Eatery by letting us know what’s wrong.</string>
     <string name="eatery_closed_when_open">We work with Cornell Dining to get the most accurate hours to students. However, sometimes hours change suddenly because of special events or weather.\n\nIf you see incorrect hours, help us improve Eatery by letting us know the correct hours.</string>
     <string name="wait_time_longer">We work with Cornell Dining to get the most accurate wait times to students. Sometimes, wait times can grow when classes or events end around meal times.\n\nIf you see inaccurate wait times, help us improve Eatery by letting us know how long you waited.</string>
     <string name="order_on_eatery">We would love to develop an ordering app for Cornell. Unfortunately, Cornell works with GET™ App instead of us.\n\nIf you’d like them to change their mind, you can"</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_about_title">About Eatery</string>
+    <string name="settings_about_description">Learn more about Cornell AppDev</string>
+    <string name="settings_app_icon_title">App Icon</string>
+    <string name="settings_app_icon_description">Select the Eatery app icon for your phone</string>
+    <string name="settings_change">Change</string>
+    <string name="settings_favorites_title">Favorites</string>
+    <string name="settings_favorites_description">Manage your favorite eateries and items</string>
+    <string name="settings_notifications_title">Notifications</string>
+    <string name="settings_notifications_description">Manage item and promotional notifications</string>
+    <string name="settings_privacy_title">Privacy</string>
+    <string name="settings_privacy_description">Manage permissions and analytics</string>
+    <string name="settings_legal_title">Legal</string>
+    <string name="settings_legal_description">Find terms, conditions, and privacy policy</string>
+    <string name="settings_support_title">Support</string>
+    <string name="settings_support_description">Report issues and contact Cornell AppDev</string>
+    <string name="settings_logout">Log out</string>
+
+    <string name="about_title">About Eatery</string>
+    <string name="about_description">Learn more about Cornell AppDev</string>
+    <string name="about_designed_and_developed_by">DESIGNED AND DEVELOPED BY</string>
+    <string name="about_cornell">Cornell</string>
+    <string name="about_appdev">AppDev</string>
+    <string name="about_website_button">Visit our website</string>
+
+    <string name="legal_title">Legal</string>
+    <string name="legal_description">Find terms, conditions, and privacy policy</string>
+    <string name="legal_terms_and_conditions">Terms and Conditions</string>
+    <string name="legal_privacy_policy">Privacy Policy</string>
+
+    <string name="notifications_title">Notifications</string>
+    <string name="notifications_description">Manage item and promotional notifications</string>
+    <string name="notifications_all_title">All Notifications</string>
+    <string name="notifications_favorite_item_title">Favorite item being served</string>
+    <string name="notifications_favorite_item_description">Get notified when favorite items are served</string>
+    <string name="notifications_favorite_eatery_open_title">Favorite eatery opening</string>
+    <string name="notifications_favorite_eatery_open_description">Get notified when your favorite eatery opens</string>
+    <string name="notifications_favorite_eatery_close_title">Favorite eatery closing</string>
+    <string name="notifications_favorite_eatery_close_description">Get notified when your favorite eatery closes</string>
+
+    <string name="privacy_title">Privacy</string>
+    <string name="privacy_description">Manage permissions and analytics</string>
+    <string name="privacy_permissions_heading">Permissions</string>
+    <string name="privacy_location_access_title">Location Access</string>
+    <string name="privacy_location_access_description">Used to find eateries near you</string>
+    <string name="privacy_notification_access_title">Notification Access</string>
+    <string name="privacy_notification_access_description">Used to send device notifications</string>
+    <string name="privacy_analytics_heading">Analytics</string>
+    <string name="privacy_share_with_cornell_appdev_title">Share with Cornell AppDev</string>
+    <string name="privacy_share_with_cornell_appdev_description">Help us improve products and services</string>
+    <string name="privacy_policy_title">Privacy Policy</string>
+
+    <string name="support_title">Support</string>
+    <string name="support_description">Report issues and contact Cornell AppDev</string>
+    <string name="support_make_eatery_better">Make Eatery Better</string>
+    <string name="support_make_eatery_better_description">Help us improve Eatery by letting us know what’s wrong.</string>
+    <string name="report_an_issue">Report an Issue</string>
+    <string name="support_email_us">Shoot us an email</string>
+    <string name="support_faqs_heading">Frequently Asked Questions</string>
+    <string name="support_faq_wrong_menus_title">Why do I see wrong or empty menus?</string>
+    <string name="support_faq_closed_hours_title">Why is an eatery closed when it says it should be open?</string>
+    <string name="support_faq_wait_times_title">Why are the wait times longer?</string>
+    <string name="support_faq_order_title">Why can’t I order food on Eatery?</string>
+    <string name="support_faq_order_email_prompt">send them an email.</string>
+    <string name="support_email_chooser_title">Choose an Email client :</string>
+    <string name="support_order_food_subject">Ordering Food on Eatery</string>
+    <string name="support_reporting_issue_subject">Eatery - Reporting an Issue</string>
+    <string name="support_team_email_recipient">team@cornellappdev.com</string>
+    <string name="support_order_food_email_recipient">dining@cornell.edu</string>
+    <string name="support_mailto_template">mailto:%1$s?subject=%2$s</string>
+
+    <string name="upcoming_menus_title">Upcoming Menus</string>
+    <string name="menus_title">Menus</string>
+    <string name="meal_breakfast">Breakfast</string>
+    <string name="meal_lunch">Lunch</string>
+    <string name="meal_dinner">Dinner</string>
+    <string name="meal_late_dinner">Late Dinner</string>
+    <string name="meal_time_breakfast">7:30 AM-10:30 AM</string>
+    <string name="meal_time_lunch">10:30 AM-4:00 PM</string>
+    <string name="meal_time_dinner">5:00 PM-8:30 PM</string>
+    <string name="meal_time_late_dinner">8:30 PM-10:30 PM</string>
+    <string name="a11y_meal_selected_breakfast">Breakfast selected</string>
+    <string name="a11y_meal_select_breakfast">Select breakfast</string>
+    <string name="a11y_meal_selected_lunch">Lunch selected</string>
+    <string name="a11y_meal_select_lunch">Select lunch</string>
+    <string name="a11y_meal_selected_dinner">Dinner selected</string>
+    <string name="a11y_meal_select_dinner">Select dinner</string>
+    <string name="a11y_meal_selected_late_dinner">Late dinner selected</string>
+    <string name="a11y_meal_select_late_dinner">Select late dinner</string>
+    <string name="a11y_account_selected">%1$s selected</string>
+    <string name="a11y_account_select">Select %1$s</string>
+    <string name="a11y_settings">Settings</string>
+    <string name="show_menu">Show menu</string>
+    <string name="reset">Reset</string>
+    <string name="close">Close</string>
+    <string name="close_upcoming">Close Upcoming</string>
+
+    <string name="app_store_rating_positive_message">Awesome! We’d love to hear more in a review</string>
+    <string name="app_store_rating_positive_button">Open PlayStore</string>
+    <string name="app_store_rating_negative_message">Sorry to hear that.</string>
+    <string name="app_store_rating_negative_button">Visit support</string>
+    <string name="app_store_rating_question">How is your experience so far?</string>
+
+    <string name="no_eatery_found">No eatery found…</string>
+    <string name="reset_filters">Reset filters</string>
+    <string name="expand_filters">Expand filters</string>
+    <string name="change_date">Change date</string>
+    <string name="back">Back</string>
+    <string name="search">Search</string>
+    <string name="favorites_title">Favorites</string>
+    <string name="account_title">Account</string>
+    <string name="account_meal_plan">Meal Plan</string>
+    <string name="account_type_meal_swipes">Meal Swipes</string>
+    <string name="account_type_big_red_bucks">Big Red Bucks</string>
+    <string name="account_type_city_bucks">City Bucks</string>
+    <string name="account_type_laundry">Laundry</string>
+    <string name="account_search_transactions_placeholder">Search for transactions…</string>
+    <string name="account_past_30_days">Past 30 Days</string>
+    <string name="account_show_transactions">Show transactions</string>
+    <string name="a11y_change_account_type">Change account type</string>
+
+    <string name="permission_location_message">Location permissions are necessary to show you eateries that are the closest to you!</string>
+    <string name="permission_location_message_with_settings">Location permissions are necessary to show you eateries that are the closest to you!\n\nPlease click the button below to go to the settings to enable location permissions.</string>
+    <string name="permission_location_settings_message">Please click the button below to go to the settings to enable location permissions.</string>
+    <string name="request_permission">Request Permission</string>
+    <string name="open_settings">Open Settings</string>
+
+    <string name="a11y_home_error_icon_desc">Error Icon</string>
+    <string name="home_error_title">Hmm, no chow here (yet).</string>
+    <string name="home_error_description">We ran into an issue loading this page. Check your connection or try reloading the page.</string>
+    <string name="home_error_try_again">Try Again</string>
+    <string name="a11y_list_view">List View</string>
+    <string name="a11y_grid_view">Grid View</string>
+    <string name="all_eateries_title">All Eateries</string>
+
+    <string name="eatery_detail_error">Cannot load Eatery Details</string>
+    <string name="loading">Loading…</string>
+    <string name="eatery_detail_location_with_summary">%1$s · %2$s</string>
+    <string name="eatery_detail_location_only">%1$s</string>
+    <string name="order_online">Order online</string>
+    <string name="get_directions">Get directions</string>
+    <string name="hours_title">Hours</string>
+    <string name="make_eatery_better">Make Eatery Better</string>
+    <string name="make_eatery_better_description">Help us make this info more accurate by letting us know what’s wrong.</string>
+    <string name="a11y_eatery_image">Eatery Image</string>
+    <string name="no_app_available_to_open_this_link">No app available to open this link.</string>
+    <string name="no_maps_app_available_on_this_device">No maps app available on this device.</string>
+    <string name="closed">Closed</string>
+    <string name="closing_at">Closing at %1$s</string>
+    <string name="open_until">Open until %1$s</string>
+    <string name="unknown_location">Unknown location</string>
+    <string name="menu_time_range">%1$s - %2$s</string>
+    <string name="week_day_time_range">%1$s - %2$s</string>
+    <string name="a11y_expand_menu">Expand menu</string>
+    <string name="bullet_separator">•</string>
+    <string name="unknown_item">Unknown</string>
+    <string name="view_eatery_details">View Eatery Details</string>
+    <string name="recommended_for_you">Recommended for You:</string>
+    <string name="meal_swipes_allowed">Meal swipes allowed</string>
+    <string name="cash_or_credit_only">Cash or credit only</string>
+    <string name="closing_soon">Closing soon</string>
+    <string name="closing_in_minutes">Closing in %1$d min</string>
+    <string name="min_walk">%1$s min walk</string>
+    <string name="a11y_search_icon">Search</string>
+    <string name="search_cancel">Cancel</string>
+    <string name="search_placeholder_menu">Search the menu…</string>
+    <string name="search_placeholder_grub">Search for grub…</string>
+    <string name="search_favorites">Favorites</string>
+    <string name="search_recent_searches">Recent Searches</string>
+
+    <string name="notifications_home_title">Notifications</string>
+    <string name="notifications_home_favorite_items">Favorite Items</string>
+
+    <string name="nearest_title">Nearest to You</string>
+    <string name="nearest_empty_message">You currently have no favorite eateries!</string>
+
+    <string name="onboarding_eatery_title">Eatery</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_cornell">Cornell</string>
+    <string name="onboarding_appdev">AppDev</string>
+
+    <string name="payment_methods_title">Payment Methods</string>
+    <string name="payment_methods_close">Close</string>
+    <string name="payment_methods_show_results">Show results</string>
+    <string name="payment_methods_reset">Reset</string>
+    <string name="payment_methods_meal_swipes">Meal Swipes</string>
+    <string name="payment_methods_brbs">BRBs</string>
+    <string name="payment_methods_cash_or_credit">Cash or credit</string>
+    <string name="payment_methods_pay_with">Pay with</string>
+    <string name="payment_methods_all">all payment methods</string>
+    <string name="payment_methods_or">or</string>
+    <string name="favorite_button_add">Add to favorites</string>
+    <string name="favorite_button_remove">Remove from favorites</string>
+    <string name="today">Today</string>
+    <string name="a11y_notification_star_icon">Notification Star Icon</string>
+    <string name="compare_menus_title">Compare Menus</string>
+    <string name="compare_menus_no_menu">Sorry, there is no menu available now.</string>
+    <string name="done">Done</string>
+
+    <string name="report_title">Report an Issue</string>
+    <string name="report_type_heading">Type of issue</string>
+    <string name="report_choose_option">Choose an option…</string>
+    <string name="report_description_heading">Description</string>
+    <string name="report_description_hint">Tell us what’s wrong…</string>
+    <string name="report_error_unable_to_send">Unable to send report. Please try again.</string>
+    <string name="report_submit">Submit</string>
+    <string name="report_issue_item">Inaccurate or missing item</string>
+    <string name="report_issue_price">Different price than listed</string>
+    <string name="report_issue_hours">Incorrect hours</string>
+    <string name="report_issue_wait_times">Inaccurate wait times</string>
+    <string name="report_issue_description">Inaccurate description</string>
+    <string name="report_issue_other">Other</string>
+
+    <string name="network_action_add_favorite_eatery">add favorite eatery</string>
+    <string name="network_action_remove_favorite_eatery">remove favorite eatery</string>
+    <string name="network_action_add_favorite_item">add favorite item</string>
+    <string name="network_action_remove_favorite_item">remove favorite item</string>
+    <string name="network_action_update_favorites">sync favorites</string>
+    <string name="network_action_send_report">send report</string>
+    <string name="network_action_link_get_account">link account</string>
+    <string name="network_action_get_financials">load account information</string>
+    <string name="network_error_message">Failed to %1$s: %2$s</string>
+
+    <string name="login_title">Log into Eatery</string>
+    <string name="login_description">Log in with your Cornell NetID to see your account balance and history</string>
+    <string name="login_button_log_in">Log in</string>
+    <string name="login_button_logging_in">Logging in…</string>
+    <string name="a11y_login_back_arrow">Back Arrow</string>
+    <string name="a11y_login_eatery_logo">Eatery logo</string>
 </resources>

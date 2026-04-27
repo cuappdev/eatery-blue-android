@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import ItemFavoritesCardViewState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -8,12 +7,13 @@ import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
+import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCardViewState
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.Green
+import com.cornellappdev.android.eatery.ui.theme.ErrorLight
+import com.cornellappdev.android.eatery.ui.theme.SuccessLight
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.LocalDate
 import javax.inject.Inject
 
 private val allEateryFilters = listOf(
@@ -106,13 +106,12 @@ class FavoritesViewModel @Inject constructor(
                     )
                 }
 
+                val today = LocalDate.now()
                 val menuItemsToEateries: Map<String, List<Eatery>> =
                     favoriteItems.associateWith { itemName ->
                         allEateries.filter { eatery ->
                             val todayEvents = eatery.events?.filter {
-                                (it.endTimestamp ?: LocalDateTime.MAX) < LocalDateTime.now()
-                                    .withHour(23)
-                                    .withMinute(59)
+                                it.startTimestamp?.toLocalDate() == today
                             }
                             todayEvents?.any { event ->
                                 event.menu?.flatMap { it.items ?: emptyList() }?.any {
@@ -140,28 +139,28 @@ class FavoritesViewModel @Inject constructor(
                         itemName = itemName,
                         availability = if (eateriesByItem.isEmpty()) EateryStatus(
                             "Not available",
-                            GrayThree
-                        ) else EateryStatus("Available today", Green),
-                        mealAvailability = eateriesByItem.groupBy { eatery ->
-                            eatery.events?.find { event ->
-                                event.menu?.any {
-                                    it.items?.any { menuItem -> menuItem.name == itemName } == true
-                                } == true
-                            }?.type
-                        }.mapValues { mapEntry ->
-                            mapEntry.value.mapNotNull { eatery -> eatery.name }
-                        }.mapKeys { (key, _) ->
-                            if (key == null || key !in listOf(
-                                    "Breakfast",
-                                    "Lunch",
-                                    "Late lunch",
-                                    "Brunch",
-                                    "Dinner"
-                                )
-                            ) "Other" else key
+                            ErrorLight
+                        ) else EateryStatus("Available today", SuccessLight),
+                        mealAvailability = buildMap {
+                            eateriesByItem.forEach { eatery ->
+                                eatery.events?.filter { event ->
+                                    event.startTimestamp?.toLocalDate() == today &&
+                                            event.menu?.any { category ->
+                                                category.items?.any { menuItem -> menuItem.name == itemName } == true
+                                            } == true
+                                }?.forEach { event ->
+                                    val mealType = normalizeMealType(event.type ?: "Other")
+                                    getOrPut(mealType) { mutableListOf() }
+                                        .also {
+                                            if (eatery.name != null && eatery.name !in it) it.add(
+                                                eatery.name
+                                            )
+                                        }
+                                }
+                            }
                         }.toSortedMap { s1, s2 -> s1.toSortOrder().compareTo(s2.toSortOrder()) }
                     )
-                }.sortedByDescending { it.availability.statusColor == Green }
+                }.sortedByDescending { it.availability.statusColor == SuccessLight }
 
 
                 FavoritesScreenViewState.Loaded(
@@ -184,31 +183,34 @@ class FavoritesViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), FavoritesUiState())
 
-    private fun String.toSortOrder(): Int = when (this) {
-        "Breakfast" -> 1
-        "Brunch" -> 2
-        "Lunch" -> 3
-        "Late lunch" -> 4
-        "Dinner" -> 5
+    private fun normalizeMealType(raw: String): String {
+        return when (val normalized = raw.replace("_", " ").trim().lowercase()) {
+            "late night", "late_night" -> "Late Dinner"
+            else -> normalized.split(" ").joinToString(" ") { w ->
+                w.replaceFirstChar { it.uppercase() }
+            }
+        }
+    }
+
+    private fun String.toSortOrder(): Int = when (this.lowercase()) {
+        "breakfast" -> 1
+        "brunch" -> 2
+        "lunch" -> 3
+        "late lunch" -> 4
+        "dinner" -> 5
+        "late dinner" -> 6
         else -> Int.MAX_VALUE
     }
 
-    fun toggleFavoriteMenuItem(menuItemName: String) = viewModelScope.launch {
-        val isRemoving = menuItemName in userRepository.favoriteItemsFlow.value
-        val result = if (isRemoving) {
-            userRepository.removeFavoriteItem(menuItemName)
-        } else {
-            userRepository.addFavoriteItem(menuItemName)
-        }
-
-        when (result) {
+    fun removeFavoriteMenuItem(menuItemName: String) = viewModelScope.launch {
+        when (val result = userRepository.removeFavoriteItem(menuItemName)) {
             is Result.Success -> {
                 _error.value = null
             }
 
             is Result.Error -> {
                 _error.value = NetworkUiError.Failed(
-                    if (isRemoving) NetworkAction.RemoveFavoriteItem else NetworkAction.AddFavoriteItem,
+                    NetworkAction.RemoveFavoriteItem,
                     result.error
                 )
             }

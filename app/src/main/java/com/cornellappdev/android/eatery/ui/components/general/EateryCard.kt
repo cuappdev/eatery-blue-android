@@ -22,65 +22,55 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Orange
-import com.cornellappdev.android.eatery.ui.theme.Red
-import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 enum class EateryCardStyle {
     DEFAULT, COMPACT, GRID_VIEW
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalLifecycleComposeApi::class,
-)
 @Composable
 fun EateryCard(
     eatery: Eatery,
     isFavorite: Boolean,
     onFavoriteClick: (Boolean) -> Unit,
-    modifier: Modifier = Modifier
-        .fillMaxWidth(),
+    modifier: Modifier = Modifier,
     style: EateryCardStyle = EateryCardStyle.DEFAULT,
     selectEatery: (eatery: Eatery) -> Unit = {}
 ) {
@@ -111,14 +101,11 @@ fun EateryCard(
         else -> 130.dp
     }
 
-    Card(
-        elevation = 3.dp,
+    ElevatedCard(
         shape = RoundedCornerShape(10.dp),
-        onClick = {
-            selectEatery(eatery)
-        },
-        backgroundColor = Color.White,
-        modifier = modifier
+        colors = CardDefaults.cardColors(containerColor = currentColors.accentPrimary),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        modifier = modifier.clickable { selectEatery(eatery) }
     ) {
         Column {
             Box {
@@ -145,7 +132,13 @@ fun EateryCard(
                                 modifier = Modifier
                                     .height(imageHeight)
                                     .fillMaxWidth()
-                                    .background(colorInterp(progress, GrayOne, GrayThree)),
+                                    .background(
+                                        colorInterp(
+                                            progress,
+                                            currentColors.backgroundSecondary,
+                                            currentColors.backgroundDefault10
+                                        )
+                                    ),
                                 contentDescription = "",
                                 contentScale = ContentScale.Crop
                             )
@@ -189,8 +182,9 @@ fun EateryCard(
                             .padding(top = 12.dp, end = 12.dp)
                             .align(Alignment.TopEnd),
                         shape = RoundedCornerShape(100.dp),
-                        contentColor = Orange,
-                        backgroundColor = Color.White
+                        colors = CardDefaults.cardColors(
+                            containerColor = currentColors.accentPrimary
+                        )
                     ) {
                         Row(
                             modifier = Modifier.padding(
@@ -199,14 +193,19 @@ fun EateryCard(
                             )
                         ) {
                             Icon(
-                                Icons.Outlined.Warning,
-                                contentDescription = "Closing soon",
+                                imageVector = Icons.Outlined.Warning,
+                                tint = currentColors.warning,
+                                contentDescription = stringResource(R.string.closing_soon),
                                 modifier = Modifier.size(ButtonDefaults.IconSize)
                             )
                             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                             Text(
-                                text = "Closing in $xMinutesUntilClosing min",
-                                style = EateryBlueTypography.button
+                                text = stringResource(
+                                    R.string.closing_in_minutes,
+                                    xMinutesUntilClosing
+                                ),
+                                style = EateryBlueTypography.button,
+                                color = currentColors.warning
                             )
                         }
                     }
@@ -224,6 +223,7 @@ fun EateryCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = EateryBlueTypography.h5,
+                        color = currentColors.textPrimary,
                         modifier = Modifier
                             .weight(1f)
                             .padding(end = 30.dp)
@@ -263,15 +263,15 @@ fun GridViewFavoriteWidget(
             .size(40.dp)
             .clickable(
                 interactionSource = interactionSource,
-                indication = rememberRipple(radius = 20.dp),
+                indication = ripple(radius = 20.dp),
                 onClick = onClick
             ),
         shape = CircleShape,
-        color = Color.White
+        color = currentColors.backgroundDefault
     ) {
         Icon(
             imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-            tint = if (isFavorite) Yellow else GrayFive,
+            tint = if (isFavorite) currentColors.favorite else currentColors.textSecondary,
             modifier = Modifier
                 .padding(8.dp),
             contentDescription = null
@@ -286,7 +286,7 @@ fun EateryCardPrimaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardS
         Row {
             Text(
                 text = eatery.location ?: "Unknown location",
-                color = GrayFive,
+                color = currentColors.textSecondary,
                 style = EateryBlueTypography.subtitle2
             )
         }
@@ -307,14 +307,14 @@ fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCar
                 Icon(
                     painter = painterResource(id = R.drawable.ic_walk_small),
                     contentDescription = null,
-                    tint = GrayFive,
+                    tint = currentColors.textSecondary,
                     modifier = Modifier.padding(end = 4.dp, top = 1.dp)
                 )
                 Text(
                     text = walkText,
                     fontSize = 14.sp,
                     fontWeight = FontWeight(500),
-                    color = GrayFive,
+                    color = currentColors.textSecondary,
                     style = EateryBlueTypography.subtitle2
                 )
                 DotSeparator()
@@ -327,9 +327,9 @@ fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCar
                     else if (eatery.isClosingSoon()) "Closing at $openUntil"
                     else ("Open until $openUntil"),
                 style = EateryBlueTypography.subtitle2,
-                color = if (openUntil == null) Red
-                else if (eatery.isClosingSoon()) Yellow
-                else Green
+                color = if (openUntil == null) currentColors.error
+                else if (eatery.isClosingSoon()) currentColors.warning
+                else currentColors.success
             )
         }
     }
@@ -346,12 +346,12 @@ fun EateryCardTertiaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCard
         ) {
             Text(
                 text = "Recommended for You: ",
-                color = GrayFive,
+                color = currentColors.textSecondary,
                 style = EateryBlueTypography.subtitle2
             )
             Text(
                 text = "Carved Roast Beef",
-                color = EateryBlue,
+                color = currentColors.textPrimary,
                 fontStyle = FontStyle.Italic,
                 style = EateryBlueTypography.subtitle2
             )
@@ -360,12 +360,12 @@ fun EateryCardTertiaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCard
         Column(modifier = Modifier.padding(top = 8.dp)) {
             Text(
                 text = "Recommended for You: ",
-                color = GrayFive,
+                color = currentColors.textSecondary,
                 style = EateryBlueTypography.subtitle2
             )
             Text(
                 text = "Carved Roast Beef",
-                color = EateryBlue,
+                color = currentColors.textPrimary,
                 fontStyle = FontStyle.Italic,
                 style = EateryBlueTypography.subtitle2
             )
@@ -377,7 +377,7 @@ fun EateryCardTertiaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCard
 fun DotSeparator() {
     Text(
         text = "·",
-        color = GrayFive,
+        color = currentColors.textSecondary,
         style = EateryBlueTypography.subtitle2,
         modifier = Modifier.padding(horizontal = 5.dp)
     )
@@ -390,7 +390,7 @@ fun EateryMenuSummary(eatery: Eatery) {
         Text(
             text = "Meal swipes allowed",
             maxLines = 1,
-            color = EateryBlue,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.subtitle2
         )
     } else if (!eatery.acceptsBRB() &&
@@ -400,7 +400,7 @@ fun EateryMenuSummary(eatery: Eatery) {
         Text(
             text = "Cash or credit only",
             maxLines = 1,
-            color = Green,
+            color = currentColors.success,
             style = EateryBlueTypography.subtitle2
         )
     } else if (!eatery.menuSummary.isNullOrEmpty()) {
@@ -408,8 +408,42 @@ fun EateryMenuSummary(eatery: Eatery) {
         Text(
             text = eatery.menuSummary,
             maxLines = 1,
-            color = GrayFive,
+            color = currentColors.textSecondary,
             style = EateryBlueTypography.subtitle2
         )
     }
+}
+
+@DualModePreview
+@Composable
+private fun EateryCardPreview() = EateryPreview {
+    EateryCard(
+        eatery = Eatery(
+            id = 1,
+            name = "Test Eatery",
+            location = "Test Location",
+            menuSummary = "Test Menu Summary"
+        ),
+        isFavorite = true,
+        onFavoriteClick = {},
+        modifier = Modifier.fillMaxWidth(),
+        style = EateryCardStyle.DEFAULT
+    )
+}
+
+@DualModePreview
+@Composable
+private fun EateryCardUnfavoritedPreview() = EateryPreview {
+    EateryCard(
+        eatery = Eatery(
+            id = 1,
+            name = "Test Eatery",
+            location = "Test Location",
+            menuSummary = "Test Menu Summary"
+        ),
+        isFavorite = false,
+        onFavoriteClick = {},
+        modifier = Modifier.fillMaxWidth(),
+        style = EateryCardStyle.DEFAULT
+    )
 }

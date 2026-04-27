@@ -12,30 +12,27 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
-import com.cornellappdev.android.eatery.ui.theme.Yellow
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 /**
  * BottomSheet that displays the specific opening times of days in a week.
@@ -51,6 +48,7 @@ fun EateryHourBottomSheet(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(currentColors.backgroundDefault)
             .padding(top = 14.dp)
             .padding(16.dp),
         horizontalAlignment = Alignment.Start
@@ -62,15 +60,15 @@ fun EateryHourBottomSheet(
             Row {
                 Icon(
                     imageVector = Icons.Outlined.Schedule,
-                    contentDescription = "Hours Icon",
-                    tint = Color.Black,
+                    contentDescription = null,
+                    tint = currentColors.textPrimary,
                     modifier = Modifier.size(32.dp)
                 )
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                 Text(
-                    text = "Hours",
+                    text = stringResource(R.string.hours_title),
                     style = EateryBlueTypography.h4,
-                    color = Color.Black
+                    color = currentColors.textPrimary
                 )
             }
             IconButton(
@@ -79,12 +77,12 @@ fun EateryHourBottomSheet(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
                 Icon(
                     Icons.Default.Close,
                     contentDescription = Icons.Default.Close.name,
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
             }
         }
@@ -94,16 +92,17 @@ fun EateryHourBottomSheet(
         val openUntil = eatery.getOpenUntil()
         Text(
             modifier = Modifier.padding(top = 2.dp),
-            text =
-                if (openUntil == null) "Closed"
-                else if (eatery.isClosingSoon()) "Closing at $openUntil"
-                else ("Open until $openUntil"),
+            text = when {
+                openUntil == null -> stringResource(R.string.closed)
+                eatery.isClosingSoon() -> stringResource(R.string.closing_at, openUntil)
+                else -> stringResource(R.string.open_until, openUntil)
+            },
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ),
-            color = if (openUntil == null) Red
-            else if (eatery.isClosingSoon()) Yellow
-            else Green
+            color = if (openUntil == null) currentColors.error
+            else if (eatery.isClosingSoon()) currentColors.warning
+            else currentColors.success
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -115,14 +114,14 @@ fun EateryHourBottomSheet(
                 Text(
                     text = dayRange,
                     fontSize = 16.sp,
-                    color = GrayFive,
+                    color = currentColors.textSecondary,
                     fontWeight = FontWeight(500)
                 )
                 hours.forEach { hour ->
                     Text(
                         text = hour,
                         fontSize = 18.sp,
-                        color = Color.Black,
+                        color = currentColors.textPrimary,
                         fontWeight = FontWeight(600)
                     )
                 }
@@ -141,10 +140,15 @@ fun EateryHourBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = GrayZero),
+            colors = ButtonDefaults.buttonColors(containerColor = currentColors.backgroundDefault),
             shape = RoundedCornerShape(corner = CornerSize(24.dp)),
         ) {
-            Text("Close", color = Color.Black, fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                stringResource(R.string.close),
+                color = currentColors.textPrimary,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+            )
         }
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -154,8 +158,8 @@ fun EateryHourBottomSheet(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                "Report an issue",
-                color = Color.Black,
+                stringResource(R.string.report_an_issue),
+                color = currentColors.textPrimary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
             )

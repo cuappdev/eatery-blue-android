@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class CompareMenusBotViewModel @Inject constructor(
+class CompareMenusBottomViewModel @Inject constructor(
     eateryRepository: EateryRepository,
     private val userRepository: UserRepository,
 ) : ViewModel() {
@@ -131,8 +131,8 @@ class CompareMenusBotViewModel @Inject constructor(
         }
     }
 
-    fun sendReport(issue: String, report: String, eateryid: Int?) = viewModelScope.launch {
-        when (val result = userRepository.sendReport(issue, report, eateryid)) {
+    fun sendReport(issue: String, report: String, eateryId: Int?) = viewModelScope.launch {
+        when (val result = userRepository.sendReport(issue, report, eateryId)) {
             is Result.Success -> {
                 _error.value = null
             }

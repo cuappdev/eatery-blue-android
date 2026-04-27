@@ -14,8 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun SwitchOption(
@@ -26,7 +25,7 @@ fun SwitchOption(
     initialValue: Boolean = true
 ) {
     var switched by remember { mutableStateOf(initialValue) }
-    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         SettingsOption(
             title = title, description = description, onClick = { },
             trailingIcon = {
@@ -35,16 +34,16 @@ fun SwitchOption(
                         .width(51.dp)
                         .height(31.dp),
                     checked = switched,
-                    onCheckedChange = {
-                        switched = !switched
-                        onCheckedChange(switched)
+                    onCheckedChange = { checked ->
+                        switched = checked
+                        onCheckedChange(checked)
                     },
                     enabled = enabled,
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        uncheckedThumbColor = Color.White,
-                        checkedTrackColor = EateryBlue,
-                        uncheckedTrackColor = GrayOne,
+                        checkedThumbColor = currentColors.backgroundDefault,
+                        uncheckedThumbColor = currentColors.backgroundDefault,
+                        checkedTrackColor = currentColors.contentBrand,
+                        uncheckedTrackColor = currentColors.backgroundDefault,
                         checkedBorderColor = Color.Transparent,
                         uncheckedBorderColor = Color.Transparent,
                     ),

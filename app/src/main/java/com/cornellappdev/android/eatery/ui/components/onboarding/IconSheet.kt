@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Icon
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,7 +13,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.ui.theme.LightBlue
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import kotlin.math.absoluteValue
 
 @Composable
@@ -54,7 +54,7 @@ fun IconSheet(
 
                         translationX = offsetLerp
                     },
-                tint = LightBlue
+                tint = currentColors.accentPrimary
             )
 
             // Only adds spacers after the Icons up to the last Icon

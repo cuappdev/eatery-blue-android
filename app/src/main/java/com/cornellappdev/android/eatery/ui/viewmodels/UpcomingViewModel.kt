@@ -1,5 +1,8 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
+import com.cornellappdev.android.eatery.ui.theme.ErrorLight
+import com.cornellappdev.android.eatery.ui.theme.SuccessLight
+import com.cornellappdev.android.eatery.ui.theme.WarningLight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -14,9 +17,6 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.components.upcoming.EateryHours
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCardViewState
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Orange
-import com.cornellappdev.android.eatery.ui.theme.Red
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -106,9 +106,9 @@ class UpcomingViewModel @Inject constructor(
                 } ?: emptyList(),
                 name = name ?: "Unknown Eatery",
                 eateryStatus = when {
-                    isClosed() -> EateryStatus("Closed", Red)
-                    isClosingSoon() -> EateryStatus("Closing Soon", Orange)
-                    else -> EateryStatus("Open", Green)
+                    isClosed() -> EateryStatus("Closed", ErrorLight)
+                    isClosingSoon() -> EateryStatus("Closing Soon", WarningLight)
+                    else -> EateryStatus("Open", SuccessLight)
                 },
             )
         }

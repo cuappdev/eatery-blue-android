@@ -1,25 +1,30 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalLifecycleComposeApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ProfileScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
     onSettingsClicked: () -> Unit,
-    webViewEnabled: Boolean,
     onBackClick: () -> Unit
 ) {
     val uiState = loginViewModel.uiState.collectAsStateWithLifecycle().value
@@ -38,7 +43,6 @@ fun ProfileScreen(
         loading = uiState.isLoading,
         onLoginPressed = loginViewModel::onLoginPressed,
         onSuccess = loginViewModel::onLoginWebViewSuccess,
-        webViewEnabled = webViewEnabled,
         onBackClick = onBackClick,
         onModalHidden = loginViewModel::onLoginExited,
         onSettingsClicked = onSettingsClicked,
@@ -57,7 +61,6 @@ private fun ProfileScreenContent(
     loading: Boolean,
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
-    webViewEnabled: Boolean,
     onBackClick: () -> Unit,
     onModalHidden: () -> Unit,
     accountFilter: TransactionAccountType,
@@ -67,24 +70,83 @@ private fun ProfileScreenContent(
     onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
 ) {
-    if (isLoginState) {
-        LoginPage(
-            loading = loading,
-            onLoginPressed = onLoginPressed,
-            onSuccess = onSuccess,
-            webViewEnabled = webViewEnabled,
-            onBackClick = onBackClick,
-            onModalHidden = onModalHidden
-        )
-    } else {
-        AccountPage(
-            accountFilter = accountFilter,
-            accountTypeBalance = accountTypeBalance,
-            onSettingsClicked = onSettingsClicked,
-            filteredTransactions = filteredTransactions,
-            filterText = filterText,
-            onQueryChanged = onQueryChanged,
-            updateAccountFilter = updateAccountFilter
-        )
+    Box(
+        modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
+            .fillMaxSize()
+    ) {
+        if (isLoginState) {
+            LoginPage(
+                isLoading = loading,
+                onLoginPressed = onLoginPressed,
+                onSuccess = onSuccess,
+                onBackClick = onBackClick,
+                onModalHidden = onModalHidden
+            )
+        } else {
+            AccountPage(
+                accountFilter = accountFilter,
+                accountTypeBalance = accountTypeBalance,
+                onSettingsClicked = onSettingsClicked,
+                filteredTransactions = filteredTransactions,
+                filterText = filterText,
+                onQueryChanged = onQueryChanged,
+                updateAccountFilter = updateAccountFilter
+            )
+        }
     }
 }
+
+@DualModePreview
+@Composable
+private fun ProfileScreenLoginPreview() = EateryPreview {
+    ProfileScreenContent(
+        isLoginState = true,
+        accountTypeBalance = AccountBalances(),
+        loading = false,
+        onLoginPressed = {},
+        onSuccess = {},
+        onBackClick = {},
+        onModalHidden = {},
+        accountFilter = TransactionAccountType.BRBS,
+        filterText = "",
+        onSettingsClicked = {},
+        filteredTransactions = emptyList(),
+        onQueryChanged = {},
+        updateAccountFilter = {}
+    )
+}
+
+@DualModePreview
+@Composable
+private fun ProfileScreenAccountPreview() = EateryPreview {
+    ProfileScreenContent(
+        isLoginState = false,
+        accountTypeBalance = AccountBalances(
+            brbBalance = 120.35,
+            cityBucksBalance = 42.0,
+            laundryBalance = 8.0,
+            mealSwipes = 10
+        ),
+        loading = false,
+        onLoginPressed = {},
+        onSuccess = {},
+        onBackClick = {},
+        onModalHidden = {},
+        accountFilter = TransactionAccountType.BRBS,
+        filterText = "",
+        onSettingsClicked = {},
+        filteredTransactions = listOf(
+            DisplayTransaction(
+                id = "1",
+                amount = -12.75,
+                accountType = TransactionAccountType.BRBS,
+                location = "Okenshields",
+                formattedDate = "Apr 14"
+            )
+        ),
+        onQueryChanged = {},
+        updateAccountFilter = {}
+    )
+}
+

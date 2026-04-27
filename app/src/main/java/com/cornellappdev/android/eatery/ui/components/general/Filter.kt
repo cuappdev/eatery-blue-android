@@ -92,10 +92,15 @@ sealed class Filter(open val text: String) {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.acceptsCash()
         }
+
+        data object Card : FromEateryFilter(text = "Cash") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.acceptsCard()
+        }
     }
 
-    sealed class RequiresFavoriteEateries(override val text: String) : Filter(text) {
-        data object Favorites : RequiresFavoriteEateries(text = "Favorites") {
+    sealed class RequiresFavoriteEateries : Filter("Favorites") {
+        data object Favorites : RequiresFavoriteEateries() {
             override fun passesFilter(filterData: FilterData): Boolean {
                 val favoriteEateryIds = checkNotNull(filterData.favoriteEateryIds)
                 val eatery = checkNotNull(filterData.eatery)
@@ -113,8 +118,8 @@ sealed class Filter(open val text: String) {
 
         /**
          * Checks that the `filterData` passes all of the `selectedFilters`
-         * @param allFilters all of the filters that the screen uses, must not be empty
-         * @param selectedFilters all of the filters that the user has selected (the filters to
+         * @param allFilters all the filters that the screen uses, must not be empty
+         * @param selectedFilters all the filters that the user has selected (the filters to
          * check), must be a subset of `allFilters`
          * @param filterData the data for the filter check, requires that enough data is provided
          * such that each filter in `allFilters` can run `passesFilter` with the data

@@ -31,6 +31,8 @@ message UserPreferences {
   // Encrypted PIN stored as a Base64-encoded string.
   string encryptedPin = 17;
 
+  optional bool isDarkMode = 18;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.

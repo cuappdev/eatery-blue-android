@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Date
-import java.util.Locale
+import java.util.Locale.getDefault
 
 typealias DayToOperatingHours = Map<DayOfWeek, List<String>>
 typealias OperatingHoursToDays = Map<List<String>, List<DayOfWeek>>
@@ -123,13 +123,16 @@ data class Eatery(
      * @returns the event that makes the day index and mealDescription
      *
      * @param dayIndex, the index of the selected day, today is 0, tomorrow is 1, and so on
-     * @param mealDescription, e.g. "lunch", "dinner", etc
+     * @param mealDescription e.g. "lunch", "dinner", etc
      */
     fun getSelectedEvent(dayIndex: Int, mealDescription: String): Event? {
         val targetDate = LocalDate.now().plusDays(dayIndex.toLong())
+        val formattedMealDescription =
+            mealDescription.uppercase(getDefault())
+                .split(' ').joinToString("_")
 
         val ans = events?.find {
-            it.type.equals(mealDescription, ignoreCase = true) &&
+            it.type.equals(formattedMealDescription, ignoreCase = true) &&
                     (it.startTimestamp?.toLocalDate()?.isEqual(targetDate) == true)
         }
         return ans
@@ -253,7 +256,7 @@ data class Eatery(
     fun acceptsBRB(): Boolean = paymentMethods?.contains(PaymentMethod.BRB) ?: false
 
     /**
-     * Private helper function that returns a map of the day of week that a eatery is open
+     * Private helper function that returns a map of the day of week that an eatery is open
      * to the opening time(s) or closed status (these are strings)
      *
      * e.g. For Oken, {Monday -> ["11:00 AM - 2:30 PM", "4:30 PM - 9:00 PM"], Sunday -> "Closed"}
@@ -309,7 +312,7 @@ data class Eatery(
             }
             var curStrings = mutableListOf<String>()
             for (i in days.indices) {
-                val curDay = days[i].getDisplayName(TextStyle.FULL, Locale.getDefault())
+                val curDay = days[i].getDisplayName(TextStyle.FULL, getDefault())
                 if (i == days.size - 1) {
                     curStrings.add(curDay)
                     val formattedString = formatString(curStrings)
@@ -329,7 +332,7 @@ data class Eatery(
             val firstDay = entry.first.split(" to ", " ", limit = 2).first()
             // Find the matching day and get its sort value
             DayOfWeek.entries.find {
-                it.getDisplayName(TextStyle.FULL, Locale.getDefault()) == firstDay
+                it.getDisplayName(TextStyle.FULL, getDefault()) == firstDay
             }?.let { (it.value % 7) } ?: Int.MAX_VALUE
         }
         return formattedHoursList

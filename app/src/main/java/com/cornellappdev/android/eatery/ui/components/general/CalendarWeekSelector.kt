@@ -11,21 +11,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
  * Reusable UI component that displays today and the next six days
@@ -54,12 +54,13 @@ fun CalendarWeekSelector(
                 targetValue = if (currSelectedDay == i) 1.0f else 0f,
                 label = "Circle Size"
             )
+            val interactionSource = remember(i) { MutableInteractionSource() }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
                     text = dayNames[i].uppercase(),
-                    color = GrayFive,
+                    color = currentColors.textSecondary,
                     textAlign = TextAlign.Center,
                     style = EateryBlueTypography.caption,
                     modifier = Modifier.padding(bottom = 8.dp),
@@ -72,9 +73,9 @@ fun CalendarWeekSelector(
                         .then(
                             when {
                                 eateryDetail && closedDays?.contains(dayNames[i]) == true -> Modifier
-                                !eateryDetail || (eateryDetail && closedDays?.contains(dayNames[i]) == false) -> Modifier.clickable(
+                                !eateryDetail || closedDays?.contains(dayNames[i]) != true -> Modifier.clickable(
                                     indication = null,
-                                    interactionSource = MutableInteractionSource()
+                                    interactionSource = interactionSource
                                 ) { onClick(i) }
 
                                 else -> Modifier
@@ -86,10 +87,10 @@ fun CalendarWeekSelector(
                         modifier = Modifier
                             .size(size = (34 * size).dp)
                             .alpha(size),
-                        color = when {
-                            i == currSelectedDay && currSelectedDay == 0 -> EateryBlue
-                            i == currSelectedDay || i == selectedDay -> GrayFive
-                            else -> GrayFive
+                        color = when (i) {
+                            currSelectedDay if currSelectedDay == 0 -> currentColors.contentBrand
+                            currSelectedDay, selectedDay -> currentColors.textSecondary
+                            else -> currentColors.textSecondary
                         },
                         shape = CircleShape
                     ) {}
@@ -97,11 +98,11 @@ fun CalendarWeekSelector(
                     Text(
                         text = days[i].toString(),
                         color = when {
-                            closedDays?.contains(dayNames[i]) == true -> GrayThree
-                            i != currSelectedDay && i == 0 -> EateryBlue
-                            i != currSelectedDay && i == selectedDay -> Color.Black
-                            i == currSelectedDay || i == selectedDay -> Color.White
-                            else -> Color.Black
+                            closedDays?.contains(dayNames[i]) == true -> currentColors.textSecondary
+                            i != currSelectedDay && i == 0 -> currentColors.contentBrand
+                            i != currSelectedDay && i == selectedDay -> currentColors.textPrimary
+                            i == currSelectedDay -> currentColors.oppTextPrimary
+                            else -> currentColors.textPrimary
                         },
                         style = EateryBlueTypography.h6,
                         fontWeight = FontWeight.Normal,
@@ -113,5 +114,22 @@ fun CalendarWeekSelector(
                 }
             }
         }
+    }
+}
+
+@DualModePreview
+@Composable
+private fun CalendarWeekSelectorPreview() {
+    val dayNames = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+    val days = listOf(1, 2, 3, 4, 5, 6, 7)
+    EateryPreview {
+        CalendarWeekSelector(
+            dayNames = dayNames,
+            currSelectedDay = 0,
+            selectedDay = 0,
+            days = days,
+            onClick = {},
+            closedDays = listOf("Sat", "Sun")
+        )
     }
 }

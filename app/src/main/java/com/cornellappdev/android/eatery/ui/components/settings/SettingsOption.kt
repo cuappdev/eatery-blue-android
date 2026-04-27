@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -9,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Divider
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -22,8 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun SettingsOption(
@@ -36,12 +36,13 @@ fun SettingsOption(
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .fillMaxWidth()
             .height(80.dp)
             .clickable(
                 onClick = { onClick() },
                 interactionSource = interactionSource,
-                indication = rememberRipple()
+                indication = ripple()
             ),
         verticalAlignment = CenterVertically
     ) {
@@ -58,12 +59,13 @@ fun SettingsOption(
                 Text(
                     text = title,
                     style = EateryBlueTypography.h5,
+                    color = currentColors.textPrimary
                 )
                 if (!description.isNullOrEmpty())
                     Text(
                         text = description,
                         style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                        color = GrayFive,
+                        color = currentColors.textPrimary,
                         modifier = Modifier.padding(top = 2.dp)
                     )
             }
@@ -77,5 +79,9 @@ fun SettingsOption(
 
 @Composable
 fun SettingsLineSeparator() {
-    Divider(color = GrayOne, modifier = Modifier.fillMaxWidth(), thickness = 1.dp)
+    HorizontalDivider(
+        color = currentColors.accentPrimary,
+        modifier = Modifier.fillMaxWidth(),
+        thickness = 1.dp
+    )
 }

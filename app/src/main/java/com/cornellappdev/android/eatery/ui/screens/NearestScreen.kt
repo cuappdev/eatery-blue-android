@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,37 +10,38 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.NearestViewModel
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 
 /**
  * The Nearest to You screen that shows eateries sorted by walk times.
  */
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun NearestScreen(
     nearestViewModel: NearestViewModel = hiltViewModel(),
@@ -47,17 +49,36 @@ fun NearestScreen(
 ) {
     rememberShimmer(ShimmerBounds.View)
     val uiState = nearestViewModel.uiState.collectAsStateWithLifecycle().value
+
+    NearestScreenContent(
+        uiState = uiState,
+        onEateryClick = onEateryClick,
+        onFavoriteClick = { eatery, isFavorite ->
+            if (eatery.id != null && eatery.name != null) {
+                nearestViewModel.setFavorite(eatery.id, eatery.name, isFavorite)
+            }
+        }
+    )
+}
+
+@Composable
+private fun NearestScreenContent(
+    uiState: NearestViewModel.NearestUiState,
+    onEateryClick: (Eatery) -> Unit,
+    onFavoriteClick: (Eatery, Boolean) -> Unit,
+) {
     val nearestEateries = uiState.nearestEateries
     val favorites = uiState.favoriteEateries
-
     Column(
         modifier = Modifier
-            .padding(top = 36.dp, start = 16.dp, end = 16.dp)
+            .background(color = currentColors.backgroundDefault)
+            .padding(horizontal = 16.dp)
+            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
         Text(
-            text = "Nearest to You",
-            color = EateryBlue,
+            text = stringResource(R.string.nearest_title),
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
@@ -82,16 +103,16 @@ fun NearestScreen(
                         modifier = Modifier
                             .height(72.dp)
                             .width(72.dp),
-                        tint = GrayTwo,
+                        tint = currentColors.backgroundDefault92,
                     )
 
                     Text(
-                        text = "You currently have no favorite eateries!",
+                        text = stringResource(R.string.nearest_empty_message),
                         style = TextStyle(
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
                         ),
-                        color = Color.Black,
+                        color = currentColors.textPrimary,
                         modifier = Modifier.padding(top = 12.dp)
                     )
                 }
@@ -109,10 +130,9 @@ fun NearestScreen(
                     EateryCard(
                         eatery = eatery,
                         isFavorite = favorites.contains(eatery),
+                        modifier = Modifier.fillMaxWidth(),
                         onFavoriteClick = {
-                            if (eatery.id != null && eatery.name != null) {
-                                nearestViewModel.setFavorite(eatery.id, eatery.name, it)
-                            }
+                            onFavoriteClick(eatery, it)
                         }) {
                         onEateryClick(it)
                     }
@@ -125,3 +145,31 @@ fun NearestScreen(
         }
     }
 }
+
+@DualModePreview
+@Composable
+private fun NearestScreenPreview() = EateryPreview {
+    val eateries = listOf(
+        PreviewData.mockEatery(1).copy(name = "Okenshields"),
+        PreviewData.mockEatery(2).copy(name = "Becker House Dining Room")
+    )
+    NearestScreenContent(
+        uiState = NearestViewModel.NearestUiState(
+            nearestEateries = eateries,
+            favoriteEateries = listOf(eateries.first())
+        ),
+        onEateryClick = {},
+        onFavoriteClick = { _, _ -> }
+    )
+}
+
+@DualModePreview
+@Composable
+private fun NearestScreenEmptyPreview() = EateryPreview {
+    NearestScreenContent(
+        uiState = NearestViewModel.NearestUiState(),
+        onEateryClick = {},
+        onFavoriteClick = { _, _ -> }
+    )
+}
+

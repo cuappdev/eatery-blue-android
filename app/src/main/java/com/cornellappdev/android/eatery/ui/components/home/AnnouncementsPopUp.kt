@@ -1,3 +1,4 @@
+
 package com.cornellappdev.android.eatery.ui.components.home
 
 import androidx.compose.foundation.Image
@@ -14,10 +15,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
 
 @Composable
@@ -49,13 +51,13 @@ fun AnnouncementsPopUp(
                         .padding(16.dp)
                         .width(50.dp)
                         .height(50.dp)
-                        .background(Color.White, RoundedCornerShape(10.dp))
+                        .background(currentColors.backgroundDefault, RoundedCornerShape(10.dp))
                         .clip(RoundedCornerShape(10.dp))
                         .clickable { homeViewModel.setPopUp(true) }
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_appdev),
-                        tint = Color.Red,
+                        tint = currentColors.error,
                         modifier = Modifier
                             .fillMaxSize()
                             .alpha(.6f),
@@ -69,7 +71,7 @@ fun AnnouncementsPopUp(
                     Modifier
                         .fillMaxWidth(.8f)
                         .fillMaxHeight(.4f)
-                        .background(Color.White, RoundedCornerShape(20.dp))
+                        .background(currentColors.backgroundDefault, RoundedCornerShape(20.dp))
                         .clip(RoundedCornerShape(20.dp))
                         .focusable(true)
                 ) {
@@ -95,8 +97,9 @@ fun AnnouncementsPopUp(
                             contentDescription = Icons.Default.Close.name,
                             Modifier
                                 .size(30.dp)
-                                .background(Color.White, CircleShape)
-                                .clip(CircleShape)
+                                .background(currentColors.backgroundDefault, CircleShape)
+                                .clip(CircleShape),
+                            tint = currentColors.textPrimary
                         )
                     }
                 }

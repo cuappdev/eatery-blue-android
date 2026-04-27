@@ -21,8 +21,8 @@ class PopupDataRepository @Inject constructor(
     val lastShowedRatingPopupFlow = userPreferencesStore.data.map {
         with(it.lastShowedRatingPopup) {
             // Default value should be min local date
-            if (year == 0) java.time.LocalDate.MIN else
-                java.time.LocalDate.now().withYear(year).withDayOfMonth(day)
+            if (year == 0) LocalDate.MIN else
+                LocalDate.now().withYear(year).withDayOfMonth(day)
         }
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, LocalDate.MIN)
 
@@ -34,7 +34,7 @@ class PopupDataRepository @Inject constructor(
         /**
          * This is a way of manually setting the default value for minDaysBetweenRatingShow
          * so we can multiply it for an exponential fall off.
-         * Currently it doesn't seem like proto files support custom default values so this
+         * Currently, it doesn't seem like proto files support custom default values so this
          * is the only way to do it really.
          * See https://protobuf.dev/programming-guides/proto3/#default for more details
          */

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -23,32 +24,34 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -59,21 +62,25 @@ import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.SearchViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.popIn
 import com.cornellappdev.android.eatery.util.popOut
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.components.rememberImageComponent
 import com.skydoves.landscapist.glide.GlideImage
+import com.skydoves.landscapist.placeholder.shimmer.Shimmer
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 import kotlinx.coroutines.launch
 
 @OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalFoundationApi::class,
-    ExperimentalLifecycleComposeApi::class
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
 )
 @Composable
 fun SearchScreen(
@@ -81,23 +88,64 @@ fun SearchScreen(
     onEateryClick: (eatery: Eatery) -> Unit,
     onFavoriteClick: () -> Unit
 ) {
+    val uiState = searchViewModel.uiState.collectAsStateWithLifecycle().value
+
+    SearchScreenContent(
+        query = uiState.query,
+        filters = uiState.filters,
+        searchResponse = uiState.searchResponse,
+        favoriteEateries = uiState.favoriteEateries,
+        recentSearches = uiState.recentSearches,
+        error = uiState.error,
+        searchScreenFilters = searchViewModel.searchScreenFilters,
+        onClearError = searchViewModel::clearError,
+        onQueryEateries = searchViewModel::queryEateries,
+        onAddPaymentMethodFilters = searchViewModel::addPaymentMethodFilters,
+        onToggleFilter = searchViewModel::toggleFilter,
+        onAddFavorite = searchViewModel::addFavorite,
+        onRemoveFavorite = searchViewModel::removeFavorite,
+        onAddRecentSearch = searchViewModel::addRecentSearch,
+        observeEatery = { eateryId ->
+            searchViewModel.observeEatery(eateryId).collectAsStateWithLifecycle().value
+        },
+        onEateryClick = onEateryClick,
+        onFavoriteClick = onFavoriteClick,
+    )
+}
+
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
+@Composable
+private fun SearchScreenContent(
+    query: String,
+    filters: List<Filter>,
+    searchResponse: EateryApiResponse<List<Eatery>>,
+    favoriteEateries: List<Eatery>,
+    recentSearches: List<Int>,
+    error: NetworkUiError?,
+    searchScreenFilters: List<Filter>,
+    onClearError: () -> Unit,
+    onQueryEateries: (String) -> Unit,
+    onAddPaymentMethodFilters: (List<Filter>) -> Unit,
+    onToggleFilter: (Filter) -> Unit,
+    onAddFavorite: (Int, String) -> Unit,
+    onRemoveFavorite: (Int, String) -> Unit,
+    onAddRecentSearch: (Int?) -> Unit,
+    observeEatery: @Composable (Int) -> EateryApiResponse<Eatery>,
+    onEateryClick: (Eatery) -> Unit,
+    onFavoriteClick: () -> Unit,
+) {
     val selectedPaymentMethodFilters = remember { mutableStateListOf<Filter>() }
     val focusRequester = remember { FocusRequester() }
-    val modalBottomSheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden
-    )
+    val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showPaymentMethodSheet by rememberSaveable { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    val uiState = searchViewModel.uiState.collectAsStateWithLifecycle().value
-    val query = uiState.query
-    val favorites = uiState.favoriteEateries
-    val recentSearches = uiState.recentSearches
-    val filters = uiState.filters
-    val searchResponse = uiState.searchResponse
-
     NetworkErrorToast(
-        error = uiState.error,
-        onErrorShown = searchViewModel::clearError
+        error = error,
+        onErrorShown = onClearError
     )
 
     // Automatically brings the search bar into focus when the view is composed
@@ -109,224 +157,280 @@ fun SearchScreen(
     // Here a DisposableEffect is launched when the bottom sheet opens.
     // When it disappears it's from the view hierarchy, which will cause
     // onDispose to be called, adding/resetting the payment filters.
-    if (modalBottomSheetState.currentValue != ModalBottomSheetValue.Hidden) {
+    if (showPaymentMethodSheet) {
         DisposableEffect(Unit) {
             onDispose {
                 // Handles the case where filters reset as well (by adding an empty list).
-                searchViewModel.addPaymentMethodFilters(selectedPaymentMethodFilters)
+                onAddPaymentMethodFilters(selectedPaymentMethodFilters)
             }
         }
     }
 
-    ModalBottomSheetLayout(
-        sheetState = modalBottomSheetState, sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp, bottomEnd = 0.dp, topStart = 12.dp, topEnd = 12.dp
-        ), sheetElevation = 8.dp, sheetContent = {
+    if (showPaymentMethodSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showPaymentMethodSheet = false },
+            sheetState = modalBottomSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
+            shape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            )
+        ) {
             PaymentMethodsBottomSheet(selectedFilters = selectedPaymentMethodFilters, hide = {
                 coroutineScope.launch {
                     modalBottomSheetState.hide()
+                }.invokeOnCompletion {
+                    if (!modalBottomSheetState.isVisible) showPaymentMethodSheet = false
                 }
             })
-        }, content = { ->
-            val listState = rememberLazyListState()
+        }
+    }
 
-            LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
-                stickyHeader {
+    val listState = rememberLazyListState()
 
-                    Column(modifier = Modifier.background(Color.White)) {
-                        SearchBar(
-                            searchText = query,
-                            onSearchTextChange = {
-                                searchViewModel.queryEateries(it)
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
+            .fillMaxSize()
+    ) {
+        stickyHeader {
+            Column(
+                modifier = Modifier
+                    .background(currentColors.backgroundDefault)
+                    .then(Modifier.statusBarsPadding())
+            ) {
+                SearchBar(
+                    searchText = query,
+                    onSearchTextChange = {
+                        onQueryEateries(it)
+                    },
+                    placeholderText = stringResource(R.string.search_placeholder_grub),
+                    modifier = Modifier.padding(
+                        top = 12.dp,
+                        bottom = 6.dp,
+                        start = 16.dp,
+                        end = 16.dp
+                    ),
+                    onCancelClicked = {},
+                    focusRequester = focusRequester,
+                    enabled = true,
+                    inputDebounceMillis = 120
+                )
+
+                Column(
+                    modifier = Modifier
+                        .animateContentSize()
+                        .fillMaxWidth()
+                ) {
+                    AnimatedVisibility(
+                        visible = query.isNotEmpty(),
+                        enter = popIn(),
+                        exit = popOut()
+                    ) {
+                        FilterRow(
+                            currentFiltersSelected = filters,
+                            onFilterClicked = { filter ->
+                                onToggleFilter(filter)
                             },
-                            placeholderText = "Search for grub...",
-                            modifier = Modifier.padding(
-                                top = 64.dp,
-                                bottom = 6.dp,
-                                start = 16.dp,
-                                end = 16.dp
-                            ),
-                            onCancelClicked = {},
-                            focusRequester = focusRequester,
-                            enabled = true
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .animateContentSize()
-                                .fillMaxWidth()
-                        ) {
-                            AnimatedVisibility(
-                                visible = query.isNotEmpty(),
-                                enter = popIn(),
-                                exit = popOut()
-                            ) {
-                                FilterRow(
-                                    currentFiltersSelected = filters,
-                                    onFilterClicked = { filter ->
-                                        searchViewModel.toggleFilter(filter)
-                                    },
-                                    filters = searchViewModel.searchScreenFilters,
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Spacer(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(GrayZero)
+                            filters = searchScreenFilters,
                         )
                     }
                 }
 
+                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(currentColors.borderDefault)
+                )
+            }
+        }
+
+        if (query.isEmpty()) {
+            if (searchResponse is EateryApiResponse.Success) {
                 item {
-                    if (query.isEmpty()) {
-                        if (searchResponse is EateryApiResponse.Success) {
-                            // FAVORITES
-                            Box(
-                                modifier = Modifier
-                                    .animateContentSize()
-                                    .fillMaxWidth()
-                            ) {
-                                AnimatedVisibility(
-                                    visible = favorites.isNotEmpty(),
-                                    enter = popIn(),
-                                    exit = popOut()
-                                ) {
-                                    Column {
-                                        Row(
-                                            modifier = Modifier
-                                                .padding(
-                                                    start = 16.dp,
-                                                    end = 16.dp,
-                                                    bottom = 12.dp,
-                                                    top = 12.dp
-                                                )
-                                                .fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = "Favorites", style = EateryBlueTypography.h4
-                                            )
-                                            IconButton(
-                                                onClick = {
-                                                    onFavoriteClick()
-                                                },
-                                                modifier = Modifier
-                                                    .size(40.dp)
-                                                    .background(
-                                                        color = GrayZero,
-                                                        shape = CircleShape
-                                                    )
-                                            ) {
-                                                Icon(
-                                                    Icons.Default.ArrowForward,
-                                                    contentDescription = "Favorites",
-                                                    tint = Color.Black
-                                                )
-                                            }
-                                        }
-
-                                        LazyRow(
-                                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                            modifier = Modifier.padding(start = 16.dp)
-                                        ) {
-                                            items(items = favorites, key = { eatery ->
-                                                eatery.id ?: eatery.hashCode()
-                                            }) { eatery ->
-                                                FavoriteItem(eatery, onEateryClick)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            // RECENT SEARCHES
-                            Text(
-                                modifier = Modifier.padding(start = 16.dp, top = 12.dp),
-                                text = "Recent Searches",
-                                style = EateryBlueTypography.h4
-                            )
-
-                            recentSearches.forEach { eateryId ->
-                                val eateryResponse =
-                                    searchViewModel.observeEatery(eateryId)
-                                        .collectAsStateWithLifecycle().value
-                                if (eateryResponse is EateryApiResponse.Success) {
-                                    Box(
-                                        Modifier.padding(
-                                            horizontal = 16.dp, vertical = 12.dp
+                    // FAVORITES
+                    Box(
+                        modifier = Modifier
+                            .animateContentSize()
+                            .fillMaxWidth()
+                    ) {
+                        AnimatedVisibility(
+                            visible = favoriteEateries.isNotEmpty(),
+                            enter = popIn(),
+                            exit = popOut()
+                        ) {
+                            Column {
+                                Row(
+                                    modifier = Modifier
+                                        .padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            bottom = 12.dp,
+                                            top = 12.dp
                                         )
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = stringResource(R.string.search_favorites),
+                                        style = EateryBlueTypography.h4,
+                                        color = currentColors.textPrimary
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            onFavoriteClick()
+                                        },
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .background(
+                                                color = currentColors.backgroundDefault,
+                                                shape = CircleShape
+                                            )
                                     ) {
-                                        val eatery = eateryResponse.data
-                                        EateryCard(
-                                            eatery = eatery,
-                                            isFavorite = favorites.any { favoriteEatery ->
-                                                favoriteEatery.id == eatery.id
-                                            },
-                                            onFavoriteClick = {
-                                                if (eatery.id != null && eatery.name != null) {
-                                                    if (it) {
-                                                        searchViewModel.addFavorite(
-                                                            eatery.id,
-                                                            eatery.name
-                                                        )
-                                                    } else {
-                                                        searchViewModel.removeFavorite(
-                                                            eatery.id,
-                                                            eatery.name
-                                                        )
-                                                    }
-                                                }
-                                            }) {
-                                            searchViewModel.addRecentSearch(it.id)
-                                            onEateryClick(it)
-                                        }
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowForward,
+                                            contentDescription = stringResource(R.string.search_favorites),
+                                            tint = currentColors.textPrimary
+                                        )
                                     }
                                 }
 
-
+                                LazyRow(
+                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                    modifier = Modifier.padding(start = 16.dp)
+                                ) {
+                                    items(items = favoriteEateries, key = { eatery ->
+                                        eatery.id ?: eatery.hashCode()
+                                    }) { eatery ->
+                                        FavoriteItem(eatery, onEateryClick)
+                                    }
+                                }
                             }
                         }
-                    } else if (searchResponse is EateryApiResponse.Success) {
-                        // SEARCH QUERY
-                        val searchEateries = searchResponse.data
-                        searchEateries.forEach { eatery ->
-                            Box(
-                                Modifier.padding(
-                                    horizontal = 16.dp, vertical = 12.dp
-                                )
-                            ) {
-                                EateryCard(
-                                    eatery = eatery,
-                                    isFavorite = favorites.any { favoriteEatery ->
-                                        favoriteEatery.id == eatery.id
-                                    },
-                                    onFavoriteClick = {
-                                        if (eatery.id != null && eatery.name != null) {
-                                            if (it) {
-                                                searchViewModel.addFavorite(eatery.id, eatery.name)
-                                            } else {
-                                                searchViewModel.removeFavorite(
-                                                    eatery.id,
-                                                    eatery.name
-                                                )
-                                            }
+                    }
+                }
+                // RECENT SEARCHES
+                item {
+                    Text(
+                        modifier = Modifier.padding(start = 16.dp, top = 12.dp),
+                        text = stringResource(R.string.search_recent_searches),
+                        style = EateryBlueTypography.h4,
+                        color = currentColors.textPrimary
+                    )
+                }
+                items(recentSearches) { eateryId ->
+                    val eateryResponse = observeEatery(eateryId)
+                    if (eateryResponse is EateryApiResponse.Success) {
+                        Box(
+                            Modifier.padding(
+                                horizontal = 16.dp, vertical = 12.dp
+                            )
+                        ) {
+                            val eatery = eateryResponse.data
+                            EateryCard(
+                                eatery = eatery,
+                                isFavorite = favoriteEateries.any { favoriteEatery ->
+                                    favoriteEatery.id == eatery.id
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                onFavoriteClick = {
+                                    if (eatery.id != null && eatery.name != null) {
+                                        if (it) {
+                                            onAddFavorite(
+                                                eatery.id,
+                                                eatery.name
+                                            )
+                                        } else {
+                                            onRemoveFavorite(
+                                                eatery.id,
+                                                eatery.name
+                                            )
                                         }
-                                    }) {
-                                    searchViewModel.addRecentSearch(it.id)
-                                    onEateryClick(it)
-                                }
+                                    }
+                                }) {
+                                onAddRecentSearch(it.id)
+                                onEateryClick(it)
                             }
                         }
                     }
                 }
             }
-        })
+        } else if (searchResponse is EateryApiResponse.Success) {
+            // SEARCH QUERY
+            val searchEateries = searchResponse.data
+            items(searchEateries) { eatery ->
+                Box(
+                    Modifier.padding(
+                        horizontal = 16.dp, vertical = 12.dp
+                    )
+                ) {
+                    EateryCard(
+                        eatery = eatery,
+                        isFavorite = favoriteEateries.any { favoriteEatery ->
+                            favoriteEatery.id == eatery.id
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        onFavoriteClick = {
+                            if (eatery.id != null && eatery.name != null) {
+                                if (it) {
+                                    onAddFavorite(eatery.id, eatery.name)
+                                } else {
+                                    onRemoveFavorite(
+                                        eatery.id,
+                                        eatery.name
+                                    )
+                                }
+                            }
+                        }) {
+                        onAddRecentSearch(it.id)
+                        onEateryClick(it)
+                    }
+                }
+            }
+        }
+    }
 }
+
+@DualModePreview
+@Composable
+private fun SearchScreenPreview() = EateryPreview {
+    SearchScreenContent(
+        query = "Ok",
+        filters = emptyList(),
+        searchResponse = EateryApiResponse.Success(
+            listOf(
+                PreviewData.mockEatery(1).copy(name = "Okenshields"),
+                PreviewData.mockEatery(2).copy(name = "Becker House Dining Room")
+            )
+        ),
+        favoriteEateries = listOf(PreviewData.mockEatery(1).copy(name = "Okenshields")),
+        recentSearches = emptyList(),
+        error = null,
+        searchScreenFilters = listOf(
+            Filter.FromEateryFilter.North,
+            Filter.FromEateryFilter.West,
+            Filter.FromEateryFilter.Central
+        ),
+        onClearError = {},
+        onQueryEateries = {},
+        onAddPaymentMethodFilters = {},
+        onToggleFilter = {},
+        onAddFavorite = { _, _ -> },
+        onRemoveFavorite = { _, _ -> },
+        onAddRecentSearch = {},
+        observeEatery = { EateryApiResponse.Pending },
+        onEateryClick = {},
+        onFavoriteClick = {}
+    )
+}
+
 
 /**
  * Each favorited item within the favorited list
@@ -354,11 +458,13 @@ fun FavoriteItem(
                 ),
                 component = rememberImageComponent {
                     +ShimmerPlugin(
-                        baseColor = Color.White,
-                        highlightColor = GrayZero,
-                        durationMillis = 350,
-                        dropOff = 0.65f,
-                        tilt = 20f
+                        Shimmer.Flash(
+                            baseColor = currentColors.borderDefault,
+                            highlightColor = currentColors.backgroundDefault,
+                            duration = 350,
+                            dropOff = 0.65f,
+                            tilt = 20f
+                        )
                     )
                 },
                 failure = {
@@ -369,7 +475,7 @@ fun FavoriteItem(
                             .clip(RoundedCornerShape(10.dp)),
                         contentScale = ContentScale.Crop,
                         painter = painterResource(id = R.drawable.blank_eatery_square),
-                        contentDescription = "Eatery Image",
+                        contentDescription = stringResource(R.string.a11y_eatery_image),
                     )
                 })
 
@@ -388,8 +494,10 @@ fun FavoriteItem(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(top = 8.dp)
+                    .padding(top = 8.dp),
+                color = currentColors.textPrimary
             )
         }
     }
 }
+

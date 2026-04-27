@@ -10,15 +10,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Divider
-import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.data.models.MenuCategory
 import com.cornellappdev.android.eatery.data.models.MenuItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 data class MenuCategoryViewState(
     val category: String,
@@ -48,6 +48,7 @@ fun LazyListScope.menuItems(
         item {
             Text(
                 text = category.category,
+                color = currentColors.textPrimary,
                 style = EateryBlueTypography.h5,
                 modifier = Modifier.padding(
                     horizontal = 16.dp,
@@ -70,6 +71,7 @@ fun LazyListScope.menuItems(
             ) {
                 Text(
                     text = menuItem.item.name ?: "Item Name",
+                    color = currentColors.textPrimary,
                     style = EateryBlueTypography.button,
                     modifier = Modifier.weight(1f)
                 )
@@ -85,12 +87,12 @@ fun LazyListScope.menuItems(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(GrayZero, CircleShape)
+                        .background(currentColors.accentPrimary, CircleShape)
                 )
             }
             if (category.items.lastIndex == index) {
-                Divider(
-                    color = GrayZero,
+                HorizontalDivider(
+                    color = currentColors.accentPrimary,
                     modifier = Modifier.height(10.dp)
                 )
             }
