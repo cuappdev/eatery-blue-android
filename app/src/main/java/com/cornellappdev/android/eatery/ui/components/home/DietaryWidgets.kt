@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 /**
  * Dietary widgets that are displayed in the bottom left corner of Eatery Card
@@ -24,7 +25,7 @@ fun DietaryWidgets(eatery: Eatery, modifier: Modifier = Modifier, onClick: () ->
     Surface(
         modifier = modifier.clickable {
             onClick.invoke()
-        }, shape = CircleShape, color = Color.White
+        }, shape = CircleShape, color = currentColors.backgroundDefault
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),

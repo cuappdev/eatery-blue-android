@@ -6,6 +6,17 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.cbord.get" />
+        <package android:name="com.android.vending" />
+    </queries>
+
     <application
         android:name="com.cornellappdev.android.eatery.EateryBlueApplication"
         android:allowBackup="true"

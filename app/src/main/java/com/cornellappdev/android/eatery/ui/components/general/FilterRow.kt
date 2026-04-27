@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -21,12 +22,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun FilterRow(
@@ -35,11 +35,13 @@ fun FilterRow(
     onFilterClicked: (Filter) -> Unit,
     customItemsBefore: LazyListScope.() -> Unit = {},
     customItemsAfter: LazyListScope.() -> Unit = {},
-    rowState: LazyListState = rememberLazyListState()
+    rowState: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
 ) {
     LazyRow(
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = contentPadding,
         state = rowState
     ) {
         customItemsBefore()
@@ -48,7 +50,7 @@ fun FilterRow(
                 onFilterClicked = {
                     onFilterClicked(filter)
                 }, selected = filter in currentFiltersSelected,
-                text = filter.text
+                text = filter.text,
             )
         }
         customItemsAfter()
@@ -63,15 +65,16 @@ fun FilterButton(
     onFilterClicked: () -> Unit,
     selected: Boolean,
     text: String,
-    hasExpandIcon: Boolean = false
+    hasExpandIcon: Boolean = false,
 ) {
     val progress by animateFloatAsState(
         targetValue = if (selected) 0f else 1f,
         label = "Button Color",
         animationSpec = tween(150)
     )
-    val background = colorInterp(progress, Color.Black, GrayZero)
-    val contentColor = colorInterp(progress, Color.White, Color.Black)
+    val background = colorInterp(progress, currentColors.textPrimary, currentColors.accentPrimary)
+    val contentColor =
+        colorInterp(progress, currentColors.oppTextPrimary, currentColors.textPrimary)
 
     Button(
         onClick = onFilterClicked,
@@ -82,7 +85,7 @@ fun FilterButton(
             contentColor = contentColor
         )
     ) {
-        Text(text)
+        Text(text = text, color = contentColor)
         if (hasExpandIcon) {
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Icon(

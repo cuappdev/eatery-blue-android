@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,11 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
@@ -44,9 +43,9 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Event
 import com.cornellappdev.android.eatery.data.models.MealTime
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
@@ -94,6 +93,7 @@ fun EateryMenusBottomSheet(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = currentColors.backgroundDefault),
     ) {
         Column(
             modifier = Modifier.padding(
@@ -111,6 +111,7 @@ fun EateryMenusBottomSheet(
                     Text(
                         text = stringResource(R.string.menus_title),
                         style = EateryBlueTypography.h4,
+                        color = currentColors.textPrimary,
                     )
                 }
                 IconButton(
@@ -119,7 +120,7 @@ fun EateryMenusBottomSheet(
                     },
                     modifier = Modifier
                         .padding(all = 8.dp)
-                        .background(color = GrayZero, shape = CircleShape)
+                        .background(color = currentColors.backgroundDefault, shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -161,14 +162,14 @@ fun EateryMenusBottomSheet(
                                     text = description.toMealTypeDisplayName(),
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight(600),
-                                    color = Color.Black,
+                                    color = currentColors.textPrimary,
                                     modifier = Modifier.padding(bottom = 2.dp)
                                 )
                                 Text(
                                     text = duration,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight(600),
-                                    color = Color.Gray
+                                    color = currentColors.textSecondary
                                 )
                             }
                             IconButton(onClick = { selectedMealType = description }) {
@@ -177,12 +178,12 @@ fun EateryMenusBottomSheet(
                                         contentAlignment = Alignment.Center,
                                         modifier = Modifier
                                             .size(26.dp)
-                                            .background(Color.Black, CircleShape)
+                                            .background(currentColors.textPrimary, CircleShape)
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Check,
                                             contentDescription = "Selected",
-                                            tint = Color.White,
+                                            tint = currentColors.backgroundDefault,
                                             modifier = Modifier.fillMaxSize(0.7f)
                                         )
                                     }
@@ -191,8 +192,11 @@ fun EateryMenusBottomSheet(
                                         contentAlignment = Alignment.Center,
                                         modifier = Modifier
                                             .size(26.dp)
-                                            .background(Color.White, CircleShape)
-                                            .border(2.dp, Color.Black, CircleShape)
+                                            .background(
+                                                currentColors.backgroundDefault,
+                                                CircleShape
+                                            )
+                                            .border(2.dp, currentColors.textPrimary, CircleShape)
                                     ) {
                                     }
                                 }
@@ -204,7 +208,7 @@ fun EateryMenusBottomSheet(
                                     .padding(vertical = 12.dp)
                                     .fillMaxWidth(),
                                 thickness = 1.dp,
-                                color = GrayZero
+                                color = currentColors.backgroundDefault
                             )
                         }
                     }
@@ -230,13 +234,14 @@ fun EateryMenusBottomSheet(
                         .height(48.dp),
                     shape = RoundedCornerShape(100),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = EateryBlue,
-                        contentColor = Color.White
+                        containerColor = currentColors.contentBrand,
+                        contentColor = currentColors.oppTextPrimary
                     )
                 ) {
                     Text(
                         text = stringResource(R.string.show_menu),
-                        style = EateryBlueTypography.h5
+                        style = EateryBlueTypography.h5,
+                        color = currentColors.backgroundDefault
                     )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -253,7 +258,7 @@ fun EateryMenusBottomSheet(
                             fontSize = 14.sp,
                             lineHeight = 17.5.sp,
                             fontWeight = FontWeight(600),
-                            color = Color(0xFF050505)
+                            color = currentColors.textPrimary
                         )
                     )
                 }
@@ -262,7 +267,7 @@ fun EateryMenusBottomSheet(
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun EateryMenusBottomSheetPreview() = EateryPreview {
     val zoneId = ZoneId.of("America/New_York")
@@ -301,3 +306,4 @@ private fun EateryMenusBottomSheetPreview() = EateryPreview {
         onResetClick = {}
     )
 }
+

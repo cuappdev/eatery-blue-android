@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.ui.components.upcoming
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -30,14 +31,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.general.MealFilter
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
@@ -55,6 +55,7 @@ fun MealBottomSheet(
     if (!isVisible) currSelectedMeal.value = selectedMeal
     Column(
         modifier = Modifier
+            .background(currentColors.backgroundDefault)
             .padding(start = 16.dp, end = 16.dp, top = 24.dp)
     ) {
         Row(
@@ -64,7 +65,8 @@ fun MealBottomSheet(
             Text(
                 text = stringResource(R.string.menus_title),
                 style = EateryBlueTypography.h4,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
+                color = currentColors.textPrimary
             )
 
             IconButton(
@@ -74,12 +76,12 @@ fun MealBottomSheet(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
                 Icon(
                     Icons.Default.Close,
                     contentDescription = stringResource(R.string.close),
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
             }
         }
@@ -99,12 +101,14 @@ fun MealBottomSheet(
             Text(
                 text = MealFilter.BREAKFAST.displayName,
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.h5
+                style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary
             )
             Text(
                 text = stringResource(R.string.meal_time_breakfast),
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.caption
+                style = EateryBlueTypography.caption,
+                color = currentColors.textSecondary
             )
         }
         IconButton(
@@ -136,7 +140,7 @@ fun MealBottomSheet(
             .padding(start = 12.dp, end = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(GrayZero, CircleShape)
+            .background(currentColors.backgroundDefault, CircleShape)
     )
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -151,12 +155,14 @@ fun MealBottomSheet(
             Text(
                 text = MealFilter.LUNCH.displayName,
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.h5
+                style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary
             )
             Text(
                 text = stringResource(R.string.meal_time_lunch),
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.caption
+                style = EateryBlueTypography.caption,
+                color = currentColors.textSecondary
             )
         }
         IconButton(
@@ -189,7 +195,7 @@ fun MealBottomSheet(
             .padding(start = 12.dp, end = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(GrayZero, CircleShape)
+            .background(currentColors.backgroundDefault, CircleShape)
     )
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -204,12 +210,14 @@ fun MealBottomSheet(
             Text(
                 text = MealFilter.DINNER.displayName,
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.h5
+                style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary
             )
             Text(
                 text = stringResource(R.string.meal_time_dinner),
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.caption
+                style = EateryBlueTypography.caption,
+                color = currentColors.textSecondary
             )
         }
         IconButton(
@@ -240,7 +248,7 @@ fun MealBottomSheet(
             .padding(start = 12.dp, end = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(GrayZero, CircleShape)
+            .background(currentColors.backgroundDefault, CircleShape)
     )
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -255,12 +263,14 @@ fun MealBottomSheet(
             Text(
                 text = MealFilter.LATE_DINNER.displayName,
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.h5
+                style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary
             )
             Text(
                 text = stringResource(R.string.meal_time_late_dinner),
                 modifier = Modifier.padding(start = 16.dp),
-                style = EateryBlueTypography.caption
+                style = EateryBlueTypography.caption,
+                color = currentColors.textSecondary
             )
         }
         IconButton(
@@ -296,14 +306,15 @@ fun MealBottomSheet(
             .padding(top = 10.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(
-            containerColor = EateryBlue,
-            contentColor = Color.White
+            containerColor = currentColors.accentPrimary,
+            contentColor = currentColors.backgroundDefault
         )
     ) {
         Text(
             text = stringResource(R.string.show_menu),
             style = EateryBlueTypography.h5,
-            modifier = Modifier.padding(top = 6.dp, bottom = 6.dp)
+            modifier = Modifier.padding(top = 6.dp, bottom = 6.dp),
+            color = currentColors.textPrimary
         )
     }
 
@@ -319,18 +330,21 @@ fun MealBottomSheet(
         Text(
             text = stringResource(R.string.reset),
             style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
-            color = Color.Black
+            color = currentColors.textPrimary
         )
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun MealBottomSheetPreview() = EateryPreview {
-    MealBottomSheet(
-        isVisible = true,
-        selectedMeal = MealFilter.LUNCH,
-        onSubmit = {},
-        hide = {}
-    )
+    Box(modifier = Modifier.size(300.dp, 400.dp)) {
+        MealBottomSheet(
+            isVisible = true,
+            selectedMeal = MealFilter.LUNCH,
+            onSubmit = {},
+            hide = {}
+        )
+    }
 }
+

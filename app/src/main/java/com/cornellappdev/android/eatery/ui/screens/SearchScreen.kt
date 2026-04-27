@@ -46,12 +46,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -64,10 +62,11 @@ import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.SearchViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.popIn
@@ -171,6 +170,8 @@ private fun SearchScreenContent(
         ModalBottomSheet(
             onDismissRequest = { showPaymentMethodSheet = false },
             sheetState = modalBottomSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,
@@ -190,11 +191,16 @@ private fun SearchScreenContent(
 
     val listState = rememberLazyListState()
 
-    LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
+            .fillMaxSize()
+    ) {
         stickyHeader {
             Column(
                 modifier = Modifier
-                    .background(Color.White)
+                    .background(currentColors.backgroundDefault)
                     .then(Modifier.statusBarsPadding())
             ) {
                 SearchBar(
@@ -240,7 +246,7 @@ private fun SearchScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(GrayZero)
+                        .background(currentColors.borderDefault)
                 )
             }
         }
@@ -274,7 +280,8 @@ private fun SearchScreenContent(
                                 ) {
                                     Text(
                                         text = stringResource(R.string.search_favorites),
-                                        style = EateryBlueTypography.h4
+                                        style = EateryBlueTypography.h4,
+                                        color = currentColors.textPrimary
                                     )
                                     IconButton(
                                         onClick = {
@@ -283,14 +290,14 @@ private fun SearchScreenContent(
                                         modifier = Modifier
                                             .size(40.dp)
                                             .background(
-                                                color = GrayZero,
+                                                color = currentColors.backgroundDefault,
                                                 shape = CircleShape
                                             )
                                     ) {
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowForward,
                                             contentDescription = stringResource(R.string.search_favorites),
-                                            tint = Color.Black
+                                            tint = currentColors.textPrimary
                                         )
                                     }
                                 }
@@ -314,7 +321,8 @@ private fun SearchScreenContent(
                     Text(
                         modifier = Modifier.padding(start = 16.dp, top = 12.dp),
                         text = stringResource(R.string.search_recent_searches),
-                        style = EateryBlueTypography.h4
+                        style = EateryBlueTypography.h4,
+                        color = currentColors.textPrimary
                     )
                 }
                 items(recentSearches) { eateryId ->
@@ -331,6 +339,7 @@ private fun SearchScreenContent(
                                 isFavorite = favoriteEateries.any { favoriteEatery ->
                                     favoriteEatery.id == eatery.id
                                 },
+                                modifier = Modifier.fillMaxWidth(),
                                 onFavoriteClick = {
                                     if (eatery.id != null && eatery.name != null) {
                                         if (it) {
@@ -367,6 +376,7 @@ private fun SearchScreenContent(
                         isFavorite = favoriteEateries.any { favoriteEatery ->
                             favoriteEatery.id == eatery.id
                         },
+                        modifier = Modifier.fillMaxWidth(),
                         onFavoriteClick = {
                             if (eatery.id != null && eatery.name != null) {
                                 if (it) {
@@ -388,7 +398,7 @@ private fun SearchScreenContent(
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun SearchScreenPreview() = EateryPreview {
     SearchScreenContent(
@@ -449,8 +459,8 @@ fun FavoriteItem(
                 component = rememberImageComponent {
                     +ShimmerPlugin(
                         Shimmer.Flash(
-                            baseColor = Color.White,
-                            highlightColor = GrayZero,
+                            baseColor = currentColors.borderDefault,
+                            highlightColor = currentColors.backgroundDefault,
                             duration = 350,
                             dropOff = 0.65f,
                             tilt = 20f
@@ -484,8 +494,10 @@ fun FavoriteItem(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .padding(top = 8.dp)
+                    .padding(top = 8.dp),
+                color = currentColors.textPrimary
             )
         }
     }
 }
+

@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,12 +19,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -31,10 +30,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.NearestViewModel
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.valentinilk.shimmer.ShimmerBounds
@@ -70,16 +69,16 @@ private fun NearestScreenContent(
 ) {
     val nearestEateries = uiState.nearestEateries
     val favorites = uiState.favoriteEateries
-
     Column(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
         Text(
             text = stringResource(R.string.nearest_title),
-            color = EateryBlue,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
@@ -104,7 +103,7 @@ private fun NearestScreenContent(
                         modifier = Modifier
                             .height(72.dp)
                             .width(72.dp),
-                        tint = GrayTwo,
+                        tint = currentColors.backgroundDefault92,
                     )
 
                     Text(
@@ -113,7 +112,7 @@ private fun NearestScreenContent(
                             fontWeight = FontWeight.Medium,
                             fontSize = 18.sp
                         ),
-                        color = Color.Black,
+                        color = currentColors.textPrimary,
                         modifier = Modifier.padding(top = 12.dp)
                     )
                 }
@@ -131,6 +130,7 @@ private fun NearestScreenContent(
                     EateryCard(
                         eatery = eatery,
                         isFavorite = favorites.contains(eatery),
+                        modifier = Modifier.fillMaxWidth(),
                         onFavoriteClick = {
                             onFavoriteClick(eatery, it)
                         }) {
@@ -146,7 +146,7 @@ private fun NearestScreenContent(
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun NearestScreenPreview() = EateryPreview {
     val eateries = listOf(
@@ -163,7 +163,7 @@ private fun NearestScreenPreview() = EateryPreview {
     )
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun NearestScreenEmptyPreview() = EateryPreview {
     NearestScreenContent(

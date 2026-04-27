@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.data.models.MenuCategory
 import com.cornellappdev.android.eatery.data.models.MenuItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 data class MenuCategoryViewState(
     val category: String,
@@ -48,6 +48,7 @@ fun LazyListScope.menuItems(
         item {
             Text(
                 text = category.category,
+                color = currentColors.textPrimary,
                 style = EateryBlueTypography.h5,
                 modifier = Modifier.padding(
                     horizontal = 16.dp,
@@ -70,6 +71,7 @@ fun LazyListScope.menuItems(
             ) {
                 Text(
                     text = menuItem.item.name ?: "Item Name",
+                    color = currentColors.textPrimary,
                     style = EateryBlueTypography.button,
                     modifier = Modifier.weight(1f)
                 )
@@ -85,12 +87,12 @@ fun LazyListScope.menuItems(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(1.dp)
-                        .background(GrayZero, CircleShape)
+                        .background(currentColors.accentPrimary, CircleShape)
                 )
             }
             if (category.items.lastIndex == index) {
                 HorizontalDivider(
-                    color = GrayZero,
+                    color = currentColors.accentPrimary,
                     modifier = Modifier.height(10.dp)
                 )
             }

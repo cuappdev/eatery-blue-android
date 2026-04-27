@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,10 +32,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
@@ -42,11 +41,10 @@ import com.cornellappdev.android.eatery.ui.components.settings.AppIconBottomShee
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
 import com.cornellappdev.android.eatery.ui.navigation.Routes
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.SettingsViewModel
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
@@ -83,6 +81,8 @@ private fun SettingsScreenContent(
         ModalBottomSheet(
             sheetState = modalBottomSheetState,
             onDismissRequest = { showAppIconSheet = false },
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,
@@ -102,206 +102,208 @@ private fun SettingsScreenContent(
 
     Column(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())
     ) {
+        Text(
+            text = stringResource(R.string.settings_title),
+            color = currentColors.contentBrand,
+            style = EateryBlueTypography.h2,
+            modifier = Modifier.padding(top = 7.dp, bottom = 7.dp)
+        )
+        SettingsOption(
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_appdev),
+                    contentDescription = null,
+                    tint = currentColors.textSecondary,
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = currentColors.backgroundSecondary,
+                )
+            },
+            title = stringResource(R.string.settings_about_title),
+            description = stringResource(R.string.settings_about_description),
+            onClick = {
+                destinations[Routes.ABOUT]?.invoke()
+            }
+        )
+        SettingsOption(
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_appicon_settings),
+                    contentDescription = null,
+                    tint = currentColors.textSecondary,
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            description = stringResource(R.string.settings_app_icon_description),
+            title = stringResource(R.string.settings_app_icon_title),
+            onClick = {
+                showAppIconSheet = true
+            },
+            trailingIcon = {
                 Text(
-                    text = stringResource(R.string.settings_title),
-                    color = EateryBlue,
-                    style = EateryBlueTypography.h2,
-                    modifier = Modifier.padding(top = 7.dp, bottom = 7.dp)
+                    text = stringResource(R.string.settings_change),
+                    style = EateryBlueTypography.button,
+                    color = currentColors.backgroundSecondary,
                 )
-                SettingsOption(
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_appdev),
-                            contentDescription = null,
-                            tint = GrayFive,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = null,
-                            tint = EateryBlue,
-                        )
-                    },
-                    title = stringResource(R.string.settings_about_title),
-                    description = stringResource(R.string.settings_about_description),
-                    onClick = {
-                        destinations[Routes.ABOUT]?.invoke()
-                    }
+            }
+        )
+        SettingsLineSeparator()
+        SettingsOption(
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.StarOutline,
+                    contentDescription = stringResource(R.string.settings_favorites_title),
+                    tint = currentColors.textSecondary,
+                    modifier = Modifier.size(24.dp)
                 )
-                SettingsOption(
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_appicon_settings),
-                            contentDescription = null,
-                            tint = GrayFive,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    description = stringResource(R.string.settings_app_icon_description),
-                    title = stringResource(R.string.settings_app_icon_title),
-                    onClick = {
-                        showAppIconSheet = true
-                    },
-                    trailingIcon = {
-                        Text(
-                            text = stringResource(R.string.settings_change),
-                            style = EateryBlueTypography.button,
-                            color = EateryBlue,
-                        )
-                    }
+            },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = currentColors.backgroundSecondary,
                 )
-                SettingsLineSeparator()
-                SettingsOption(
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.StarOutline,
-                            contentDescription = stringResource(R.string.settings_favorites_title),
-                            tint = GrayFive,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = null,
-                            tint = EateryBlue,
-                        )
-                    },
-                    title = stringResource(R.string.settings_favorites_title),
-                    description = stringResource(R.string.settings_favorites_description),
-                    onClick = {
-                        destinations[Routes.FAVORITES]?.invoke()
-                    }
+            },
+            title = stringResource(R.string.settings_favorites_title),
+            description = stringResource(R.string.settings_favorites_description),
+            onClick = {
+                destinations[Routes.FAVORITES]?.invoke()
+            }
+        )
+        SettingsLineSeparator()
+        SettingsOption(
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_bell),
+                    contentDescription = null,
+                    tint = currentColors.textSecondary,
+                    modifier = Modifier.size(24.dp)
                 )
-                SettingsLineSeparator()
-                SettingsOption(
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_bell),
-                            contentDescription = null,
-                            tint = GrayFive,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    title = stringResource(R.string.settings_notifications_title),
-                    description = stringResource(R.string.settings_notifications_description),
-                    onClick = {
-                        destinations[Routes.NOTIFICATIONS_SETTING]?.invoke()
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = null,
-                            tint = EateryBlue,
-                        )
-                    },
+            },
+            title = stringResource(R.string.settings_notifications_title),
+            description = stringResource(R.string.settings_notifications_description),
+            onClick = {
+                destinations[Routes.NOTIFICATIONS_SETTING]?.invoke()
+            },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = currentColors.backgroundSecondary,
                 )
-                SettingsLineSeparator()
-                SettingsOption(
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Lock,
-                            contentDescription = stringResource(R.string.settings_privacy_title),
-                            tint = GrayFive,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = null,
-                            tint = EateryBlue,
-                        )
-                    },
-                    title = stringResource(R.string.settings_privacy_title),
-                    description = stringResource(R.string.settings_privacy_description),
-                    onClick = {
-                        destinations[Routes.PRIVACY]?.invoke()
-                    }
+            },
+        )
+        SettingsLineSeparator()
+        SettingsOption(
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.Lock,
+                    contentDescription = stringResource(R.string.settings_privacy_title),
+                    tint = currentColors.textSecondary,
+                    modifier = Modifier.size(24.dp)
                 )
-                SettingsLineSeparator()
-                SettingsOption(
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.Gavel,
-                            contentDescription = stringResource(R.string.settings_legal_title),
-                            tint = GrayFive,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = null,
-                            tint = EateryBlue,
-                        )
-                    },
-                    title = stringResource(R.string.settings_legal_title),
-                    description = stringResource(R.string.settings_legal_description),
-                    onClick = {
-                        destinations[Routes.LEGAL]?.invoke()
-                    }
+            },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = currentColors.backgroundSecondary,
                 )
-                SettingsLineSeparator()
-                SettingsOption(
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
-                            contentDescription = stringResource(R.string.settings_support_title),
-                            tint = GrayFive,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    },
-                    trailingIcon = {
-                        Icon(
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = null,
-                            tint = EateryBlue,
-                        )
-                    },
-                    title = stringResource(R.string.settings_support_title),
-                    description = stringResource(R.string.settings_support_description),
-                    onClick = {
-                        destinations[Routes.SUPPORT]?.invoke()
-                    }
+            },
+            title = stringResource(R.string.settings_privacy_title),
+            description = stringResource(R.string.settings_privacy_description),
+            onClick = {
+                destinations[Routes.PRIVACY]?.invoke()
+            }
+        )
+        SettingsLineSeparator()
+        SettingsOption(
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.Gavel,
+                    contentDescription = stringResource(R.string.settings_legal_title),
+                    tint = currentColors.textSecondary,
+                    modifier = Modifier.size(24.dp)
                 )
+            },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = currentColors.backgroundSecondary,
+                )
+            },
+            title = stringResource(R.string.settings_legal_title),
+            description = stringResource(R.string.settings_legal_description),
+            onClick = {
+                destinations[Routes.LEGAL]?.invoke()
+            }
+        )
+        SettingsLineSeparator()
+        SettingsOption(
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
+                    contentDescription = stringResource(R.string.settings_support_title),
+                    tint = currentColors.textSecondary,
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = currentColors.backgroundSecondary,
+                )
+            },
+            title = stringResource(R.string.settings_support_title),
+            description = stringResource(R.string.settings_support_description),
+            onClick = {
+                destinations[Routes.SUPPORT]?.invoke()
+            }
+        )
 
-                Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.weight(1f))
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 34.dp),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        onClick = {
-                            onLogout()
-                        },
-                        shape = RoundedCornerShape(25.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = GrayZero,
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = Icons.AutoMirrored.Filled.Logout.name,
-                        )
-                        Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-                        Text(
-                            text = stringResource(R.string.settings_logout),
-                            style = EateryBlueTypography.button
-                        )
-                    }
-                }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 34.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    onLogout()
+                },
+                shape = RoundedCornerShape(25.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = currentColors.accentPrimary,
+                    contentColor = currentColors.textPrimary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = Icons.AutoMirrored.Filled.Logout.name,
+                )
+                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                Text(
+                    text = stringResource(R.string.settings_logout),
+                    style = EateryBlueTypography.button,
+                    color = currentColors.textPrimary
+                )
+            }
+        }
     }
 }
 
@@ -316,7 +318,7 @@ private fun previewDestinations(): Map<Routes, () -> Unit> = hashMapOf(
     Routes.PROFILE to {}
 )
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun SettingsScreenPreview() = EateryPreview {
     SettingsScreenContent(

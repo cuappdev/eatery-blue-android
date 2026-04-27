@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,23 +28,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.onboarding.OnboardingCarousel
-import com.cornellappdev.android.eatery.ui.theme.Black
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.OnboardingViewModel
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
@@ -69,7 +67,11 @@ fun OnboardingScreenContent(
     var fadePage by rememberSaveable { mutableStateOf(false) }
     val cornell = stringResource(R.string.onboarding_cornell)
     val appdev = stringResource(R.string.onboarding_appdev)
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
+            .fillMaxSize()
+    ) {
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize(), userScrollEnabled = false
@@ -86,7 +88,7 @@ fun OnboardingScreenContent(
 
                         Icon(
                             painter = painterResource(id = R.drawable.ic_eaterylogo_blue),
-                            tint = EateryBlue,
+                            tint = currentColors.contentBrand,
                             modifier = Modifier
                                 .width(96.dp)
                                 .height(96.dp),
@@ -95,7 +97,7 @@ fun OnboardingScreenContent(
 
                         Text(
                             text = stringResource(R.string.onboarding_eatery_title),
-                            color = EateryBlue,
+                            color = currentColors.contentBrand,
                             style = EateryBlueTypography.h1
                         )
 
@@ -112,7 +114,7 @@ fun OnboardingScreenContent(
                                     fadePage = true
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.White),
+                            colors = ButtonDefaults.buttonColors(containerColor = currentColors.accentPrimary),
                             elevation = ButtonDefaults.buttonElevation(
                                 defaultElevation = 4.dp,
                                 pressedElevation = 4.dp,
@@ -123,7 +125,7 @@ fun OnboardingScreenContent(
                             Text(
                                 style = EateryBlueTypography.h6,
                                 text = stringResource(R.string.onboarding_get_started),
-                                color = Black
+                                color = currentColors.textPrimary
                             )
                         }
 
@@ -140,13 +142,13 @@ fun OnboardingScreenContent(
                                 painter = painterResource(id = R.drawable.ic_appdev),
                                 modifier = Modifier.padding(end = 6.dp),
                                 contentDescription = null,
-                                tint = GrayThree
+                                tint = currentColors.contentSubtle
                             )
                             Text(
                                 buildAnnotatedString {
                                     withStyle(
                                         style = SpanStyle(
-                                            color = GrayThree,
+                                            color = currentColors.contentSubtle,
                                             fontWeight = FontWeight.Normal
                                         )
                                     ) {
@@ -154,7 +156,7 @@ fun OnboardingScreenContent(
                                     }
                                     withStyle(
                                         style = SpanStyle(
-                                            color = GrayThree,
+                                            color = currentColors.contentSubtle,
                                             fontWeight = FontWeight.SemiBold
                                         )
                                     ) {
@@ -187,7 +189,7 @@ fun OnboardingScreenContent(
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun OnboardingScreenPreview() = EateryPreview {
     OnboardingScreenContent(

@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun FavoriteItemRow(
@@ -53,13 +53,14 @@ fun FavoriteItemRow(
                 Text(
                     text = itemName,
                     style = EateryBlueTypography.h5,
-                    modifier = Modifier.padding(end = 10.dp)
+                    modifier = Modifier.padding(end = 10.dp),
+                    color = currentColors.textPrimary
                 )
                 Text(
                     text = stringResource(R.string.today),
                     fontSize = 10.sp,
                     style = EateryBlueTypography.body1,
-                    color = Color.DarkGray
+                    color = currentColors.textSecondary
                 )
             }
             Row {
@@ -71,14 +72,14 @@ fun FavoriteItemRow(
             modifier = Modifier
                 .size(24.dp)
                 .background(
-                    color = GrayZero,
+                    color = currentColors.backgroundDefault,
                     shape = CircleShape
                 )
         ) {
             Icon(
                 Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = "",
-                tint = Color.Black
+                tint = currentColors.textPrimary
             )
         }
     }
@@ -124,16 +125,19 @@ private fun CondenseEateriesName(eateries: List<String>) {
 
     Text(
         text = "At ",
-        fontSize = 12.sp
+        fontSize = 12.sp,
+        color = currentColors.textSecondary
     )
     Text(
         text = text,
         fontWeight = FontWeight(600),
-        fontSize = 12.sp
+        fontSize = 12.sp,
+        color = currentColors.textSecondary
     )
     Text(
         text = " $suffix",
-        fontSize = 12.sp
+        fontSize = 12.sp,
+        color = currentColors.textSecondary
     )
 }
 

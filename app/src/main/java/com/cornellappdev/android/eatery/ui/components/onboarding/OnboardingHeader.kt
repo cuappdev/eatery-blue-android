@@ -12,16 +12,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlin.math.absoluteValue
 import kotlin.math.pow
@@ -58,7 +56,7 @@ fun OnboardingHeader(
                     else -> "Log in with Eatery"
                 },
                 style = EateryBlueTypography.h3,
-                color = EateryBlue,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(start = 16.dp)
             )
 
@@ -74,7 +72,7 @@ fun OnboardingHeader(
                     Text(
                         text = "Skip",
                         modifier = Modifier.offset(x = 0.dp, y = (-7).dp),
-                        color = Color.Black,
+                        color = currentColors.textPrimary,
                         style = EateryBlueTypography.h6,
                     )
                 }
@@ -91,13 +89,13 @@ fun OnboardingHeader(
                 else -> "See your meal swipes, BRBs, and more"
             },
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
+            color = currentColors.textPrimary,
             modifier = Modifier.padding(top = 7.dp, start = 16.dp)
         )
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 fun OnboardingHeaderPreview() = EateryPreview {
     OnboardingHeader(num = 0, pagerOffset = 0f, onSkipClicked = {})

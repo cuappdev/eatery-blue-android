@@ -7,6 +7,7 @@ import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,20 +38,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
+import com.cornellappdev.android.eatery.ui.theme.BorderBlueLight
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GraySix
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -90,6 +90,8 @@ fun LoginPage(
                         onModalHidden()
                     },
                     sheetState = sheetState,
+                    containerColor = currentColors.backgroundDefault,
+                    contentColor = currentColors.textPrimary,
                     shape = RoundedCornerShape(
                         bottomStart = 0.dp,
                         bottomEnd = 0.dp,
@@ -123,6 +125,7 @@ private fun LoginPageMainLayer(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(currentColors.backgroundDefault)
             .padding(
                 bottom = 7.dp,
                 start = 16.dp,
@@ -144,13 +147,13 @@ private fun LoginPageMainLayer(
             ) {
                 Image(
                     painter = painterResource(R.drawable.ic_left_chevron),
-                    contentDescription = "Back Arrow"
+                    contentDescription = stringResource(R.string.a11y_login_back_arrow)
                 )
             }
         }
         Text(
-            text = "Log into Eatery",
-            color = EateryBlue,
+            text = stringResource(R.string.login_title),
+            color = currentColors.contentBrand,
             style = EateryBlueTypography.h3
         )
         val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -162,9 +165,9 @@ private fun LoginPageMainLayer(
             modifier = Modifier.zIndex(1f)
         ) {
             Text(
-                text = "Log in with your Cornell NetID to see your account balance and history",
+                text = stringResource(R.string.login_description),
                 style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-                color = GraySix,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(top = 7.dp)
             )
 
@@ -175,11 +178,11 @@ private fun LoginPageMainLayer(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_eaterylogo),
-                    contentDescription = "Eatery logo",
+                    contentDescription = stringResource(R.string.a11y_login_eatery_logo),
                     modifier = Modifier
                         .fillMaxWidth(0.5f)
                         .fillMaxHeight(),
-                    colorFilter = ColorFilter.tint(Color(0xFFB7D3F3))
+                    colorFilter = ColorFilter.tint(BorderBlueLight)
                 )
             }
             Button(
@@ -193,14 +196,16 @@ private fun LoginPageMainLayer(
                     onLoginPressed()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (clickable) EateryBlue else GrayZero,
-                    disabledContainerColor = GrayZero
+                    containerColor = currentColors.contentBrand,
+                    disabledContainerColor = currentColors.backgroundDefault
                 ),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
             ) {
                 Text(
-                    text = if (loading) "Logging in..." else "Log in",
-                    color = if (clickable) Color.White else GrayThree,
+                    text = if (loading) stringResource(R.string.login_button_logging_in) else stringResource(
+                        R.string.login_button_log_in
+                    ),
+                    color = currentColors.oppTextPrimary,
                     style = EateryBlueTypography.h5
                 )
             }
@@ -274,8 +279,7 @@ private class CustomWebViewClient(
     }
 }
 
-
-@Preview
+@DualModePreview
 @Composable
 private fun LoginPagePreview() = EateryPreview {
     LoginPage(

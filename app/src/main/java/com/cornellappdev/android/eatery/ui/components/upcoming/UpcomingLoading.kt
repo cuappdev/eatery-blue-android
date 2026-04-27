@@ -18,12 +18,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.shimmer
 
@@ -40,7 +38,7 @@ fun EateryBlob2(
             defaultElevation = 10.dp
         ),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = currentColors.backgroundDefault
         )
     ) {
         Column(
@@ -57,7 +55,7 @@ fun EateryBlob2(
                     )
                     .height(22.dp)
                     .width(200.dp),
-                color = GrayTwo
+                color = currentColors.backgroundDefault92
             ) {
             }
             Surface(
@@ -70,7 +68,7 @@ fun EateryBlob2(
                     )
                     .height(18.dp)
                     .width(140.dp),
-                color = GrayTwo
+                color = currentColors.backgroundDefault92
             ) {
             }
         }
@@ -100,7 +98,7 @@ sealed class UpcomingLoadingItem {
                         modifier = Modifier
                             .shimmer(shimmer)
                             .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
-                        color = GrayThree
+                        color = currentColors.backgroundDefault10
                     )
                 }
 
@@ -132,8 +130,9 @@ sealed class UpcomingLoadingItem {
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 fun DefaultPreview() {
     EateryBlob2()
 }
+

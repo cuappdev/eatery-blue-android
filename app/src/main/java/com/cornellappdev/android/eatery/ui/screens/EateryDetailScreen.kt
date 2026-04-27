@@ -67,8 +67,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -78,7 +76,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -108,22 +105,16 @@ import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
-import com.cornellappdev.android.eatery.ui.theme.Yellow
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.EateryDetailViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.MealViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
@@ -240,14 +231,14 @@ fun EateryDetailScreenContent(
     ) { paddingValues ->
         Box(
             modifier = Modifier
-                .background(Color.White)
+                .background(color = currentColors.backgroundDefault)
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
             when (viewState) {
                 is EateryDetailViewState.Error -> {
                     // TODO we should have an error state for this screen lol
-                    Text("Cannot load Eatery Details")
+                    Text("Cannot load Eatery Details", color = currentColors.textPrimary)
                 }
 
                 is EateryDetailViewState.Loaded -> {
@@ -258,7 +249,9 @@ fun EateryDetailScreenContent(
                         stringResource(R.string.no_maps_app_available_on_this_device)
                     val paymentMethods = remember(eatery) {
                         buildList {
-                            if (eatery.acceptsCash()) add(PaymentMethodsAvailable.CASH)
+                            if (eatery.acceptsCash() || eatery.acceptsCard()) add(
+                                PaymentMethodsAvailable.CASH_OR_CARD
+                            )
                             if (eatery.acceptsBRB()) add(PaymentMethodsAvailable.BRB)
                             if (eatery.acceptsMealSwipes()) add(PaymentMethodsAvailable.SWIPES)
                         }
@@ -285,6 +278,8 @@ fun EateryDetailScreenContent(
                         ModalBottomSheet(
                             onDismissRequest = closeBottomSheet,
                             sheetState = modalBottomSheetState,
+                            containerColor = currentColors.backgroundDefault,
+                            contentColor = currentColors.textPrimary,
                             shape = RoundedCornerShape(
                                 bottomStart = 0.dp,
                                 bottomEnd = 0.dp,
@@ -359,7 +354,6 @@ fun EateryDetailScreenContent(
                     }
 
 
-
                     val listState = rememberLazyListState()
                     val showStickyHeader by remember {
                         derivedStateOf { listState.firstVisibleItemIndex >= 1 }
@@ -410,8 +404,8 @@ fun EateryDetailScreenContent(
                                                             .background(
                                                                 colorInterp(
                                                                     progress,
-                                                                    GrayOne,
-                                                                    GrayThree
+                                                                    currentColors.backgroundSecondary,
+                                                                    currentColors.backgroundDefault10
                                                                 )
                                                             ),
                                                         contentDescription = null,
@@ -444,12 +438,12 @@ fun EateryDetailScreenContent(
                                         contentPadding = PaddingValues(6.dp),
                                         shape = CircleShape,
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color.White,
+                                            containerColor = currentColors.backgroundDefault,
                                         )
                                     ) {
                                         Icon(
                                             imageVector = if (viewState.isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                                            tint = if (viewState.isFavorite) Yellow else GrayFive,
+                                            tint = if (viewState.isFavorite) currentColors.favorite else currentColors.textSecondary,
                                             contentDescription = null
                                         )
                                     }
@@ -471,6 +465,7 @@ fun EateryDetailScreenContent(
                                     text = eatery.name ?: stringResource(R.string.loading),
                                     modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                                     style = EateryBlueTypography.h3,
+                                    color = currentColors.textPrimary
                                 )
                             }
                             item {
@@ -489,7 +484,7 @@ fun EateryDetailScreenContent(
                                     },
                                     modifier = Modifier.padding(start = 16.dp),
                                     style = EateryBlueTypography.subtitle2,
-                                    color = GrayFive
+                                    color = currentColors.textSecondary
                                 )
                             }
                             item {
@@ -548,29 +543,42 @@ fun EateryDetailScreenContent(
                                             },
                                             shape = RoundedCornerShape(100),
                                             colors = ButtonDefaults.buttonColors(
-                                                containerColor = EateryBlue,
-                                                contentColor = Color.White
+                                                containerColor = currentColors.accentPrimary,
+                                                contentColor = currentColors.backgroundDefault
                                             )
                                         ) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.ic_android_phone),
-                                                contentDescription = null
+                                                contentDescription = null,
+                                                tint = currentColors.textPrimary
                                             )
                                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                             Text(
                                                 modifier = Modifier.padding(vertical = 6.dp),
                                                 text = stringResource(R.string.order_online),
                                                 style = EateryBlueTypography.h5,
-                                                color = Color.White
+                                                color = currentColors.textPrimary
                                             )
                                         }
                                     }
+                                    val unknownLocationText =
+                                        stringResource(R.string.unknown_location)
                                     Button(
                                         onClick = {
+                                            val lat = eatery.latitude
+                                            val lon = eatery.longitude
+                                            if (lat == null || lon == null) {
+                                                Toast.makeText(
+                                                    context,
+                                                    unknownLocationText,
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                                return@Button
+                                            }
                                             val mapIntent =
                                                 Intent(Intent.ACTION_VIEW).apply {
                                                     data =
-                                                        "google.navigation:q=${eatery.latitude},${eatery.longitude}&mode=w".toUri()
+                                                        "google.navigation:q=$lat,$lon&mode=w".toUri()
                                                     setPackage("com.google.android.apps.maps")
                                                 }
 
@@ -580,7 +588,7 @@ fun EateryDetailScreenContent(
                                                 val fallbackMapIntent =
                                                     Intent(
                                                         Intent.ACTION_VIEW,
-                                                        "geo:${eatery.latitude},${eatery.longitude}".toUri()
+                                                        "geo:$lat,$lon".toUri()
                                                     )
                                                 val launchedFallback =
                                                     launchIntentSafely(context, fallbackMapIntent)
@@ -602,8 +610,8 @@ fun EateryDetailScreenContent(
                                             .fillMaxWidth()
                                             .padding(horizontal = 15.dp),
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = GrayZero,
-                                            contentColor = Color.Black
+                                            containerColor = currentColors.accentPrimary,
+                                            contentColor = currentColors.textPrimary
                                         )
                                     ) {
                                         Icon(
@@ -615,7 +623,8 @@ fun EateryDetailScreenContent(
                                             modifier = Modifier.padding(vertical = 6.dp),
                                             text = stringResource(R.string.get_directions),
                                             style = EateryBlueTypography.h5,
-                                            maxLines = 1
+                                            maxLines = 1,
+                                            color = currentColors.textPrimary
                                         )
                                     }
                                 }
@@ -629,7 +638,9 @@ fun EateryDetailScreenContent(
                                         .fillMaxWidth()
                                         .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
                                         .border(
-                                            1.dp, GrayZero, RoundedCornerShape(8.dp)
+                                            1.dp,
+                                            currentColors.accentPrimary,
+                                            RoundedCornerShape(8.dp)
                                         ),
                                     horizontalArrangement = Arrangement.SpaceEvenly,
                                     verticalAlignment = Alignment.CenterVertically
@@ -644,13 +655,12 @@ fun EateryDetailScreenContent(
                                             }
                                     ) {
                                         Row(
-                                            modifier = Modifier,
                                             verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Outlined.Schedule,
                                                 contentDescription = null,
-                                                tint = GrayFive
+                                                tint = currentColors.textSecondary
                                             )
                                             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                                             Text(
@@ -658,7 +668,7 @@ fun EateryDetailScreenContent(
                                                 style = TextStyle(
                                                     fontWeight = FontWeight.SemiBold,
                                                     fontSize = 16.sp
-                                                ), color = GrayFive
+                                                ), color = currentColors.textSecondary
                                             )
                                         }
                                         val openUntil = eatery.getOpenUntil()
@@ -680,14 +690,14 @@ fun EateryDetailScreenContent(
                                                 fontWeight = FontWeight.SemiBold,
                                                 fontSize = 16.sp
                                             ),
-                                            color = if (openUntil == null) Red
-                                            else if (eatery.isClosingSoon()) Yellow
-                                            else Green
+                                            color = if (openUntil == null) currentColors.error
+                                            else if (eatery.isClosingSoon()) currentColors.warning
+                                            else currentColors.success
                                         )
                                     }
 
                                     HorizontalDivider(
-                                        color = GrayZero,
+                                        color = currentColors.accentPrimary,
                                         modifier = Modifier
                                             .align(Alignment.CenterVertically)
                                             .fillMaxHeight(0.5f)
@@ -701,7 +711,7 @@ fun EateryDetailScreenContent(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(16.dp)
-                                        .background(GrayZero)
+                                        .background(currentColors.accentPrimary)
                                 )
                             }
                             nextEvent.menu?.let {
@@ -732,7 +742,7 @@ fun EateryDetailScreenContent(
                                             )
                                             .fillMaxWidth()
                                             .height(1.dp)
-                                            .background(GrayZero, CircleShape)
+                                            .background(currentColors.accentPrimary, CircleShape)
                                     )
                                 }
                                 eatery.getTypeMeal(viewState.weekdayIndex.fromOffsetToDayOfWeek())
@@ -770,7 +780,7 @@ fun EateryDetailScreenContent(
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .height(16.dp)
-                                            .background(GrayZero)
+                                            .background(currentColors.accentPrimary)
                                     )
                                 }
                             }
@@ -787,40 +797,40 @@ fun EateryDetailScreenContent(
                                     Text(
                                         text = stringResource(R.string.make_eatery_better),
                                         style = EateryBlueTypography.h5,
-                                        modifier = Modifier.padding(vertical = 8.dp)
+                                        modifier = Modifier.padding(vertical = 8.dp),
+                                        color = currentColors.textPrimary
                                     )
                                     Text(
                                         text = stringResource(R.string.make_eatery_better_description),
                                         style = EateryBlueTypography.body2,
                                         modifier = Modifier.padding(bottom = 5.dp),
-                                        color = GrayFive
+                                        color = currentColors.textSecondary
                                     )
 
 
                                     Spacer(Modifier.height(8.dp))
                                     //reporting button
                                     Button(
-                                        shape = RoundedCornerShape(24.dp),
-                                        modifier = Modifier
-                                            .height(35.dp)
-                                            .shadow(0.dp),
+                                        shape = RoundedCornerShape(100.dp),
+                                        modifier = Modifier.height(35.dp),
                                         onClick = {
                                             openBottomSheet(BottomSheetContent.REPORT)
                                         },
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = GrayZero,
+                                            containerColor = currentColors.accentPrimary,
+                                            contentColor = currentColors.textPrimary
                                         )
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Report,
                                             contentDescription = Icons.Default.Report.name,
-                                            tint = Color.Unspecified
+                                            tint = currentColors.textPrimary
                                         )
                                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                                         Text(
                                             text = stringResource(R.string.report_an_issue),
                                             style = EateryBlueTypography.button,
-                                            color = Color.Black
+                                            color = currentColors.textPrimary
                                         )
                                     }
 
@@ -837,7 +847,7 @@ fun EateryDetailScreenContent(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(16.dp)
-                                        .background(GrayZero)
+                                        .background(currentColors.accentPrimary)
                                 )
                             }
                         }
@@ -849,7 +859,7 @@ fun EateryDetailScreenContent(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .background(Color.White)
+                                    .background(currentColors.backgroundDefault)
                                     .padding(top = 48.dp, bottom = 12.dp)
                             ) {
                                 EateryHeader(
@@ -909,6 +919,7 @@ private fun LazyListScope.menuHeadingItem(
                     text = weekDayIndex.fromOffsetToDayOfWeek()
                         .toReadableFullName(),
                     style = EateryBlueTypography.h4,
+                    color = currentColors.textPrimary
                 )
                 if (nextEvent.startTimestamp != null && nextEvent.endTimestamp != null) {
                     Text(
@@ -922,7 +933,7 @@ private fun LazyListScope.menuHeadingItem(
                             )
                         }",
                         style = EateryBlueTypography.subtitle2,
-                        color = GrayFive
+                        color = currentColors.textSecondary
                     )
                 }
             }
@@ -947,7 +958,7 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
             text = eatery.name ?: stringResource(R.string.loading),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            color = Color.Black,
+            color = currentColors.textPrimary,
             style = TextStyle(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 20.sp
@@ -963,7 +974,7 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
             contentPadding = PaddingValues(6.dp),
             shape = CircleShape,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
+                containerColor = currentColors.backgroundDefault,
             ),
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 0.dp,
@@ -972,7 +983,7 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
         ) {
             Icon(
                 imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarOutline,
-                tint = if (isFavorite) Yellow else GrayFive,
+                tint = if (isFavorite) currentColors.favorite else currentColors.textSecondary,
                 contentDescription = null
             )
         }
@@ -996,7 +1007,7 @@ private fun launchIntentSafely(context: android.content.Context, intent: Intent)
 
 private const val EATERY_DETAIL_TAG = "EateryDetailScreen"
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun EateryDetailScreenPreview() = EateryPreview {
     val now = LocalDateTime.now()
@@ -1043,3 +1054,4 @@ private fun EateryDetailScreenPreview() = EateryPreview {
         onToggleFavoriteMenuItem = {},
     )
 }
+

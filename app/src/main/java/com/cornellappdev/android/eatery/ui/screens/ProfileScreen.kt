@@ -1,8 +1,11 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.AccountBalances
@@ -10,8 +13,10 @@ import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 
@@ -65,28 +70,34 @@ private fun ProfileScreenContent(
     onQueryChanged: (String) -> Unit,
     updateAccountFilter: (TransactionAccountType) -> Unit
 ) {
-    if (isLoginState) {
-        LoginPage(
-            isLoading = loading,
-            onLoginPressed = onLoginPressed,
-            onSuccess = onSuccess,
-            onBackClick = onBackClick,
-            onModalHidden = onModalHidden
-        )
-    } else {
-        AccountPage(
-            accountFilter = accountFilter,
-            accountTypeBalance = accountTypeBalance,
-            onSettingsClicked = onSettingsClicked,
-            filteredTransactions = filteredTransactions,
-            filterText = filterText,
-            onQueryChanged = onQueryChanged,
-            updateAccountFilter = updateAccountFilter
-        )
+    Box(
+        modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
+            .fillMaxSize()
+    ) {
+        if (isLoginState) {
+            LoginPage(
+                isLoading = loading,
+                onLoginPressed = onLoginPressed,
+                onSuccess = onSuccess,
+                onBackClick = onBackClick,
+                onModalHidden = onModalHidden
+            )
+        } else {
+            AccountPage(
+                accountFilter = accountFilter,
+                accountTypeBalance = accountTypeBalance,
+                onSettingsClicked = onSettingsClicked,
+                filteredTransactions = filteredTransactions,
+                filterText = filterText,
+                onQueryChanged = onQueryChanged,
+                updateAccountFilter = updateAccountFilter
+            )
+        }
     }
 }
 
-@Preview(name = "Profile - Login", showBackground = true)
+@DualModePreview
 @Composable
 private fun ProfileScreenLoginPreview() = EateryPreview {
     ProfileScreenContent(
@@ -106,7 +117,7 @@ private fun ProfileScreenLoginPreview() = EateryPreview {
     )
 }
 
-@Preview(name = "Profile - Account", showBackground = true)
+@DualModePreview
 @Composable
 private fun ProfileScreenAccountPreview() = EateryPreview {
     ProfileScreenContent(

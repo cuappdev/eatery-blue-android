@@ -33,15 +33,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.general.CalendarWeekSelector
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterButton
@@ -52,12 +52,13 @@ import com.cornellappdev.android.eatery.ui.components.upcoming.MealBottomSheet
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCard
 import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingItem
 import com.cornellappdev.android.eatery.ui.components.upcoming.UpcomingLoadingItem.Companion.CreateUpcomingLoadingItem
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingMenusViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
@@ -116,191 +117,145 @@ private fun UpcomingMenuScreenContent(
     val coroutineScope = rememberCoroutineScope()
     val shimmer = rememberShimmer(ShimmerBounds.View)
 
-    Box(modifier = Modifier.background(White)) {
-        if (showMealBottomSheet) {
-            ModalBottomSheet(
-                sheetState = modalBottomSheetState,
-                onDismissRequest = { showMealBottomSheet = false },
-                shape = RoundedCornerShape(
-                    bottomStart = 0.dp,
-                    bottomEnd = 0.dp,
-                    topStart = 12.dp,
-                    topEnd = 12.dp
-                ),
-            ) {
-                MealBottomSheet(
-                    isVisible = modalBottomSheetState.isVisible,
-                    selectedMeal = viewState.mealFilter,
-                    onSubmit = onMealFilterChanged,
-                    hide = {
-                        coroutineScope.launch {
-                            modalBottomSheetState.hide()
-                        }.invokeOnCompletion {
-                            if (!modalBottomSheetState.isVisible) showMealBottomSheet = false
-                        }
-                    }
-                )
-            }
-        }
 
-        val innerListState = rememberLazyListState()
-        val filterRowState = rememberLazyListState()
-        val isFirstVisible =
-            remember { derivedStateOf { innerListState.firstVisibleItemIndex > 0 } }
-        when (val menus = viewState.menus) {
-            is EateryApiResponse.Success -> {
-                UpcomingMenuShell(
-                    innerListState = innerListState,
-                    isFirstVisible = isFirstVisible,
-                    selectedDay = viewState.selectedDay,
-                    selectDayOffset = onSelectDayOffset,
-                    showModalBottomSheet = { showMealBottomSheet = true },
-                    mealFilter = viewState.mealFilter,
-                    upcomingMenuFilters = upcomingMenuFilters,
-                    selectedFilters = viewState.selectedFilters,
-                    onToggleFilterClicked = onToggleFilterClicked,
-                    filterRowState = filterRowState
-                ) {
-                    if (menus.data.isEmpty()) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillParentMaxHeight(0.7f)
-                                    .fillMaxWidth()
-                            ) {
-                                NoEateryFound(
-                                    modifier = Modifier.align(
-                                        Alignment.Center
-                                    ),
-                                    resetFilters = onResetFiltersClicked
-                                )
-                            }
+    if (showMealBottomSheet) {
+        ModalBottomSheet(
+            sheetState = modalBottomSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
+            onDismissRequest = { showMealBottomSheet = false },
+            shape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 12.dp,
+                topEnd = 12.dp
+            ),
+        ) {
+            MealBottomSheet(
+                isVisible = modalBottomSheetState.isVisible,
+                selectedMeal = viewState.mealFilter,
+                onSubmit = onMealFilterChanged,
+                hide = {
+                    coroutineScope.launch {
+                        modalBottomSheetState.hide()
+                    }.invokeOnCompletion {
+                        if (!modalBottomSheetState.isVisible) showMealBottomSheet = false
+                    }
+                }
+            )
+        }
+    }
+
+    val innerListState = rememberLazyListState()
+    val filterRowState = rememberLazyListState()
+    val isFirstVisible =
+        remember { derivedStateOf { innerListState.firstVisibleItemIndex > 0 } }
+    when (val menus = viewState.menus) {
+        is EateryApiResponse.Success -> {
+            UpcomingMenuShell(
+                innerListState = innerListState,
+                isFirstVisible = isFirstVisible,
+                selectedDay = viewState.selectedDay,
+                selectDayOffset = onSelectDayOffset,
+                showModalBottomSheet = { showMealBottomSheet = true },
+                mealFilter = viewState.mealFilter,
+                upcomingMenuFilters = upcomingMenuFilters,
+                selectedFilters = viewState.selectedFilters,
+                onToggleFilterClicked = onToggleFilterClicked,
+                filterRowState = filterRowState
+            ) {
+                if (menus.data.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillParentMaxHeight(0.7f)
+                                .fillMaxWidth()
+                        ) {
+                            NoEateryFound(
+                                modifier = Modifier.align(
+                                    Alignment.Center
+                                ),
+                                resetFilters = onResetFiltersClicked
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+                items(menus.data) {
+                    Column(modifier = Modifier.padding(horizontal = 12.dp)) {
+                        Text(
+                            modifier = Modifier.padding(start = 6.dp),
+                            text = it.header,
+                            style = EateryBlueTypography.h4,
+                            color = currentColors.textPrimary
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        it.menuCards.forEach { eatery ->
+                            MenuCard(
+                                menuCardViewState = eatery,
+                                selectEatery = {
+                                    onEateryClick(eatery.eateryId)
+                                },
+                                onEateryCardContract = onEateryCardContract
+                            )
                             Spacer(modifier = Modifier.height(12.dp))
                         }
                     }
-                    items(menus.data) {
-                        Column(modifier = Modifier.padding(horizontal = 12.dp)) {
-                            Text(
-                                modifier = Modifier.padding(start = 6.dp),
-                                text = it.header,
-                                style = EateryBlueTypography.h4
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            it.menuCards.forEach { eatery ->
-                                MenuCard(
-                                    menuCardViewState = eatery,
-                                    selectEatery = {
-                                        onEateryClick(eatery.eateryId)
-                                    },
-                                    onEateryCardContract = onEateryCardContract
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                            }
-                        }
-                    }
                 }
             }
+        }
 
-            is EateryApiResponse.Pending -> {
-                UpcomingMenuShell(
-                    innerListState = innerListState,
-                    isFirstVisible = isFirstVisible,
+        is EateryApiResponse.Pending -> {
+            UpcomingMenuShell(
+                innerListState = innerListState,
+                isFirstVisible = isFirstVisible,
+                selectedDay = viewState.selectedDay,
+                selectDayOffset = onSelectDayOffset,
+                showModalBottomSheet = { showMealBottomSheet = true },
+                mealFilter = viewState.mealFilter,
+                upcomingMenuFilters = upcomingMenuFilters,
+                selectedFilters = viewState.selectedFilters,
+                onToggleFilterClicked = onToggleFilterClicked,
+                filterRowState = filterRowState
+            ) {
+                items(UpcomingLoadingItem.upcomingItems) { item ->
+                    CreateUpcomingLoadingItem(
+                        item,
+                        shimmer
+                    )
+                }
+            }
+        }
+
+        is EateryApiResponse.Error -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = currentColors.backgroundDefault)
+            ) {
+                UpcomingMenuHeader(isFirstVisible)
+                CalendarWeekSelector(
                     selectedDay = viewState.selectedDay,
-                    selectDayOffset = onSelectDayOffset,
+                    selectDayOffset = onSelectDayOffset
+                )
+                UpcomingFilterRow(
                     showModalBottomSheet = { showMealBottomSheet = true },
                     mealFilter = viewState.mealFilter,
                     upcomingMenuFilters = upcomingMenuFilters,
                     selectedFilters = viewState.selectedFilters,
                     onToggleFilterClicked = onToggleFilterClicked,
                     filterRowState = filterRowState
+                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(UpcomingLoadingItem.upcomingItems) { item ->
-                        CreateUpcomingLoadingItem(
-                            item,
-                            shimmer
-                        )
-                    }
-                }
-            }
-
-            is EateryApiResponse.Error -> {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    UpcomingMenuHeader(isFirstVisible)
-                    CalendarWeekSelector(
-                        selectedDay = viewState.selectedDay,
-                        selectDayOffset = onSelectDayOffset
-                    )
-                    UpcomingFilterRow(
-                        showModalBottomSheet = { showMealBottomSheet = true },
-                        mealFilter = viewState.mealFilter,
-                        upcomingMenuFilters = upcomingMenuFilters,
-                        selectedFilters = viewState.selectedFilters,
-                        onToggleFilterClicked = onToggleFilterClicked,
-                        filterRowState = filterRowState
-                    )
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        ErrorContent(onTryAgain = onPingEateries)
-                    }
+                    ErrorContent(onTryAgain = onPingEateries)
                 }
             }
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-private fun UpcomingMenuScreenPreview() = EateryPreview {
-    val previewState = PreviewData.upcomingMenuPreviewState()
-    UpcomingMenuScreenContent(
-        viewState = previewState.viewState,
-        upcomingMenuFilters = previewState.upcomingMenuFilters,
-        onMealFilterChanged = {},
-        onToggleFilterClicked = {},
-        onResetFiltersClicked = {},
-        onSelectDayOffset = {},
-        onPingEateries = {},
-        onEateryClick = {},
-        onEateryCardContract = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun UpcomingMenuScreenEmptyPreview() = EateryPreview {
-    val previewState = PreviewData.upcomingMenuEmptyPreviewState()
-    UpcomingMenuScreenContent(
-        viewState = previewState.viewState,
-        upcomingMenuFilters = previewState.upcomingMenuFilters,
-        onMealFilterChanged = {},
-        onToggleFilterClicked = {},
-        onResetFiltersClicked = {},
-        onSelectDayOffset = {},
-        onPingEateries = {},
-        onEateryClick = {},
-        onEateryCardContract = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun UpcomingMenuScreenErrorPreview() = EateryPreview {
-    val previewState = PreviewData.upcomingMenuErrorPreviewState()
-    UpcomingMenuScreenContent(
-        viewState = previewState.viewState,
-        upcomingMenuFilters = previewState.upcomingMenuFilters,
-        onMealFilterChanged = {},
-        onToggleFilterClicked = {},
-        onResetFiltersClicked = {},
-        onSelectDayOffset = {},
-        onPingEateries = {},
-        onEateryClick = {},
-        onEateryCardContract = {}
-    )
-}
-
 
 @Composable
 private fun UpcomingMenuShell(
@@ -381,7 +336,7 @@ private fun UpcomingFilterRow(
                     },
                     selected = true,
                     text = mealFilter.displayName,
-                    hasExpandIcon = true
+                    hasExpandIcon = true,
                 )
             }
         },
@@ -402,10 +357,18 @@ private fun UpcomingLazyColumn(
     content: LazyListScope.() -> Unit
 ) {
     LazyColumn(
-        state = innerListState, modifier = Modifier.fillMaxSize()
+        state = innerListState, modifier = Modifier
+            .fillMaxSize()
+            .background(color = currentColors.backgroundDefault)
     ) {
         stickyHeader {
-            upcomingMenuHeader()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(currentColors.backgroundDefault)
+            ) {
+                upcomingMenuHeader()
+            }
         }
         item {
             calendarWeekSelector()
@@ -423,7 +386,7 @@ private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(EateryBlue)
+            .background(currentColors.backgroundSecondary)
             .then(Modifier.statusBarsPadding())
             .padding(bottom = 7.dp),
     ) {
@@ -439,8 +402,8 @@ private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
                     Text(
                         modifier = Modifier.align(Alignment.Center),
                         textAlign = TextAlign.Center,
-                        text = "Upcoming Menus",
-                        color = White,
+                        text = stringResource(R.string.upcoming_menus_title),
+                        color = currentColors.oppTextPrimary,
                         style = TextStyle(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 20.sp
@@ -456,12 +419,63 @@ private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
                     )
                 ) {
                     Text(
-                        text = "Upcoming Menus",
-                        color = White,
+                        text = stringResource(R.string.upcoming_menus_title),
+                        color = currentColors.oppTextPrimary,
                         style = EateryBlueTypography.h2
                     )
                 }
             }
         }
     }
+}
+
+@DualModePreview
+@Composable
+private fun UpcomingMenuScreenPreview() = EateryPreview {
+    val previewState = PreviewData.upcomingMenuPreviewState()
+    UpcomingMenuScreenContent(
+        viewState = previewState.viewState,
+        upcomingMenuFilters = previewState.upcomingMenuFilters,
+        onMealFilterChanged = {},
+        onToggleFilterClicked = {},
+        onResetFiltersClicked = {},
+        onSelectDayOffset = {},
+        onPingEateries = {},
+        onEateryClick = {},
+        onEateryCardContract = {}
+    )
+}
+
+@DualModePreview
+@Composable
+private fun UpcomingMenuScreenEmptyPreview() = EateryPreview {
+    val previewState = PreviewData.upcomingMenuEmptyPreviewState()
+    UpcomingMenuScreenContent(
+        viewState = previewState.viewState,
+        upcomingMenuFilters = previewState.upcomingMenuFilters,
+        onMealFilterChanged = {},
+        onToggleFilterClicked = {},
+        onResetFiltersClicked = {},
+        onSelectDayOffset = {},
+        onPingEateries = {},
+        onEateryClick = {},
+        onEateryCardContract = {}
+    )
+}
+
+@DualModePreview
+@Composable
+private fun UpcomingMenuScreenErrorPreview() = EateryPreview {
+    val previewState = PreviewData.upcomingMenuErrorPreviewState()
+    UpcomingMenuScreenContent(
+        viewState = previewState.viewState,
+        upcomingMenuFilters = previewState.upcomingMenuFilters,
+        onMealFilterChanged = {},
+        onToggleFilterClicked = {},
+        onResetFiltersClicked = {},
+        onSelectDayOffset = {},
+        onPingEateries = {},
+        onEateryClick = {},
+        onEateryCardContract = {}
+    )
 }

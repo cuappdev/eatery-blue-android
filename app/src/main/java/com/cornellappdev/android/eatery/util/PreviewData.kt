@@ -10,8 +10,8 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewSt
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.components.upcoming.EateryHours
 import com.cornellappdev.android.eatery.ui.components.upcoming.MenuCardViewState
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Orange
+import com.cornellappdev.android.eatery.ui.theme.SuccessLight
+import com.cornellappdev.android.eatery.ui.theme.WarningLight
 import com.cornellappdev.android.eatery.ui.viewmodels.EateriesSection
 import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingMenusViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
@@ -81,7 +81,7 @@ object PreviewData {
                                     ),
                                     eateryStatus = EateryStatus(
                                         statusText = "Open",
-                                        statusColor = Green
+                                        statusColor = SuccessLight
                                     ),
                                     menu = listOf(
                                         MenuCategoryViewState(
@@ -113,7 +113,7 @@ object PreviewData {
                                     ),
                                     eateryStatus = EateryStatus(
                                         statusText = "Closing Soon",
-                                        statusColor = Orange
+                                        statusColor = WarningLight
                                     ),
                                     menu = listOf(
                                         MenuCategoryViewState(

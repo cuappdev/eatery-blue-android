@@ -11,7 +11,6 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -26,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -53,16 +51,21 @@ import com.cornellappdev.android.eatery.ui.screens.SearchScreen
 import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NavigationSetup(hasOnboarded: Boolean) {
+fun NavigationSetup(
+    hasOnboarded: Boolean
+) {
     val navController = rememberNavController()
     val showBottomBar = rememberSaveable {
         mutableStateOf(false)
     }
+    val resolvedDarkMode = rememberResolvedDarkMode()
 
     // Subscribe to navBackStackEntry, required to get current route
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -83,6 +86,7 @@ fun NavigationSetup(hasOnboarded: Boolean) {
     }
 
     Scaffold(
+        containerColor = currentColors.backgroundDefault,
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             AnimatedContent(
@@ -95,7 +99,11 @@ fun NavigationSetup(hasOnboarded: Boolean) {
                 }
             ) { state ->
                 if (state) {
-                    BottomNavigationBar(navController, NavigationItem.bottomNavTabList)
+                    BottomNavigationBar(
+                        navController = navController,
+                        tabItems = NavigationItem.bottomNavTabList,
+                        darkMode = resolvedDarkMode
+                    )
                 }
             }
         }
@@ -110,24 +118,35 @@ fun NavigationSetup(hasOnboarded: Boolean) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController, tabItems: List<NavigationItem>) {
+fun BottomNavigationBar(
+    navController: NavHostController,
+    tabItems: List<NavigationItem>,
+    darkMode: Boolean
+) {
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = EateryBlue
+        containerColor = currentColors.accentPrimary
     ) {
         val currentRoute = currentRoute(navController)
         tabItems.forEach { item ->
+            val isSelected = item.selectedRoutes.contains(currentRoute)
+            val iconId = if (isSelected) {
+                if (darkMode) item.selectedDarkIconId else item.selectedIconId
+            } else {
+                // Same icon for dark and light mode when unselected
+                item.unselectedIconId
+            }
             NavigationBarItem(
+
                 icon = {
                     Icon(
                         painter = painterResource(
-                            id = if (item.selectedRoutes.contains(currentRoute)) item.selectedIconId else item.unselectedIconId
+                            id = iconId
                         ),
                         contentDescription = item.route,
                         tint = Color.Unspecified
                     )
                 },
-                selected = item.selectedRoutes.contains(currentRoute),
+                selected = isSelected,
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = Color.Transparent
                 ),
@@ -140,12 +159,13 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun BottomNavBarPreview() = EateryPreview {
     BottomNavigationBar(
         navController = rememberNavController(),
-        tabItems = NavigationItem.bottomNavTabList
+        tabItems = NavigationItem.bottomNavTabList,
+        darkMode = false
     )
 }
 
@@ -155,7 +175,8 @@ fun SetupNavHost(
     modifier: Modifier = Modifier,
     hasOnboarded: Boolean,
     navController: NavHostController,
-    showBottomBar: MutableState<Boolean>,
+    showBottomBar: MutableState<Boolean>
+
 ) {
     AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
 
@@ -205,7 +226,13 @@ fun SetupNavHost(
                 }, onFavoriteExpand = {
                     navController.navigate(Routes.FAVORITES.route)
                 }, onCompareMenusClick = { selectedEateries ->
-                    navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
+                    navController.navigate(
+                        "${Routes.COMPAREMENUS.route}/${
+                            selectedEateries.joinToString(
+                                ","
+                            ) { it.toString() }
+                        }"
+                    )
                 },
                 onNotificationsClick = {
                     navController.navigate("notifications_home")
@@ -245,7 +272,13 @@ fun SetupNavHost(
             }) {
             EateryDetailScreen(
                 onCompareMenusClick = { selectedEateriesIds ->
-                    navController.navigate("comparemenus/${selectedEateriesIds.joinToString(",") { it.toString() }}")
+                    navController.navigate(
+                        "${Routes.COMPAREMENUS.route}/${
+                            selectedEateriesIds.joinToString(
+                                ","
+                            ) { it.toString() }
+                        }"
+                    )
                 }
             )
         }
@@ -321,7 +354,7 @@ fun SetupNavHost(
                             }
                         }
                     }
-                ),
+                )
             )
         }
         composable(
@@ -461,7 +494,7 @@ fun SetupNavHost(
             SupportScreen()
         }
         composable(
-            route = "comparemenus/{eateryIds}",
+            route = "${Routes.COMPAREMENUS.route}/{eateryIds}",
             arguments = listOf(navArgument("eateryIds") { type = NavType.StringType }),
             enterTransition = { fadeIn(animationSpec = tween(durationMillis = 500)) },
             exitTransition = { fadeOut(animationSpec = tween(durationMillis = 500)) }
@@ -491,3 +524,4 @@ private fun NavController.isOnBackStack(route: String): Boolean = try {
 } catch (_: IllegalArgumentException) {
     false
 }
+

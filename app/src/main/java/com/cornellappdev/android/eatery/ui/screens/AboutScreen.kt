@@ -39,29 +39,29 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
 @Composable
 fun AboutScreen() {
     val uriCurrent = LocalUriHandler.current
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = currentColors.backgroundDefault)
+    ) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -70,13 +70,13 @@ fun AboutScreen() {
         ) {
             Text(
                 text = stringResource(R.string.about_title),
-                color = EateryBlue,
+                color = currentColors.textPrimary,
                 style = EateryBlueTypography.h2,
                 modifier = Modifier.padding(top = 7.dp)
             )
             Text(
                 text = stringResource(R.string.about_description),
-                color = GraySix,
+                color = currentColors.textSecondary,
                 style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
                 modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
             )
@@ -89,7 +89,7 @@ fun AboutScreen() {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_appdev),
                         contentDescription = null,
-                        tint = GrayFive,
+                        tint = currentColors.textSecondary,
                         modifier = Modifier
                             .height(24.dp)
                             .width(24.dp)
@@ -98,7 +98,7 @@ fun AboutScreen() {
                     Text(
                         text = stringResource(R.string.about_designed_and_developed_by),
                         style = EateryBlueTypography.subtitle1,
-                        color = GrayFive,
+                        color = currentColors.textSecondary,
                         modifier = Modifier.padding(top = 12.dp)
                     )
 
@@ -111,12 +111,12 @@ fun AboutScreen() {
                         Text(
                             text = stringResource(R.string.about_cornell),
                             style = EateryBlueTypography.h2,
-                            color = Color.Black,
+                            color = currentColors.textPrimary,
                         )
                         Text(
                             text = stringResource(R.string.about_appdev),
                             style = EateryBlueTypography.h2,
-                            color = Color.Black,
+                            color = currentColors.textPrimary,
                         )
                     }
                 }
@@ -142,17 +142,22 @@ fun AboutScreen() {
                 uriCurrent.openUri("https://www.cornellappdev.com/")
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = GrayOne,
-                contentColor = Color.Black
+                containerColor = currentColors.accentPrimary,
+                contentColor = currentColors.textPrimary
             )
         ) {
-            Icon(Icons.Default.Language, null)
+            Icon(
+                Icons.Default.Language,
+                contentDescription = null,
+                tint = currentColors.textPrimary
+            )
             Spacer(
                 Modifier.size(ButtonDefaults.IconSpacing)
             )
             Text(
                 text = stringResource(R.string.about_website_button),
                 style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -293,7 +298,7 @@ fun CreditsRow(position: TeamPosition) {
                     Text(
                         text = teamNameMap[item]!!,
                         style = EateryBlueTypography.button,
-                        color = Color.Black,
+                        color = currentColors.textPrimary,
                         modifier = Modifier.padding(start = 15.dp)
                     )
                 } else {
@@ -301,12 +306,12 @@ fun CreditsRow(position: TeamPosition) {
                         modifier = Modifier
                             .height(34.dp)
                             .clip(RoundedCornerShape(17.dp))
-                            .background(GrayOne)
+                            .background(currentColors.accentPrimary)
                     ) {
                         Text(
                             text = item as String,
                             style = EateryBlueTypography.button,
-                            color = Color.Black,
+                            color = currentColors.textPrimary,
                             modifier = Modifier.padding(
                                 start = 10.dp,
                                 top = 8.dp,
@@ -320,7 +325,7 @@ fun CreditsRow(position: TeamPosition) {
                 Icon(
                     Icons.Filled.Star,
                     contentDescription = null,
-                    tint = GrayOne,
+                    tint = currentColors.accentPrimary,
                     modifier = Modifier
                         .height(7.dp)
                         .padding(horizontal = 12.33.dp)
@@ -330,7 +335,7 @@ fun CreditsRow(position: TeamPosition) {
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun AboutScreenPreview() = EateryPreview {
     AboutScreen()

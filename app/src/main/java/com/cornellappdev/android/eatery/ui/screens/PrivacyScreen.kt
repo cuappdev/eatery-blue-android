@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,13 +13,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -26,10 +25,10 @@ import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
 import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.PrivacyViewModel
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.google.firebase.analytics.FirebaseAnalytics
 
@@ -74,25 +73,26 @@ private fun PrivacyScreenContent(
 ) {
     Column(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
         Text(
             text = stringResource(R.string.privacy_title),
-            color = EateryBlue,
+            color = currentColors.contentBrand,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
         Text(
             text = stringResource(R.string.privacy_description),
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
+            color = currentColors.textPrimary,
             modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
         )
         Text(
             text = stringResource(R.string.privacy_permissions_heading),
-            color = Color.Black,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h4,
         )
         SettingsOption(
@@ -103,7 +103,7 @@ private fun PrivacyScreenContent(
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = EateryBlue,
+                    tint = currentColors.textPrimary,
                 )
             })
         SettingsLineSeparator()
@@ -115,14 +115,14 @@ private fun PrivacyScreenContent(
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = EateryBlue,
+                    tint = currentColors.textPrimary,
                 )
             }
         )
         SettingsLineSeparator()
         Text(
             text = stringResource(R.string.privacy_analytics_heading),
-            color = Color.Black,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h4,
             modifier = Modifier.padding(top = 28.dp)
         )
@@ -141,14 +141,14 @@ private fun PrivacyScreenContent(
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = EateryBlue,
+                    tint = currentColors.textPrimary,
                 )
             }
         )
     }
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun PrivacyScreenPreview() = EateryPreview {
     PrivacyScreenContent(

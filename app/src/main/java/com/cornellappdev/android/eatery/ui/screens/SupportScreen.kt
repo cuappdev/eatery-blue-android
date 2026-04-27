@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,12 +40,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
@@ -55,13 +54,11 @@ import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GraySix
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.SupportViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
@@ -120,7 +117,6 @@ private fun SupportScreenContent(
     )
     var showReportSheet by remember { mutableStateOf(false) }
     var issue by remember { mutableStateOf<Issue?>(null) }
-
     if (showReportSheet) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -128,6 +124,8 @@ private fun SupportScreenContent(
                 showReportSheet = false
             },
             sheetState = modalBottomSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,
@@ -155,33 +153,34 @@ private fun SupportScreenContent(
 
     Column(
         modifier = Modifier
+            .background(color = currentColors.backgroundDefault)
             .padding(horizontal = 16.dp)
-            .fillMaxSize()
             .then(Modifier.statusBarsPadding())
+            .fillMaxSize()
     ) {
         Spacer(modifier = Modifier.height(7.dp))
         Text(
             text = stringResource(R.string.support_title),
-            color = EateryBlue,
+            color = currentColors.contentBrand,
             style = EateryBlueTypography.h2,
         )
         Spacer(modifier = Modifier.height(7.dp))
         Text(
             text = stringResource(R.string.support_description),
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
+            color = currentColors.textPrimary,
         )
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
             text = stringResource(R.string.support_make_eatery_better),
-            color = Color.Black,
+            color = currentColors.textPrimary,
             style = EateryBlueTypography.h4,
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = stringResource(R.string.support_make_eatery_better_description),
-            color = GrayFive,
+            color = currentColors.textSecondary,
             style = EateryBlueTypography.subtitle2,
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -195,8 +194,8 @@ private fun SupportScreenContent(
                 showReportSheet = true
             },
             colors = ButtonDefaults.buttonColors(
-                containerColor = EateryBlue,
-                contentColor = Color.White
+                containerColor = currentColors.contentBrand,
+                contentColor = currentColors.oppTextPrimary
             )
         ) {
             Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
@@ -213,13 +212,13 @@ private fun SupportScreenContent(
             Text(
                 text = stringResource(R.string.support_email_us),
                 style = EateryBlueTypography.button,
-                color = EateryBlue
+                color = currentColors.contentBrand
             )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Icon(
                 Icons.Outlined.ArrowOutward,
                 null,
-                tint = EateryBlue
+                tint = currentColors.contentBrand
             )
         }
 
@@ -227,7 +226,7 @@ private fun SupportScreenContent(
         Text(
             text = stringResource(R.string.support_faqs_heading),
             style = EateryBlueTypography.h4,
-            color = Color.Black,
+            color = currentColors.textPrimary,
         )
         FAQCreation(
             title = stringResource(R.string.support_faq_wrong_menus_title),
@@ -270,7 +269,7 @@ private fun SupportScreenContent(
                     Text(
                         text = stringResource(R.string.support_faq_order_email_prompt),
                         style = EateryBlueTypography.subtitle2,
-                        color = EateryBlue,
+                        color = currentColors.textPrimary,
                     )
                 }
             }
@@ -287,19 +286,22 @@ private fun ReportButton() {
         modifier = Modifier
             .height(50.dp)
             .padding(vertical = 8.dp),
-        color = GrayZero,
-        contentColor = Color.Black
+        color = currentColors.backgroundDefault,
+        contentColor = currentColors.textPrimary
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(ButtonDefaults.ContentPadding)
+            modifier = Modifier
+                .padding(ButtonDefaults.ContentPadding)
+                .background(color = currentColors.accentPrimary)
+                .fillMaxSize(),
         ) {
             Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text(
                 text = stringResource(R.string.report_an_issue),
                 style = EateryBlueTypography.button,
-                color = Color.Black,
+                color = currentColors.textPrimary,
             )
         }
     }
@@ -324,14 +326,14 @@ fun FAQCreation(
                     Icon(
                         imageVector = Icons.Default.ExpandLess,
                         contentDescription = Icons.Default.ExpandLess.name,
-                        tint = EateryBlue,
+                        tint = currentColors.backgroundSecondary,
                         modifier = Modifier.width(24.dp)
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.ExpandMore,
                         contentDescription = null,
-                        tint = EateryBlue,
+                        tint = currentColors.backgroundSecondary,
                         modifier = Modifier.width(24.dp)
                     )
                 }
@@ -344,12 +346,15 @@ fun FAQCreation(
             onDismissRequest = { setExpanded(false) },
             modifier = Modifier
                 .exposedDropdownSize()
+                .background(color = currentColors.backgroundDefault)
         ) {
-            Column(modifier = Modifier.padding(10.dp)) {
+            Column(
+                modifier = Modifier.padding(10.dp)
+            ) {
                 Text(
                     text = dropdownText,
                     style = EateryBlueTypography.subtitle2,
-                    color = GrayFive,
+                    color = currentColors.textSecondary,
                 )
                 Box(modifier = Modifier.clickable {
                     setExpanded(false)
@@ -363,7 +368,7 @@ fun FAQCreation(
     SettingsLineSeparator()
 }
 
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun SupportScreenPreview() = EateryPreview {
     SupportScreenContent(

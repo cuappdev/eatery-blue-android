@@ -14,7 +14,9 @@ import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.navigation.NavigationSetup
-import com.cornellappdev.android.eatery.ui.theme.EateryBlueTheme
+import com.cornellappdev.android.eatery.ui.theme.AppColorTheme
+import com.cornellappdev.android.eatery.ui.theme.ColorTheme
+import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
@@ -55,8 +57,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             LockScreenOrientation()
+            val resolvedDarkMode = rememberResolvedDarkMode()
+            val activeMode = if (resolvedDarkMode) ColorTheme.darkMode else ColorTheme.lightMode
 
-            EateryBlueTheme {
+
+            AppColorTheme(activeMode) {
                 NavigationSetup(hasOnboarded)
             }
         }

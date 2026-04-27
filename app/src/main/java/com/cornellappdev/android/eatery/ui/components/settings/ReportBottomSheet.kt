@@ -48,20 +48,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.NetworkError
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Red
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import com.cornellappdev.android.eatery.ui.viewmodels.state.ReportUiState
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 enum class Issue(@param:StringRes val optionRes: Int) {
@@ -105,6 +101,8 @@ fun ReportBottomSheet(
         ModalBottomSheet(
             onDismissRequest = { showIssueSheet = false },
             sheetState = issueSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
             shape = RoundedCornerShape(
                 bottomStart = 0.dp,
                 bottomEnd = 0.dp,
@@ -114,7 +112,11 @@ fun ReportBottomSheet(
         ) {
             Row(modifier = Modifier.padding(top = 12.dp)) {
                 Spacer(Modifier.weight(1f, true))
-                HorizontalDivider(Modifier.weight(0.75f, true), color = GrayOne, thickness = 3.dp)
+                HorizontalDivider(
+                    Modifier.weight(0.75f, true),
+                    color = currentColors.backgroundSecondary,
+                    thickness = 3.dp
+                )
                 Spacer(Modifier.weight(1f, true))
             }
             IssueBottomSheet(issueEntries, {
@@ -126,10 +128,14 @@ fun ReportBottomSheet(
         }
     }
 
-    Column {
+    Column(modifier = Modifier.background(currentColors.backgroundDefault)) {
         Row(modifier = Modifier.statusBarsPadding()) {
             Spacer(Modifier.weight(1f, true))
-            HorizontalDivider(Modifier.weight(0.75f, true), color = GrayOne, thickness = 3.dp)
+            HorizontalDivider(
+                Modifier.weight(0.75f, true),
+                color = currentColors.backgroundSecondary,
+                thickness = 3.dp
+            )
             Spacer(Modifier.weight(1f, true))
         }
 
@@ -143,7 +149,7 @@ fun ReportBottomSheet(
                 Text(
                     text = stringResource(R.string.report_title),
                     style = EateryBlueTypography.h4,
-                    color = Color.Black,
+                    color = currentColors.textPrimary,
                 )
 
                 IconButton(
@@ -154,19 +160,19 @@ fun ReportBottomSheet(
                     enabled = !isSending,
                     modifier = Modifier
                         .size(40.dp)
-                        .background(color = GrayZero, shape = CircleShape)
+                        .background(color = currentColors.backgroundDefault, shape = CircleShape)
                 ) {
                     Icon(
                         Icons.Default.Close,
                         contentDescription = Icons.Default.Close.name,
-                        tint = Color.Black
+                        tint = currentColors.textPrimary
                     )
                 }
             }
             Text(
                 text = stringResource(R.string.report_type_heading),
                 style = EateryBlueTypography.h5,
-                color = Color.Black,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(top = 15.dp)
             )
             Button(
@@ -179,7 +185,7 @@ fun ReportBottomSheet(
                     showIssueSheet = true
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = GrayZero,
+                    containerColor = currentColors.backgroundDefault,
                     contentColor = Color.Black
                 )
             ) {
@@ -191,7 +197,7 @@ fun ReportBottomSheet(
                     Text(
                         text = selectedIssueLabel,
                         style = EateryBlueTypography.h6,
-                        color = if (selectedIssue == null) GrayFive else Color.Black
+                        color = if (selectedIssue == null) currentColors.textSecondary else currentColors.textPrimary
                     )
                     Icon(
                         imageVector = Icons.Default.ExpandMore,
@@ -203,7 +209,7 @@ fun ReportBottomSheet(
             Text(
                 text = stringResource(R.string.report_description_heading),
                 style = EateryBlueTypography.h5,
-                color = Color.Black,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(top = 15.dp, bottom = 5.dp)
             )
 
@@ -213,7 +219,7 @@ fun ReportBottomSheet(
 
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = GrayZero,
+                color = currentColors.accentPrimary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
@@ -227,7 +233,7 @@ fun ReportBottomSheet(
                         Text(
                             text = stringResource(R.string.report_description_hint),
                             style = EateryBlueTypography.h6,
-                            color = GrayFive
+                            color = Color.Gray
                         )
                     }
                     BasicTextField(
@@ -239,7 +245,7 @@ fun ReportBottomSheet(
                         },
                         keyboardActions = KeyboardActions(onDone = { onSubmit() }),
                         textStyle = TextStyle(
-                            color = Color.Black,
+                            color = currentColors.textPrimary,
                             fontWeight = FontWeight.Medium,
                             fontSize = 16.sp
                         ),
@@ -255,7 +261,7 @@ fun ReportBottomSheet(
                 Text(
                     text = stringResource(R.string.report_error_unable_to_send),
                     style = EateryBlueTypography.subtitle2,
-                    color = Red,
+                    color = Color.Red,
                     modifier = Modifier.padding(top = 8.dp)
                 )
             }
@@ -274,10 +280,10 @@ fun ReportBottomSheet(
                 },
                 enabled = textEntry.isNotBlank() && selectedIssue != null && !isSending,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = EateryBlue,
-                    contentColor = Color.White,
-                    disabledContainerColor = GrayOne,
-                    disabledContentColor = Color.White
+                    containerColor = currentColors.accentPrimary,
+                    contentColor = currentColors.backgroundDefault,
+                    disabledContainerColor = currentColors.backgroundSecondary,
+                    disabledContentColor = currentColors.backgroundDefault
                 )
             ) {
                 Row(
@@ -288,11 +294,11 @@ fun ReportBottomSheet(
                         Text(
                             text = stringResource(R.string.report_submit),
                             style = EateryBlueTypography.h5,
-                            color = Color.White
+                            color = currentColors.backgroundDefault
                         )
                     else
                         CircularProgressIndicator(
-                            color = Color.White,
+                            color = currentColors.backgroundDefault,
                             modifier = Modifier.size(30.dp)
                         )
                 }
@@ -324,7 +330,7 @@ private fun IssueBottomSheet(items: Array<Issue>, setIssue: (Issue) -> Unit, hid
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun ReportBottomSheetSuccessPreview() = EateryPreview {
     ReportBottomSheet(
@@ -337,7 +343,7 @@ private fun ReportBottomSheetSuccessPreview() = EateryPreview {
     )
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun ReportBottomSheetErrorPreview() = EateryPreview {
     ReportBottomSheet(

@@ -13,14 +13,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 
 @Composable
 fun NoEateryFound(modifier: Modifier = Modifier, resetFilters: () -> Unit) {
@@ -36,18 +34,19 @@ fun NoEateryFound(modifier: Modifier = Modifier, resetFilters: () -> Unit) {
             modifier = Modifier
                 .height(72.dp)
                 .width(72.dp),
-            tint = GrayTwo
+            tint = currentColors.backgroundDefault92
         )
         Text(
             text = stringResource(R.string.no_eatery_found),
             style = EateryBlueTypography.h5,
-            modifier = Modifier.padding(top = 12.dp)
+            modifier = Modifier.padding(top = 12.dp),
+            color = currentColors.textPrimary
         )
         Button(
             modifier = Modifier.padding(top = 12.dp),
             shape = RoundedCornerShape(100.dp),
             colors = buttonColors(
-                containerColor = EateryBlue
+                containerColor = currentColors.accentPrimary
             ),
             onClick = {
                 resetFilters()
@@ -56,7 +55,7 @@ fun NoEateryFound(modifier: Modifier = Modifier, resetFilters: () -> Unit) {
             Text(
                 text = stringResource(R.string.reset_filters),
                 color =
-                Color.White
+                currentColors.backgroundDefault
             )
         }
     }

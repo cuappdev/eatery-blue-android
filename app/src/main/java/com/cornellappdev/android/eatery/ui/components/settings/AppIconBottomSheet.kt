@@ -33,7 +33,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -42,10 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.AppIcon
 import com.cornellappdev.android.eatery.util.changeIcon
 import com.cornellappdev.android.eatery.util.currentIcon
@@ -57,7 +54,11 @@ fun AppIconBottomSheet(hide: () -> Unit) {
     val context = LocalContext.current
     val (selectedAppIcon, setSelectedAppIcon) = remember { mutableStateOf(currentIcon(context)) }
     val currentIcon = currentIcon(context)
-    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp)) {
+    Column(
+        modifier = Modifier
+            .background(currentColors.backgroundDefault)
+            .padding(start = 16.dp, end = 16.dp, top = 24.dp)
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth()
@@ -65,7 +66,7 @@ fun AppIconBottomSheet(hide: () -> Unit) {
             Text(
                 text = stringResource(R.string.settings_app_icon_title),
                 style = EateryBlueTypography.h4,
-                color = Color.Black,
+                color = currentColors.textPrimary,
             )
 
             IconButton(
@@ -74,9 +75,9 @@ fun AppIconBottomSheet(hide: () -> Unit) {
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = currentColors.textPrimary)
             }
         }
         val pagerState = androidx.compose.foundation.pager.rememberPagerState(pageCount = { 2 })
@@ -137,14 +138,15 @@ fun AppIconBottomSheet(hide: () -> Unit) {
                 .padding(top = 12.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = EateryBlue,
-                contentColor = Color.White
+                containerColor = currentColors.accentPrimary,
+                contentColor = currentColors.backgroundDefault
             )
         ) {
             Text(
                 text = stringResource(R.string.done),
                 style = EateryBlueTypography.h5,
-                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                color = currentColors.textPrimary
             )
         }
 
@@ -161,7 +163,7 @@ fun AppIconBottomSheet(hide: () -> Unit) {
             Text(
                 text = stringResource(R.string.reset),
                 style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.SemiBold),
-                color = if (selectedAppIcon != currentIcon) Color.Black else GrayOne
+                color = if (selectedAppIcon != currentIcon) currentColors.textPrimary else currentColors.backgroundSecondary
             )
         }
     }
@@ -178,7 +180,7 @@ fun AppIconButton(
     Surface(
         modifier = Modifier
             .padding(start = 18.dp, bottom = 12.dp)
-            .border(1.dp, GrayOne, shape = RoundedCornerShape(25.dp))
+            .border(1.dp, currentColors.backgroundSecondary, shape = RoundedCornerShape(25.dp))
             .shadow(1.dp, RoundedCornerShape(25.dp), clip = true)
     ) {
         Box {
@@ -202,7 +204,7 @@ fun AppIconButton(
                         .align(Alignment.Center),
                     imageVector = Icons.Filled.CheckCircle,
                     contentDescription = null,
-                    tint = EateryBlue
+                    tint = currentColors.backgroundSecondary
                 )
             }
         }

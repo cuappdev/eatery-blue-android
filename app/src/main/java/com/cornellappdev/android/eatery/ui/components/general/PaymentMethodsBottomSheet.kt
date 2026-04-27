@@ -18,9 +18,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -28,12 +29,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Red
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
 fun PaymentMethodsBottomSheet(
@@ -42,6 +41,7 @@ fun PaymentMethodsBottomSheet(
 ) {
     Column(
         modifier = Modifier
+            .background(currentColors.backgroundDefault)
             .padding(start = 16.dp, end = 16.dp, top = 24.dp)
     ) {
         Row(
@@ -51,7 +51,8 @@ fun PaymentMethodsBottomSheet(
             Text(
                 text = stringResource(R.string.payment_methods_title),
                 style = EateryBlueTypography.h4,
-                modifier = Modifier.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp),
+                color = currentColors.textPrimary
             )
 
             IconButton(
@@ -60,12 +61,12 @@ fun PaymentMethodsBottomSheet(
                 },
                 modifier = Modifier
                     .size(40.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.accentPrimary, shape = CircleShape)
             ) {
                 Icon(
                     Icons.Default.Close,
                     contentDescription = stringResource(R.string.payment_methods_close),
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
             }
         }
@@ -76,99 +77,36 @@ fun PaymentMethodsBottomSheet(
                 .padding(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                IconButton(
-                    onClick = {
-                        if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) {
-                            selectedFilters.remove(Filter.FromEateryFilter.Swipes)
-                        } else {
-                            selectedFilters.add(Filter.FromEateryFilter.Swipes)
-                        }
-                    },
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(
-                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) EateryBlue else GrayZero,
-                            shape = CircleShape
-                        )
+            PaymentMethodsAvailable.entries.forEach { paymentMethod ->
+                val filters = paymentMethod.filters
+                val isSelected = selectedFilters.intersect(filters).isNotEmpty()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_payment_swipes),
-                        contentDescription = stringResource(R.string.payment_methods_meal_swipes),
-                        tint = if (selectedFilters.contains(Filter.FromEateryFilter.Swipes)) Color.White else GrayFive
+                    IconButton(
+                        onClick = {
+                            if (isSelected) {
+                                selectedFilters.removeAll(filters)
+                            } else {
+                                selectedFilters.addAll(filters)
+                            }
+                        },
+                        modifier = Modifier.size(64.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = paymentMethod.drawable),
+                            contentDescription = stringResource(paymentMethod.textRes),
+                            tint = if (isSelected) paymentMethod.tintColor else currentColors.textSecondary
+                        )
+                    }
+
+                    Text(
+                        text = stringResource(paymentMethod.textRes),
+                        style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
+                        modifier = Modifier.padding(top = 8.dp),
+                        color = currentColors.textPrimary
                     )
                 }
-
-                Text(
-                    text = stringResource(R.string.payment_methods_meal_swipes),
-                    style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                IconButton(
-                    onClick = {
-                        if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) {
-                            selectedFilters.remove(Filter.FromEateryFilter.BRB)
-                        } else {
-                            selectedFilters.add(Filter.FromEateryFilter.BRB)
-                        }
-                    },
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(
-                            color = if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) Red else GrayZero,
-                            shape = CircleShape
-                        )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_payment_brbs),
-                        contentDescription = stringResource(R.string.payment_methods_brbs),
-                        tint = if (selectedFilters.contains(Filter.FromEateryFilter.BRB)) Color.White else GrayFive
-                    )
-                }
-
-                Text(
-                    text = stringResource(R.string.payment_methods_brbs),
-                    style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                IconButton(
-                    onClick = {
-                        if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) {
-                            selectedFilters.remove(Filter.FromEateryFilter.Cash)
-                        } else {
-                            selectedFilters.add(Filter.FromEateryFilter.Cash)
-                        }
-                    },
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(
-                            color = if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) Green else GrayZero,
-                            shape = CircleShape
-                        )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_payment_cash),
-                        contentDescription = stringResource(R.string.payment_methods_cash_or_credit),
-                        tint = if (selectedFilters.contains(Filter.FromEateryFilter.Cash)) Color.White else GrayFive
-                    )
-                }
-
-                Text(
-                    text = stringResource(R.string.payment_methods_cash_or_credit),
-                    style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                    modifier = Modifier.padding(top = 8.dp)
-                )
             }
         }
 
@@ -179,14 +117,15 @@ fun PaymentMethodsBottomSheet(
                 .padding(top = 12.dp)
                 .fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
-                containerColor = EateryBlue,
-                contentColor = Color.White
+                containerColor = currentColors.accentPrimary,
+                contentColor = currentColors.backgroundDefault
             )
         ) {
             Text(
                 text = stringResource(R.string.payment_methods_show_results),
                 style = EateryBlueTypography.h5,
-                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
+                color = currentColors.textPrimary
             )
         }
 
@@ -202,8 +141,20 @@ fun PaymentMethodsBottomSheet(
             Text(
                 text = stringResource(R.string.payment_methods_reset),
                 style = EateryBlueTypography.h5,
-                color = Color.Black
+                color = currentColors.textPrimary
             )
         }
     }
+}
+
+@DualModePreview
+@Composable
+private fun PaymentMethodsBottomSheetPreview() = EateryPreview {
+    val selectedFilters = remember {
+        mutableStateListOf<Filter>(Filter.FromEateryFilter.Swipes)
+    }
+    PaymentMethodsBottomSheet(
+        selectedFilters = selectedFilters,
+        hide = {}
+    )
 }

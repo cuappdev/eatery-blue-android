@@ -38,11 +38,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.LocationHandler
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -109,7 +109,8 @@ fun PermissionRequestDialog(
                                 }
                             ),
                             textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black
                         )
                         Spacer(modifier = Modifier.height(15.dp))
                         Button(
@@ -123,7 +124,7 @@ fun PermissionRequestDialog(
                                 isRequestingPermission = false
                             },
                             shape = RoundedCornerShape(5.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = EateryBlue),
+                            colors = ButtonDefaults.buttonColors(containerColor = currentColors.accentPrimary),
                         ) {
                             Text(
                                 text = stringResource(
@@ -133,7 +134,7 @@ fun PermissionRequestDialog(
                                         R.string.open_settings
                                     }
                                 ),
-                                color = Color.White,
+                                color = currentColors.textPrimary,
                             )
                         }
                     }
@@ -162,7 +163,7 @@ private fun Context.openSettings() {
     startActivity(intent)
 }
 
-@Preview
+@DualModePreview
 @Composable
 fun PermissionRequestDialogPreview() = EateryPreview {
     PermissionRequestDialog(
@@ -171,4 +172,5 @@ fun PermissionRequestDialogPreview() = EateryPreview {
         updateNotificationFlowStatus = {}
     )
 }
+
 

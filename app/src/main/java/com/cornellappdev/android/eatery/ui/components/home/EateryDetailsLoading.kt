@@ -17,10 +17,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
@@ -35,12 +34,12 @@ fun EateryDetailLoadingScreen(
         Box {
 
             // this is where the image should be
-            Box(modifier = Modifier.background(color = Color.White)) {
+            Box(modifier = Modifier.background(color = currentColors.backgroundDefault)) {
                 Surface(
                     modifier = Modifier
                         .height(240.dp)
                         .shimmer(shimmer)
-                        .fillMaxWidth(), color = GrayTwo
+                        .fillMaxWidth(), color = currentColors.backgroundDefault92
                 ) {}
             }
 
@@ -48,7 +47,7 @@ fun EateryDetailLoadingScreen(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 40.dp, end = 16.dp)
-                    .size(40.dp), color = Color.White,
+                    .size(40.dp), color = currentColors.backgroundDefault,
                 shape = CircleShape
             ) {}
 
@@ -64,13 +63,13 @@ fun EateryDetailLoadingScreen(
         }
 
         // simulates eatery name and details
-        Column(modifier = Modifier.background(Color.White)) {
+        Column(modifier = Modifier.background(currentColors.backgroundDefault)) {
             Surface(
                 modifier = Modifier
                     .padding(start = 16.dp, top = 16.dp)
                     .shimmer(shimmer)
                     .height(40.dp)
-                    .fillMaxWidth(.6f), color = GrayTwo,
+                    .fillMaxWidth(.6f), color = currentColors.backgroundDefault92,
                 shape = RoundedCornerShape(20.dp)
             ) {}
             Surface(
@@ -80,7 +79,7 @@ fun EateryDetailLoadingScreen(
                     .shimmer(shimmer)
                     .height(20.dp),
                 shape = RoundedCornerShape(20.dp),
-                color = GrayTwo
+                color = currentColors.backgroundDefault92
             ) {}
 
             Row(
@@ -98,7 +97,7 @@ fun EateryDetailLoadingScreen(
                             .padding(horizontal = 16.dp)
                             .weight(0.3f),
                         shape = RoundedCornerShape(100),
-                        color = GrayTwo
+                        color = currentColors.backgroundDefault92
                     ) {
                     }
                 }
@@ -111,14 +110,14 @@ fun EateryDetailLoadingScreen(
                     .fillMaxHeight(.2f)
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
-                shape = RoundedCornerShape(8.dp), color = GrayTwo
+                shape = RoundedCornerShape(8.dp), color = currentColors.backgroundDefault92
             ) {}
 
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(16.dp)
-                    .shimmer(shimmer), color = GrayTwo
+                    .shimmer(shimmer), color = currentColors.backgroundDefault92
             ) {}
 
             // simulates menu dropdown
@@ -132,7 +131,7 @@ fun EateryDetailLoadingScreen(
                         .align(Alignment.TopEnd)
                         .shimmer(shimmer)
                         .padding(16.dp)
-                        .size(35.dp), color = GrayTwo,
+                        .size(35.dp), color = currentColors.backgroundDefault92,
                     shape = CircleShape
                 ) {}
 
@@ -148,7 +147,7 @@ fun EateryDetailLoadingScreen(
                                 .fillMaxWidth(.6f)
                                 .shimmer(shimmer)
                                 .padding(16.dp),
-                            color = GrayTwo,
+                            color = currentColors.backgroundDefault92,
                             shape = RoundedCornerShape(100.dp)
                         ) {}
 
@@ -159,7 +158,8 @@ fun EateryDetailLoadingScreen(
                                 .fillMaxWidth()
                                 .shimmer(shimmer)
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
-                            shape = RoundedCornerShape(8.dp), color = GrayTwo
+                            shape = RoundedCornerShape(8.dp),
+                            color = currentColors.backgroundDefault92
                         ) {}
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -169,7 +169,8 @@ fun EateryDetailLoadingScreen(
                                 .height(3.dp)
                                 .fillMaxWidth()
                                 .shimmer(shimmer)
-                                .padding(horizontal = 16.dp), color = GrayTwo
+                                .padding(horizontal = 16.dp),
+                            color = currentColors.backgroundDefault92
                         ) {}
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -180,7 +181,7 @@ fun EateryDetailLoadingScreen(
                                 .fillMaxWidth(.6f)
                                 .shimmer(shimmer)
                                 .padding(horizontal = 16.dp, vertical = 5.dp),
-                            color = GrayTwo,
+                            color = currentColors.backgroundDefault92,
                             shape = RoundedCornerShape(100.dp)
                         ) {}
 
@@ -194,7 +195,8 @@ fun EateryDetailLoadingScreen(
                                     .shimmer(shimmer)
                                     .fillMaxWidth(.45f)
                                     .padding(horizontal = 16.dp, vertical = 3.dp),
-                                shape = RoundedCornerShape(8.dp), color = GrayTwo
+                                shape = RoundedCornerShape(8.dp),
+                                color = currentColors.backgroundDefault92
                             ) {}
 
                             Spacer(modifier = Modifier.weight(1f))
@@ -205,7 +207,8 @@ fun EateryDetailLoadingScreen(
                                     .shimmer(shimmer)
                                     .fillMaxWidth(.35f)
                                     .padding(horizontal = 16.dp, vertical = 3.dp),
-                                shape = RoundedCornerShape(8.dp), color = GrayTwo
+                                shape = RoundedCornerShape(8.dp),
+                                color = currentColors.backgroundDefault92
                             ) {}
                         }
 
@@ -218,7 +221,8 @@ fun EateryDetailLoadingScreen(
                                 .shimmer(shimmer)
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp),
-                            shape = RoundedCornerShape(100.dp), color = GrayTwo
+                            shape = RoundedCornerShape(100.dp),
+                            color = currentColors.backgroundDefault92
                         ) {}
                     }
                 }
@@ -235,13 +239,12 @@ fun PaymentsBlob() {
             .fillMaxHeight(.05f)
             .fillMaxWidth(.25f),
         shape = RoundedCornerShape(100.dp),
-        color = Color.White
+        color = currentColors.backgroundDefault
     ) {
     }
 }
 
-
-@Preview(showBackground = true)
+@DualModePreview
 @Composable
 private fun EateryDetailLoadingScreenPreview() = EateryPreview {
     val shimmer = rememberShimmer(ShimmerBounds.View)
@@ -256,3 +259,4 @@ private fun EateryDetailLoadingScreenPreview() = EateryPreview {
 enum class BottomSheetContent {
     PAYMENT_METHODS_AVAILABLE, HOURS, WAIT_TIME, REPORT, ACCOUNT_TYPE, MENUS, COMPARE_MENUS
 }
+

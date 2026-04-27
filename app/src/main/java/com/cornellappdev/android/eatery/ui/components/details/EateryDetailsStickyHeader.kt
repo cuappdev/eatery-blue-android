@@ -24,15 +24,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.data.models.Event
-import com.cornellappdev.android.eatery.data.models.MenuCategory
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import kotlinx.coroutines.launch
 
 @Composable
@@ -47,25 +44,50 @@ fun EateryDetailsStickyHeader(
 ) {
     val rowState = rememberLazyListState()
     val rowCoroutine = rememberCoroutineScope()
-    val selectedEvent = nextEvent?.menu?.find { category ->
-        highlightCategory(
-            category,
-            listState,
-            nextEvent,
-            fullMenuList,
-            startIndex
-        )
-    }
-    val selectedIndex: Int =
-        if (selectedEvent != null) nextEvent.menu.indexOf(selectedEvent) else -1
 
-    // Whenever the selected index changes, scroll to the new item.
+    val highlightedCategoryName by remember(nextEvent, fullMenuList, startIndex) {
+        derivedStateOf {
+            val menu = nextEvent?.menu ?: return@derivedStateOf null
+            val visibleItems = listState.layoutInfo.visibleItemsInfo
+            val canScrollForward = listState.canScrollForward
+
+            if (!canScrollForward && visibleItems.isNotEmpty()) {
+                // At the bottom of the list: highlight the last visible category so pills
+                // advance past whichever category is at the top of the viewport.
+                visibleItems.reversed().firstNotNullOfOrNull { info ->
+                    val idx = info.index - startIndex
+                    fullMenuList.getOrNull(idx)?.takeIf { name ->
+                        menu.any { it.name == name }
+                    }
+                }
+            } else {
+                val firstMenuItemIndex = listState.firstVisibleItemIndex - startIndex
+                if (firstMenuItemIndex >= 0 && firstMenuItemIndex < fullMenuList.size) {
+                    val item = fullMenuList[firstMenuItemIndex]
+                    val isCategoryName = menu.any { it.name == item }
+                    if (isCategoryName) {
+                        item
+                    } else {
+                        (firstMenuItemIndex - 1 downTo 0).firstNotNullOfOrNull { i ->
+                            fullMenuList.getOrNull(i)?.takeIf { name ->
+                                menu.any { it.name == name }
+                            }
+                        }
+                    }
+                } else null
+            }
+        }
+    }
+
+    val selectedIndex =
+        nextEvent?.menu?.indexOfFirst { it.name == highlightedCategoryName } ?: -1
+
+    // Whenever the selected index changes, scroll the pill row to the new item.
     LaunchedEffect(selectedIndex) {
         if (selectedIndex != -1)
             rowCoroutine.launch {
                 if (selectedIndex >= 4) {
-                    // They've scrolled decently far down and have interacted with this menu, we can
-                    // request a review
+                    // They've scrolled decently far down — good time to request a review.
                     onRequestRatingPopup()
                 }
                 rowState.animateScrollToItem(selectedIndex)
@@ -76,9 +98,8 @@ fun EateryDetailsStickyHeader(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.White)
+                .background(currentColors.backgroundDefault)
         ) {
-
             Spacer(modifier = Modifier.height(6.dp))
 
             val filteredItemsList = nextEvent?.menu?.mapNotNull { category ->
@@ -105,16 +126,9 @@ fun EateryDetailsStickyHeader(
                     nextEvent?.menu?.forEach { category ->
                         item {
                             val categoryIndex = fullMenuList.indexOf(category.name)
-                            val isHighlighted = highlightCategory(
-                                category,
-                                listState,
-                                nextEvent,
-                                fullMenuList,
-                                startIndex
-                            )
                             CategoryItem(
-                                category.name ?: "Category",
-                                isHighlighted,
+                                name = category.name ?: "Category",
+                                isHighlighted = category.name == highlightedCategoryName,
                             ) { onItemClick(categoryIndex) }
                         }
                         item {
@@ -139,7 +153,7 @@ fun EateryDetailsStickyHeader(
         }
 
         HorizontalDivider(
-            color = GrayZero,
+            color = currentColors.backgroundDefault,
             thickness = 1.dp
         )
     }
@@ -152,11 +166,11 @@ fun CategoryItem(
     onItemClick: () -> Unit
 ) {
     val backgroundColor by animateColorAsState(
-        if (isHighlighted) Color.Black else Color.White,
+        if (isHighlighted) currentColors.textPrimary else currentColors.backgroundDefault,
         label = "Background Color"
     )
     val textColor by animateColorAsState(
-        if (isHighlighted) Color.White else GrayFive,
+        if (isHighlighted) currentColors.backgroundDefault else currentColors.textPrimary,
         label = "Text Color"
     )
 
@@ -179,38 +193,4 @@ fun CategoryItem(
             )
         )
     }
-}
-
-/**
- * Returns true if the given menu category should be highlighted (i.e. it is scrolled to).
- */
-@Composable
-fun highlightCategory(
-    category: MenuCategory,
-    listState: LazyListState,
-    nextEvent: Event?,
-    fullMenuList: MutableList<String>,
-    startIndex: Int
-): Boolean {
-    val firstVisibleState = remember { derivedStateOf { listState.firstVisibleItemIndex } }
-    // Note: - 5 here assumes that there are 5 UI elements above the menu, which is true currently.
-    //  If that changes, this must be tweaked.
-    val firstMenuItemIndex = firstVisibleState.value - startIndex
-
-    if (firstMenuItemIndex >= 0 && firstMenuItemIndex < fullMenuList.size) {
-        val item = fullMenuList[firstMenuItemIndex]
-        val isCategoryName = nextEvent?.menu?.any { it.name == item } ?: false
-
-        if (isCategoryName) {
-            return category.name == item
-        } else {
-            for (i in firstMenuItemIndex - 1 downTo 0) {
-                val previousItem = fullMenuList[i]
-                if (nextEvent?.menu?.any { it.name == previousItem } == true) {
-                    return category.name == previousItem
-                }
-            }
-        }
-    }
-    return false
 }

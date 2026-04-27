@@ -92,6 +92,11 @@ sealed class Filter(open val text: String) {
             override fun passesEateryFilter(eatery: Eatery): Boolean =
                 eatery.acceptsCash()
         }
+
+        data object Card : FromEateryFilter(text = "Cash") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.acceptsCard()
+        }
     }
 
     sealed class RequiresFavoriteEateries(override val text: String) : Filter(text) {

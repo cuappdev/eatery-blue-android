@@ -31,13 +31,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.delay
 
@@ -93,7 +92,7 @@ fun SearchBar(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             singleLine = true,
             textStyle = TextStyle(
-                color = GrayFive,
+                color = currentColors.textSecondary,
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp
             ),
@@ -102,19 +101,20 @@ fun SearchBar(
                 Icon(
                     Icons.Default.Search,
                     contentDescription = stringResource(R.string.a11y_search_icon),
-                    tint = GrayFive
+                    tint = currentColors.textSecondary
                 )
             },
             placeholder = {
                 Text(
                     text = placeholderText,
-                    color = GrayFive
+                    color = currentColors.textSecondary
                 )
             },
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = GrayZero,
-                unfocusedContainerColor = GrayZero,
-                disabledContainerColor = GrayZero,
+                focusedContainerColor = currentColors.accentPrimary,
+                unfocusedContainerColor = currentColors.accentPrimary,
+                disabledContainerColor = currentColors.accentPrimary,
+                cursorColor = currentColors.textPrimary,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
@@ -132,14 +132,14 @@ fun SearchBar(
                 Text(
                     text = stringResource(R.string.search_cancel),
                     style = EateryBlueTypography.subtitle2,
-                    color = GrayFive
+                    color = currentColors.textSecondary
                 )
             }
         }
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 fun SearchBarPreview() = EateryPreview {
     SearchBar(

@@ -35,20 +35,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.AppStorePopupRepository
+import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
@@ -120,23 +118,27 @@ private fun ActionPrompt(
     onDismiss: () -> Unit
 ) {
     AppStoreRatingCardBorder(onDismiss) {
-        Text(actionText, style = EateryBlueTypography.h6)
+        Text(
+            actionText,
+            style = EateryBlueTypography.h6,
+            color = currentColors.textPrimary
+        )
         Spacer(Modifier.height(12.dp))
         Button(
             onButtonPress,
-            colors = ButtonDefaults.buttonColors(containerColor = EateryBlue),
+            colors = ButtonDefaults.buttonColors(containerColor = currentColors.accentPrimary),
             shape = RoundedCornerShape(100.dp)
         ) {
             Text(
                 buttonText,
                 style = EateryBlueTypography.button,
-                color = Color.White
+                color = currentColors.backgroundDefault
             )
         }
     }
 }
 
-@Preview
+@DualModePreview
 @Composable
 private fun ActionPromptPreview() {
     ActionPrompt(actionText = "Awesome! We'd love to hear more in a review.",
@@ -149,7 +151,8 @@ private fun RatingPrompt(rating: Int, onChangeRating: (Int) -> Unit, onDismiss: 
         Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Text(
                 stringResource(R.string.app_store_rating_question),
-                style = EateryBlueTypography.h4
+                style = EateryBlueTypography.h4,
+                color = currentColors.textPrimary
             )
             RatingBar(rating, onChangeRating)
         }
@@ -183,7 +186,7 @@ private fun AppStoreRatingCardBorder(
     Column(
         modifier = Modifier
             .shadow(3.dp, shape = RoundedCornerShape(20.dp))
-            .background(Color.White)
+            .background(currentColors.backgroundDefault)
             .clip(RoundedCornerShape(20.dp))
             .padding(bottom = 24.dp, start = 24.dp)
     ) {
@@ -193,12 +196,12 @@ private fun AppStoreRatingCardBorder(
                 modifier = Modifier
                     .padding(end = 16.dp, top = 16.dp)
                     .size(20.dp)
-                    .background(color = GrayZero, shape = CircleShape)
+                    .background(color = currentColors.backgroundDefault, shape = CircleShape)
             ) {
                 Icon(
                     Icons.Default.Close,
                     contentDescription = Icons.Default.Close.name,
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
             }
         }
@@ -209,7 +212,7 @@ private fun AppStoreRatingCardBorder(
 
 
 @Composable
-@Preview
+@DualModePreview
 private fun AppStoreRatingCardPreview() {
     EateryDetailLoadingScreen(shimmer = rememberShimmer(ShimmerBounds.View))
     Dialog(onDismissRequest = {}) { AppStoreRatingDialog(navigateToSupport = {}, onDismiss = {}) }
