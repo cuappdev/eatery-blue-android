@@ -3,10 +3,4 @@
     <color name="eatery_blue">#FF4A90E2</color>
     <color name="light_blue">#FFE8EFF8</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="light_red">#FFFEF0EF</color>
-    <color name="red">#F2655D</color>
-    <color name="light_yellow">#FFF9E7</color>
-    <color name="yellow">#FEC50E</color>
-    <color name="light_green">#EFF9F1</color>
-    <color name="green">#63C774</color>
 </resources>

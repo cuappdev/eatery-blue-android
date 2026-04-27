@@ -259,7 +259,7 @@ class EateryDetailViewModel @Inject constructor(
      *
      * @param eatery the current eatery that eatery detail is displaying
      * @param dayIndex the index of the selected day, today is 0, tomorrow is 1, and so on
-     * @param mealDescription, e.g. "lunch", "dinner", etc
+     * @param mealDescription e.g. "lunch", "dinner", etc
      */
     fun selectEvent(eatery: Eatery, dayIndex: Int, mealDescription: String) {
         userSelectedMeal.update {

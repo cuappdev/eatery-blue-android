@@ -1,8 +1,5 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCardViewState
-import com.cornellappdev.android.eatery.ui.theme.ErrorLight
-import com.cornellappdev.android.eatery.ui.theme.SuccessLight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
@@ -10,10 +7,13 @@ import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
+import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCardViewState
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
 import com.cornellappdev.android.eatery.ui.components.general.FilterData
 import com.cornellappdev.android.eatery.ui.components.general.updateFilters
+import com.cornellappdev.android.eatery.ui.theme.ErrorLight
+import com.cornellappdev.android.eatery.ui.theme.SuccessLight
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
@@ -141,17 +141,21 @@ class FavoritesViewModel @Inject constructor(
                             "Not available",
                             ErrorLight
                         ) else EateryStatus("Available today", SuccessLight),
-                        mealAvailability = buildMap<String, MutableList<String>> {
+                        mealAvailability = buildMap {
                             eateriesByItem.forEach { eatery ->
                                 eatery.events?.filter { event ->
                                     event.startTimestamp?.toLocalDate() == today &&
-                                    event.menu?.any { category ->
-                                        category.items?.any { menuItem -> menuItem.name == itemName } == true
-                                    } == true
+                                            event.menu?.any { category ->
+                                                category.items?.any { menuItem -> menuItem.name == itemName } == true
+                                            } == true
                                 }?.forEach { event ->
                                     val mealType = normalizeMealType(event.type ?: "Other")
                                     getOrPut(mealType) { mutableListOf() }
-                                        .also { if (eatery.name != null && eatery.name !in it) it.add(eatery.name) }
+                                        .also {
+                                            if (eatery.name != null && eatery.name !in it) it.add(
+                                                eatery.name
+                                            )
+                                        }
                                 }
                             }
                         }.toSortedMap { s1, s2 -> s1.toSortOrder().compareTo(s2.toSortOrder()) }
@@ -180,8 +184,7 @@ class FavoritesViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), FavoritesUiState())
 
     private fun normalizeMealType(raw: String): String {
-        val normalized = raw.replace("_", " ").trim().lowercase()
-        return when (normalized) {
+        return when (val normalized = raw.replace("_", " ").trim().lowercase()) {
             "late night", "late_night" -> "Late Dinner"
             else -> normalized.split(" ").joinToString(" ") { w ->
                 w.replaceFirstChar { it.uppercase() }

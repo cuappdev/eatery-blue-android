@@ -123,7 +123,7 @@ data class Eatery(
      * @returns the event that makes the day index and mealDescription
      *
      * @param dayIndex, the index of the selected day, today is 0, tomorrow is 1, and so on
-     * @param mealDescription, e.g. "lunch", "dinner", etc
+     * @param mealDescription e.g. "lunch", "dinner", etc
      */
     fun getSelectedEvent(dayIndex: Int, mealDescription: String): Event? {
         val targetDate = LocalDate.now().plusDays(dayIndex.toLong())
@@ -256,7 +256,7 @@ data class Eatery(
     fun acceptsBRB(): Boolean = paymentMethods?.contains(PaymentMethod.BRB) ?: false
 
     /**
-     * Private helper function that returns a map of the day of week that a eatery is open
+     * Private helper function that returns a map of the day of week that an eatery is open
      * to the opening time(s) or closed status (these are strings)
      *
      * e.g. For Oken, {Monday -> ["11:00 AM - 2:30 PM", "4:30 PM - 9:00 PM"], Sunday -> "Closed"}

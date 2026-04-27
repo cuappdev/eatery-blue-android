@@ -131,8 +131,8 @@ class CompareMenusBottomViewModel @Inject constructor(
         }
     }
 
-    fun sendReport(issue: String, report: String, eateryid: Int?) = viewModelScope.launch {
-        when (val result = userRepository.sendReport(issue, report, eateryid)) {
+    fun sendReport(issue: String, report: String, eateryId: Int?) = viewModelScope.launch {
+        when (val result = userRepository.sendReport(issue, report, eateryId)) {
             is Result.Success -> {
                 _error.value = null
             }
