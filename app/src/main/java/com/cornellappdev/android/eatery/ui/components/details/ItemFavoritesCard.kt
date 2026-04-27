@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -21,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
@@ -57,7 +57,7 @@ fun ItemFavoritesCard(
         modifier = modifier
             .fillMaxWidth()
             .border(
-                BorderStroke(Dp.Hairline, currentColors.backgroundDefault92),
+                BorderStroke(Dp.Hairline, currentColors.accentPrimary),
                 RoundedCornerShape(8)
             ),
         shape = RoundedCornerShape(8.dp),
@@ -81,7 +81,10 @@ fun ItemFavoritesCard(
                     viewState.itemName,
                     fontSize = 20.sp,
                     style = EateryBlueTypography.button,
-                    color = currentColors.textPrimary
+                    color = currentColors.textPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
                 )
                 FavoriteButton(isFavorite = true, onFavoriteClick = { onFavoriteClick() })
             }
@@ -103,13 +106,14 @@ fun ItemFavoritesCard(
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_down_chevron),
                         contentDescription = "expand",
+                        tint = currentColors.textPrimary,
                         modifier = Modifier.rotate(rotation)
                     )
                 }
 
             }
             if (isExpanded) {
-                HorizontalDivider(thickness = Dp.Hairline)
+                HorizontalDivider(thickness = Dp.Hairline, color = currentColors.borderDefault)
                 viewState.mealAvailability.forEach { availability ->
                     ItemInformation(availability.key, availability.value)
                 }
@@ -130,7 +134,7 @@ fun ItemInformation(meal: String, eateryName: List<String>) {
             color = currentColors.textPrimary
         )
         eateryName.forEach { eatery ->
-            Text(eatery, style = EateryBlueTypography.caption, color = Color(0xff7D8288))
+            Text(eatery, style = EateryBlueTypography.caption, color = currentColors.textSecondary)
         }
     }
 

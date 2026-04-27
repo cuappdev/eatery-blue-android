@@ -13,7 +13,7 @@ val LocalColorMode = staticCompositionLocalOf { ColorTheme.lightMode }
 
 @Composable
 fun AppColorTheme(
-    colorMode: ColorMode ,
+    colorMode: ColorMode,
     content: @Composable () -> Unit
 ) {
 

@@ -67,8 +67,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -813,21 +811,20 @@ fun EateryDetailScreenContent(
                                     Spacer(Modifier.height(8.dp))
                                     //reporting button
                                     Button(
-                                        shape = RoundedCornerShape(24.dp),
-                                        modifier = Modifier
-                                            .height(35.dp)
-                                            .shadow(0.dp),
+                                        shape = RoundedCornerShape(100.dp),
+                                        modifier = Modifier.height(35.dp),
                                         onClick = {
                                             openBottomSheet(BottomSheetContent.REPORT)
                                         },
                                         colors = ButtonDefaults.buttonColors(
-                                            containerColor = currentColors.backgroundDefault,
+                                            containerColor = currentColors.accentPrimary,
+                                            contentColor = currentColors.textPrimary
                                         )
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Report,
                                             contentDescription = Icons.Default.Report.name,
-                                            tint = Color.Unspecified
+                                            tint = currentColors.textPrimary
                                         )
                                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                                         Text(

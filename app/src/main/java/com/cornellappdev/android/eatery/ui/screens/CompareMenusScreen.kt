@@ -18,19 +18,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -57,6 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -392,12 +392,8 @@ private fun MenuPager(
                 if (currentEvent != null) {
                     Box(
                         modifier = Modifier
-                            .background(currentColors.backgroundDefault)
-                            .padding(
-                                start = 8.dp,
-                                end = 8.dp,
-                                top = 20.dp
-                            )
+                            .background(currentColors.accentPrimary)
+                            .padding(8.dp)
                             .fillMaxWidth()
                             .fillMaxHeight()
                     ) {
@@ -405,134 +401,104 @@ private fun MenuPager(
                             state = listState,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(currentColors.backgroundDefault)
+                                .background(currentColors.accentPrimary),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             currentEvent.menu?.forEach { category ->
                                 item {
-                                    Text(
-                                        text = category.name ?: "Category",
-                                        style = EateryBlueTypography.h5,
-                                        modifier = Modifier.padding(
-                                            horizontal = 16.dp,
-                                            vertical = 12.dp
-                                        ),
-                                        color = currentColors.textPrimary
-                                    )
-                                }
-
-                                itemsIndexed(
-                                    category.items ?: emptyList()
-                                ) { index, menuItem ->
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(
-                                            top = 12.dp,
-                                            bottom = 12.dp,
-                                            start = 16.dp,
-                                            end = 16.dp
-                                        ),
-                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = currentColors.backgroundDefault,
+                                        modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        Text(
-                                            text = menuItem.name ?: "Item Name",
-                                            style = EateryBlueTypography.button,
-                                            modifier = Modifier.weight(1f),
-                                            color = currentColors.textPrimary
-                                        )
-                                    }
-
-                                    if (category.items?.lastIndex != index) {
-                                        Spacer(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(1.dp)
-                                                .background(
-                                                    currentColors.borderDefault,
-                                                    CircleShape
-                                                )
-                                        )
-                                    }
-                                    if (category.items?.lastIndex == index) {
-                                        HorizontalDivider(
-                                            thickness = 10.dp,
-                                            color = currentColors.borderDefault
-                                        )
+                                        Column {
+                                            Text(
+                                                text = category.name ?: "Category",
+                                                style = EateryBlueTypography.h5,
+                                                modifier = Modifier.padding(
+                                                    horizontal = 16.dp,
+                                                    vertical = 12.dp
+                                                ),
+                                                color = currentColors.textPrimary
+                                            )
+                                            category.items?.forEachIndexed { index, menuItem ->
+                                                if (index > 0) {
+                                                    HorizontalDivider(
+                                                        thickness = Dp.Hairline,
+                                                        color = currentColors.borderDefault
+                                                    )
+                                                }
+                                                Row(
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    modifier = Modifier.padding(
+                                                        horizontal = 16.dp,
+                                                        vertical = 12.dp
+                                                    ),
+                                                    horizontalArrangement = Arrangement.SpaceBetween
+                                                ) {
+                                                    Text(
+                                                        text = menuItem.name ?: "Item Name",
+                                                        style = EateryBlueTypography.button,
+                                                        modifier = Modifier.weight(1f),
+                                                        color = currentColors.textPrimary
+                                                    )
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
                             if (currentEvent.menu.isNullOrEmpty()) {
                                 item {
-                                    Row(
-                                        modifier = Modifier
-                                            .background(currentColors.backgroundSurface)
-                                            .clip(
-                                                shape = RoundedCornerShape(
-                                                    12.dp
-                                                )
-                                            )
-                                            .fillMaxWidth()
-                                            .padding(
-                                                top = 12.dp,
-                                                bottom = 12.dp
-                                            ),
-                                        horizontalArrangement = Arrangement.Center
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = currentColors.backgroundDefault,
+                                        modifier = Modifier.fillMaxWidth()
                                     ) {
-                                        Text(
-                                            text = stringResource(R.string.compare_menus_no_menu),
-                                            color = currentColors.textPrimary,
-                                            style = EateryBlueTypography.h5,
-                                            modifier = Modifier.padding(start = 8.dp),
-                                            fontWeight = FontWeight(500),
-                                        )
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 12.dp),
+                                            horizontalArrangement = Arrangement.Center
+                                        ) {
+                                            Text(
+                                                text = stringResource(R.string.compare_menus_no_menu),
+                                                color = currentColors.textPrimary,
+                                                style = EateryBlueTypography.h5,
+                                                modifier = Modifier.padding(start = 8.dp),
+                                                fontWeight = FontWeight(500),
+                                            )
+                                        }
                                     }
-                                    HorizontalDivider(
-                                        color = currentColors.borderDefault,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(10.dp)
-                                    )
                                 }
                             }
                             item {
-                                Column(modifier = Modifier.background(currentColors.backgroundDefault)) {
-                                    Card(
-                                        shape = RoundedCornerShape(20.dp),
-                                        onClick = {
-                                            onEateryClick(eateries[page])
-                                        },
-                                        colors = CardDefaults.cardColors(containerColor = currentColors.accentPrimary),
+                                Card(
+                                    shape = RoundedCornerShape(100.dp),
+                                    onClick = {
+                                        onEateryClick(eateries[page])
+                                    },
+                                    colors = CardDefaults.cardColors(containerColor = currentColors.backgroundDefault),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(
-                                                top = 12.dp,
-                                                bottom = 12.dp,
-                                                start = 12.dp,
-                                                end = 12.dp
-                                            )
+                                            .padding(horizontal = 10.dp, vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row(
-                                            modifier = Modifier.padding(
-                                                end = 12.dp,
-                                                top = 10.dp,
-                                                bottom = 10.dp
-                                            ),
-                                            horizontalArrangement = Arrangement.Center
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(R.drawable.ic_eatery),
-                                                contentDescription = null,
-                                                tint = currentColors.textPrimary
-                                            )
-                                            Text(
-                                                text = stringResource(R.string.view_eatery_details),
-                                                color = currentColors.textPrimary,
-                                                modifier = Modifier.padding(
-                                                    start = 8.dp,
-                                                ),
-                                                fontWeight = FontWeight.Bold,
-                                            )
-
-                                        }
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_eatery),
+                                            contentDescription = null,
+                                            tint = currentColors.textPrimary
+                                        )
+                                        Text(
+                                            text = stringResource(R.string.view_eatery_details),
+                                            color = currentColors.textPrimary,
+                                            modifier = Modifier.padding(start = 8.dp),
+                                            fontWeight = FontWeight.Bold,
+                                        )
                                     }
                                 }
                             }
@@ -581,7 +547,7 @@ private fun TitlePager(
                         style = EateryBlueTypography.button,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = currentColors.textPrimary
+                        color = if (page == secondPagerState.currentPage) currentColors.textPrimary else currentColors.textSecondary
                     )
                 }
             }

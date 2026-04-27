@@ -101,7 +101,7 @@ fun EateryHourBottomSheet(
                 fontWeight = FontWeight.SemiBold, fontSize = 16.sp
             ),
             color = if (openUntil == null) currentColors.error
-            else if (eatery.isClosingSoon()) currentColors.accentPressed
+            else if (eatery.isClosingSoon()) currentColors.warning
             else currentColors.success
         )
 

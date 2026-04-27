@@ -35,10 +35,11 @@ fun FilterRow(
     customItemsBefore: LazyListScope.() -> Unit = {},
     customItemsAfter: LazyListScope.() -> Unit = {},
     rowState: LazyListState = rememberLazyListState(),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp),
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = contentPadding,
         state = rowState
     ) {
         customItemsBefore()

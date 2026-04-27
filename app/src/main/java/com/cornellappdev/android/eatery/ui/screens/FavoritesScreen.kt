@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -106,7 +107,7 @@ private fun FavoritesScreenContent(
     Column(
         modifier = Modifier
             .background(color = currentColors.backgroundDefault)
-            .padding(horizontal = 10.dp)
+            .padding(horizontal = 16.dp)
             .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
@@ -119,7 +120,8 @@ private fun FavoritesScreenContent(
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_left_chevron),
-                    contentDescription = stringResource(R.string.back)
+                    contentDescription = stringResource(R.string.back),
+                    tint = currentColors.textPrimary
                 )
             }
             IconButton(
@@ -128,6 +130,7 @@ private fun FavoritesScreenContent(
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
                     contentDescription = stringResource(R.string.search),
+                    tint = currentColors.textPrimary
                 )
             }
 
@@ -271,7 +274,8 @@ private fun ColumnScope.MainScrollableContent(
                     favoritesScreenViewState.eateryFilters
                 } else {
                     favoritesScreenViewState.itemFilters
-                }
+                },
+                contentPadding = PaddingValues(0.dp)
             )
         }
 
