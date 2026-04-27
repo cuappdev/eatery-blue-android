@@ -394,7 +394,7 @@ private fun TransactionRow(transaction: DisplayTransaction, isMealSwipes: Boolea
         val (amtString, amtColor) = if (isMealSwipes) {
             val numSwipes = abs(amount).toInt()
             "-$numSwipes swipe" + (if (numSwipes > 1) "s" else "") to currentColors.error
-        } else if (abs(amount) < 0.001) {
+        } else if (abs(amount) < 0.005) {
             "$0.00" to currentColors.textPrimary
         } else {
             "-$%.2f".format(abs(amount)) to currentColors.error
