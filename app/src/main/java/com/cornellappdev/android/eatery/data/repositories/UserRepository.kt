@@ -11,6 +11,7 @@ import com.cornellappdev.android.eatery.data.models.SessionID
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.User
 import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -48,6 +49,9 @@ class UserRepository @Inject constructor(
     /**
      * A [StateFlow] emitting a list of the names of the user's favorite menu items.     */
     val favoriteItemsFlow: StateFlow<List<String>> = _favoriteItemsFlow.asStateFlow()
+
+    /** Expose whether a user is currently logged in. Delegates to UserPreferencesRepository. */
+    val isLoggedInFlow: Flow<Boolean> = userPreferencesRepository.isLoggedInFlow
 
     private val useLocalFavorites = BuildConfig.USE_LOCAL_FAVORITES
 
