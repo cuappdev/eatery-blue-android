@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,8 +39,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -198,7 +199,11 @@ private fun SupportScreenContent(
                 contentColor = currentColors.oppTextPrimary
             )
         ) {
-            Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_report),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
             Text(
                 text = stringResource(R.string.report_an_issue),
                 style = EateryBlueTypography.h5,
@@ -296,7 +301,10 @@ private fun ReportButton() {
                 .background(color = currentColors.accentPrimary)
                 .fillMaxSize(),
         ) {
-            Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_report),
+                contentDescription = null,
+            )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text(
                 text = stringResource(R.string.report_an_issue),

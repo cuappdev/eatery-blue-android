@@ -41,7 +41,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.StarOutline
@@ -68,10 +67,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -822,8 +823,8 @@ fun EateryDetailScreenContent(
                                         )
                                     ) {
                                         Icon(
-                                            imageVector = Icons.Default.Report,
-                                            contentDescription = Icons.Default.Report.name,
+                                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_report),
+                                            contentDescription = null,
                                             tint = currentColors.textPrimary
                                         )
                                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
