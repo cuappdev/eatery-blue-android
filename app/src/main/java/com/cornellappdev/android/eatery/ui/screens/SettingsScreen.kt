@@ -29,8 +29,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,8 +62,8 @@ fun SettingsScreen(
     themeViewModel: ThemeViewModel = hiltViewModel(),
     destinations: HashMap<Routes, () -> Unit>
 ) {
-    val isDarkMode by themeViewModel.isDarkMode.collectAsState()
-    val isLoggedIn by themeViewModel.isLoggedIn.collectAsState()
+    val isDarkMode by themeViewModel.isDarkMode.collectAsStateWithLifecycle()
+    val isLoggedIn by themeViewModel.isLoggedIn.collectAsStateWithLifecycle()
     SettingsScreenContent(
         destinations = destinations,
         isDarkMode = isDarkMode,
@@ -363,7 +363,7 @@ private fun SettingsScreenContent(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.Logout,
-                        contentDescription = Icons.AutoMirrored.Filled.Logout.name,
+                        contentDescription = null,
                     )
                     Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
                     Text(
