@@ -22,15 +22,15 @@ class ThemeViewModel @Inject constructor(
         initialValue = ThemePreference.SYSTEM
     )
 
-    fun toggleDarkMode() {
+    fun enableDarkMode() {
         viewModelScope.launch { repository.setDarkMode(true) }
     }
 
-    fun toggleLightMode() {
+    fun enableLightMode() {
         viewModelScope.launch { repository.setDarkMode(false) }
     }
 
-    fun toggleSystemMode() {
+    fun enableSystemMode() {
         viewModelScope.launch { repository.setSystemMode() }
     }
 }

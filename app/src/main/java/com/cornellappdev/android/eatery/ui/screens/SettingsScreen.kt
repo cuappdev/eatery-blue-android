@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
@@ -30,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,7 +40,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.data.models.ThemePreference
 import com.cornellappdev.android.eatery.ui.components.settings.AppIconBottomSheet
 import com.cornellappdev.android.eatery.ui.components.settings.DisplayBottomSheet
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
@@ -49,7 +50,6 @@ import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
 import com.cornellappdev.android.eatery.ui.navigation.Routes
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
-import com.cornellappdev.android.eatery.data.models.ThemePreference
 import com.cornellappdev.android.eatery.ui.viewmodels.SettingsViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 import com.cornellappdev.android.eatery.util.DualModePreview
@@ -69,9 +69,9 @@ fun SettingsScreen(
         destinations = destinations,
         themePreference = themePreference,
         isLoggedIn = isLoggedIn,
-        onLightSelected = themeViewModel::toggleLightMode,
-        onDarkSelected = themeViewModel::toggleDarkMode,
-        onSystemSelected = themeViewModel::toggleSystemMode,
+        onLightSelected = themeViewModel::enableLightMode,
+        onDarkSelected = themeViewModel::enableDarkMode,
+        onSystemSelected = themeViewModel::enableSystemMode,
         onLogout = {
             settingsViewModel.onLogout(onDone = {
                 destinations[Routes.PROFILE]?.invoke()
