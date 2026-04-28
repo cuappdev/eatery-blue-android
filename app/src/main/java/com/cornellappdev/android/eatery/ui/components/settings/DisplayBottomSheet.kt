@@ -34,27 +34,21 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.data.models.ThemePreference
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
-private enum class DisplayTheme { LIGHT, DARK, SYSTEM }
-
 @Composable
 fun DisplayBottomSheet(
-    isDarkMode: Boolean?,
+    themePreference: ThemePreference,
     onLightSelected: () -> Unit,
     onDarkSelected: () -> Unit,
     onSystemSelected: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val initialTheme = when (isDarkMode) {
-        true -> DisplayTheme.DARK
-        false -> DisplayTheme.LIGHT
-        null -> DisplayTheme.SYSTEM
-    }
-    var selectedTheme by remember { mutableStateOf(initialTheme) }
+    var selectedTheme by remember { mutableStateOf(themePreference) }
 
     Column(
         modifier = Modifier
@@ -71,23 +65,23 @@ fun DisplayBottomSheet(
         DisplayThemeRow(
             icon = Icons.Outlined.WbSunny,
             label = stringResource(R.string.settings_display_light),
-            selected = selectedTheme == DisplayTheme.LIGHT,
+            selected = selectedTheme == ThemePreference.LIGHT,
             showTopDivider = false,
-            onClick = { selectedTheme = DisplayTheme.LIGHT }
+            onClick = { selectedTheme = ThemePreference.LIGHT }
         )
         DisplayThemeRow(
             icon = Icons.Outlined.DarkMode,
             label = stringResource(R.string.settings_display_dark),
-            selected = selectedTheme == DisplayTheme.DARK,
+            selected = selectedTheme == ThemePreference.DARK,
             showTopDivider = true,
-            onClick = { selectedTheme = DisplayTheme.DARK }
+            onClick = { selectedTheme = ThemePreference.DARK }
         )
         DisplayThemeRow(
             icon = Icons.Outlined.Settings,
             label = stringResource(R.string.settings_display_system),
-            selected = selectedTheme == DisplayTheme.SYSTEM,
+            selected = selectedTheme == ThemePreference.SYSTEM,
             showTopDivider = true,
-            onClick = { selectedTheme = DisplayTheme.SYSTEM }
+            onClick = { selectedTheme = ThemePreference.SYSTEM }
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -95,9 +89,9 @@ fun DisplayBottomSheet(
         Button(
             onClick = {
                 when (selectedTheme) {
-                    DisplayTheme.LIGHT -> onLightSelected()
-                    DisplayTheme.DARK -> onDarkSelected()
-                    DisplayTheme.SYSTEM -> onSystemSelected()
+                    ThemePreference.LIGHT -> onLightSelected()
+                    ThemePreference.DARK -> onDarkSelected()
+                    ThemePreference.SYSTEM -> onSystemSelected()
                 }
                 onDismiss()
             },
@@ -173,7 +167,7 @@ private fun DisplayThemeRow(
 @Composable
 private fun DisplayBottomSheetLightPreview() = EateryPreview {
     DisplayBottomSheet(
-        isDarkMode = false,
+        themePreference = ThemePreference.LIGHT,
         onLightSelected = {},
         onDarkSelected = {},
         onSystemSelected = {},
@@ -185,7 +179,7 @@ private fun DisplayBottomSheetLightPreview() = EateryPreview {
 @Composable
 private fun DisplayBottomSheetDarkPreview() = EateryPreview {
     DisplayBottomSheet(
-        isDarkMode = true,
+        themePreference = ThemePreference.DARK,
         onLightSelected = {},
         onDarkSelected = {},
         onSystemSelected = {},

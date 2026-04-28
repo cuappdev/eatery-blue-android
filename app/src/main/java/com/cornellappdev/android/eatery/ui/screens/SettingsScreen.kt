@@ -49,6 +49,7 @@ import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
 import com.cornellappdev.android.eatery.ui.navigation.Routes
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.data.models.ThemePreference
 import com.cornellappdev.android.eatery.ui.viewmodels.SettingsViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.ThemeViewModel
 import com.cornellappdev.android.eatery.util.DualModePreview
@@ -62,11 +63,11 @@ fun SettingsScreen(
     themeViewModel: ThemeViewModel = hiltViewModel(),
     destinations: HashMap<Routes, () -> Unit>
 ) {
-    val isDarkMode by themeViewModel.isDarkMode.collectAsStateWithLifecycle()
-    val isLoggedIn by themeViewModel.isLoggedIn.collectAsStateWithLifecycle()
+    val themePreference by themeViewModel.themePreference.collectAsStateWithLifecycle()
+    val isLoggedIn by settingsViewModel.isLoggedIn.collectAsStateWithLifecycle()
     SettingsScreenContent(
         destinations = destinations,
-        isDarkMode = isDarkMode,
+        themePreference = themePreference,
         isLoggedIn = isLoggedIn,
         onLightSelected = themeViewModel::toggleLightMode,
         onDarkSelected = themeViewModel::toggleDarkMode,
@@ -83,7 +84,7 @@ fun SettingsScreen(
 @Composable
 private fun SettingsScreenContent(
     destinations: Map<Routes, () -> Unit>,
-    isDarkMode: Boolean?,
+    themePreference: ThemePreference,
     isLoggedIn: Boolean,
     onLightSelected: () -> Unit,
     onDarkSelected: () -> Unit,
@@ -134,7 +135,7 @@ private fun SettingsScreenContent(
             )
         ) {
             DisplayBottomSheet(
-                isDarkMode = isDarkMode,
+                themePreference = themePreference,
                 onLightSelected = onLightSelected,
                 onDarkSelected = onDarkSelected,
                 onSystemSelected = onSystemSelected,
@@ -393,7 +394,7 @@ private fun previewDestinations(): Map<Routes, () -> Unit> = hashMapOf(
 private fun SettingsScreenPreview() = EateryPreview {
     SettingsScreenContent(
         destinations = previewDestinations(),
-        isDarkMode = null,
+        themePreference = ThemePreference.SYSTEM,
         isLoggedIn = true,
         onLightSelected = {},
         onDarkSelected = {},
