@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
@@ -71,7 +72,8 @@ fun LoginPage(
     onLoginPressed: () -> Unit,
     onSuccess: (String) -> Unit,
     onBackClick: () -> Unit,
-    onModalHidden: () -> Unit
+    onModalHidden: () -> Unit,
+    onSettingsClicked: () -> Unit = {}
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
@@ -81,7 +83,7 @@ fun LoginPage(
     }
     if (!isPreview()) {
         Box {
-            LoginPageMainLayer(onBackClick, isLoading, onLoginPressed)
+            LoginPageMainLayer(onBackClick, isLoading, onLoginPressed, onSettingsClicked)
             if (showSheet) {
                 ModalBottomSheet(
                     onDismissRequest = {
@@ -111,7 +113,7 @@ fun LoginPage(
             }
         }
     } else {
-        LoginPageMainLayer(onBackClick, isLoading, onLoginPressed)
+        LoginPageMainLayer(onBackClick, isLoading, onLoginPressed, onSettingsClicked)
     }
 }
 
@@ -119,7 +121,8 @@ fun LoginPage(
 private fun LoginPageMainLayer(
     onBackClick: () -> Unit,
     loading: Boolean,
-    onLoginPressed: () -> Unit
+    onLoginPressed: () -> Unit,
+    onSettingsClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -137,7 +140,7 @@ private fun LoginPageMainLayer(
                 .fillMaxWidth()
                 .padding(top = 12.dp, bottom = 2.dp)
                 .height(34.dp),
-            horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
@@ -147,6 +150,16 @@ private fun LoginPageMainLayer(
                 Image(
                     painter = painterResource(R.drawable.ic_left_chevron),
                     contentDescription = stringResource(R.string.a11y_login_back_arrow)
+                )
+            }
+            IconButton(
+                onClick = onSettingsClicked,
+                modifier = Modifier.size(24.dp, 24.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.system_setting),
+                    contentDescription = stringResource(R.string.settings_title),
+                    tint = currentColors.textSecondary
                 )
             }
         }

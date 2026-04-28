@@ -14,10 +14,17 @@ import javax.inject.Inject
 class ThemeViewModel @Inject constructor(
     private val repository: UserPreferencesRepository): ViewModel()
 {
-    val isDarkMode : StateFlow<Boolean?> = repository.isDarkModeFlow.stateIn(
+    val isDarkMode: StateFlow<Boolean?> = repository.isDarkModeFlow.stateIn(
         viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = null)
+        initialValue = null
+    )
+
+    val isLoggedIn: StateFlow<Boolean> = repository.isLoggedInFlow.stateIn(
+        viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = false
+    )
 
     fun toggleDarkMode()
     {
