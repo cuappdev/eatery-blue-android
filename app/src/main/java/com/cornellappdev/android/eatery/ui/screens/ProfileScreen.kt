@@ -50,7 +50,7 @@ fun ProfileScreen(
         filterText = uiState.filterText,
         filteredTransactions = uiState.filteredTransactions,
         onQueryChanged = loginViewModel::setQuery,
-        updateAccountFilter = loginViewModel::updateAccountFilter
+        updateAccountFilter = loginViewModel::updateAccountFilter,
     )
 }
 
@@ -81,7 +81,8 @@ private fun ProfileScreenContent(
                 onLoginPressed = onLoginPressed,
                 onSuccess = onSuccess,
                 onBackClick = onBackClick,
-                onModalHidden = onModalHidden
+                onModalHidden = onModalHidden,
+                onSettingsClicked = onSettingsClicked
             )
         } else {
             AccountPage(
