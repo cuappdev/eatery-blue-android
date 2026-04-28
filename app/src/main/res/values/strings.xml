@@ -17,6 +17,11 @@
     <string name="settings_favorites_description">Manage your favorite eateries and items</string>
     <string name="settings_notifications_title">Notifications</string>
     <string name="settings_notifications_description">Manage item and promotional notifications</string>
+    <string name="settings_display_title">Display</string>
+    <string name="settings_display_description">Choose a light or dark theme</string>
+    <string name="settings_display_light">Light</string>
+    <string name="settings_display_dark">Dark</string>
+    <string name="settings_display_system">Device Theme</string>
     <string name="settings_privacy_title">Privacy</string>
     <string name="settings_privacy_description">Manage permissions and analytics</string>
     <string name="settings_legal_title">Legal</string>
