@@ -3,7 +3,6 @@ package com.cornellappdev.android.eatery.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -271,7 +270,7 @@ private fun SupportScreenContent(
             title = stringResource(R.string.support_faq_order_title),
             dropdownText = stringResource(id = R.string.order_on_eatery),
             action = { onClick ->
-                Row(modifier = Modifier.clickable { onClick() }) {
+                TextButton(onClick = onClick) {
                     Text(
                         text = stringResource(R.string.support_faq_order_email_prompt),
                         style = EateryBlueTypography.subtitle2,
