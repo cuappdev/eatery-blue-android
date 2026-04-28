@@ -67,12 +67,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -100,6 +98,7 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewSt
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
+import com.cornellappdev.android.eatery.ui.components.general.ReportIssueButton
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.general.menuItems
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
@@ -811,29 +810,12 @@ fun EateryDetailScreenContent(
 
                                     Spacer(Modifier.height(8.dp))
                                     //reporting button
-                                    Button(
-                                        shape = RoundedCornerShape(100.dp),
+                                    ReportIssueButton(
                                         modifier = Modifier.height(35.dp),
-                                        onClick = {
-                                            openBottomSheet(BottomSheetContent.REPORT)
-                                        },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = currentColors.accentPrimary,
-                                            contentColor = currentColors.textPrimary
-                                        )
-                                    ) {
-                                        Icon(
-                                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_report),
-                                            contentDescription = null,
-                                            tint = currentColors.textPrimary
-                                        )
-                                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                        Text(
-                                            text = stringResource(R.string.report_an_issue),
-                                            style = EateryBlueTypography.button,
-                                            color = currentColors.textPrimary
-                                        )
-                                    }
+                                        onClick = { openBottomSheet(BottomSheetContent.REPORT) },
+                                        containerColor = currentColors.accentPrimary,
+                                        contentColor = currentColors.textPrimary,
+                                    )
 
 
                                     Spacer(Modifier.height(8.dp))

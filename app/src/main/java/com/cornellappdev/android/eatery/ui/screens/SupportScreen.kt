@@ -4,7 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,6 +50,7 @@ import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.components.general.ReportIssueButton
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
@@ -236,8 +236,8 @@ private fun SupportScreenContent(
         FAQCreation(
             title = stringResource(R.string.support_faq_wrong_menus_title),
             dropdownText = stringResource(id = R.string.wrong_empty_menus),
-            action = {
-                ReportButton()
+            action = { onClick ->
+                ReportButton(onClick = onClick)
             }
         ) {
             issue = Issue.ITEM
@@ -247,8 +247,8 @@ private fun SupportScreenContent(
         FAQCreation(
             title = stringResource(R.string.support_faq_closed_hours_title),
             dropdownText = stringResource(id = R.string.eatery_closed_when_open),
-            action = {
-                ReportButton()
+            action = { onClick ->
+                ReportButton(onClick = onClick)
             }
         ) {
             issue = Issue.HOURS
@@ -258,8 +258,8 @@ private fun SupportScreenContent(
         FAQCreation(
             title = stringResource(R.string.support_faq_wait_times_title),
             dropdownText = stringResource(id = R.string.wait_time_longer),
-            action = {
-                ReportButton()
+            action = { onClick ->
+                ReportButton(onClick = onClick)
             }
         ) {
             issue = Issue.WAIT_TIMES
@@ -269,8 +269,8 @@ private fun SupportScreenContent(
         FAQCreation(
             title = stringResource(R.string.support_faq_order_title),
             dropdownText = stringResource(id = R.string.order_on_eatery),
-            action = {
-                Row {
+            action = { onClick ->
+                Row(modifier = Modifier.clickable { onClick() }) {
                     Text(
                         text = stringResource(R.string.support_faq_order_email_prompt),
                         style = EateryBlueTypography.subtitle2,
@@ -285,7 +285,7 @@ private fun SupportScreenContent(
 }
 
 @Composable
-private fun ReportButton() {
+private fun ReportButton(onClick: () -> Unit) {
     Surface(
         shape = RoundedCornerShape(17.dp),
         modifier = Modifier
@@ -294,24 +294,14 @@ private fun ReportButton() {
         color = currentColors.backgroundDefault,
         contentColor = currentColors.textPrimary
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(ButtonDefaults.ContentPadding)
-                .background(color = currentColors.accentPrimary)
-                .fillMaxSize(),
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_report),
-                contentDescription = null,
-            )
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(
-                text = stringResource(R.string.report_an_issue),
-                style = EateryBlueTypography.button,
-                color = currentColors.textPrimary,
-            )
-        }
+        ReportIssueButton(
+            modifier = Modifier.fillMaxSize(),
+            onClick = onClick,
+            shape = RoundedCornerShape(0.dp),
+            textStyle = EateryBlueTypography.button,
+            containerColor = currentColors.accentPrimary,
+            contentColor = currentColors.textPrimary,
+        )
     }
 }
 
@@ -320,7 +310,7 @@ private fun ReportButton() {
 fun FAQCreation(
     title: String,
     dropdownText: String,
-    action: @Composable () -> Unit,
+    action: @Composable (onClick: () -> Unit) -> Unit,
     onActionClick: () -> Unit
 ) {
     val (expanded, setExpanded) = remember {
@@ -364,11 +354,9 @@ fun FAQCreation(
                     style = EateryBlueTypography.subtitle2,
                     color = currentColors.textSecondary,
                 )
-                Box(modifier = Modifier.clickable {
+                action {
                     setExpanded(false)
                     onActionClick()
-                }) {
-                    action()
                 }
             }
         }
