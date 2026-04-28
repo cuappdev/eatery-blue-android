@@ -4,9 +4,11 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,7 +28,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -286,18 +287,16 @@ private fun SupportScreenContent(
 
 @Composable
 private fun ReportButton(onClick: () -> Unit) {
-    Surface(
-        shape = RoundedCornerShape(17.dp),
+    Row(
         modifier = Modifier
-            .height(50.dp)
-            .padding(vertical = 8.dp),
-        color = currentColors.backgroundDefault,
-        contentColor = currentColors.textPrimary
+            .height(34.dp)
+            .fillMaxWidth()
+            .background(color = currentColors.backgroundDefault),
+        horizontalArrangement = Arrangement.Start
     ) {
         ReportIssueButton(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxHeight(),
             onClick = onClick,
-            shape = RoundedCornerShape(0.dp),
             textStyle = EateryBlueTypography.button,
             containerColor = currentColors.accentPrimary,
             contentColor = currentColors.textPrimary,
@@ -354,6 +353,7 @@ fun FAQCreation(
                     style = EateryBlueTypography.subtitle2,
                     color = currentColors.textSecondary,
                 )
+                Spacer(modifier = Modifier.height(12.dp))
                 action {
                     setExpanded(false)
                     onActionClick()
