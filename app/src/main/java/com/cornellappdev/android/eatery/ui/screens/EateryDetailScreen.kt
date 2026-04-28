@@ -41,7 +41,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.StarOutline
@@ -99,6 +98,7 @@ import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewSt
 import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsAvailable
+import com.cornellappdev.android.eatery.ui.components.general.ReportIssueButton
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.general.menuItems
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
@@ -810,29 +810,12 @@ fun EateryDetailScreenContent(
 
                                     Spacer(Modifier.height(8.dp))
                                     //reporting button
-                                    Button(
-                                        shape = RoundedCornerShape(100.dp),
+                                    ReportIssueButton(
                                         modifier = Modifier.height(35.dp),
-                                        onClick = {
-                                            openBottomSheet(BottomSheetContent.REPORT)
-                                        },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = currentColors.accentPrimary,
-                                            contentColor = currentColors.textPrimary
-                                        )
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Report,
-                                            contentDescription = Icons.Default.Report.name,
-                                            tint = currentColors.textPrimary
-                                        )
-                                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                        Text(
-                                            text = stringResource(R.string.report_an_issue),
-                                            style = EateryBlueTypography.button,
-                                            color = currentColors.textPrimary
-                                        )
-                                    }
+                                        onClick = { openBottomSheet(BottomSheetContent.REPORT) },
+                                        containerColor = currentColors.accentPrimary,
+                                        contentColor = currentColors.textPrimary,
+                                    )
 
 
                                     Spacer(Modifier.height(8.dp))
