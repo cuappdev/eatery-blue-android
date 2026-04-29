@@ -3,11 +3,11 @@ package com.cornellappdev.android.eatery.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Report
 import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -28,7 +27,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -40,8 +38,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -50,6 +50,7 @@ import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.components.general.ReportIssueButton
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
@@ -198,7 +199,11 @@ private fun SupportScreenContent(
                 contentColor = currentColors.oppTextPrimary
             )
         ) {
-            Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_report),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp)
+            )
             Text(
                 text = stringResource(R.string.report_an_issue),
                 style = EateryBlueTypography.h5,
@@ -231,8 +236,8 @@ private fun SupportScreenContent(
         FAQCreation(
             title = stringResource(R.string.support_faq_wrong_menus_title),
             dropdownText = stringResource(id = R.string.wrong_empty_menus),
-            action = {
-                ReportButton()
+            action = { onClick ->
+                ReportButton(onClick = onClick)
             }
         ) {
             issue = Issue.ITEM
@@ -242,8 +247,8 @@ private fun SupportScreenContent(
         FAQCreation(
             title = stringResource(R.string.support_faq_closed_hours_title),
             dropdownText = stringResource(id = R.string.eatery_closed_when_open),
-            action = {
-                ReportButton()
+            action = { onClick ->
+                ReportButton(onClick = onClick)
             }
         ) {
             issue = Issue.HOURS
@@ -253,8 +258,8 @@ private fun SupportScreenContent(
         FAQCreation(
             title = stringResource(R.string.support_faq_wait_times_title),
             dropdownText = stringResource(id = R.string.wait_time_longer),
-            action = {
-                ReportButton()
+            action = { onClick ->
+                ReportButton(onClick = onClick)
             }
         ) {
             issue = Issue.WAIT_TIMES
@@ -264,8 +269,8 @@ private fun SupportScreenContent(
         FAQCreation(
             title = stringResource(R.string.support_faq_order_title),
             dropdownText = stringResource(id = R.string.order_on_eatery),
-            action = {
-                Row {
+            action = { onClick ->
+                TextButton(onClick = onClick) {
                     Text(
                         text = stringResource(R.string.support_faq_order_email_prompt),
                         style = EateryBlueTypography.subtitle2,
@@ -280,30 +285,21 @@ private fun SupportScreenContent(
 }
 
 @Composable
-private fun ReportButton() {
-    Surface(
-        shape = RoundedCornerShape(17.dp),
+private fun ReportButton(onClick: () -> Unit) {
+    Row(
         modifier = Modifier
-            .height(50.dp)
-            .padding(vertical = 8.dp),
-        color = currentColors.backgroundDefault,
-        contentColor = currentColors.textPrimary
+            .height(34.dp)
+            .fillMaxWidth()
+            .background(color = currentColors.backgroundDefault),
+        horizontalArrangement = Arrangement.Start
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .padding(ButtonDefaults.ContentPadding)
-                .background(color = currentColors.accentPrimary)
-                .fillMaxSize(),
-        ) {
-            Icon(imageVector = Icons.Default.Report, Icons.Default.Report.name)
-            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text(
-                text = stringResource(R.string.report_an_issue),
-                style = EateryBlueTypography.button,
-                color = currentColors.textPrimary,
-            )
-        }
+        ReportIssueButton(
+            modifier = Modifier.fillMaxHeight(),
+            onClick = onClick,
+            textStyle = EateryBlueTypography.button,
+            containerColor = currentColors.accentPrimary,
+            contentColor = currentColors.textPrimary,
+        )
     }
 }
 
@@ -312,7 +308,7 @@ private fun ReportButton() {
 fun FAQCreation(
     title: String,
     dropdownText: String,
-    action: @Composable () -> Unit,
+    action: @Composable (onClick: () -> Unit) -> Unit,
     onActionClick: () -> Unit
 ) {
     val (expanded, setExpanded) = remember {
@@ -356,11 +352,10 @@ fun FAQCreation(
                     style = EateryBlueTypography.subtitle2,
                     color = currentColors.textSecondary,
                 )
-                Box(modifier = Modifier.clickable {
+                Spacer(modifier = Modifier.height(12.dp))
+                action {
                     setExpanded(false)
                     onActionClick()
-                }) {
-                    action()
                 }
             }
         }

@@ -81,7 +81,8 @@ private fun ProfileScreenContent(
                 onLoginPressed = onLoginPressed,
                 onSuccess = onSuccess,
                 onBackClick = onBackClick,
-                onModalHidden = onModalHidden
+                onModalHidden = onModalHidden,
+                onSettingsClicked = onSettingsClicked
             )
         } else {
             AccountPage(

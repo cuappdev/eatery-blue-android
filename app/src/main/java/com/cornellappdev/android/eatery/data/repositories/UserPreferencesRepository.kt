@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery.data.repositories
 
 import androidx.datastore.core.DataStore
 import com.cornellappdev.android.eatery.UserPreferences
+import com.cornellappdev.android.eatery.data.models.ThemePreference
 import com.cornellappdev.android.eatery.util.decryptData
 import com.cornellappdev.android.eatery.util.encryptData
 import kotlinx.coroutines.CoroutineScope
@@ -61,6 +62,14 @@ class UserPreferencesRepository @Inject constructor(
             SharingStarted.Eagerly,
             null
         )
+    val themePreferenceFlow: Flow<ThemePreference> = userPreferencesFlow.map { prefs ->
+        when {
+            !prefs.hasIsDarkMode() -> ThemePreference.SYSTEM
+            prefs.isDarkMode -> ThemePreference.DARK
+            else -> ThemePreference.LIGHT
+        }
+    }
+
     suspend fun setDarkMode(enabled: Boolean)
     {
         userPreferencesStore.updateData { prefs -> prefs.toBuilder()
