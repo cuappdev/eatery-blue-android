@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.notifications
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -45,7 +46,8 @@ fun FavoriteItemRow(
             modifier = Modifier.padding(end = 12.dp)
         )
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -58,8 +60,7 @@ fun FavoriteItemRow(
                 )
                 Text(
                     text = stringResource(R.string.today),
-                    fontSize = 10.sp,
-                    style = EateryBlueTypography.body1,
+                    style = EateryBlueTypography.caption,
                     color = currentColors.textSecondary
                 )
             }

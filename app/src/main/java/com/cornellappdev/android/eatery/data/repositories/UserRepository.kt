@@ -162,11 +162,11 @@ class UserRepository @Inject constructor(
         }
     }
 
-    suspend fun enableNotifications(token: String): Result<Unit> = tryRequestWithResult {
+    suspend fun enableNotifications(token: String): Result<Unit> = resultOfNetworkCall {
         networkApi.enableNotifications(FcmToken(token))
     }
 
-    suspend fun disableNotifications(token: String): Result<Unit> = tryRequestWithResult {
+    suspend fun disableNotifications(token: String): Result<Unit> = resultOfNetworkCall {
         networkApi.disableNotifications(FcmToken(token))
     }
 

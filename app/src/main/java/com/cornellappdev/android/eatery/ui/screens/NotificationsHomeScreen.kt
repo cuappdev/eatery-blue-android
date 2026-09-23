@@ -31,9 +31,9 @@ fun NotificationsHomeScreen(
     ) {
         Text(
             text = stringResource(R.string.notifications_home_title),
-            color = currentColors.textPrimary,
+            color = currentColors.contentBrand,
             style = EateryBlueTypography.h2,
-            modifier = Modifier.padding(top = 7.dp, bottom = 20.dp)
+            modifier = Modifier.padding(top = 7.dp, bottom = 28.dp)
         )
         Text(
             text = stringResource(R.string.notifications_home_favorite_items),
