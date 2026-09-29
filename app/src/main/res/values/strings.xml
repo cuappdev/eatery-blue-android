@@ -186,6 +186,8 @@
 
     <string name="notifications_home_title">Notifications</string>
     <string name="notifications_home_favorite_items">Favorite Items</string>
+    <string name="notifications_home_empty">You currently have no notifications!</string>
+    <string name="notifications_home_error">Something went wrong loading your notifications.</string>
 
     <string name="nearest_title">Nearest to You</string>
     <string name="nearest_empty_message">You currently have no favorite eateries!</string>
@@ -209,6 +211,8 @@
     <string name="favorite_button_remove">Remove from favorites</string>
     <string name="today">Today</string>
     <string name="a11y_notification_star_icon">Notification Star Icon</string>
+    <string name="a11y_bell">Notifications</string>
+    <string name="a11y_bell_unread">Notifications, unread</string>
     <string name="compare_menus_title">Compare Menus</string>
     <string name="compare_menus_no_menu">Sorry, there is no menu available now.</string>
     <string name="done">Done</string>

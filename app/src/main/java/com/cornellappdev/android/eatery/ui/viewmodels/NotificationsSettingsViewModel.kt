@@ -77,6 +77,10 @@ class NotificationsSettingsViewModel @Inject constructor(
             }
         }
 
+    // TODO: the three per-category preferences below are stored locally only. The backend has no
+    // per-category endpoint yet, so it sends favorite-item pushes regardless of these, and since
+    // they arrive while the app is backgrounded the OS displays them before any local check runs.
+    // Disabling a category therefore has no effect until the backend can filter on it.
     fun setFavoriteItemNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
         userPreferencesRepository.setFavoriteItemNotificationsEnabled(enabled)
     }

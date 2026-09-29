@@ -8,15 +8,18 @@ import com.cornellappdev.android.eatery.data.models.FavoriteItem
 import com.cornellappdev.android.eatery.data.models.FcmToken
 import com.cornellappdev.android.eatery.data.models.Financials
 import com.cornellappdev.android.eatery.data.models.GetApiResponse
+import com.cornellappdev.android.eatery.data.models.HubNotificationsResponse
 import com.cornellappdev.android.eatery.data.models.LoginPIN
 import com.cornellappdev.android.eatery.data.models.LoginRequest
 import com.cornellappdev.android.eatery.data.models.Match
+import com.cornellappdev.android.eatery.data.models.NotificationIds
 import com.cornellappdev.android.eatery.data.models.RefreshRequest
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.SessionID
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.HTTP
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -60,6 +63,28 @@ interface NetworkApi {
     @HTTP(method = "DELETE", path = "/users/fcm-token", hasBody = true)
     suspend fun disableNotifications(
         @Body token: FcmToken
+    )
+
+    /**
+     * Notification hub: not-yet-deleted notifications from the last 24 hours,
+     * most recent first.
+     */
+    @GET("/users/notifications")
+    suspend fun getNotifications(): HubNotificationsResponse
+
+    @PATCH("/users/notifications/read")
+    suspend fun markNotificationsRead(
+        @Body ids: NotificationIds
+    )
+
+    /**
+     * Unused in V1: nothing in the design deletes notifications, and they age out of the
+     * 24-hour window on their own. Declared to keep this interface a complete record of the
+     * notification hub API.
+     */
+    @HTTP(method = "DELETE", path = "/users/notifications", hasBody = true)
+    suspend fun deleteNotifications(
+        @Body ids: NotificationIds
     )
 
     @POST("/users/favorites/items")
