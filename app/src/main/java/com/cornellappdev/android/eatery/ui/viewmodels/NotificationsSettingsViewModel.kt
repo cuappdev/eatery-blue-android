@@ -60,6 +60,11 @@ class NotificationsSettingsViewModel @Inject constructor(
     fun syncNotificationSettingsWithBackend(enabled: Boolean, token: String?) =
         viewModelScope.launch {
             if (token.isNullOrBlank()) {
+                // Without a token the backend can't be told anything, so the local preference
+                // would drift out of sync with what the server still sends to this device.
+                Log.w(LOG_TAG, "Cannot sync notification setting: no FCM token")
+                _syncErrorFlow.emit("Failed to update notifications: no device token")
+                userPreferencesRepository.setNotificationsEnabled(!enabled)
                 return@launch
             }
 

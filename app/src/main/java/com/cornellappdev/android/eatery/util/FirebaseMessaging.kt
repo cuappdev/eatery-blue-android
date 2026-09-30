@@ -64,7 +64,7 @@ class FirebaseMessaging : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        Log.d(LOG_TAG, "Refreshed token: $token")
+        Log.d(LOG_TAG, "Refreshed FCM registration token")
 
         serviceScope.launch {
             if (!canGetNotifications(

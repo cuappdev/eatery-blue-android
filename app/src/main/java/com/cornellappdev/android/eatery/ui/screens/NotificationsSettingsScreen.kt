@@ -64,9 +64,11 @@ fun NotificationsSettingsScreen(
             notificationsSettingsViewModel.setAllNotificationsEnabled(enabled)
 
             FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                val token = task.result
-                if (!task.isSuccessful) {
+                val token = if (task.isSuccessful) {
+                    task.result
+                } else {
                     Log.w("NotificationsSettings", "Failed to fetch FCM token", task.exception)
+                    null
                 }
                 notificationsSettingsViewModel.syncNotificationSettingsWithBackend(enabled, token)
             }

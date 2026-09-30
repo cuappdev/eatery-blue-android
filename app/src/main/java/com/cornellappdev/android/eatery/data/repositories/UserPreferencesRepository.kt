@@ -45,6 +45,8 @@ class UserPreferencesRepository @Inject constructor(
         userPreferencesFlow.map { !it.favoriteEateryOpeningNotificationsDisabled }
     val favoriteEateryClosingNotificationsEnabledFlow: Flow<Boolean> =
         userPreferencesFlow.map { !it.favoriteEateryClosingNotificationsDisabled }
+    val notificationPermissionRequestedFlow: Flow<Boolean> =
+        userPreferencesFlow.map { it.notificationPermissionRequested }
 
     /**
      * Emits the decrypted access token, or null if absent or decryption fails.
@@ -126,6 +128,10 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setNotificationsEnabled(enabled: Boolean) = setPref {
         setNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setNotificationPermissionRequested(requested: Boolean) = setPref {
+        setNotificationPermissionRequested(requested)
     }
 
     suspend fun setFavoriteItemNotificationsEnabled(enabled: Boolean) = setPref {

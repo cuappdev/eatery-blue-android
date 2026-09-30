@@ -24,6 +24,7 @@ import com.cornellappdev.android.eatery.ui.theme.ColorTheme
 import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
 import com.cornellappdev.android.eatery.util.canGetNotifications
+import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
 import com.cornellappdev.android.eatery.util.shouldRequestNotificationPermission
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
@@ -190,11 +191,23 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("InlinedApi")
     private suspend fun requestNotificationPermissionIfNeeded() {
+        // Only prompt on the first launch that needs it. Re-launching the request on every
+        // onCreate re-prompts a user who already declined, and Android stops showing the dialog
+        // after repeated denials anyway. The notification settings screen remains the way back in.
+        // On a read failure, treat it as already requested so this doesn't abort the rest of
+        // the launch sequence below.
+        if (userPreferencesRepository.notificationPermissionRequestedFlow
+                .firstOrOnReadFailure(true)
+        ) {
+            return
+        }
+
         if (shouldRequestNotificationPermission(
                 this,
                 userPreferencesRepository.notificationsEnabledFlow
             )
         ) {
+            userPreferencesRepository.setNotificationPermissionRequested(true)
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
@@ -211,7 +224,6 @@ class MainActivity : ComponentActivity() {
             }
 
             val token = task.result
-            Log.d(LOG_TAG, "Fetched FCM registration token: $token")
             if (token.isNullOrBlank()) {
                 return@addOnCompleteListener
             }
