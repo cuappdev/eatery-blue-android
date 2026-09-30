@@ -9,13 +9,33 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.cornellappdev.android.eatery.MainActivity
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.data.models.Result
+import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class FirebaseMessaging : FirebaseMessagingService() {
+    @Inject
+    lateinit var userRepository: UserRepository
+
+    @Inject
+    lateinit var userPreferencesRepository: UserPreferencesRepository
+
     companion object {
         const val LOG_TAG = "FirebaseMessaging"
     }
+
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d(LOG_TAG, "From: ${remoteMessage.from}")
@@ -29,26 +49,69 @@ class FirebaseMessaging : FirebaseMessagingService() {
         remoteMessage.notification?.let {
             Log.d(LOG_TAG, "Message Notification Body: ${it.body}")
 
-            if (it.body != null)
+            if (it.body != null) {
                 sendNotification(messageTitle = it.title ?: "Eatery Blue", messageBody = it.body!!)
+            }
+        }
+
+        if (remoteMessage.notification == null && remoteMessage.data.isNotEmpty()) {
+            val title = remoteMessage.data["title"] ?: "Eatery Blue"
+            val body = remoteMessage.data["body"]
+            if (!body.isNullOrBlank()) {
+                sendNotification(messageTitle = title, messageBody = body)
+            }
         }
     }
 
     override fun onNewToken(token: String) {
-        Log.d(LOG_TAG, "Refreshed token: $token")
+        Log.d(LOG_TAG, "Refreshed FCM registration token")
 
-        // TODO: Send token to backend
+        serviceScope.launch {
+            if (!canGetNotifications(
+                    this@FirebaseMessaging,
+                    userPreferencesRepository.notificationsEnabledFlow
+                )
+            ) {
+                return@launch
+            }
+
+            when (val result = userRepository.enableNotifications(token)) {
+                is Result.Success -> Unit
+                is Result.Error -> Log.w(
+                    LOG_TAG,
+                    "Failed to sync refreshed FCM token: ${result.error}"
+                )
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        serviceScope.cancel()
+        super.onDestroy()
     }
 
     private fun sendNotification(messageTitle: String, messageBody: String) {
+        if (!runBlocking {
+                canGetNotifications(
+                    this@FirebaseMessaging,
+                    userPreferencesRepository.notificationsEnabledFlow
+                )
+            }) {
+            Log.d(
+                LOG_TAG,
+                "Skipping local notification because notifications are disabled or permission is missing"
+            )
+            return
+        }
+
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent = PendingIntent.getActivity(
             this, 0 /* Request code */, intent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val channelId = "fcm_default_channel"
+        val channelId = getString(R.string.fcm_default_channel_id)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setContentTitle(messageTitle)
@@ -63,12 +126,12 @@ class FirebaseMessaging : FirebaseMessagingService() {
 
         val channel = NotificationChannel(
             channelId,
-            "Channel human readable title",
+            getString(R.string.fcm_default_channel_name),
             NotificationManager.IMPORTANCE_DEFAULT
         )
         notificationManager.createNotificationChannel(channel)
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build())
+        notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
     }
 
 }

@@ -33,6 +33,16 @@ message UserPreferences {
 
   optional bool isDarkMode = 18;
 
+  // Notification settings are stored as disabled flags so existing users default to enabled.
+  bool notificationsDisabled = 19;
+  bool favoriteItemNotificationsDisabled = 20;
+  bool favoriteEateryOpeningNotificationsDisabled = 21;
+  bool favoriteEateryClosingNotificationsDisabled = 22;
+
+  // True once the POST_NOTIFICATIONS request has been launched automatically at
+  // startup, so a denial isn't re-prompted on every launch.
+  bool notificationPermissionRequested = 23;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.

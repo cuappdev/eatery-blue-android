@@ -4,6 +4,7 @@ import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.FavoriteEatery
 import com.cornellappdev.android.eatery.data.models.FavoriteItem
+import com.cornellappdev.android.eatery.data.models.FcmToken
 import com.cornellappdev.android.eatery.data.models.Financials
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.Result
@@ -159,6 +160,14 @@ class UserRepository @Inject constructor(
                 currentEateries.filter { it != eateryName }
             }
         }
+    }
+
+    suspend fun enableNotifications(token: String): Result<Unit> = resultOfNetworkCall {
+        networkApi.enableNotifications(FcmToken(token))
+    }
+
+    suspend fun disableNotifications(token: String): Result<Unit> = resultOfNetworkCall {
+        networkApi.disableNotifications(FcmToken(token))
     }
 
 

@@ -2,8 +2,6 @@ package com.cornellappdev.android.eatery.ui.components.details
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,8 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -55,22 +53,17 @@ fun ItemFavoritesCard(
         if (isExpanded) 180F else 0F,
         label = "chevron rotation"
     )
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(
-                BorderStroke(Dp.Hairline, currentColors.borderDefault),
-                RoundedCornerShape(8)
-            ),
-        shape = RoundedCornerShape(8.dp),
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
         colors = CardDefaults.cardColors(
-            containerColor = currentColors.accentPrimary
+            containerColor = currentColors.backgroundDefault
         ),
-        elevation = CardDefaults.cardElevation(8.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(
             modifier = Modifier
-                .padding(20.dp)
+                .padding(16.dp)
                 .fillMaxWidth()
                 .animateContentSize()
         ) {
@@ -126,7 +119,8 @@ fun ItemFavoritesCard(
 @Composable
 fun ItemInformation(meal: String, eateryName: List<String>) {
     Column(
-        modifier = Modifier.padding(top = 8.dp)
+        modifier = Modifier.padding(top = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
             meal,
