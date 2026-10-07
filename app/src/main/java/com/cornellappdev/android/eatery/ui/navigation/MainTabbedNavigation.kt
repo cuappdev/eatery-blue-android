@@ -73,7 +73,6 @@ fun NavigationSetup(
         Routes.ONBOARDING.route,
         Routes.ABOUT.route,
         Routes.NOTIFICATIONS_SETTING.route,
-        Routes.NOTIFICATIONS_HOME.route,
         Routes.PRIVACY.route,
         Routes.LEGAL.route,
         Routes.SUPPORT.route
@@ -410,7 +409,7 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            NotificationsSettingsScreen()
+            NotificationsSettingsScreen(onBackClick = navController::popBackStack)
         }
 
         composable(
@@ -426,7 +425,7 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            NotificationsHomeScreen()
+            NotificationsHomeScreen(onBackClick = navController::popBackStack)
         }
 
         composable(
@@ -476,7 +475,12 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            PrivacyScreen()
+            PrivacyScreen(
+                onBackClick = navController::popBackStack,
+                onNotificationSettingsClick = {
+                    navController.navigate(Routes.NOTIFICATIONS_SETTING.route)
+                }
+            )
         }
         composable(
             route = Routes.SUPPORT.route,

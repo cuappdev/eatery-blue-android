@@ -43,6 +43,8 @@ message UserPreferences {
   // startup, so a denial isn't re-prompted on every launch.
   bool notificationPermissionRequested = 23;
 
+  bool cornellAppdevNotificationsDisabled = 24;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.

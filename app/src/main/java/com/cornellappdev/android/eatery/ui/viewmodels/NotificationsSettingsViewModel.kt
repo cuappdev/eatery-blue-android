@@ -20,8 +20,7 @@ import javax.inject.Inject
 data class NotificationsSettingsUiState(
     val allNotificationsEnabled: Boolean = true,
     val favoriteItemNotificationsEnabled: Boolean = true,
-    val favoriteEateryOpeningNotificationsEnabled: Boolean = true,
-    val favoriteEateryClosingNotificationsEnabled: Boolean = true,
+    val cornellAppdevNotificationsEnabled: Boolean = true,
 )
 
 @HiltViewModel
@@ -39,14 +38,12 @@ class NotificationsSettingsViewModel @Inject constructor(
     val uiState: StateFlow<NotificationsSettingsUiState> = combine(
         userPreferencesRepository.notificationsEnabledFlow,
         userPreferencesRepository.favoriteItemNotificationsEnabledFlow,
-        userPreferencesRepository.favoriteEateryOpeningNotificationsEnabledFlow,
-        userPreferencesRepository.favoriteEateryClosingNotificationsEnabledFlow,
-    ) { allNotificationsEnabled, favoriteItemEnabled, favoriteEateryOpeningEnabled, favoriteEateryClosingEnabled ->
+        userPreferencesRepository.cornellAppdevNotificationsEnabledFlow,
+    ) { allNotificationsEnabled, favoriteItemEnabled, cornellAppdevEnabled ->
         NotificationsSettingsUiState(
             allNotificationsEnabled = allNotificationsEnabled,
             favoriteItemNotificationsEnabled = favoriteItemEnabled,
-            favoriteEateryOpeningNotificationsEnabled = favoriteEateryOpeningEnabled,
-            favoriteEateryClosingNotificationsEnabled = favoriteEateryClosingEnabled,
+            cornellAppdevNotificationsEnabled = cornellAppdevEnabled,
         )
     }.stateIn(
         viewModelScope,
@@ -59,14 +56,19 @@ class NotificationsSettingsViewModel @Inject constructor(
     }
 
     /**
-     * The backend is the source of truth for the favorite-item setting, since it decides whether
-     * to send those pushes, so the local preference is overwritten with the server's value.
+     * The backend is the source of truth for the per-category settings, since it decides whether
+     * to send those pushes, so the local preferences are overwritten with the server's values.
      */
     private fun loadSettingsFromBackend() = viewModelScope.launch {
         when (val result = userRepository.getSettings()) {
-            is Result.Success -> userPreferencesRepository.setFavoriteItemNotificationsEnabled(
-                result.data.favoriteItemPushNotifications
-            )
+            is Result.Success -> {
+                userPreferencesRepository.setFavoriteItemNotificationsEnabled(
+                    result.data.favoriteItemPushNotifications
+                )
+                userPreferencesRepository.setCornellAppdevNotificationsEnabled(
+                    result.data.cornellAppdevPushNotifications
+                )
+            }
 
             is Result.Error -> Log.w(LOG_TAG, "Failed to load settings: ${result.error}")
         }
@@ -115,15 +117,17 @@ class NotificationsSettingsViewModel @Inject constructor(
         }
     }
 
-    // TODO: the eatery opening/closing preferences below are stored locally only. The backend has
-    // no setting for them yet, so they have no effect on what it sends.
-    fun setFavoriteEateryOpeningNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
-        userPreferencesRepository.setFavoriteEateryOpeningNotificationsEnabled(enabled)
-    }
+    fun setCornellAppdevNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
+        // enable first so that UI updates immediately, then sync with backend
+        userPreferencesRepository.setCornellAppdevNotificationsEnabled(enabled)
 
-    fun setFavoriteEateryClosingNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
-        userPreferencesRepository.setFavoriteEateryClosingNotificationsEnabled(enabled)
+        val result = userRepository.updateSettings(
+            UserSettingsUpdate(cornellAppdevPushNotifications = enabled)
+        )
+        if (result is Result.Error) {
+            Log.w(LOG_TAG, "Failed to sync Cornell AppDev setting: ${result.error}")
+            _syncErrorFlow.emit("Failed to update notifications: ${result.error}")
+            userPreferencesRepository.setCornellAppdevNotificationsEnabled(!enabled)
+        }
     }
 }
-
-

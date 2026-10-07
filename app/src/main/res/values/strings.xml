@@ -46,13 +46,11 @@
 
     <string name="notifications_title">Notifications</string>
     <string name="notifications_description">Manage item and promotional notifications</string>
-    <string name="notifications_all_title">All Notifications</string>
-    <string name="notifications_favorite_item_title">Favorite item being served</string>
+    <string name="notifications_pause_all_title">Pause all notifications</string>
+    <string name="notifications_favorite_item_title">Favorite Item Notifications</string>
     <string name="notifications_favorite_item_description">Get notified when favorite items are served</string>
-    <string name="notifications_favorite_eatery_open_title">Favorite eatery opening</string>
-    <string name="notifications_favorite_eatery_open_description">Get notified when your favorite eatery opens</string>
-    <string name="notifications_favorite_eatery_close_title">Favorite eatery closing</string>
-    <string name="notifications_favorite_eatery_close_description">Get notified when your favorite eatery closes</string>
+    <string name="notifications_cornell_appdev_title">Cornell AppDev Notifications</string>
+    <string name="notifications_cornell_appdev_description">Get notified about new releases and feedback</string>
 
     <string name="privacy_title">Privacy</string>
     <string name="privacy_description">Manage permissions and analytics</string>
@@ -65,6 +63,9 @@
     <string name="privacy_share_with_cornell_appdev_title">Share with Cornell AppDev</string>
     <string name="privacy_share_with_cornell_appdev_description">Help us improve products and services</string>
     <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="privacy_notification_settings_title">Notification Settings</string>
+    <string name="privacy_permission_allowed">Allowed</string>
+    <string name="privacy_permission_not_allowed">Not Allowed</string>
 
     <string name="support_title">Support</string>
     <string name="support_description">Report issues and contact Cornell AppDev</string>
@@ -186,7 +187,8 @@
 
     <string name="notifications_home_title">Notifications</string>
     <string name="notifications_home_favorite_items">Favorite Items</string>
-    <string name="notifications_home_empty">You currently have no notifications!</string>
+    <string name="notifications_home_empty">Nothing here...yet!</string>
+    <string name="notifications_home_empty_description">When your favorite menu items are being served in a dining hall, it will show up here.</string>
     <string name="notifications_home_error">Something went wrong loading your notifications.</string>
 
     <string name="nearest_title">Nearest to You</string>

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
 import com.cornellappdev.android.eatery.ui.components.notifications.NotificationRow
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
@@ -50,6 +51,7 @@ import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun NotificationsHomeScreen(
+    onBackClick: () -> Unit,
     notificationsHomeViewModel: NotificationsHomeViewModel = hiltViewModel(),
 ) {
     val uiState by notificationsHomeViewModel.uiState.collectAsStateWithLifecycle()
@@ -57,25 +59,21 @@ fun NotificationsHomeScreen(
     Column(
         modifier = Modifier
             .background(color = currentColors.backgroundDefault)
-            .padding(horizontal = 16.dp)
-            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
-        Text(
-            text = stringResource(R.string.notifications_home_title),
-            color = currentColors.contentBrand,
-            style = EateryBlueTypography.h2,
-            modifier = Modifier.padding(top = 7.dp, bottom = 28.dp)
+        LargeTitleHeader(
+            title = stringResource(R.string.notifications_home_title),
+            onBackClick = onBackClick
         )
-        Text(
-            text = stringResource(R.string.notifications_home_favorite_items),
-            style = EateryBlueTypography.h4,
-            modifier = Modifier.padding(bottom = 20.dp),
-            color = currentColors.textPrimary
-        )
+        Spacer(modifier = Modifier.height(16.dp))
 
         when (val state = uiState) {
-            is NotificationsHomeViewState.Loading -> NotificationsLoadingState()
+            is NotificationsHomeViewState.Loading -> {
+                FavoriteItemsHeading()
+                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    NotificationsLoadingState()
+                }
+            }
 
             is NotificationsHomeViewState.Error -> NotificationsErrorState(
                 onTryAgain = notificationsHomeViewModel::refresh
@@ -85,7 +83,8 @@ fun NotificationsHomeScreen(
                 if (state.notifications.isEmpty()) {
                     NotificationsEmptyState()
                 } else {
-                    LazyColumn {
+                    FavoriteItemsHeading()
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         items(
                             items = state.notifications,
                             key = { it.id }
@@ -104,6 +103,16 @@ fun NotificationsHomeScreen(
             }
         }
     }
+}
+
+@Composable
+private fun FavoriteItemsHeading() {
+    Text(
+        text = stringResource(R.string.notifications_home_favorite_items),
+        style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 20.sp),
+        color = currentColors.textPrimary,
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
+    )
 }
 
 /**
@@ -136,22 +145,29 @@ private fun NotificationsEmptyState() {
             .fillMaxWidth()
     ) {
         Column(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .width(252.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_eaterylogo),
+                painter = painterResource(id = R.drawable.ic_notifications_bell_empty),
                 contentDescription = null,
-                modifier = Modifier.size(72.dp),
-                tint = currentColors.backgroundDefault92,
+                tint = Color.Unspecified,
             )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = stringResource(R.string.notifications_home_empty),
-                style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-                color = currentColors.textPrimary,
+                style = EateryBlueTypography.h6,
+                color = currentColors.textSecondary,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(top = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.notifications_home_empty_description),
+                style = EateryBlueTypography.caption.copy(lineHeight = 16.sp),
+                color = currentColors.textSecondary,
+                textAlign = TextAlign.Center,
             )
         }
     }
@@ -216,5 +232,5 @@ private fun NotificationsErrorState(onTryAgain: () -> Unit) {
 @DualModePreview
 @Composable
 private fun NotificationsHomeScreenPreview() = EateryPreview {
-    NotificationsHomeScreen()
+    NotificationsHomeScreen(onBackClick = {})
 }

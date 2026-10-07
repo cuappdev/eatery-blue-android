@@ -4,9 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,10 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
  * One entry in the notification hub. [title] and [body] arrive pre-composed from the backend
@@ -34,37 +38,42 @@ fun NotificationRow(
 ) {
     Row(
         modifier = modifier
+            .fillMaxWidth()
             .clickable { onClick() }
-            .padding(16.dp),
+            .padding(horizontal = 24.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
             painter = if (isRead) painterResource(id = R.drawable.ic_notif_star)
             else painterResource(id = R.drawable.ic_new_notif_star),
             contentDescription = stringResource(R.string.a11y_notification_star_icon),
-            tint = Color.Unspecified,
-            modifier = Modifier.padding(end = 12.dp)
+            tint = Color.Unspecified
         )
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             Text(
                 text = title,
-                style = EateryBlueTypography.h5,
+                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp, lineHeight = 20.sp),
                 color = currentColors.textPrimary
             )
             Text(
                 text = body,
-                style = EateryBlueTypography.caption,
+                style = EateryBlueTypography.caption.copy(lineHeight = 16.sp),
                 color = currentColors.textSecondary
             )
         }
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-            contentDescription = null,
-            tint = currentColors.textPrimary,
-            modifier = Modifier.padding(start = 12.dp)
-        )
     }
+}
+
+@DualModePreview
+@Composable
+private fun NotificationRowPreview() = EateryPreview {
+    NotificationRow(
+        title = "Chicken Nuggets",
+        body = "At Becker House, Keeton House, Morrison Dining",
+        isRead = true
+    )
 }
