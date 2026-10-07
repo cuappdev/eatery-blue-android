@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Result
+import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,6 +54,24 @@ class NotificationsSettingsViewModel @Inject constructor(
         NotificationsSettingsUiState(),
     )
 
+    init {
+        loadSettingsFromBackend()
+    }
+
+    /**
+     * The backend is the source of truth for the favorite-item setting, since it decides whether
+     * to send those pushes, so the local preference is overwritten with the server's value.
+     */
+    private fun loadSettingsFromBackend() = viewModelScope.launch {
+        when (val result = userRepository.getSettings()) {
+            is Result.Success -> userPreferencesRepository.setFavoriteItemNotificationsEnabled(
+                result.data.favoriteItemPushNotifications
+            )
+
+            is Result.Error -> Log.w(LOG_TAG, "Failed to load settings: ${result.error}")
+        }
+    }
+
     fun setAllNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
         userPreferencesRepository.setNotificationsEnabled(enabled)
     }
@@ -82,14 +101,22 @@ class NotificationsSettingsViewModel @Inject constructor(
             }
         }
 
-    // TODO: the three per-category preferences below are stored locally only. The backend has no
-    // per-category endpoint yet, so it sends favorite-item pushes regardless of these, and since
-    // they arrive while the app is backgrounded the OS displays them before any local check runs.
-    // Disabling a category therefore has no effect until the backend can filter on it.
     fun setFavoriteItemNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
+        // enable first so that UI updates immediately, then sync with backend
         userPreferencesRepository.setFavoriteItemNotificationsEnabled(enabled)
+
+        val result = userRepository.updateSettings(
+            UserSettingsUpdate(favoriteItemPushNotifications = enabled)
+        )
+        if (result is Result.Error) {
+            Log.w(LOG_TAG, "Failed to sync favorite item setting: ${result.error}")
+            _syncErrorFlow.emit("Failed to update notifications: ${result.error}")
+            userPreferencesRepository.setFavoriteItemNotificationsEnabled(!enabled)
+        }
     }
 
+    // TODO: the eatery opening/closing preferences below are stored locally only. The backend has
+    // no setting for them yet, so they have no effect on what it sends.
     fun setFavoriteEateryOpeningNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
         userPreferencesRepository.setFavoriteEateryOpeningNotificationsEnabled(enabled)
     }

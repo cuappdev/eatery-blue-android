@@ -100,6 +100,10 @@ class MainActivity : ComponentActivity() {
         }
         lifecycle.addObserver(dataRefresher)
         checkForUpdateAvailability()
+        // TEMP (do not commit): print the FCM token for Firebase Console test sends.
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { t ->
+            Log.d("FCM_TEST", "TOKEN: " + (if (t.isSuccessful) t.result else "failed: " + t.exception))
+        }
         lifecycleScope.launch {
             configureTokens()
             requestNotificationPermissionIfNeeded()

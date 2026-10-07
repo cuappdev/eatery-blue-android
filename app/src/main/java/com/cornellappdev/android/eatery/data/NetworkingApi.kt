@@ -16,6 +16,8 @@ import com.cornellappdev.android.eatery.data.models.NotificationIds
 import com.cornellappdev.android.eatery.data.models.RefreshRequest
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.SessionID
+import com.cornellappdev.android.eatery.data.models.UserSettings
+import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.HTTP
@@ -86,6 +88,17 @@ interface NetworkApi {
     suspend fun deleteNotifications(
         @Body ids: NotificationIds
     )
+
+    @GET("/users/settings")
+    suspend fun getSettings(): UserSettings
+
+    /**
+     * Updates only the settings set in [update] and returns the full updated settings.
+     */
+    @PATCH("/users/settings")
+    suspend fun updateSettings(
+        @Body update: UserSettingsUpdate
+    ): UserSettings
 
     @POST("/users/favorites/items")
     suspend fun addFavoriteItem(

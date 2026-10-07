@@ -11,6 +11,8 @@ import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.SessionID
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.User
+import com.cornellappdev.android.eatery.data.models.UserSettings
+import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
 import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -169,6 +171,15 @@ class UserRepository @Inject constructor(
     suspend fun disableNotifications(token: String): Result<Unit> = resultOfNetworkCall {
         networkApi.disableNotifications(FcmToken(token))
     }
+
+    suspend fun getSettings(): Result<UserSettings> = resultOfNetworkCall {
+        networkApi.getSettings()
+    }
+
+    suspend fun updateSettings(update: UserSettingsUpdate): Result<UserSettings> =
+        resultOfNetworkCall {
+            networkApi.updateSettings(update)
+        }
 
 
     suspend fun getFinancials(): Result<Financials> = resultOfNetworkCall {
