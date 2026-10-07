@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.util
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
@@ -121,16 +120,9 @@ class FirebaseMessaging : FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.ic_eaterylogo_blue)
 
+        // The channel itself is created in EateryBlueApplication.
         val notificationManager =
             getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-
-        val channel = NotificationChannel(
-            channelId,
-            getString(R.string.fcm_default_channel_name),
-            NotificationManager.IMPORTANCE_DEFAULT
-        )
-        notificationManager.createNotificationChannel(channel)
-
         notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
     }
 
