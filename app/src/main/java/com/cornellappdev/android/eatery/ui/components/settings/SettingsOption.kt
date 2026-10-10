@@ -25,25 +25,32 @@ import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 
+/**
+ * A tappable settings row. [compact] gives the denser cell used on the notification and privacy
+ * pages: smaller text, a secondary-colored description and height that wraps its content.
+ */
 @Composable
 fun SettingsOption(
     title: String,
     onClick: () -> Unit = {},
     description: String? = null,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
-        modifier = Modifier
+        modifier = modifier
             .background(color = currentColors.backgroundDefault)
             .fillMaxWidth()
-            .height(80.dp)
+            .then(if (compact) Modifier else Modifier.height(80.dp))
             .clickable(
                 onClick = { onClick() },
                 interactionSource = interactionSource,
                 indication = ripple()
-            ),
+            )
+            .then(if (compact) Modifier.padding(vertical = 16.dp) else Modifier),
         verticalAlignment = CenterVertically
     ) {
         Row(
@@ -58,15 +65,22 @@ fun SettingsOption(
             Column {
                 Text(
                     text = title,
-                    style = EateryBlueTypography.h5,
+                    style = if (compact) {
+                        TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                    } else {
+                        EateryBlueTypography.h5
+                    },
                     color = currentColors.textPrimary
                 )
                 if (!description.isNullOrEmpty())
                     Text(
                         text = description,
-                        style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                        color = currentColors.textPrimary,
-                        modifier = Modifier.padding(top = 2.dp)
+                        style = TextStyle(
+                            fontWeight = if (compact) FontWeight.Medium else FontWeight.SemiBold,
+                            fontSize = 12.sp
+                        ),
+                        color = if (compact) currentColors.textSecondary else currentColors.textPrimary,
+                        modifier = Modifier.padding(top = if (compact) 4.dp else 2.dp)
                     )
             }
         }

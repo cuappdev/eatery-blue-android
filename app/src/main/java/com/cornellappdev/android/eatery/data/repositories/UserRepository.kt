@@ -4,12 +4,15 @@ import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.FavoriteEatery
 import com.cornellappdev.android.eatery.data.models.FavoriteItem
+import com.cornellappdev.android.eatery.data.models.FcmToken
 import com.cornellappdev.android.eatery.data.models.Financials
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.SessionID
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.User
+import com.cornellappdev.android.eatery.data.models.UserSettings
+import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
 import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -160,6 +163,19 @@ class UserRepository @Inject constructor(
             }
         }
     }
+
+    suspend fun enableNotifications(token: String): Result<Unit> = resultOfNetworkCall {
+        networkApi.enableNotifications(FcmToken(token))
+    }
+
+    suspend fun getSettings(): Result<UserSettings> = resultOfNetworkCall {
+        networkApi.getSettings()
+    }
+
+    suspend fun updateSettings(update: UserSettingsUpdate): Result<UserSettings> =
+        resultOfNetworkCall {
+            networkApi.updateSettings(update)
+        }
 
 
     suspend fun getFinancials(): Result<Financials> = resultOfNetworkCall {

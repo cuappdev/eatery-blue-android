@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -90,6 +91,7 @@ import com.cornellappdev.android.eatery.ui.components.home.EateryHomeSection
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.UnreadNotificationDot
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
@@ -137,6 +139,7 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         homeViewModel.updateFavoritesIfTokensConfigured()
+        homeViewModel.refreshNotificationsIfTokensConfigured()
     }
 
     HomeScreenContent(
@@ -194,6 +197,7 @@ private fun HomeScreenContent(
     val eateriesApiResponse = uiState.eateriesApiResponse
     val selectedFilters = uiState.selectedFilters
     val notificationFlowCompleted = uiState.notificationFlowCompleted
+    val hasUnreadNotifications = uiState.hasUnreadNotifications
 
     NetworkErrorToast(
         error = uiState.error,
@@ -314,6 +318,7 @@ private fun HomeScreenContent(
                     onListClick = { isGridView = false },
                     onGridClick = { isGridView = true },
                     onNotificationsClick = onNotificationsClick,
+                    hasUnreadNotifications = hasUnreadNotifications,
                     onReload = onReload,
                     isDarkMode = isDarkMode
                 )
@@ -376,6 +381,7 @@ private fun HomeScrollableMainContent(
     onListClick: () -> Unit,
     onGridClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    hasUnreadNotifications: Boolean,
     onReload: () -> Unit,
     isDarkMode: Boolean
 ) {
@@ -398,6 +404,7 @@ private fun HomeScrollableMainContent(
                 loaded = true,
                 onSearchClick = onSearchClick,
                 onNotificationsClick = onNotificationsClick,
+                hasUnreadNotifications = hasUnreadNotifications,
                 selectedFilters = selectedFilters,
                 onFilterClicked = onFilterClicked,
                 filters = filters,
@@ -428,6 +435,7 @@ private fun HomeScrollableMainContent(
                 loaded = false,
                 onSearchClick = onSearchClick,
                 onNotificationsClick = onNotificationsClick,
+                hasUnreadNotifications = hasUnreadNotifications,
                 selectedFilters = selectedFilters,
                 onFilterClicked = onFilterClicked,
                 filters = filters,
@@ -445,7 +453,8 @@ private fun HomeScrollableMainContent(
                     collapsed = isFirstVisible.value,
                     loaded = false,
                     onSearchClick = onSearchClick,
-                    onNotificationsClick = onNotificationsClick
+                    onNotificationsClick = onNotificationsClick,
+                    hasUnreadNotifications = hasUnreadNotifications
                 )
                 HomeMainHeader(
                     onSearchClick = onSearchClick,
@@ -470,6 +479,7 @@ private fun HomeLazyColumn(
     loaded: Boolean,
     onSearchClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    hasUnreadNotifications: Boolean,
     selectedFilters: List<Filter>,
     onFilterClicked: (Filter) -> Unit,
     filters: List<Filter>,
@@ -486,7 +496,8 @@ private fun HomeLazyColumn(
                 collapsed = collapsed,
                 loaded = loaded,
                 onSearchClick = onSearchClick,
-                onNotificationsClick = onNotificationsClick
+                onNotificationsClick = onNotificationsClick,
+                hasUnreadNotifications = hasUnreadNotifications
             )
         }
         item {
@@ -800,7 +811,8 @@ private fun HomeStickyHeader(
     collapsed: Boolean,
     loaded: Boolean,
     onSearchClick: () -> Unit,
-    onNotificationsClick: () -> Unit
+    onNotificationsClick: () -> Unit,
+    hasUnreadNotifications: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -871,14 +883,27 @@ private fun HomeStickyHeader(
                             style = EateryBlueTypography.h2
                         )
                         if (BuildConfig.ENABLE_NOTIFICATIONS) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_bell),
-                                contentDescription = null,
-                                tint = currentColors.backgroundDefault,
-                                modifier = Modifier.clickable {
-                                    onNotificationsClick()
+                            Box(
+                                modifier = Modifier.clickable { onNotificationsClick() }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_bell),
+                                    contentDescription = stringResource(
+                                        if (hasUnreadNotifications) R.string.a11y_bell_unread
+                                        else R.string.a11y_bell
+                                    ),
+                                    tint = currentColors.backgroundDefault,
+                                )
+                                if (hasUnreadNotifications) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(UnreadNotificationDot)
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
                 }

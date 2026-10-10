@@ -186,6 +186,7 @@ class FavoritesViewModel @Inject constructor(
     private fun normalizeMealType(raw: String): String {
         return when (val normalized = raw.replace("_", " ").trim().lowercase()) {
             "late night", "late_night" -> "Late Dinner"
+            "empty" -> "All Day"
             else -> normalized.split(" ").joinToString(" ") { w ->
                 w.replaceFirstChar { it.uppercase() }
             }

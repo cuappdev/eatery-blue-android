@@ -1,7 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCard
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -142,7 +141,7 @@ private fun FavoritesScreenContent(
             modifier = Modifier.padding(horizontal = 6.dp)
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         when (favoritesScreenViewState) {
             is FavoritesScreenViewState.Loading -> {
@@ -249,39 +248,45 @@ private fun ColumnScope.MainScrollableContent(
     removeFavorite: (eateryId: Int, eateryName: String) -> Unit,
     removeFavoriteMenuItem: (menuItem: String) -> Unit,
 ) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        item {
-            ToggleRow(toggle, setToggle)
-            Spacer(modifier = Modifier.height(12.dp))
+    val filterRow = @Composable {
+        ToggleRow(toggle, setToggle)
+        Spacer(modifier = Modifier.height(12.dp))
 
-            FilterRow(
-                currentFiltersSelected = if (toggle) favoritesScreenViewState.selectedEateryFilters
-                else favoritesScreenViewState.selectedItemFilters,
-                onFilterClicked = { filter ->
-                    if (toggle) {
-                        (filter as? Filter.FromEateryFilter)?.let {
-                            toggleEateryFilter(it)
-                        }
-                    } else {
-                        toggleItemFilter(filter)
+        FilterRow(
+            currentFiltersSelected = if (toggle) favoritesScreenViewState.selectedEateryFilters
+            else favoritesScreenViewState.selectedItemFilters,
+            onFilterClicked = { filter ->
+                if (toggle) {
+                    (filter as? Filter.FromEateryFilter)?.let {
+                        toggleEateryFilter(it)
                     }
-                },
-                filters = if (toggle) {
-                    favoritesScreenViewState.eateryFilters
                 } else {
-                    favoritesScreenViewState.itemFilters
-                },
-                contentPadding = PaddingValues(0.dp)
-            )
-        }
+                    toggleItemFilter(filter)
+                }
+            },
+            filters = if (toggle) {
+                favoritesScreenViewState.eateryFilters
+            } else {
+                favoritesScreenViewState.itemFilters
+            },
+            contentPadding = PaddingValues(0.dp)
+        )
+    }
 
-        if (toggle) {
+    // Two separate LazyColumns (rather than one shared one) so switching tabs swaps the
+    // whole list at once instead of Compose trying to animate eatery cards into item cards.
+    if (toggle) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             item {
-                AnimatedVisibility(favoriteEateries.isEmpty()) {
+                filterRow()
+            }
+
+            if (favoriteEateries.isEmpty()) {
+                item {
                     EateriesEmptyState(message = "You currently have no favorite eateries!")
                 }
             }
@@ -308,13 +313,30 @@ private fun ColumnScope.MainScrollableContent(
                     onEateryClick(it)
                 }
             }
-        } else {
+
             item {
-                AnimatedVisibility(favoritesScreenViewState.favoriteCards.isEmpty()) {
+                Spacer(Modifier.height(20.dp))
+            }
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                filterRow()
+            }
+
+            if (favoritesScreenViewState.favoriteCards.isEmpty()) {
+                item {
                     EateriesEmptyState("You currently have no favorite menu items!")
                 }
             }
-            items(favoritesScreenViewState.favoriteCards) { itemFavoritesCardViewState ->
+            items(
+                items = favoritesScreenViewState.favoriteCards,
+                key = { it.itemName }
+            ) { itemFavoritesCardViewState ->
                 ItemFavoritesCard(
                     itemFavoritesCardViewState,
                     modifier = Modifier.animateItem(),
@@ -325,10 +347,10 @@ private fun ColumnScope.MainScrollableContent(
                     }
                 )
             }
-        }
 
-        item {
-            Spacer(Modifier.height(20.dp))
+            item {
+                Spacer(Modifier.height(20.dp))
+            }
         }
     }
 }
