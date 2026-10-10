@@ -66,11 +66,8 @@ class FirebaseMessaging : FirebaseMessagingService() {
         Log.d(LOG_TAG, "Refreshed FCM registration token")
 
         serviceScope.launch {
-            if (!canGetNotifications(
-                    this@FirebaseMessaging,
-                    userPreferencesRepository.notificationsEnabledFlow
-                )
-            ) {
+            // Registered even while paused, since the backend keeps tokens regardless of settings
+            if (!areNotificationsAllowedBySystem(this@FirebaseMessaging)) {
                 return@launch
             }
 

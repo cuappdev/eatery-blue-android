@@ -168,10 +168,6 @@ class UserRepository @Inject constructor(
         networkApi.enableNotifications(FcmToken(token))
     }
 
-    suspend fun disableNotifications(token: String): Result<Unit> = resultOfNetworkCall {
-        networkApi.disableNotifications(FcmToken(token))
-    }
-
     suspend fun getSettings(): Result<UserSettings> = resultOfNetworkCall {
         networkApi.getSettings()
     }

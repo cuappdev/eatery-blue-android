@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -36,7 +35,6 @@ import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsSettingsViewM
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.needsNotificationPermissionRequest
-import com.google.firebase.messaging.FirebaseMessaging
 
 @SuppressLint("InlinedApi")
 @Composable
@@ -56,28 +54,11 @@ fun NotificationsSettingsScreen(
         }
     }
 
-    val syncAllNotificationsWithBackend = remember(notificationsSettingsViewModel) {
-        { enabled: Boolean ->
-            // enable first so that UI updates immediately, then sync with backend
-            notificationsSettingsViewModel.setAllNotificationsEnabled(enabled)
-
-            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-                val token = if (task.isSuccessful) {
-                    task.result
-                } else {
-                    Log.w("NotificationsSettings", "Failed to fetch FCM token", task.exception)
-                    null
-                }
-                notificationsSettingsViewModel.syncNotificationSettingsWithBackend(enabled, token)
-            }
-        }
-    }
-
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted && pendingEnablePermissionRequest) {
-            syncAllNotificationsWithBackend(true)
+            notificationsSettingsViewModel.setAllNotificationsEnabled(true)
         }
         pendingEnablePermissionRequest = false
     }
@@ -116,7 +97,7 @@ fun NotificationsSettingsScreen(
                         }
 
                         pendingEnablePermissionRequest = false
-                        syncAllNotificationsWithBackend(isEnabled)
+                        notificationsSettingsViewModel.setAllNotificationsEnabled(isEnabled)
                     }
                 )
             }

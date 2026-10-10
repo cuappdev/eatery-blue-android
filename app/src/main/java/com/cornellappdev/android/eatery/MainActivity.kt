@@ -23,7 +23,7 @@ import com.cornellappdev.android.eatery.ui.theme.AppColorTheme
 import com.cornellappdev.android.eatery.ui.theme.ColorTheme
 import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
-import com.cornellappdev.android.eatery.util.canGetNotifications
+import com.cornellappdev.android.eatery.util.areNotificationsAllowedBySystem
 import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
 import com.cornellappdev.android.eatery.util.shouldRequestNotificationPermission
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -212,8 +212,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private suspend fun syncFcmTokenWithBackendIfAllowed() {
-        if (!canGetNotifications(this, userPreferencesRepository.notificationsEnabledFlow)) {
+    /**
+     * Registers the token whenever the OS allows notifications, even while the in-app toggle is
+     * paused: the backend keeps tokens regardless of settings, so unpausing works without
+     * re-registering.
+     */
+    private fun syncFcmTokenWithBackendIfAllowed() {
+        if (!areNotificationsAllowedBySystem(this)) {
             return
         }
 

@@ -62,11 +62,6 @@ interface NetworkApi {
         @Body token: FcmToken
     )
 
-    @HTTP(method = "DELETE", path = "/users/fcm-token", hasBody = true)
-    suspend fun disableNotifications(
-        @Body token: FcmToken
-    )
-
     /**
      * Notification hub: not-yet-deleted notifications from the last 24 hours,
      * most recent first.

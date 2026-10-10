@@ -7,6 +7,7 @@ import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
+import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -60,6 +61,12 @@ class NotificationsSettingsViewModel @Inject constructor(
      * to send those pushes, so the local preferences are overwritten with the server's values.
      */
     private fun loadSettingsFromBackend() = viewModelScope.launch {
+        // While paused the backend has every category turned off, so its values aren't the
+        // user's real choices; keep the local ones so they can be restored on unpause.
+        if (!userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(true)) {
+            return@launch
+        }
+
         when (val result = userRepository.getSettings()) {
             is Result.Success -> {
                 userPreferencesRepository.setFavoriteItemNotificationsEnabled(
@@ -74,34 +81,35 @@ class NotificationsSettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * The backend has no master switch, so pausing turns off every category there and unpausing
+     * restores the user's local category choices. The FCM token stays registered either way.
+     */
     fun setAllNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
+        // enable first so that UI updates immediately, then sync with backend
         userPreferencesRepository.setNotificationsEnabled(enabled)
-    }
 
-    fun syncNotificationSettingsWithBackend(enabled: Boolean, token: String?) =
-        viewModelScope.launch {
-            if (token.isNullOrBlank()) {
-                // Without a token the backend can't be told anything, so the local preference
-                // would drift out of sync with what the server still sends to this device.
-                Log.w(LOG_TAG, "Cannot sync notification setting: no FCM token")
-                _syncErrorFlow.emit("Failed to update notifications: no device token")
-                userPreferencesRepository.setNotificationsEnabled(!enabled)
-                return@launch
-            }
-
-            val result = if (enabled) {
-                userRepository.enableNotifications(token)
-            } else {
-                userRepository.disableNotifications(token)
-            }
-
-            if (result is Result.Error) {
-                Log.w(LOG_TAG, "Failed to sync notification setting: ${result.error}")
-                val errorMsg = "Failed to update notifications: ${result.error}"
-                _syncErrorFlow.emit(errorMsg)
-                userPreferencesRepository.setNotificationsEnabled(!enabled)
-            }
+        val update = if (enabled) {
+            UserSettingsUpdate(
+                favoriteItemPushNotifications = userPreferencesRepository
+                    .favoriteItemNotificationsEnabledFlow.firstOrOnReadFailure(true),
+                cornellAppdevPushNotifications = userPreferencesRepository
+                    .cornellAppdevNotificationsEnabledFlow.firstOrOnReadFailure(true),
+            )
+        } else {
+            UserSettingsUpdate(
+                favoriteItemPushNotifications = false,
+                cornellAppdevPushNotifications = false,
+            )
         }
+
+        val result = userRepository.updateSettings(update)
+        if (result is Result.Error) {
+            Log.w(LOG_TAG, "Failed to sync notification setting: ${result.error}")
+            _syncErrorFlow.emit("Failed to update notifications: ${result.error}")
+            userPreferencesRepository.setNotificationsEnabled(!enabled)
+        }
+    }
 
     fun setFavoriteItemNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
         // enable first so that UI updates immediately, then sync with backend
