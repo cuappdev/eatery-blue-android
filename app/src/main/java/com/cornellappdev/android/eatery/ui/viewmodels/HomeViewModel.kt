@@ -9,6 +9,7 @@ import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
+import com.cornellappdev.android.eatery.data.repositories.NotificationRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
@@ -34,6 +35,7 @@ class HomeViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val eateryRepository: EateryRepository,
     private val userRepository: UserRepository,
+    private val notificationRepository: NotificationRepository,
     private val authTokenRepository: AuthTokenRepository
 ) : ViewModel() {
     data class HomeUiState(
@@ -42,6 +44,7 @@ class HomeViewModel @Inject constructor(
         val nearestEateries: List<Eatery> = emptyList(),
         val selectedFilters: List<Filter> = emptyList(),
         val notificationFlowCompleted: Boolean = false,
+        val hasUnreadNotifications: Boolean = false,
         val error: NetworkUiError? = null
     )
 
@@ -161,9 +164,13 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = combine(
         homeDataState,
-        _error
-    ) { dataState, networkError ->
-        dataState.copy(error = networkError)
+        _error,
+        notificationRepository.notificationsFlow
+    ) { dataState, networkError, notifications ->
+        dataState.copy(
+            error = networkError,
+            hasUnreadNotifications = notifications.any { !it.isRead }
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     var bigPopUp by mutableStateOf(false)
@@ -246,6 +253,19 @@ class HomeViewModel @Inject constructor(
                             NetworkUiError.Failed(NetworkAction.UpdateFavorites, result.error)
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Refreshes the notification hub so the bell's unread indicator is accurate even if the
+     * user never opens the hub. Failures are ignored: a missing badge is not worth surfacing
+     * an error toast on the home screen.
+     */
+    fun refreshNotificationsIfTokensConfigured() {
+        if (authTokenRepository.tokensConfiguredFlow.value) {
+            viewModelScope.launch {
+                notificationRepository.fetchNotifications()
             }
         }
     }
