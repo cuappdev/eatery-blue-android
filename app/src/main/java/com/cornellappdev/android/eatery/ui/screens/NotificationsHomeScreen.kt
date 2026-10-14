@@ -17,7 +17,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,12 +51,14 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsHomeScreen(
     onBackClick: () -> Unit,
     notificationsHomeViewModel: NotificationsHomeViewModel = hiltViewModel(),
 ) {
     val uiState by notificationsHomeViewModel.uiState.collectAsStateWithLifecycle()
+    val isRefreshing by notificationsHomeViewModel.isRefreshing.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -79,24 +83,38 @@ fun NotificationsHomeScreen(
                 onTryAgain = notificationsHomeViewModel::refresh
             )
 
-            is NotificationsHomeViewState.Loaded -> {
+            is NotificationsHomeViewState.Loaded -> PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = notificationsHomeViewModel::pullToRefresh,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // The pull gesture only reaches scrollable content, so the empty state is
+                // wrapped in a LazyColumn as well.
                 if (state.notifications.isEmpty()) {
-                    NotificationsEmptyState()
-                } else {
-                    FavoriteItemsHeading()
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(
-                            items = state.notifications,
-                            key = { it.id }
-                        ) { notification ->
-                            NotificationRow(
-                                title = notification.title,
-                                body = notification.body,
-                                isRead = notification.isRead,
-                                onClick = {
-                                    notificationsHomeViewModel.markAsRead(notification.id)
-                                }
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        item {
+                            NotificationsEmptyState(
+                                modifier = Modifier.fillParentMaxHeight(0.7f)
                             )
+                        }
+                    }
+                } else {
+                    Column {
+                        FavoriteItemsHeading()
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(
+                                items = state.notifications,
+                                key = { it.id }
+                            ) { notification ->
+                                NotificationRow(
+                                    title = notification.title,
+                                    body = notification.body,
+                                    isRead = notification.isRead,
+                                )
+                            }
                         }
                     }
                 }
@@ -138,12 +156,8 @@ private fun NotificationsLoadingState() {
 }
 
 @Composable
-private fun NotificationsEmptyState() {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight(0.7f)
-            .fillMaxWidth()
-    ) {
+private fun NotificationsEmptyState(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
                 .align(Alignment.Center)

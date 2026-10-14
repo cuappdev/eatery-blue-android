@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.components.notifications
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,7 +25,7 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
  * One entry in the notification hub. [title] and [body] arrive pre-composed from the backend
- * and are shown as-is.
+ * and are shown as-is. Not tappable: the hub is a history of pushes the user was sent.
  */
 @Composable
 fun NotificationRow(
@@ -34,12 +33,10 @@ fun NotificationRow(
     body: String,
     isRead: Boolean,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { onClick() }
             .padding(horizontal = 24.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(24.dp),
         verticalAlignment = Alignment.CenterVertically
