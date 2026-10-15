@@ -28,7 +28,7 @@ android {
         }
 
         buildConfigField("String", "SESSIONID_WEBVIEW_URL", secretsProperties['SESSIONID_WEBVIEW_URL'])
-        buildConfigField("boolean", "USE_LOCAL_FAVORITES", "true")
+        buildConfigField("boolean", "USE_LOCAL_FAVORITES", "false")
     }
 
     buildTypes {

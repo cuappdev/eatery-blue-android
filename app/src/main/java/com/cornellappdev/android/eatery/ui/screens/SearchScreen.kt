@@ -26,6 +26,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,9 +62,11 @@ import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
+import com.cornellappdev.android.eatery.ui.components.general.FavoriteButton
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.viewmodels.FoodItemSearchResult
 import com.cornellappdev.android.eatery.ui.viewmodels.SearchViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
@@ -94,6 +98,7 @@ fun SearchScreen(
         query = uiState.query,
         filters = uiState.filters,
         searchResponse = uiState.searchResponse,
+        foodItemResults = uiState.foodItemResults,
         favoriteEateries = uiState.favoriteEateries,
         recentSearches = uiState.recentSearches,
         error = uiState.error,
@@ -104,6 +109,7 @@ fun SearchScreen(
         onToggleFilter = searchViewModel::toggleFilter,
         onAddFavorite = searchViewModel::addFavorite,
         onRemoveFavorite = searchViewModel::removeFavorite,
+        onToggleFavoriteMenuItem = searchViewModel::toggleFavoriteMenuItem,
         onAddRecentSearch = searchViewModel::addRecentSearch,
         observeEatery = { eateryId ->
             searchViewModel.observeEatery(eateryId).collectAsStateWithLifecycle().value
@@ -122,6 +128,7 @@ private fun SearchScreenContent(
     query: String,
     filters: List<Filter>,
     searchResponse: EateryApiResponse<List<Eatery>>,
+    foodItemResults: List<FoodItemSearchResult>,
     favoriteEateries: List<Eatery>,
     recentSearches: List<Int>,
     error: NetworkUiError?,
@@ -132,6 +139,7 @@ private fun SearchScreenContent(
     onToggleFilter: (Filter) -> Unit,
     onAddFavorite: (Int, String) -> Unit,
     onRemoveFavorite: (Int, String) -> Unit,
+    onToggleFavoriteMenuItem: (String) -> Unit,
     onAddRecentSearch: (Int?) -> Unit,
     observeEatery: @Composable (Int) -> EateryApiResponse<Eatery>,
     onEateryClick: (Eatery) -> Unit,
@@ -394,6 +402,23 @@ private fun SearchScreenContent(
                     }
                 }
             }
+            items(foodItemResults) { result ->
+                Box(
+                    Modifier.padding(
+                        horizontal = 16.dp, vertical = 12.dp
+                    )
+                ) {
+                    FoodItemCard(
+                        result = result,
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            onAddRecentSearch(result.eatery.id)
+                            onEateryClick(result.eatery)
+                        },
+                        onFavoriteClick = { onToggleFavoriteMenuItem(result.itemName) }
+                    )
+                }
+            }
         }
     }
 }
@@ -410,6 +435,7 @@ private fun SearchScreenPreview() = EateryPreview {
                 PreviewData.mockEatery(2).copy(name = "Becker House Dining Room")
             )
         ),
+        foodItemResults = emptyList(),
         favoriteEateries = listOf(PreviewData.mockEatery(1).copy(name = "Okenshields")),
         recentSearches = emptyList(),
         error = null,
@@ -424,6 +450,7 @@ private fun SearchScreenPreview() = EateryPreview {
         onToggleFilter = {},
         onAddFavorite = { _, _ -> },
         onRemoveFavorite = { _, _ -> },
+        onToggleFavoriteMenuItem = {},
         onAddRecentSearch = {},
         observeEatery = { EateryApiResponse.Pending },
         onEateryClick = {},
@@ -499,5 +526,73 @@ fun FavoriteItem(
             )
         }
     }
+}
+
+/**
+ * A single row shown when a search query matches a food item rather than (or in addition to)
+ * an eatery. Displays the matched item's name, followed by the eatery that serves it and its
+ * location on campus.
+ */
+@Composable
+private fun FoodItemCard(
+    result: FoodItemSearchResult,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    onFavoriteClick: () -> Unit
+) {
+    ElevatedCard(
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(containerColor = currentColors.accentPrimary),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        modifier = modifier.clickable { onClick() }
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = result.itemName,
+                    style = EateryBlueTypography.h5,
+                    color = currentColors.textPrimary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = buildString {
+                        append(result.eatery.name ?: "")
+                        if (!result.eatery.location.isNullOrEmpty()) {
+                            append(" · ")
+                            append(result.eatery.location)
+                        }
+                    },
+                    style = EateryBlueTypography.subtitle2,
+                    color = currentColors.contentBrand
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            FavoriteButton(
+                isFavorite = result.isFavorite,
+                onFavoriteClick = { onFavoriteClick() }
+            )
+        }
+    }
+}
+
+@DualModePreview
+@Composable
+private fun FoodItemCardPreview() = EateryPreview {
+    FoodItemCard(
+        result = FoodItemSearchResult(
+            itemName = "Egg Salad",
+            eatery = PreviewData.mockEatery(1).copy(
+                name = "Becker House Dining Room",
+                location = "Carl Becker House"
+            )
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        onClick = {},
+        onFavoriteClick = {}
+    )
 }
 
