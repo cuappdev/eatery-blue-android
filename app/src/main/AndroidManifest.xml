@@ -51,6 +51,12 @@
 
                 <data android:scheme="eatery" />
             </intent-filter>
+            <!-- Opens the app when a background push is tapped; the backend sets this click action -->
+            <intent-filter>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
