@@ -22,6 +22,7 @@ data class NotificationsSettingsUiState(
     val allNotificationsEnabled: Boolean = true,
     val favoriteItemNotificationsEnabled: Boolean = true,
     val cornellAppdevNotificationsEnabled: Boolean = true,
+    val permissionRequested: Boolean = false,
 )
 
 @HiltViewModel
@@ -40,11 +41,13 @@ class NotificationsSettingsViewModel @Inject constructor(
         userPreferencesRepository.notificationsEnabledFlow,
         userPreferencesRepository.favoriteItemNotificationsEnabledFlow,
         userPreferencesRepository.cornellAppdevNotificationsEnabledFlow,
-    ) { allNotificationsEnabled, favoriteItemEnabled, cornellAppdevEnabled ->
+        userPreferencesRepository.notificationPermissionRequestedFlow,
+    ) { allNotificationsEnabled, favoriteItemEnabled, cornellAppdevEnabled, permissionRequested ->
         NotificationsSettingsUiState(
             allNotificationsEnabled = allNotificationsEnabled,
             favoriteItemNotificationsEnabled = favoriteItemEnabled,
             cornellAppdevNotificationsEnabled = cornellAppdevEnabled,
+            permissionRequested = permissionRequested,
         )
     }.stateIn(
         viewModelScope,
@@ -52,15 +55,12 @@ class NotificationsSettingsViewModel @Inject constructor(
         NotificationsSettingsUiState(),
     )
 
-    init {
-        loadSettingsFromBackend()
-    }
-
     /**
      * The backend is the source of truth for the per-category settings, since it decides whether
      * to send those pushes, so the local preferences are overwritten with the server's values.
+     * Called each time the screen resumes, so changes made elsewhere are picked up.
      */
-    private fun loadSettingsFromBackend() = viewModelScope.launch {
+    fun loadSettingsFromBackend() = viewModelScope.launch {
         // While paused the backend has every category turned off, so its values aren't the
         // user's real choices; keep the local ones so they can be restored on unpause.
         if (!userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(true)) {
@@ -79,6 +79,14 @@ class NotificationsSettingsViewModel @Inject constructor(
 
             is Result.Error -> Log.w(LOG_TAG, "Failed to load settings: ${result.error}")
         }
+    }
+
+    /**
+     * Records that the system permission prompt was shown, so a later denial is treated as the
+     * user turning notifications off rather than as never having been asked.
+     */
+    fun markPermissionRequested() = viewModelScope.launch {
+        userPreferencesRepository.setNotificationPermissionRequested(true)
     }
 
     /**

@@ -22,6 +22,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
+/**
+ * Whether this intent came from tapping a push notification. Pushes the system displays while
+ * the app is backgrounded arrive with the backend's click action, or with FCM's message extras
+ * if that click action is ever removed.
+ */
+fun Intent.isNotificationTap(): Boolean =
+    action == FirebaseMessaging.BACKEND_CLICK_ACTION ||
+            getBooleanExtra(FirebaseMessaging.EXTRA_OPEN_NOTIFICATION_HUB, false) ||
+            extras?.containsKey("google.message_id") == true
+
 @AndroidEntryPoint
 class FirebaseMessaging : FirebaseMessagingService() {
     @Inject
@@ -32,6 +42,12 @@ class FirebaseMessaging : FirebaseMessagingService() {
 
     companion object {
         const val LOG_TAG = "FirebaseMessaging"
+
+        /** Marks intents from notifications this service builds while the app is foregrounded. */
+        const val EXTRA_OPEN_NOTIFICATION_HUB = "open_notification_hub"
+
+        /** Click action the backend sets on pushes, used when the system displays them. */
+        const val BACKEND_CLICK_ACTION = "FLUTTER_NOTIFICATION_CLICK"
     }
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -102,6 +118,7 @@ class FirebaseMessaging : FirebaseMessagingService() {
 
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.putExtra(EXTRA_OPEN_NOTIFICATION_HUB, true)
         val pendingIntent = PendingIntent.getActivity(
             this, 0 /* Request code */, intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT

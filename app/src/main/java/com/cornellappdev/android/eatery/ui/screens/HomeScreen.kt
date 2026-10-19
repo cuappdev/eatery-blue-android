@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
@@ -139,7 +140,13 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         homeViewModel.updateFavoritesIfTokensConfigured()
+    }
+
+    // Refreshed on every resume so a push that arrived while the app was backgrounded, or
+    // notifications read in the hub, are reflected in the bell's unread dot.
+    LifecycleResumeEffect(Unit) {
         homeViewModel.refreshNotificationsWhenTokensConfigured()
+        onPauseOrDispose { }
     }
 
     HomeScreenContent(

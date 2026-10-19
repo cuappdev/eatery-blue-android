@@ -2,6 +2,7 @@ package com.cornellappdev.android.eatery
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -25,6 +26,7 @@ import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
 import com.cornellappdev.android.eatery.util.areNotificationsAllowedBySystem
 import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
+import com.cornellappdev.android.eatery.util.isNotificationTap
 import com.cornellappdev.android.eatery.util.shouldRequestNotificationPermission
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
@@ -34,6 +36,8 @@ import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -61,6 +65,9 @@ class MainActivity : ComponentActivity() {
     private val appUpdateManager by lazy { AppUpdateManagerFactory.create(applicationContext) }
     private var flexibleUpdateListener: InstallStateUpdatedListener? = null
 
+    /** Buffered so a tap that cold-starts the app is delivered once navigation is ready. */
+    private val notificationHubRequests = Channel<Unit>(Channel.CONFLATED)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -80,6 +87,11 @@ class MainActivity : ComponentActivity() {
 
         val hasOnboarded = runBlocking { userRepository.hasOnboarded() }
 
+        // Skipped on recreation (e.g. rotation) so the same tap doesn't reopen the hub.
+        if (savedInstanceState == null && intent.isNotificationTap()) {
+            notificationHubRequests.trySend(Unit)
+        }
+
         enableEdgeToEdge()
 
         setContent {
@@ -89,13 +101,21 @@ class MainActivity : ComponentActivity() {
 
 
             AppColorTheme(activeMode) {
-                NavigationSetup(hasOnboarded)
+                NavigationSetup(
+                    hasOnboarded = hasOnboarded,
+                    notificationHubRequests = notificationHubRequests.receiveAsFlow()
+                )
             }
         }
         val dataRefresher = object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
                 eateryRepository.pingEateries()
+                // Picks up notifications being turned on in system settings while away. Launch
+                // registers the token itself once tokens are configured.
+                if (authTokenRepository.tokensConfiguredFlow.value) {
+                    syncFcmTokenWithBackendIfAllowed()
+                }
             }
         }
         lifecycle.addObserver(dataRefresher)
@@ -106,6 +126,14 @@ class MainActivity : ComponentActivity() {
             syncFcmTokenWithBackendIfAllowed()
             userRepository.updateFavorites()
             authTokenRepository.markTokensAsConfigured()
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.isNotificationTap()) {
+            notificationHubRequests.trySend(Unit)
         }
     }
 

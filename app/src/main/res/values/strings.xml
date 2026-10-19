@@ -51,6 +51,9 @@
     <string name="notifications_favorite_item_description">Get notified when favorite items are served</string>
     <string name="notifications_cornell_appdev_title">Cornell AppDev Notifications</string>
     <string name="notifications_cornell_appdev_description">Get notified about new releases and feedback</string>
+    <string name="notifications_system_off_title">Notifications are turned off</string>
+    <string name="notifications_system_off_description">Turn on notifications for Eatery in your phone\'s Settings to get alerts when favorite items are served.</string>
+    <string name="notifications_open_settings">Open Settings</string>
 
     <string name="privacy_title">Privacy</string>
     <string name="privacy_description">Manage permissions and analytics</string>

@@ -55,13 +55,28 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationSetup(
-    hasOnboarded: Boolean
+    hasOnboarded: Boolean,
+    notificationHubRequests: Flow<Unit> = emptyFlow(),
 ) {
     val navController = rememberNavController()
+
+    // Tapping a push opens the hub, like tapping the bell. Onboarding users stay where they are.
+    if (hasOnboarded) {
+        LaunchedEffect(navController) {
+            notificationHubRequests.collect {
+                // Wait for the NavHost to set its graph on a cold start.
+                navController.currentBackStackEntryFlow.first()
+                navController.openNotificationHub()
+            }
+        }
+    }
     val showBottomBar = rememberSaveable {
         mutableStateOf(false)
     }
@@ -114,6 +129,19 @@ fun NavigationSetup(
             showBottomBar = showBottomBar
         )
     }
+}
+
+/**
+ * Switches to Home and opens the notification hub on top of it, unless the hub is already showing.
+ */
+private fun NavHostController.openNotificationHub() {
+    if (currentDestination?.route == Routes.NOTIFICATIONS_HOME.route) return
+
+    navigate(Routes.HOME.route) {
+        popUpTo(Routes.HOME.route)
+        launchSingleTop = true
+    }
+    navigate(Routes.NOTIFICATIONS_HOME.route)
 }
 
 @Composable
