@@ -52,9 +52,7 @@ class NotificationsHomeViewModel @Inject constructor(
             if (it.id in unreadIds) it.copy(isRead = false) else it
         }
         when {
-            // Home already refreshes the hub, so cached notifications are usually available by
-            // the time this screen opens. Showing them beats flashing a loading or error state
-            // over data we already have; the refresh then happens silently underneath.
+            // Cached notifications (fetched by Home) take priority over loading/error states.
             notifications.isNotEmpty() -> NotificationsHomeViewState.Loaded(notifications)
             loading -> NotificationsHomeViewState.Loading
             error -> NotificationsHomeViewState.Error
@@ -83,10 +81,7 @@ class NotificationsHomeViewModel @Inject constructor(
         isLoading.value = false
     }
 
-    /**
-     * Doesn't touch [isLoading] or [hasError]: the list stays on screen under the refresh
-     * indicator, and a failure keeps the notifications already shown.
-     */
+    /** Keeps the current list on screen; a failure leaves it unchanged. */
     fun pullToRefresh() = viewModelScope.launch {
         _isRefreshing.value = true
         if (notificationRepository.fetchNotifications() is Result.Success) {
@@ -95,10 +90,7 @@ class NotificationsHomeViewModel @Inject constructor(
         _isRefreshing.value = false
     }
 
-    /**
-     * Hub items aren't tappable, so opening the hub is what marks notifications read, matching
-     * iOS. A failure is ignored: the dot stays on the bell and the next visit retries.
-     */
+    /** Opening the hub marks notifications read. On failure the next visit retries. */
     private suspend fun markUnreadAsRead() {
         val unreadIds = notificationRepository.notificationsFlow.value
             .filterNot { it.isRead }

@@ -259,10 +259,8 @@ class HomeViewModel @Inject constructor(
     }
 
     /**
-     * Refreshes the notification hub so the bell's unread indicator is accurate even if the
-     * user never opens the hub. Failures are ignored: a missing badge is not worth surfacing
-     * an error toast on the home screen. On launch, Home appears before MainActivity finishes
-     * configuring tokens, so this waits for them instead of skipping the fetch.
+     * Refreshes notifications for the bell's unread dot, waiting for auth tokens on launch.
+     * Failures are ignored since a missing dot isn't worth an error toast.
      */
     fun refreshNotificationsWhenTokensConfigured() {
         viewModelScope.launch {

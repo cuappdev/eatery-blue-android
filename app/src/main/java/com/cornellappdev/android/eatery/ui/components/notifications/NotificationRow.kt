@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,8 +23,7 @@ import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
- * One entry in the notification hub. [title] and [body] arrive pre-composed from the backend
- * and are shown as-is. Not tappable: the hub is a history of pushes the user was sent.
+ * One entry in the notification hub, showing the push the user was sent.
  */
 @Composable
 fun NotificationRow(
@@ -53,7 +51,7 @@ fun NotificationRow(
         ) {
             Text(
                 text = title,
-                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp, lineHeight = 20.sp),
+                style = EateryBlueTypography.body2.copy(fontWeight = FontWeight.Bold, lineHeight = 20.sp),
                 color = currentColors.textPrimary
             )
             Text(

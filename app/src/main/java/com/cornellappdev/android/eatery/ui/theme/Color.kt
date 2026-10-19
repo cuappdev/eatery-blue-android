@@ -59,8 +59,7 @@ val BorderBlueDark = Color(0xFF1D4A7A)
 val FavoriteLight = Color(0xFFFFD700)
 val FavoriteDark = Color(0xFFFFD700)
 
-// Unread notification dot. Matches the red baked into ic_new_notif_star so the bell badge and
-// the per-notification dot read as the same indicator.
+// Matches the red in ic_new_notif_star.
 val UnreadNotificationDot = Color(0xFFFF3737)
 
 

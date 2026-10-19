@@ -43,10 +43,6 @@ class UserPreferencesRepository @Inject constructor(
         userPreferencesFlow.map { !it.favoriteItemNotificationsDisabled }
     val cornellAppdevNotificationsEnabledFlow: Flow<Boolean> =
         userPreferencesFlow.map { !it.cornellAppdevNotificationsDisabled }
-    val favoriteEateryOpeningNotificationsEnabledFlow: Flow<Boolean> =
-        userPreferencesFlow.map { !it.favoriteEateryOpeningNotificationsDisabled }
-    val favoriteEateryClosingNotificationsEnabledFlow: Flow<Boolean> =
-        userPreferencesFlow.map { !it.favoriteEateryClosingNotificationsDisabled }
     val notificationPermissionRequestedFlow: Flow<Boolean> =
         userPreferencesFlow.map { it.notificationPermissionRequested }
 
@@ -148,14 +144,6 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setCornellAppdevNotificationsEnabled(enabled: Boolean) = setPref {
         setCornellAppdevNotificationsDisabled(!enabled)
-    }
-
-    suspend fun setFavoriteEateryOpeningNotificationsEnabled(enabled: Boolean) = setPref {
-        setFavoriteEateryOpeningNotificationsDisabled(!enabled)
-    }
-
-    suspend fun setFavoriteEateryClosingNotificationsEnabled(enabled: Boolean) = setPref {
-        setFavoriteEateryClosingNotificationsDisabled(!enabled)
     }
 
     suspend fun addRecentSearch(eateryId: Int) = setPref {

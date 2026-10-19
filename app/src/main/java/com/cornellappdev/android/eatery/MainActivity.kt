@@ -14,10 +14,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.FavoriteItemSyncRepository
+import com.cornellappdev.android.eatery.data.repositories.NotificationRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.navigation.NavigationSetup
@@ -28,7 +28,7 @@ import com.cornellappdev.android.eatery.util.LockScreenOrientation
 import com.cornellappdev.android.eatery.util.areNotificationsAllowedBySystem
 import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
 import com.cornellappdev.android.eatery.util.isNotificationTap
-import com.cornellappdev.android.eatery.util.shouldRequestNotificationPermission
+import com.cornellappdev.android.eatery.util.needsNotificationPermissionRequest
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.InstallStateUpdatedListener
@@ -64,6 +64,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var favoriteItemSyncRepository: FavoriteItemSyncRepository
 
+    @Inject
+    lateinit var notificationRepository: NotificationRepository
+
     private lateinit var activityResultLauncher: ActivityResultLauncher<IntentSenderRequest>
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
     private val appUpdateManager by lazy { AppUpdateManagerFactory.create(applicationContext) }
@@ -82,11 +85,7 @@ class MainActivity : ComponentActivity() {
         notificationPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
-            if (granted) {
-                lifecycleScope.launch {
-                    syncFcmTokenWithBackendIfAllowed()
-                }
-            }
+            if (granted) syncFcmTokenWithBackendIfAllowed()
         }
 
         val hasOnboarded = runBlocking { userRepository.hasOnboarded() }
@@ -115,8 +114,7 @@ class MainActivity : ComponentActivity() {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
                 eateryRepository.pingEateries()
-                // Picks up notifications being turned on in system settings while away. Launch
-                // registers the token itself once tokens are configured.
+                // Picks up notifications being turned on in system settings while away.
                 if (authTokenRepository.tokensConfiguredFlow.value) {
                     syncFcmTokenWithBackendIfAllowed()
                 }
@@ -224,36 +222,21 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("InlinedApi")
     private suspend fun requestNotificationPermissionIfNeeded() {
-        // Only prompt on the first launch that needs it. Re-launching the request on every
-        // onCreate re-prompts a user who already declined, and Android stops showing the dialog
-        // after repeated denials anyway. The notification settings screen remains the way back in.
-        // On a read failure, treat it as already requested so this doesn't abort the rest of
-        // the launch sequence below.
-        if (userPreferencesRepository.notificationPermissionRequestedFlow
-                .firstOrOnReadFailure(true)
-        ) {
+        // Prompt at most once; the notification settings screen is the way back in after a denial.
+        if (userPreferencesRepository.notificationPermissionRequestedFlow.firstOrOnReadFailure(true)) {
             return
         }
 
-        if (shouldRequestNotificationPermission(
-                this,
-                userPreferencesRepository.notificationsEnabledFlow
-            )
-        ) {
+        val notificationsEnabled =
+            userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(false)
+        if (notificationsEnabled && needsNotificationPermissionRequest(this)) {
             userPreferencesRepository.setNotificationPermissionRequested(true)
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
-    /**
-     * Registers the token whenever the OS allows notifications, even while the in-app toggle is
-     * paused: the backend keeps tokens regardless of settings, so unpausing works without
-     * re-registering.
-     */
     private fun syncFcmTokenWithBackendIfAllowed() {
-        if (!areNotificationsAllowedBySystem(this)) {
-            return
-        }
+        if (!areNotificationsAllowedBySystem(this)) return
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
@@ -266,15 +249,7 @@ class MainActivity : ComponentActivity() {
                 return@addOnCompleteListener
             }
 
-            lifecycleScope.launch {
-                when (val result = userRepository.enableNotifications(token)) {
-                    is Result.Success -> Unit
-                    is Result.Error -> Log.w(
-                        LOG_TAG,
-                        "Failed to register FCM token: ${result.error}"
-                    )
-                }
-            }
+            lifecycleScope.launch { notificationRepository.registerFcmToken(token) }
         }
     }
 }

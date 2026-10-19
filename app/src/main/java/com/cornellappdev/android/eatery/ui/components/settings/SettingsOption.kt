@@ -18,10 +18,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 
@@ -65,19 +63,14 @@ fun SettingsOption(
             Column {
                 Text(
                     text = title,
-                    style = if (compact) {
-                        TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    } else {
-                        EateryBlueTypography.h5
-                    },
+                    style = if (compact) EateryBlueTypography.button else EateryBlueTypography.h5,
                     color = currentColors.textPrimary
                 )
                 if (!description.isNullOrEmpty())
                     Text(
                         text = description,
-                        style = TextStyle(
-                            fontWeight = if (compact) FontWeight.Medium else FontWeight.SemiBold,
-                            fontSize = 12.sp
+                        style = EateryBlueTypography.caption.copy(
+                            fontWeight = if (compact) FontWeight.Medium else FontWeight.SemiBold
                         ),
                         color = if (compact) currentColors.textSecondary else currentColors.textPrimary,
                         modifier = Modifier.padding(top = if (compact) 4.dp else 2.dp)

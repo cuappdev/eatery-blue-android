@@ -36,17 +36,14 @@ message UserPreferences {
   // Notification settings are stored as disabled flags so existing users default to enabled.
   bool notificationsDisabled = 19;
   bool favoriteItemNotificationsDisabled = 20;
-  bool favoriteEateryOpeningNotificationsDisabled = 21;
-  bool favoriteEateryClosingNotificationsDisabled = 22;
+  reserved 21, 22;
 
-  // True once the POST_NOTIFICATIONS request has been launched automatically at
-  // startup, so a denial isn't re-prompted on every launch.
+  // True once POST_NOTIFICATIONS has been requested, so a denial isn't re-prompted.
   bool notificationPermissionRequested = 23;
 
   bool cornellAppdevNotificationsDisabled = 24;
 
   // Favorite item changes not yet synced to the backend, keyed by item name (true = favorited).
-  // The backend needs favorites to send favorite-food notifications; locally they stay in itemFavorites.
   map<string, bool> pendingFavoriteItemUpdates = 25;
 
   // True once favorites saved before backend sync existed have been queued for upload.

@@ -8,9 +8,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.cornellappdev.android.eatery.MainActivity
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.data.models.Result
-import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
-import com.cornellappdev.android.eatery.data.repositories.UserRepository
+import com.cornellappdev.android.eatery.data.repositories.NotificationRepository
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,9 +21,8 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 /**
- * Whether this intent came from tapping a push notification. Pushes the system displays while
- * the app is backgrounded arrive with the backend's click action, or with FCM's message extras
- * if that click action is ever removed.
+ * Whether this intent came from tapping a push notification, either one built by this service
+ * or one the system displayed while the app was backgrounded.
  */
 fun Intent.isNotificationTap(): Boolean =
     action == FirebaseMessaging.BACKEND_CLICK_ACTION ||
@@ -35,13 +32,11 @@ fun Intent.isNotificationTap(): Boolean =
 @AndroidEntryPoint
 class FirebaseMessaging : FirebaseMessagingService() {
     @Inject
-    lateinit var userRepository: UserRepository
-
-    @Inject
-    lateinit var userPreferencesRepository: UserPreferencesRepository
+    lateinit var notificationRepository: NotificationRepository
 
     companion object {
         const val LOG_TAG = "FirebaseMessaging"
+        private const val DEFAULT_TITLE = "Eatery Blue"
 
         /** Marks intents from notifications this service builds while the app is foregrounded. */
         const val EXTRA_OPEN_NOTIFICATION_HUB = "open_notification_hub"
@@ -60,41 +55,17 @@ class FirebaseMessaging : FirebaseMessagingService() {
             Log.d(LOG_TAG, "Message data payload: ${remoteMessage.data}")
         }
 
-        // Check if message contains a notification payload.
-        remoteMessage.notification?.let {
-            Log.d(LOG_TAG, "Message Notification Body: ${it.body}")
-
-            if (it.body != null) {
-                sendNotification(messageTitle = it.title ?: "Eatery Blue", messageBody = it.body!!)
-            }
-        }
-
-        if (remoteMessage.notification == null && remoteMessage.data.isNotEmpty()) {
-            val title = remoteMessage.data["title"] ?: "Eatery Blue"
-            val body = remoteMessage.data["body"]
-            if (!body.isNullOrBlank()) {
-                sendNotification(messageTitle = title, messageBody = body)
-            }
+        // Notification payloads only reach here while the app is foregrounded; data-only
+        // payloads always do.
+        val title = remoteMessage.notification?.title ?: remoteMessage.data["title"]
+        val body = remoteMessage.notification?.body ?: remoteMessage.data["body"]
+        if (!body.isNullOrBlank()) {
+            sendNotification(messageTitle = title ?: DEFAULT_TITLE, messageBody = body)
         }
     }
 
     override fun onNewToken(token: String) {
-        Log.d(LOG_TAG, "Refreshed FCM registration token")
-
-        serviceScope.launch {
-            // Registered even while paused, since the backend keeps tokens regardless of settings
-            if (!areNotificationsAllowedBySystem(this@FirebaseMessaging)) {
-                return@launch
-            }
-
-            when (val result = userRepository.enableNotifications(token)) {
-                is Result.Success -> Unit
-                is Result.Error -> Log.w(
-                    LOG_TAG,
-                    "Failed to sync refreshed FCM token: ${result.error}"
-                )
-            }
-        }
+        serviceScope.launch { notificationRepository.registerFcmToken(token) }
     }
 
     override fun onDestroy() {
@@ -103,18 +74,7 @@ class FirebaseMessaging : FirebaseMessagingService() {
     }
 
     private fun sendNotification(messageTitle: String, messageBody: String) {
-        if (!runBlocking {
-                canGetNotifications(
-                    this@FirebaseMessaging,
-                    userPreferencesRepository.notificationsEnabledFlow
-                )
-            }) {
-            Log.d(
-                LOG_TAG,
-                "Skipping local notification because notifications are disabled or permission is missing"
-            )
-            return
-        }
+        if (!runBlocking { notificationRepository.canShowNotifications() }) return
 
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -134,10 +94,8 @@ class FirebaseMessaging : FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.ic_eaterylogo_blue)
 
-        // The channel itself is created in EateryBlueApplication.
         val notificationManager =
             getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
     }
-
 }

@@ -54,6 +54,7 @@
     <string name="notifications_system_off_title">Notifications are turned off</string>
     <string name="notifications_system_off_description">Turn on notifications for Eatery in your phone\'s Settings to get alerts when favorite items are served.</string>
     <string name="notifications_open_settings">Open Settings</string>
+    <string name="notifications_sync_error">Couldn\'t update notification settings. Try again.</string>
 
     <string name="privacy_title">Privacy</string>
     <string name="privacy_description">Manage permissions and analytics</string>

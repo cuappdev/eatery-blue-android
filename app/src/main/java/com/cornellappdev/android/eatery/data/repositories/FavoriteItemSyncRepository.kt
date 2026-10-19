@@ -16,9 +16,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Mirrors local favorite items to the backend, which needs them to send favorite-food
- * notifications. Favorites stay local for display; changes are queued in DataStore and retried
- * on the next launch if a request fails, matching iOS's FavoriteItemSyncCoordinator.
+ * Mirrors local favorite items to the backend so it can send favorite-food notifications.
+ * Changes are queued in DataStore and retried on the next launch if a request fails.
  */
 @Singleton
 class FavoriteItemSyncRepository @Inject constructor(

@@ -39,22 +39,6 @@ suspend fun Flow<Boolean>.firstOrOnReadFailure(default: Boolean): Boolean =
     try {
         first()
     } catch (e: IOException) {
-        Log.w(LOG_TAG, "Failed to read a notification preference", e)
+        Log.w(LOG_TAG, "Failed to read a stored preference", e)
         default
     }
-
-suspend fun shouldRequestNotificationPermission(
-    context: Context,
-    notificationsEnabledFlow: Flow<Boolean>,
-): Boolean {
-    return notificationsEnabledFlow.firstOrOnReadFailure(false) &&
-            needsNotificationPermissionRequest(context)
-}
-
-suspend fun canGetNotifications(
-    context: Context,
-    notificationsEnabledFlow: Flow<Boolean>,
-): Boolean {
-    return notificationsEnabledFlow.firstOrOnReadFailure(false) &&
-            areNotificationsAllowedBySystem(context)
-}

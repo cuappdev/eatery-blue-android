@@ -56,14 +56,13 @@ import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationSetup(
     hasOnboarded: Boolean,
-    notificationHubRequests: Flow<Unit> = emptyFlow(),
+    notificationHubRequests: Flow<Unit>,
 ) {
     val navController = rememberNavController()
 

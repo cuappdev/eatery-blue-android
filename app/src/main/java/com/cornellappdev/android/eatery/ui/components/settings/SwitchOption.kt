@@ -5,10 +5,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -17,36 +13,26 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 @Composable
 fun SwitchOption(
     title: String,
-    description: String,
+    description: String? = null,
     onCheckedChange: (Boolean) -> Unit,
+    checked: Boolean,
     modifier: Modifier = Modifier,
-    checked: Boolean? = null,
     enabled: Boolean = true,
-    initialValue: Boolean = true,
     compact: Boolean = true,
 ) {
-    var internalChecked by remember(initialValue) { mutableStateOf(initialValue) }
-    val switched = checked ?: internalChecked
-    val toggle = { isChecked: Boolean ->
-        if (checked == null) {
-            internalChecked = isChecked
-        }
-        onCheckedChange(isChecked)
-    }
-
     SettingsOption(
         title = title,
         description = description,
         modifier = modifier,
         compact = compact,
-        onClick = { if (enabled) toggle(!switched) },
+        onClick = { if (enabled) onCheckedChange(!checked) },
         trailingIcon = {
             Switch(
                 modifier = Modifier
                     .width(51.dp)
                     .height(31.dp),
-                checked = switched,
-                onCheckedChange = toggle,
+                checked = checked,
+                onCheckedChange = onCheckedChange,
                 enabled = enabled,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = currentColors.backgroundDefault,

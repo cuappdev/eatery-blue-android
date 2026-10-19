@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
@@ -50,6 +51,7 @@ fun PrivacyScreen(
 ) {
     val context = LocalContext.current
     val uriCurrent = LocalUriHandler.current
+    val analyticsDisabled by privacyViewModel.analyticsDisabledFlow.collectAsStateWithLifecycle()
 
     // Re-read on resume, since the user may have changed these in system settings.
     var locationAllowed by remember { mutableStateOf(isLocationAllowed(context)) }
@@ -61,7 +63,7 @@ fun PrivacyScreen(
     }
 
     PrivacyScreenContent(
-        analyticsDisabled = privacyViewModel.analyticsDisabled,
+        analyticsDisabled = analyticsDisabled,
         locationAllowed = locationAllowed,
         notificationsAllowed = notificationsAllowed,
         onBackClick = onBackClick,
@@ -154,7 +156,7 @@ private fun PrivacyScreenContent(
             SwitchOption(
                 title = stringResource(R.string.privacy_share_with_cornell_appdev_title),
                 description = stringResource(R.string.privacy_share_with_cornell_appdev_description),
-                initialValue = !analyticsDisabled,
+                checked = !analyticsDisabled,
                 onCheckedChange = { shareEnabled -> onAnalyticsDisabledChange(!shareEnabled) }
             )
             SettingsLineSeparator()

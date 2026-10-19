@@ -62,10 +62,7 @@ interface NetworkApi {
         @Body token: FcmToken
     )
 
-    /**
-     * Notification hub: not-yet-deleted notifications from the last 24 hours,
-     * most recent first.
-     */
+    /** Notifications from the last 24 hours, most recent first. */
     @GET("/users/notifications")
     suspend fun getNotifications(): HubNotificationsResponse
 
@@ -74,22 +71,10 @@ interface NetworkApi {
         @Body ids: NotificationIds
     )
 
-    /**
-     * Unused in V1: nothing in the design deletes notifications, and they age out of the
-     * 24-hour window on their own. Declared to keep this interface a complete record of the
-     * notification hub API.
-     */
-    @HTTP(method = "DELETE", path = "/users/notifications", hasBody = true)
-    suspend fun deleteNotifications(
-        @Body ids: NotificationIds
-    )
-
     @GET("/users/settings")
     suspend fun getSettings(): UserSettings
 
-    /**
-     * Updates only the settings set in [update] and returns the full updated settings.
-     */
+    /** Updates only the non-null fields of [update] and returns the full settings. */
     @PATCH("/users/settings")
     suspend fun updateSettings(
         @Body update: UserSettingsUpdate
