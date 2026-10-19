@@ -45,6 +45,13 @@ message UserPreferences {
 
   bool cornellAppdevNotificationsDisabled = 24;
 
+  // Favorite item changes not yet synced to the backend, keyed by item name (true = favorited).
+  // The backend needs favorites to send favorite-food notifications; locally they stay in itemFavorites.
+  map<string, bool> pendingFavoriteItemUpdates = 25;
+
+  // True once favorites saved before backend sync existed have been queued for upload.
+  bool favoriteItemsMigratedToBackend = 26;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.

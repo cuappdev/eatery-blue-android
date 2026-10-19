@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
+import com.cornellappdev.android.eatery.data.repositories.FavoriteItemSyncRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.navigation.NavigationSetup
@@ -59,6 +60,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var userPreferencesRepository: UserPreferencesRepository
+
+    @Inject
+    lateinit var favoriteItemSyncRepository: FavoriteItemSyncRepository
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<IntentSenderRequest>
     private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
@@ -125,6 +129,7 @@ class MainActivity : ComponentActivity() {
             requestNotificationPermissionIfNeeded()
             syncFcmTokenWithBackendIfAllowed()
             userRepository.updateFavorites()
+            favoriteItemSyncRepository.syncPendingFavorites()
             authTokenRepository.markTokensAsConfigured()
         }
     }
