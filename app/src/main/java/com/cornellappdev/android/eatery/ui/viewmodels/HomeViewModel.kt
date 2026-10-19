@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -260,13 +261,13 @@ class HomeViewModel @Inject constructor(
     /**
      * Refreshes the notification hub so the bell's unread indicator is accurate even if the
      * user never opens the hub. Failures are ignored: a missing badge is not worth surfacing
-     * an error toast on the home screen.
+     * an error toast on the home screen. On launch, Home appears before MainActivity finishes
+     * configuring tokens, so this waits for them instead of skipping the fetch.
      */
-    fun refreshNotificationsIfTokensConfigured() {
-        if (authTokenRepository.tokensConfiguredFlow.value) {
-            viewModelScope.launch {
-                notificationRepository.fetchNotifications()
-            }
+    fun refreshNotificationsWhenTokensConfigured() {
+        viewModelScope.launch {
+            authTokenRepository.tokensConfiguredFlow.first { it }
+            notificationRepository.fetchNotifications()
         }
     }
 }

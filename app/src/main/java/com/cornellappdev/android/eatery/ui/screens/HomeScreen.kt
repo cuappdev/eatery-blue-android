@@ -139,7 +139,7 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         homeViewModel.updateFavoritesIfTokensConfigured()
-        homeViewModel.refreshNotificationsIfTokensConfigured()
+        homeViewModel.refreshNotificationsWhenTokensConfigured()
     }
 
     HomeScreenContent(
