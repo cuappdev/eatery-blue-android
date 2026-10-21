@@ -5,6 +5,7 @@ import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.FavoriteItem
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,7 +29,12 @@ class FavoriteItemSyncRepository @Inject constructor(
         private const val LOG_TAG = "FavoriteItemSync"
     }
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    // A DataStore read failure skips this sync instead of crashing; pending updates stay queued.
+    private val scope = CoroutineScope(
+        SupervisorJob() + Dispatchers.IO + CoroutineExceptionHandler { _, throwable ->
+            Log.w(LOG_TAG, "Favorite item sync failed; will retry on next launch", throwable)
+        }
+    )
     private val syncingItemsMutex = Mutex()
     private val syncingItems = mutableSetOf<String>()
 

@@ -38,6 +38,7 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -123,8 +124,12 @@ class MainActivity : ComponentActivity() {
         lifecycle.addObserver(dataRefresher)
         checkForUpdateAvailability()
         lifecycleScope.launch {
-            configureTokens()
+            // Waits for onboarding so a first-launch prompt doesn't cover the intro screens.
+            userPreferencesRepository.hasOnboardedFlow.first { it }
             requestNotificationPermissionIfNeeded()
+        }
+        lifecycleScope.launch {
+            configureTokens()
             syncFcmTokenWithBackendIfAllowed()
             userRepository.updateFavorites()
             favoriteItemSyncRepository.syncPendingFavorites()

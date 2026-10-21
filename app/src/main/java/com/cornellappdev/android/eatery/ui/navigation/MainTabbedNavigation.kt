@@ -66,12 +66,13 @@ fun NavigationSetup(
 ) {
     val navController = rememberNavController()
 
-    // Tapping a push opens the hub, like tapping the bell. Onboarding users stay where they are.
-    if (hasOnboarded) {
-        LaunchedEffect(navController) {
-            notificationHubRequests.collect {
-                // Wait for the NavHost to set its graph on a cold start.
-                navController.currentBackStackEntryFlow.first()
+    // Tapping a push opens the hub, like tapping the bell. Onboarding users stay where they are;
+    // this checks the live route since onboarding can finish after launch.
+    LaunchedEffect(navController) {
+        notificationHubRequests.collect {
+            // Wait for the NavHost to set its graph on a cold start.
+            navController.currentBackStackEntryFlow.first()
+            if (navController.currentDestination?.route != Routes.ONBOARDING.route) {
                 navController.openNotificationHub()
             }
         }
