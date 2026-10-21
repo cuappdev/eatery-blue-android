@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -42,7 +43,8 @@ fun FavoritesToggle(
         modifier = modifier.clickable(
             onClick = onClick,
             interactionSource = interactionSource,
-            indication = null
+            indication = null,
+            role = Role.Button
         ),
         shape = shape,
         border = BorderStroke(1.dp, borderColor),

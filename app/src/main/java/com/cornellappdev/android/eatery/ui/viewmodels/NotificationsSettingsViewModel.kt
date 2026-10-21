@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 data class NotificationsSettingsUiState(
@@ -42,6 +44,9 @@ class NotificationsSettingsViewModel @Inject constructor(
 
     private val settingsLoadFailed = MutableStateFlow(false)
 
+    /** Serializes settings updates and backend loads. */
+    private val settingsMutex = Mutex()
+
     val uiState: StateFlow<NotificationsSettingsUiState> = combine(
         userPreferencesRepository.notificationsEnabledFlow,
         userPreferencesRepository.favoriteItemNotificationsEnabledFlow,
@@ -66,27 +71,29 @@ class NotificationsSettingsViewModel @Inject constructor(
      * Overwrites the local category settings with the backend's, which decide what gets sent.
      */
     fun loadSettingsFromBackend() = viewModelScope.launch {
-        // While paused the backend has every category turned off, so its values aren't the
-        // user's real choices; keep the local ones so they can be restored on unpause.
-        if (!userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(true)) {
-            settingsLoadFailed.value = false
-            return@launch
-        }
-
-        when (val result = notificationRepository.getSettings()) {
-            is Result.Success -> {
-                userPreferencesRepository.setFavoriteItemNotificationsEnabled(
-                    result.data.favoriteItemPushNotifications
-                )
-                userPreferencesRepository.setCornellAppdevNotificationsEnabled(
-                    result.data.cornellAppdevPushNotifications
-                )
+        settingsMutex.withLock {
+            // While paused the backend has every category turned off, so its values aren't the
+            // user's real choices; keep the local ones so they can be restored on unpause.
+            if (!userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(true)) {
                 settingsLoadFailed.value = false
+                return@launch
             }
 
-            is Result.Error -> {
-                Log.w(LOG_TAG, "Failed to load settings: ${result.error}")
-                settingsLoadFailed.value = true
+            when (val result = notificationRepository.getSettings()) {
+                is Result.Success -> {
+                    userPreferencesRepository.setFavoriteItemNotificationsEnabled(
+                        result.data.favoriteItemPushNotifications
+                    )
+                    userPreferencesRepository.setCornellAppdevNotificationsEnabled(
+                        result.data.cornellAppdevPushNotifications
+                    )
+                    settingsLoadFailed.value = false
+                }
+
+                is Result.Error -> {
+                    Log.w(LOG_TAG, "Failed to load settings: ${result.error}")
+                    settingsLoadFailed.value = true
+                }
             }
         }
     }
@@ -135,13 +142,14 @@ class NotificationsSettingsViewModel @Inject constructor(
 
     /**
      * Saves [enabled] locally first so the UI updates immediately, then syncs [update] to the
-     * backend, reverting the local value if that fails.
+     * backend, reverting the local value if that fails. Runs under [settingsMutex] so updates reach
+     * the backend in tap order and a resume-triggered load can't overwrite one in flight.
      */
     private suspend fun updateSetting(
         enabled: Boolean,
         update: UserSettingsUpdate,
         setLocal: suspend (Boolean) -> Unit,
-    ) {
+    ) = settingsMutex.withLock {
         setLocal(enabled)
 
         val result = notificationRepository.updateSettings(update)
