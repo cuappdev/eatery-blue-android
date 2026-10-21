@@ -24,6 +24,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * A single food item result from a cross-eatery search, paired with the eatery that serves it.
+ */
+data class FoodItemSearchResult(
+    val itemName: String,
+    val eatery: Eatery,
+    val isFavorite: Boolean = false
+)
+
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -34,6 +43,7 @@ class SearchViewModel @Inject constructor(
         val query: String = "",
         val filters: List<Filter> = emptyList(),
         val searchResponse: EateryApiResponse<List<Eatery>> = EateryApiResponse.Pending,
+        val foodItemResults: List<FoodItemSearchResult> = emptyList(),
         val favoriteEateries: List<Eatery> = emptyList(),
         val recentSearches: List<Int> = emptyList(),
         val error: NetworkUiError? = null
@@ -93,6 +103,55 @@ class SearchViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
 
     /**
+     * A flow of the food items (across all eateries) that match the current query.
+     */
+    private val searchResultFoodItems = combine(
+        eateryRepository.eateryFlow,
+        _filtersFlow,
+        userRepository.favoriteEateriesFlow,
+        userRepository.favoriteItemsFlow,
+        _searchFlow
+    ) { eateryApiResponse, filters, favorites, favoriteItems, searchQuery ->
+        if (searchQuery.isEmpty() || eateryApiResponse !is EateryApiResponse.Success) {
+            emptyList()
+        } else {
+            val favoriteEateryIds = eateryApiResponse.data.filter { it.id != null }
+                .associate { it.id!! to (it.name in favorites) }
+            val seenItems = mutableSetOf<Pair<Int?, String>>()
+            val results = mutableListOf<FoodItemSearchResult>()
+            eateryApiResponse.data.forEach { eatery ->
+                val passesFilters = Filter.passesSelectedFilters(
+                    searchScreenFilters, filters, FilterData(
+                        eatery = eatery,
+                        favoriteEateryIds = favoriteEateryIds
+                    )
+                )
+                if (!passesFilters) return@forEach
+
+                eatery.events?.forEach { event ->
+                    event.menu?.forEach { menuCategory ->
+                        menuCategory.items?.forEach { menuItem ->
+                            val itemName = menuItem.name
+                            if (itemName != null && itemName.contains(searchQuery, true)) {
+                                if (seenItems.add(eatery.id to itemName)) {
+                                    results.add(
+                                        FoodItemSearchResult(
+                                            itemName = itemName,
+                                            eatery = eatery,
+                                            isFavorite = itemName in favoriteItems
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            results
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /**
      * A flow of the user's recent searches.
      */
     private val recentSearches = userPreferencesRepository.recentSearchesFlow
@@ -117,7 +176,7 @@ class SearchViewModel @Inject constructor(
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
-    private val searchDataState: Flow<SearchUiState> = combine(
+    private val baseSearchDataState: Flow<SearchUiState> = combine(
         _searchFlow,
         _filtersFlow,
         searchResultEateries,
@@ -131,6 +190,13 @@ class SearchViewModel @Inject constructor(
             favoriteEateries = favorites,
             recentSearches = recents.reversed().take(10).distinct()
         )
+    }
+
+    private val searchDataState: Flow<SearchUiState> = combine(
+        baseSearchDataState,
+        searchResultFoodItems
+    ) { dataState, foodItemResults ->
+        dataState.copy(foodItemResults = foodItemResults)
     }
 
     val uiState: StateFlow<SearchUiState> = combine(
@@ -160,13 +226,7 @@ class SearchViewModel @Inject constructor(
     private fun Eatery.passesSearch(query: String): Boolean {
         // TODO: We might want to make an asynchronous search repository, cuz this search is SLOW.
         if (query.isEmpty()) return false
-        val nameMatch = name?.contains(query, true) ?: false
-        val menuMatch = events?.any { event ->
-            event.menu?.any { menuCategory ->
-                menuCategory.items?.any { it.name?.contains(query, true) ?: false } ?: false
-            } ?: false
-        } ?: false
-        return nameMatch || menuMatch
+        return name?.contains(query, true) ?: false
     }
 
     fun addFavorite(eateryId: Int, eateryName: String) {
@@ -194,6 +254,32 @@ class SearchViewModel @Inject constructor(
                 is Result.Error -> {
                     _error.value =
                         NetworkUiError.Failed(NetworkAction.RemoveFavoriteEatery, result.error)
+                }
+            }
+        }
+    }
+
+    /**
+     * Asynchronously toggles the favorite status of a menu item by its name
+     */
+    fun toggleFavoriteMenuItem(menuItem: String) {
+        viewModelScope.launch {
+            val isRemoving = menuItem in userRepository.favoriteItemsFlow.value
+            val result = if (isRemoving) {
+                userRepository.removeFavoriteItem(menuItem)
+            } else {
+                userRepository.addFavoriteItem(menuItem)
+            }
+            when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value = NetworkUiError.Failed(
+                        if (isRemoving) NetworkAction.RemoveFavoriteItem else NetworkAction.AddFavoriteItem,
+                        result.error
+                    )
                 }
             }
         }
