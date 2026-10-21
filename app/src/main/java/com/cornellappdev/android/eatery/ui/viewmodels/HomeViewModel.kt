@@ -5,10 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
+import com.cornellappdev.android.eatery.data.repositories.NotificationRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
@@ -23,6 +25,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -34,6 +37,7 @@ class HomeViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val eateryRepository: EateryRepository,
     private val userRepository: UserRepository,
+    private val notificationRepository: NotificationRepository,
     private val authTokenRepository: AuthTokenRepository
 ) : ViewModel() {
     data class HomeUiState(
@@ -42,6 +46,8 @@ class HomeViewModel @Inject constructor(
         val nearestEateries: List<Eatery> = emptyList(),
         val selectedFilters: List<Filter> = emptyList(),
         val notificationFlowCompleted: Boolean = false,
+        val hasUnreadNotifications: Boolean = false,
+        val showNotificationBell: Boolean = true,
         val error: NetworkUiError? = null
     )
 
@@ -161,9 +167,16 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = combine(
         homeDataState,
-        _error
-    ) { dataState, networkError ->
-        dataState.copy(error = networkError)
+        _error,
+        notificationRepository.notificationsFlow,
+        notificationRepository.hubAvailableFlow,
+    ) { dataState, networkError, notifications, hubAvailable ->
+        dataState.copy(
+            error = networkError,
+            hasUnreadNotifications = notifications.any { !it.isRead },
+            // Release hides the bell until the backend serves the hub; debug keeps it for review.
+            showNotificationBell = BuildConfig.DEBUG || hubAvailable,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     var bigPopUp by mutableStateOf(false)
@@ -247,6 +260,17 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Refreshes notifications for the bell's unread dot, waiting for auth tokens on launch.
+     * Failures are ignored since a missing dot isn't worth an error toast.
+     */
+    fun refreshNotificationsWhenTokensConfigured() {
+        viewModelScope.launch {
+            authTokenRepository.tokensConfiguredFlow.first { it }
+            notificationRepository.fetchNotifications()
         }
     }
 }

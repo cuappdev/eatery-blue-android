@@ -19,9 +19,6 @@ class PrivacyViewModel @Inject constructor(
         userPreferencesRepository.analyticsDisabledFlow
             .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
-    val analyticsDisabled: Boolean
-        get() = analyticsDisabledFlow.value
-
     fun setAnalyticsDisabled(analyticsDisabled: Boolean) = viewModelScope.launch {
         userPreferencesRepository.setAnalyticsDisabled(analyticsDisabled)
     }

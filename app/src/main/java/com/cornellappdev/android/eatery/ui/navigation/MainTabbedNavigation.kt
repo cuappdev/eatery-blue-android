@@ -55,13 +55,28 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationSetup(
-    hasOnboarded: Boolean
+    hasOnboarded: Boolean,
+    notificationHubRequests: Flow<Unit>,
 ) {
     val navController = rememberNavController()
+
+    // Tapping a push opens the hub, like tapping the bell. Onboarding users stay where they are;
+    // this checks the live route since onboarding can finish after launch.
+    LaunchedEffect(navController) {
+        notificationHubRequests.collect {
+            // Wait for the NavHost to set its graph on a cold start.
+            navController.currentBackStackEntryFlow.first()
+            if (navController.currentDestination?.route != Routes.ONBOARDING.route) {
+                navController.openNotificationHub()
+            }
+        }
+    }
     val showBottomBar = rememberSaveable {
         mutableStateOf(false)
     }
@@ -73,7 +88,6 @@ fun NavigationSetup(
         Routes.ONBOARDING.route,
         Routes.ABOUT.route,
         Routes.NOTIFICATIONS_SETTING.route,
-        Routes.NOTIFICATIONS_HOME.route,
         Routes.PRIVACY.route,
         Routes.LEGAL.route,
         Routes.SUPPORT.route
@@ -115,6 +129,19 @@ fun NavigationSetup(
             showBottomBar = showBottomBar
         )
     }
+}
+
+/**
+ * Switches to Home and opens the notification hub on top of it, unless the hub is already showing.
+ */
+private fun NavHostController.openNotificationHub() {
+    if (currentDestination?.route == Routes.NOTIFICATIONS_HOME.route) return
+
+    navigate(Routes.HOME.route) {
+        popUpTo(Routes.HOME.route)
+        launchSingleTop = true
+    }
+    navigate(Routes.NOTIFICATIONS_HOME.route)
 }
 
 @Composable
@@ -410,7 +437,7 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            NotificationsSettingsScreen()
+            NotificationsSettingsScreen(onBackClick = navController::popBackStack)
         }
 
         composable(
@@ -426,7 +453,7 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            NotificationsHomeScreen()
+            NotificationsHomeScreen(onBackClick = navController::popBackStack)
         }
 
         composable(
@@ -476,7 +503,12 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            PrivacyScreen()
+            PrivacyScreen(
+                onBackClick = navController::popBackStack,
+                onNotificationSettingsClick = {
+                    navController.navigate(Routes.NOTIFICATIONS_SETTING.route)
+                }
+            )
         }
         composable(
             route = Routes.SUPPORT.route,

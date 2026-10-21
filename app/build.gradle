@@ -11,6 +11,14 @@ def secretsPropertiesFile = rootProject.file('secrets.properties')
 def secretsProperties = new Properties()
 secretsProperties.load(new FileInputStream(secretsPropertiesFile))
 
+// Optional LOCAL_BACKEND_URL in local.properties points debug builds at a locally running backend
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(new FileInputStream(localPropertiesFile))
+}
+def localBackendUrl = localProperties['LOCAL_BACKEND_URL']
+
 android {
     namespace = 'com.cornellappdev.android.eatery'
     compileSdk = 37
@@ -34,14 +42,14 @@ android {
     buildTypes {
         debug {
             resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "true")
-            buildConfigField("String", "BACKEND_URL", secretsProperties['BACKEND_URL'])
+            buildConfigField("String", "BACKEND_URL", localBackendUrl ? "\"${localBackendUrl}\"" : secretsProperties['BACKEND_URL'])
             buildConfigField("boolean", "ENABLE_NOTIFICATIONS", "true")
         }
         release {
             minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField("String", "BACKEND_URL", secretsProperties['PROD_ENDPOINT'])
-            buildConfigField("boolean", "ENABLE_NOTIFICATIONS", "false")
+            buildConfigField("boolean", "ENABLE_NOTIFICATIONS", "true")
         }
     }
 

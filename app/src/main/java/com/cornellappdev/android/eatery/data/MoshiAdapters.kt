@@ -56,11 +56,6 @@ class ReportAdapter {
         val json = gson.toJson(report)
         return json
     }
-
-    @FromJson
-    fun fromJson(report: String): Boolean {
-        return report.contains("true", ignoreCase = true)
-    }
 }
 
 class DateTimeAdapter {

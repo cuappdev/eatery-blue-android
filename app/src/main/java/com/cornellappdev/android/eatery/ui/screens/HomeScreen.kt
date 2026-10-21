@@ -16,25 +16,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
@@ -67,9 +64,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
@@ -78,6 +75,7 @@ import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusB
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusFAB
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.EateryCardStyle
+import com.cornellappdev.android.eatery.ui.components.general.ErrorContent
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
@@ -90,6 +88,7 @@ import com.cornellappdev.android.eatery.ui.components.home.EateryHomeSection
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem
 import com.cornellappdev.android.eatery.ui.components.home.MainLoadingItem.Companion.CreateMainLoadingItem
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.UnreadNotificationDot
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.ui.viewmodels.HomeViewModel
@@ -137,6 +136,13 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         homeViewModel.updateFavoritesIfTokensConfigured()
+    }
+
+    // Refreshed on every resume so a push that arrived while the app was backgrounded, or
+    // notifications read in the hub, are reflected in the bell's unread dot.
+    LifecycleResumeEffect(Unit) {
+        homeViewModel.refreshNotificationsWhenTokensConfigured()
+        onPauseOrDispose { }
     }
 
     HomeScreenContent(
@@ -194,6 +200,8 @@ private fun HomeScreenContent(
     val eateriesApiResponse = uiState.eateriesApiResponse
     val selectedFilters = uiState.selectedFilters
     val notificationFlowCompleted = uiState.notificationFlowCompleted
+    val hasUnreadNotifications = uiState.hasUnreadNotifications
+    val showNotificationBell = uiState.showNotificationBell
 
     NetworkErrorToast(
         error = uiState.error,
@@ -314,6 +322,8 @@ private fun HomeScreenContent(
                     onListClick = { isGridView = false },
                     onGridClick = { isGridView = true },
                     onNotificationsClick = onNotificationsClick,
+                    hasUnreadNotifications = hasUnreadNotifications,
+                    showNotificationBell = showNotificationBell,
                     onReload = onReload,
                     isDarkMode = isDarkMode
                 )
@@ -376,6 +386,8 @@ private fun HomeScrollableMainContent(
     onListClick: () -> Unit,
     onGridClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    hasUnreadNotifications: Boolean,
+    showNotificationBell: Boolean,
     onReload: () -> Unit,
     isDarkMode: Boolean
 ) {
@@ -398,6 +410,8 @@ private fun HomeScrollableMainContent(
                 loaded = true,
                 onSearchClick = onSearchClick,
                 onNotificationsClick = onNotificationsClick,
+                hasUnreadNotifications = hasUnreadNotifications,
+                showNotificationBell = showNotificationBell,
                 selectedFilters = selectedFilters,
                 onFilterClicked = onFilterClicked,
                 filters = filters,
@@ -428,6 +442,8 @@ private fun HomeScrollableMainContent(
                 loaded = false,
                 onSearchClick = onSearchClick,
                 onNotificationsClick = onNotificationsClick,
+                hasUnreadNotifications = hasUnreadNotifications,
+                showNotificationBell = showNotificationBell,
                 selectedFilters = selectedFilters,
                 onFilterClicked = onFilterClicked,
                 filters = filters,
@@ -445,7 +461,9 @@ private fun HomeScrollableMainContent(
                     collapsed = isFirstVisible.value,
                     loaded = false,
                     onSearchClick = onSearchClick,
-                    onNotificationsClick = onNotificationsClick
+                    onNotificationsClick = onNotificationsClick,
+                    hasUnreadNotifications = hasUnreadNotifications,
+                    showNotificationBell = showNotificationBell
                 )
                 HomeMainHeader(
                     onSearchClick = onSearchClick,
@@ -470,6 +488,8 @@ private fun HomeLazyColumn(
     loaded: Boolean,
     onSearchClick: () -> Unit,
     onNotificationsClick: () -> Unit,
+    hasUnreadNotifications: Boolean,
+    showNotificationBell: Boolean,
     selectedFilters: List<Filter>,
     onFilterClicked: (Filter) -> Unit,
     filters: List<Filter>,
@@ -486,7 +506,9 @@ private fun HomeLazyColumn(
                 collapsed = collapsed,
                 loaded = loaded,
                 onSearchClick = onSearchClick,
-                onNotificationsClick = onNotificationsClick
+                onNotificationsClick = onNotificationsClick,
+                hasUnreadNotifications = hasUnreadNotifications,
+                showNotificationBell = showNotificationBell
             )
         }
         item {
@@ -499,57 +521,6 @@ private fun HomeLazyColumn(
             )
         }
         content()
-    }
-}
-
-@Composable
-fun ErrorContent(onTryAgain: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .width(293.dp)
-            .fillMaxHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.ic_error),
-            contentDescription = stringResource(R.string.a11y_home_error_icon_desc),
-            modifier = Modifier.size(72.dp),
-            tint = currentColors.error
-        )
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = stringResource(R.string.home_error_title),
-            fontSize = 20.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = currentColors.textPrimary,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = stringResource(R.string.home_error_description),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Normal,
-            color = currentColors.textPrimary,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = onTryAgain,
-            modifier = Modifier
-                .width(109.dp)
-                .height(34.dp)
-                .clip(RoundedCornerShape(17.dp)),
-            colors = ButtonDefaults.buttonColors(containerColor = currentColors.accentPrimary)
-        ) {
-            Text(
-                text = stringResource(R.string.home_error_try_again),
-                color = currentColors.textPrimary,
-                fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                lineHeight = 1.25.em
-            )
-        }
     }
 }
 
@@ -800,7 +771,9 @@ private fun HomeStickyHeader(
     collapsed: Boolean,
     loaded: Boolean,
     onSearchClick: () -> Unit,
-    onNotificationsClick: () -> Unit
+    onNotificationsClick: () -> Unit,
+    hasUnreadNotifications: Boolean,
+    showNotificationBell: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -870,15 +843,28 @@ private fun HomeStickyHeader(
                             color = currentColors.oppTextPrimary,
                             style = EateryBlueTypography.h2
                         )
-                        if (BuildConfig.ENABLE_NOTIFICATIONS) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_bell),
-                                contentDescription = null,
-                                tint = currentColors.backgroundDefault,
-                                modifier = Modifier.clickable {
-                                    onNotificationsClick()
+                        if (BuildConfig.ENABLE_NOTIFICATIONS && showNotificationBell) {
+                            Box(
+                                modifier = Modifier.clickable { onNotificationsClick() }
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_bell),
+                                    contentDescription = stringResource(
+                                        if (hasUnreadNotifications) R.string.a11y_bell_unread
+                                        else R.string.a11y_bell
+                                    ),
+                                    tint = currentColors.backgroundDefault,
+                                )
+                                if (hasUnreadNotifications) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(UnreadNotificationDot)
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
                 }

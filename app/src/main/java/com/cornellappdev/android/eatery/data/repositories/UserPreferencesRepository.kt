@@ -37,6 +37,14 @@ class UserPreferencesRepository @Inject constructor(
     val notificationFlowCompletedFlow: Flow<Boolean> =
         userPreferencesFlow.map { it.notificationFlowCompleted }
     val analyticsDisabledFlow: Flow<Boolean> = userPreferencesFlow.map { it.analyticsDisabled }
+    val notificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.notificationsDisabled }
+    val favoriteItemNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.favoriteItemNotificationsDisabled }
+    val cornellAppdevNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.cornellAppdevNotificationsDisabled }
+    val notificationPermissionRequestedFlow: Flow<Boolean> =
+        userPreferencesFlow.map { it.notificationPermissionRequested }
 
     /**
      * Emits the decrypted access token, or null if absent or decryption fails.
@@ -102,6 +110,12 @@ class UserPreferencesRepository @Inject constructor(
     val favoriteItemNamesFlow: Flow<List<String>> =
         userPreferencesFlow.map { it.itemFavoritesMap.keys.toList() }
 
+    val pendingFavoriteItemUpdatesFlow: Flow<Map<String, Boolean>> =
+        userPreferencesFlow.map { it.pendingFavoriteItemUpdatesMap }
+
+    val favoriteItemsMigratedToBackendFlow: Flow<Boolean> =
+        userPreferencesFlow.map { it.favoriteItemsMigratedToBackend }
+
     val recentSearchesFlow: Flow<List<Int>> = userPreferencesFlow.map { it.recentSearchesList }
 
     suspend fun setHasOnboarded(hasOnboarded: Boolean) = setPref {
@@ -114,6 +128,22 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setAnalyticsDisabled(analyticsDisabled: Boolean) = setPref {
         setAnalyticsDisabled(analyticsDisabled)
+    }
+
+    suspend fun setNotificationsEnabled(enabled: Boolean) = setPref {
+        setNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setNotificationPermissionRequested(requested: Boolean) = setPref {
+        setNotificationPermissionRequested(requested)
+    }
+
+    suspend fun setFavoriteItemNotificationsEnabled(enabled: Boolean) = setPref {
+        setFavoriteItemNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setCornellAppdevNotificationsEnabled(enabled: Boolean) = setPref {
+        setCornellAppdevNotificationsDisabled(!enabled)
     }
 
     suspend fun addRecentSearch(eateryId: Int) = setPref {
@@ -149,6 +179,26 @@ class UserPreferencesRepository @Inject constructor(
                 removeItemFavorites(itemName)
             }
         }
+    }
+
+    suspend fun setPendingFavoriteItemUpdate(itemName: String, isFavorite: Boolean) = setPref {
+        putPendingFavoriteItemUpdates(itemName, isFavorite)
+    }
+
+    /**
+     * Removes the pending update for [itemName] only if it's still [syncedState], so a change made
+     * while that state was being synced isn't lost.
+     */
+    suspend fun clearPendingFavoriteItemUpdate(itemName: String, syncedState: Boolean) = setPref {
+        if (pendingFavoriteItemUpdatesMap[itemName] == syncedState) {
+            removePendingFavoriteItemUpdates(itemName)
+        } else {
+            this
+        }
+    }
+
+    suspend fun setFavoriteItemsMigratedToBackend(migrated: Boolean) = setPref {
+        setFavoriteItemsMigratedToBackend(migrated)
     }
 
     private suspend fun setPref(setter: UserPreferences.Builder.() -> UserPreferences.Builder) {
