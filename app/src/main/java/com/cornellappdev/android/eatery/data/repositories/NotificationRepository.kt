@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -41,16 +43,28 @@ class NotificationRepository @Inject constructor(
      */
     val notificationsFlow: StateFlow<List<HubNotification>> = _notificationsFlow.asStateFlow()
 
+    private val registerTokenMutex = Mutex()
+
+    /** The token last registered successfully in this process, so repeat calls are skipped. */
+    private var registeredFcmToken: String? = null
+
     /**
      * Registers [token] whenever the OS allows notifications, even while paused in-app: the
      * backend keeps tokens regardless of settings, so unpausing works without re-registering.
+     * Startup and resume can both ask at once, so an already-registered token is skipped.
      */
     suspend fun registerFcmToken(token: String) {
         if (!areNotificationsAllowedBySystem(context)) return
 
-        val result = resultOfNetworkCall { networkApi.enableNotifications(FcmToken(token)) }
-        if (result is Result.Error) {
-            Log.w(LOG_TAG, "Failed to register FCM token: ${result.error}")
+        registerTokenMutex.withLock {
+            if (token == registeredFcmToken) return
+
+            val result = resultOfNetworkCall { networkApi.enableNotifications(FcmToken(token)) }
+            if (result is Result.Error) {
+                Log.w(LOG_TAG, "Failed to register FCM token: ${result.error}")
+            } else {
+                registeredFcmToken = token
+            }
         }
     }
 
