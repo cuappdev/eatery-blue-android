@@ -5,6 +5,7 @@ import android.util.Log
 import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.FcmToken
 import com.cornellappdev.android.eatery.data.models.HubNotification
+import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.data.models.NotificationIds
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.UserSettings
@@ -73,8 +74,28 @@ class NotificationRepository @Inject constructor(
         userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(false) &&
                 areNotificationsAllowedBySystem(context)
 
-    suspend fun fetchNotifications(): Result<Unit> = resultOfNetworkCall {
-        _notificationsFlow.value = networkApi.getNotifications().notifications
+    private val _hubAvailableFlow = MutableStateFlow(true)
+
+    /**
+     * False once the backend answers the hub with a 404, meaning it hasn't been deployed with
+     * notification support yet. Other failures (e.g. offline) leave it unchanged.
+     */
+    val hubAvailableFlow: StateFlow<Boolean> = _hubAvailableFlow.asStateFlow()
+
+    suspend fun fetchNotifications(): Result<Unit> {
+        val result = resultOfNetworkCall {
+            _notificationsFlow.value = networkApi.getNotifications().notifications
+        }
+        when (result) {
+            is Result.Success -> _hubAvailableFlow.value = true
+            is Result.Error -> {
+                val error = result.error
+                if (error is NetworkError.ServerError && error.code == 404) {
+                    _hubAvailableFlow.value = false
+                }
+            }
+        }
+        return result
     }
 
     suspend fun markAsRead(ids: List<Int>): Result<Unit> = resultOfNetworkCall {

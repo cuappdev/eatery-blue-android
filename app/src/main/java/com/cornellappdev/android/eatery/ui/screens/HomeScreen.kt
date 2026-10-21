@@ -201,6 +201,7 @@ private fun HomeScreenContent(
     val selectedFilters = uiState.selectedFilters
     val notificationFlowCompleted = uiState.notificationFlowCompleted
     val hasUnreadNotifications = uiState.hasUnreadNotifications
+    val showNotificationBell = uiState.showNotificationBell
 
     NetworkErrorToast(
         error = uiState.error,
@@ -322,6 +323,7 @@ private fun HomeScreenContent(
                     onGridClick = { isGridView = true },
                     onNotificationsClick = onNotificationsClick,
                     hasUnreadNotifications = hasUnreadNotifications,
+                    showNotificationBell = showNotificationBell,
                     onReload = onReload,
                     isDarkMode = isDarkMode
                 )
@@ -385,6 +387,7 @@ private fun HomeScrollableMainContent(
     onGridClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     hasUnreadNotifications: Boolean,
+    showNotificationBell: Boolean,
     onReload: () -> Unit,
     isDarkMode: Boolean
 ) {
@@ -408,6 +411,7 @@ private fun HomeScrollableMainContent(
                 onSearchClick = onSearchClick,
                 onNotificationsClick = onNotificationsClick,
                 hasUnreadNotifications = hasUnreadNotifications,
+                showNotificationBell = showNotificationBell,
                 selectedFilters = selectedFilters,
                 onFilterClicked = onFilterClicked,
                 filters = filters,
@@ -439,6 +443,7 @@ private fun HomeScrollableMainContent(
                 onSearchClick = onSearchClick,
                 onNotificationsClick = onNotificationsClick,
                 hasUnreadNotifications = hasUnreadNotifications,
+                showNotificationBell = showNotificationBell,
                 selectedFilters = selectedFilters,
                 onFilterClicked = onFilterClicked,
                 filters = filters,
@@ -457,7 +462,8 @@ private fun HomeScrollableMainContent(
                     loaded = false,
                     onSearchClick = onSearchClick,
                     onNotificationsClick = onNotificationsClick,
-                    hasUnreadNotifications = hasUnreadNotifications
+                    hasUnreadNotifications = hasUnreadNotifications,
+                    showNotificationBell = showNotificationBell
                 )
                 HomeMainHeader(
                     onSearchClick = onSearchClick,
@@ -483,6 +489,7 @@ private fun HomeLazyColumn(
     onSearchClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     hasUnreadNotifications: Boolean,
+    showNotificationBell: Boolean,
     selectedFilters: List<Filter>,
     onFilterClicked: (Filter) -> Unit,
     filters: List<Filter>,
@@ -500,7 +507,8 @@ private fun HomeLazyColumn(
                 loaded = loaded,
                 onSearchClick = onSearchClick,
                 onNotificationsClick = onNotificationsClick,
-                hasUnreadNotifications = hasUnreadNotifications
+                hasUnreadNotifications = hasUnreadNotifications,
+                showNotificationBell = showNotificationBell
             )
         }
         item {
@@ -764,7 +772,8 @@ private fun HomeStickyHeader(
     loaded: Boolean,
     onSearchClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    hasUnreadNotifications: Boolean
+    hasUnreadNotifications: Boolean,
+    showNotificationBell: Boolean
 ) {
     Column(
         modifier = Modifier
@@ -834,7 +843,7 @@ private fun HomeStickyHeader(
                             color = currentColors.oppTextPrimary,
                             style = EateryBlueTypography.h2
                         )
-                        if (BuildConfig.ENABLE_NOTIFICATIONS) {
+                        if (BuildConfig.ENABLE_NOTIFICATIONS && showNotificationBell) {
                             Box(
                                 modifier = Modifier.clickable { onNotificationsClick() }
                             ) {

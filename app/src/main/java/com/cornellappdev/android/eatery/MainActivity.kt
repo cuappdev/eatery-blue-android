@@ -115,9 +115,11 @@ class MainActivity : ComponentActivity() {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
                 eateryRepository.pingEateries()
-                // Picks up notifications being turned on in system settings while away.
+                // Picks up notifications being turned on in system settings while away, and
+                // retries anything that failed while the backend was unreachable or not deployed.
                 if (authTokenRepository.tokensConfiguredFlow.value) {
                     syncFcmTokenWithBackendIfAllowed()
+                    favoriteItemSyncRepository.syncPendingFavorites()
                 }
             }
         }

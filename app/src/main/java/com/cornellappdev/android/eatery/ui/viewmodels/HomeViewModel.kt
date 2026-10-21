@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
@@ -46,6 +47,7 @@ class HomeViewModel @Inject constructor(
         val selectedFilters: List<Filter> = emptyList(),
         val notificationFlowCompleted: Boolean = false,
         val hasUnreadNotifications: Boolean = false,
+        val showNotificationBell: Boolean = true,
         val error: NetworkUiError? = null
     )
 
@@ -166,11 +168,14 @@ class HomeViewModel @Inject constructor(
     val uiState: StateFlow<HomeUiState> = combine(
         homeDataState,
         _error,
-        notificationRepository.notificationsFlow
-    ) { dataState, networkError, notifications ->
+        notificationRepository.notificationsFlow,
+        notificationRepository.hubAvailableFlow,
+    ) { dataState, networkError, notifications, hubAvailable ->
         dataState.copy(
             error = networkError,
-            hasUnreadNotifications = notifications.any { !it.isRead }
+            hasUnreadNotifications = notifications.any { !it.isRead },
+            // Release hides the bell until the backend serves the hub; debug keeps it for review.
+            showNotificationBell = BuildConfig.DEBUG || hubAvailable,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
