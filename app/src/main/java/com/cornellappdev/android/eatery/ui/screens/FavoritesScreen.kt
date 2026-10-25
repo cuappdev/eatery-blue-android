@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -114,7 +115,10 @@ private fun FavoritesScreenContent(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(
-                onClick = { onBackClick() }
+                onClick = { onBackClick() },
+                // The chevron sits 16dp into this 48dp button (12dp centering + 4dp inside the
+                // vector), so shift it left to line up with the title's 6dp inset.
+                modifier = Modifier.offset(x = (-10).dp)
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_left_chevron),
