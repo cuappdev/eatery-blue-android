@@ -1,13 +1,9 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Result
-import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
-import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.NotificationRepository
-import com.cornellappdev.android.eatery.data.repositories.firstOrOnReadFailure
 import com.cornellappdev.android.eatery.notifications.NotificationPermissionChecker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,8 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 data class NotificationsSettingsUiState(
@@ -34,13 +28,9 @@ data class NotificationsSettingsUiState(
 
 @HiltViewModel
 class NotificationsSettingsViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository,
     private val notificationRepository: NotificationRepository,
     private val permissionChecker: NotificationPermissionChecker,
 ) : ViewModel() {
-    companion object {
-        private const val LOG_TAG = "NotificationsSettingsVM"
-    }
 
     private val _systemNotificationsAllowed =
         MutableStateFlow(permissionChecker.areNotificationsAllowedBySystem())
@@ -56,25 +46,21 @@ class NotificationsSettingsViewModel @Inject constructor(
     fun needsNotificationPermissionRequest(): Boolean = permissionChecker.needsPermissionRequest()
 
     private val _syncErrorFlow = MutableSharedFlow<Unit>()
+
+    /** Emits when a settings change couldn't reach the backend and was reverted. */
     val syncErrorFlow = _syncErrorFlow.asSharedFlow()
 
     private val settingsLoadFailed = MutableStateFlow(false)
 
-    /** Serializes settings updates and backend loads. */
-    private val settingsMutex = Mutex()
-
     val uiState: StateFlow<NotificationsSettingsUiState> = combine(
-        userPreferencesRepository.notificationsEnabledFlow,
-        userPreferencesRepository.favoriteItemNotificationsEnabledFlow,
-        userPreferencesRepository.appDevNotificationsEnabledFlow,
-        userPreferencesRepository.notificationPermissionRequestedFlow,
+        notificationRepository.settingsFlow,
         settingsLoadFailed,
-    ) { allNotificationsEnabled, favoriteItemEnabled, appDevEnabled, permissionRequested, loadFailed ->
+    ) { settings, loadFailed ->
         NotificationsSettingsUiState(
-            allNotificationsEnabled = allNotificationsEnabled,
-            favoriteItemNotificationsEnabled = favoriteItemEnabled,
-            appDevNotificationsEnabled = appDevEnabled,
-            permissionRequested = permissionRequested,
+            allNotificationsEnabled = settings.allEnabled,
+            favoriteItemNotificationsEnabled = settings.favoriteItemsEnabled,
+            appDevNotificationsEnabled = settings.appDevEnabled,
+            permissionRequested = settings.permissionRequested,
             settingsLoadFailed = loadFailed,
         )
     }.stateIn(
@@ -83,96 +69,27 @@ class NotificationsSettingsViewModel @Inject constructor(
         NotificationsSettingsUiState(),
     )
 
-    /**
-     * Overwrites the local category settings with the backend's, which decide what gets sent.
-     */
     fun loadSettingsFromBackend() = viewModelScope.launch {
-        settingsMutex.withLock {
-            // While paused the backend has every category turned off, so its values aren't the
-            // user's real choices; keep the local ones so they can be restored on unpause.
-            if (!userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(true)) {
-                settingsLoadFailed.value = false
-                return@launch
-            }
-
-            when (val result = notificationRepository.getSettings()) {
-                is Result.Success -> {
-                    userPreferencesRepository.setFavoriteItemNotificationsEnabled(
-                        result.data.favoriteItemPushNotifications
-                    )
-                    userPreferencesRepository.setAppDevNotificationsEnabled(
-                        result.data.cornellAppdevPushNotifications
-                    )
-                    settingsLoadFailed.value = false
-                }
-
-                is Result.Error -> {
-                    Log.w(LOG_TAG, "Failed to load settings: ${result.error}")
-                    settingsLoadFailed.value = true
-                }
-            }
-        }
+        settingsLoadFailed.value = notificationRepository.loadSettings() is Result.Error
     }
 
-    /** Records the permission prompt so a later denial is treated as notifications turned off. */
     fun markPermissionRequested() = viewModelScope.launch {
-        userPreferencesRepository.setNotificationPermissionRequested(true)
+        notificationRepository.markPermissionRequested()
     }
 
-    /**
-     * The backend has no master switch, so pausing turns off every category there and unpausing
-     * restores the user's local category choices. The FCM token stays registered either way.
-     */
-    fun setAllNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
-        val update = if (enabled) {
-            UserSettingsUpdate(
-                favoriteItemPushNotifications = userPreferencesRepository
-                    .favoriteItemNotificationsEnabledFlow.firstOrOnReadFailure(true),
-                cornellAppdevPushNotifications = userPreferencesRepository
-                    .appDevNotificationsEnabledFlow.firstOrOnReadFailure(true),
-            )
-        } else {
-            UserSettingsUpdate(
-                favoriteItemPushNotifications = false,
-                cornellAppdevPushNotifications = false,
-            )
-        }
-        updateSetting(enabled, update, userPreferencesRepository::setNotificationsEnabled)
-    }
+    fun setAllNotificationsEnabled(enabled: Boolean) =
+        updateSetting { notificationRepository.setAllNotificationsEnabled(enabled) }
 
-    fun setFavoriteItemNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
-        updateSetting(
-            enabled,
-            UserSettingsUpdate(favoriteItemPushNotifications = enabled),
-            userPreferencesRepository::setFavoriteItemNotificationsEnabled,
-        )
-    }
+    fun setFavoriteItemNotificationsEnabled(enabled: Boolean) =
+        updateSetting { notificationRepository.setFavoriteItemNotificationsEnabled(enabled) }
 
-    fun setAppDevNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
-        updateSetting(
-            enabled,
-            UserSettingsUpdate(cornellAppdevPushNotifications = enabled),
-            userPreferencesRepository::setAppDevNotificationsEnabled,
-        )
-    }
+    fun setAppDevNotificationsEnabled(enabled: Boolean) =
+        updateSetting { notificationRepository.setAppDevNotificationsEnabled(enabled) }
 
-    /**
-     * Saves [enabled] locally first so the UI updates immediately, then syncs [update] to the
-     * backend, reverting the local value if that fails. Runs under [settingsMutex] so updates reach
-     * the backend in tap order and a resume-triggered load can't overwrite one in flight.
-     */
-    private suspend fun updateSetting(
-        enabled: Boolean,
-        update: UserSettingsUpdate,
-        setLocal: suspend (Boolean) -> Unit,
-    ) = settingsMutex.withLock {
-        setLocal(enabled)
-
-        val result = notificationRepository.updateSettings(update)
-        if (result is Result.Error) {
-            Log.w(LOG_TAG, "Failed to sync notification setting: ${result.error}")
+    /** Runs [update] and shows the sync error snackbar if the repository had to revert it. */
+    private fun updateSetting(update: suspend () -> Result<Unit>) = viewModelScope.launch {
+        if (update() is Result.Error) {
             _syncErrorFlow.emit(Unit)
-            setLocal(!enabled)
         }
     }
 }

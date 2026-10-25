@@ -6,13 +6,16 @@ import com.cornellappdev.android.eatery.data.models.FcmToken
 import com.cornellappdev.android.eatery.data.models.HubNotification
 import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.data.models.NotificationIds
+import com.cornellappdev.android.eatery.data.models.NotificationSettings
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.UserSettings
 import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
 import com.cornellappdev.android.eatery.notifications.NotificationPermissionChecker
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -105,12 +108,121 @@ class NotificationRepository @Inject constructor(
         }
     }
 
-    suspend fun getSettings(): Result<UserSettings> = resultOfNetworkCall {
-        networkApi.getSettings()
+    /** Serializes settings updates and backend loads. */
+    private val settingsMutex = Mutex()
+
+    /** The user's notification settings as stored on this device. */
+    val settingsFlow: Flow<NotificationSettings> = combine(
+        userPreferencesRepository.notificationsEnabledFlow,
+        userPreferencesRepository.favoriteItemNotificationsEnabledFlow,
+        userPreferencesRepository.appDevNotificationsEnabledFlow,
+        userPreferencesRepository.notificationPermissionRequestedFlow,
+    ) { allEnabled, favoriteItemsEnabled, appDevEnabled, permissionRequested ->
+        NotificationSettings(
+            allEnabled = allEnabled,
+            favoriteItemsEnabled = favoriteItemsEnabled,
+            appDevEnabled = appDevEnabled,
+            permissionRequested = permissionRequested,
+        )
     }
 
-    suspend fun updateSettings(update: UserSettingsUpdate): Result<UserSettings> =
-        resultOfNetworkCall {
-            networkApi.updateSettings(update)
+    /**
+     * Overwrites the local category settings with the backend's, which decide what gets sent.
+     */
+    suspend fun loadSettings(): Result<Unit> = settingsMutex.withLock {
+        // While paused the backend has every category turned off, so its values aren't the
+        // user's real choices; keep the local ones so they can be restored on unpause.
+        if (!userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(true)) {
+            return Result.Success(Unit)
         }
+
+        when (val result = getSettings()) {
+            is Result.Success -> {
+                userPreferencesRepository.setFavoriteItemNotificationsEnabled(
+                    result.data.favoriteItemPushNotifications
+                )
+                userPreferencesRepository.setAppDevNotificationsEnabled(
+                    result.data.cornellAppdevPushNotifications
+                )
+                Result.Success(Unit)
+            }
+
+            is Result.Error -> {
+                Log.w(LOG_TAG, "Failed to load settings: ${result.error}")
+                result
+            }
+        }
+    }
+
+    /** Records the permission prompt so a later denial is treated as notifications turned off. */
+    suspend fun markPermissionRequested() {
+        userPreferencesRepository.setNotificationPermissionRequested(true)
+    }
+
+    /**
+     * The backend has no master switch, so pausing turns off every category there and unpausing
+     * restores the user's local category choices. The FCM token stays registered either way.
+     */
+    suspend fun setAllNotificationsEnabled(enabled: Boolean): Result<Unit> {
+        val update = if (enabled) {
+            UserSettingsUpdate(
+                favoriteItemPushNotifications = userPreferencesRepository
+                    .favoriteItemNotificationsEnabledFlow.firstOrOnReadFailure(true),
+                cornellAppdevPushNotifications = userPreferencesRepository
+                    .appDevNotificationsEnabledFlow.firstOrOnReadFailure(true),
+            )
+        } else {
+            UserSettingsUpdate(
+                favoriteItemPushNotifications = false,
+                cornellAppdevPushNotifications = false,
+            )
+        }
+        return updateSetting(enabled, update, userPreferencesRepository::setNotificationsEnabled)
+    }
+
+    suspend fun setFavoriteItemNotificationsEnabled(enabled: Boolean): Result<Unit> =
+        updateSetting(
+            enabled,
+            UserSettingsUpdate(favoriteItemPushNotifications = enabled),
+            userPreferencesRepository::setFavoriteItemNotificationsEnabled,
+        )
+
+    suspend fun setAppDevNotificationsEnabled(enabled: Boolean): Result<Unit> =
+        updateSetting(
+            enabled,
+            UserSettingsUpdate(cornellAppdevPushNotifications = enabled),
+            userPreferencesRepository::setAppDevNotificationsEnabled,
+        )
+
+    /**
+     * Saves [enabled] locally first so the UI updates immediately, then syncs [update] to the
+     * backend, reverting the local value if that fails. Runs under [settingsMutex] so updates reach
+     * the backend in tap order and a resume-triggered load can't overwrite one in flight.
+     */
+    private suspend fun updateSetting(
+        enabled: Boolean,
+        update: UserSettingsUpdate,
+        setLocal: suspend (Boolean) -> Unit,
+    ): Result<Unit> = settingsMutex.withLock {
+        setLocal(enabled)
+
+        when (val result = updateSettings(update)) {
+            is Result.Success -> Result.Success(Unit)
+            is Result.Error -> {
+                Log.w(LOG_TAG, "Failed to sync notification setting: ${result.error}")
+                setLocal(!enabled)
+                result
+            }
+        }
+    }
+
+    private suspend fun getSettings(): Result<UserSettings> {
+        authTokenRepository.awaitTokensConfigured()
+        return resultOfNetworkCall { networkApi.getSettings() }
+    }
+
+    private suspend fun updateSettings(update: UserSettingsUpdate): Result<UserSettings> {
+        authTokenRepository.awaitTokensConfigured()
+        return resultOfNetworkCall { networkApi.updateSettings(update) }
+    }
 }
