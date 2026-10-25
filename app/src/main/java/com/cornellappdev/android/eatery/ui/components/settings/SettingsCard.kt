@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
  * A raised, rounded container for grouping settings cells. Use [CircleShape] for a pill-shaped
@@ -41,4 +43,24 @@ fun SettingsCard(
         verticalArrangement = Arrangement.Center,
         content = content
     )
+}
+
+@DualModePreview
+@Composable
+private fun SettingsCardPreview() = EateryPreview {
+    SettingsCard(modifier = Modifier.padding(16.dp)) {
+        SwitchOption(
+            title = "Favorite Item Notifications",
+            description = "Get notified when your favorite items are served",
+            checked = true,
+            onCheckedChange = {}
+        )
+        SettingsLineSeparator()
+        SwitchOption(
+            title = "Cornell AppDev Notifications",
+            description = "Get notified about new releases and feedback",
+            checked = false,
+            onCheckedChange = {}
+        )
+    }
 }

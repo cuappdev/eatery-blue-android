@@ -1,7 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
@@ -41,6 +40,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.components.general.CENTERED_STATE_HEIGHT_FRACTION
 import com.cornellappdev.android.eatery.ui.components.general.ErrorContent
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsCard
@@ -48,13 +48,13 @@ import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSepar
 import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsSettingsUiState
 import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsSettingsViewModel
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.areNotificationsAllowedBySystem
 import com.cornellappdev.android.eatery.util.needsNotificationPermissionRequest
 
-@SuppressLint("InlinedApi")
 @Composable
 fun NotificationsSettingsScreen(
     onBackClick: () -> Unit,
@@ -101,6 +101,51 @@ fun NotificationsSettingsScreen(
         pendingEnablePermissionRequest = false
     }
 
+    NotificationsSettingsScreenContent(
+        uiState = uiState,
+        systemNotificationsDenied = systemNotificationsDenied,
+        snackbarHostState = snackbarHostState,
+        onBackClick = onBackClick,
+        onOpenSettingsClick = {
+            context.startActivity(
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            )
+        },
+        onPauseAllChange = { isPaused ->
+            val isEnabled = !isPaused
+            if (
+                isEnabled &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                needsNotificationPermissionRequest(context)
+            ) {
+                pendingEnablePermissionRequest = true
+                notificationsSettingsViewModel.markPermissionRequested()
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                return@NotificationsSettingsScreenContent
+            }
+
+            pendingEnablePermissionRequest = false
+            notificationsSettingsViewModel.setAllNotificationsEnabled(isEnabled)
+        },
+        onFavoriteItemChange = notificationsSettingsViewModel::setFavoriteItemNotificationsEnabled,
+        onAppDevChange = notificationsSettingsViewModel::setAppDevNotificationsEnabled,
+        onTryAgain = { notificationsSettingsViewModel.loadSettingsFromBackend() },
+    )
+}
+
+@Composable
+private fun NotificationsSettingsScreenContent(
+    uiState: NotificationsSettingsUiState,
+    systemNotificationsDenied: Boolean,
+    snackbarHostState: SnackbarHostState,
+    onBackClick: () -> Unit,
+    onOpenSettingsClick: () -> Unit,
+    onPauseAllChange: (Boolean) -> Unit,
+    onFavoriteItemChange: (Boolean) -> Unit,
+    onAppDevChange: (Boolean) -> Unit,
+    onTryAgain: () -> Unit,
+) {
     Box(
         modifier = Modifier
             .background(color = currentColors.backgroundDefault)
@@ -118,14 +163,7 @@ fun NotificationsSettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (systemNotificationsDenied) {
-                    SystemNotificationsOffCard(
-                        onOpenSettingsClick = {
-                            context.startActivity(
-                                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                                    .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                            )
-                        }
-                    )
+                    SystemNotificationsOffCard(onOpenSettingsClick = onOpenSettingsClick)
                 }
 
                 SettingsCard(shape = CircleShape) {
@@ -133,28 +171,12 @@ fun NotificationsSettingsScreen(
                         title = stringResource(R.string.notifications_pause_all_title),
                         checked = !uiState.allNotificationsEnabled,
                         enabled = !systemNotificationsDenied,
-                        onCheckedChange = { isPaused ->
-                            val isEnabled = !isPaused
-                            if (
-                                isEnabled &&
-                                needsNotificationPermissionRequest(context)
-                            ) {
-                                pendingEnablePermissionRequest = true
-                                notificationsSettingsViewModel.markPermissionRequested()
-                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                return@SwitchOption
-                            }
-
-                            pendingEnablePermissionRequest = false
-                            notificationsSettingsViewModel.setAllNotificationsEnabled(isEnabled)
-                        }
+                        onCheckedChange = onPauseAllChange
                     )
                 }
 
                 if (uiState.settingsLoadFailed) {
-                    SettingsErrorState(
-                        onTryAgain = notificationsSettingsViewModel::loadSettingsFromBackend
-                    )
+                    SettingsErrorState(onTryAgain = onTryAgain)
                 } else if (uiState.allNotificationsEnabled) {
                     SettingsCard {
                         SwitchOption(
@@ -162,15 +184,15 @@ fun NotificationsSettingsScreen(
                             description = stringResource(R.string.notifications_favorite_item_description),
                             checked = uiState.favoriteItemNotificationsEnabled,
                             enabled = !systemNotificationsDenied,
-                            onCheckedChange = notificationsSettingsViewModel::setFavoriteItemNotificationsEnabled
+                            onCheckedChange = onFavoriteItemChange
                         )
                         SettingsLineSeparator()
                         SwitchOption(
                             title = stringResource(R.string.notifications_cornell_appdev_title),
                             description = stringResource(R.string.notifications_cornell_appdev_description),
-                            checked = uiState.cornellAppdevNotificationsEnabled,
+                            checked = uiState.appDevNotificationsEnabled,
                             enabled = !systemNotificationsDenied,
-                            onCheckedChange = notificationsSettingsViewModel::setCornellAppdevNotificationsEnabled
+                            onCheckedChange = onAppDevChange
                         )
                     }
                 }
@@ -221,7 +243,7 @@ private fun SystemNotificationsOffCard(onOpenSettingsClick: () -> Unit) {
 private fun SettingsErrorState(onTryAgain: () -> Unit) {
     Box(
         modifier = Modifier
-            .fillMaxHeight(0.7f)
+            .fillMaxHeight(CENTERED_STATE_HEIGHT_FRACTION)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
@@ -244,8 +266,48 @@ private fun SystemNotificationsOffCardPreview() = EateryPreview {
     SystemNotificationsOffCard(onOpenSettingsClick = {})
 }
 
+@Composable
+private fun PreviewNotificationsSettingsScreen(
+    uiState: NotificationsSettingsUiState = NotificationsSettingsUiState(),
+    systemNotificationsDenied: Boolean = false,
+) {
+    NotificationsSettingsScreenContent(
+        uiState = uiState,
+        systemNotificationsDenied = systemNotificationsDenied,
+        snackbarHostState = remember { SnackbarHostState() },
+        onBackClick = {},
+        onOpenSettingsClick = {},
+        onPauseAllChange = {},
+        onFavoriteItemChange = {},
+        onAppDevChange = {},
+        onTryAgain = {},
+    )
+}
+
 @DualModePreview
 @Composable
 private fun NotificationsSettingsScreenPreview() = EateryPreview {
-    NotificationsSettingsScreen(onBackClick = {})
+    PreviewNotificationsSettingsScreen()
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsSettingsPausedPreview() = EateryPreview {
+    PreviewNotificationsSettingsScreen(
+        uiState = NotificationsSettingsUiState(allNotificationsEnabled = false)
+    )
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsSettingsSystemOffPreview() = EateryPreview {
+    PreviewNotificationsSettingsScreen(systemNotificationsDenied = true)
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsSettingsLoadFailedPreview() = EateryPreview {
+    PreviewNotificationsSettingsScreen(
+        uiState = NotificationsSettingsUiState(settingsLoadFailed = true)
+    )
 }

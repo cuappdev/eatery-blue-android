@@ -191,7 +191,7 @@
 
     <string name="notifications_home_title">Notifications</string>
     <string name="notifications_home_favorite_items">Favorite Items</string>
-    <string name="notifications_home_empty">Nothing here...yet!</string>
+    <string name="notifications_home_empty">Nothing here…yet!</string>
     <string name="notifications_home_empty_description">When your favorite menu items are being served in a dining hall, it will show up here.</string>
     <string name="notifications_home_error">Something went wrong loading your notifications.</string>
     <string name="notifications_settings_error">Something went wrong loading your notification settings.</string>

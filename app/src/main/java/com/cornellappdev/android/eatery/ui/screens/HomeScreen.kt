@@ -68,7 +68,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.comparemenus.CompareMenusBottomSheet
@@ -524,72 +523,6 @@ private fun HomeLazyColumn(
     }
 }
 
-@DualModePreview
-@Composable
-private fun PreviewErrorContent() = EateryPreview {
-    PreviewHomeScreen(
-        uiState = HomeUiState(eateriesApiResponse = EateryApiResponse.Error)
-    )
-}
-
-@DualModePreview
-@Composable
-private fun PreviewSuccessContent() = EateryPreview {
-    val eateries = listOf(
-        PreviewData.mockEatery(1).copy(name = "Okenshields"),
-        PreviewData.mockEatery(2).copy(name = "Becker House Dining Room"),
-        PreviewData.mockEatery(3).copy(name = "Morrison Dining")
-    )
-    val favorites = listOf(eateries.first())
-
-    PreviewHomeScreen(
-        uiState = HomeUiState(
-            eateriesApiResponse = EateryApiResponse.Success(eateries),
-            favoriteEateries = favorites,
-            nearestEateries = eateries
-        )
-    )
-}
-
-@DualModePreview
-@Composable
-private fun PreviewPendingContent() = EateryPreview {
-    PreviewHomeScreen(
-        uiState = HomeUiState(eateriesApiResponse = EateryApiResponse.Pending)
-    )
-}
-
-@Composable
-private fun PreviewHomeScreen(uiState: HomeUiState) {
-    HomeScreenContent(
-        uiState = uiState,
-        showBottomBar = remember { mutableStateOf(true) },
-        onSearchClick = {},
-        onEateryClick = {},
-        onFavoriteExpand = {},
-        onCompareMenusClick = {},
-        onNotificationsClick = {},
-        onFavoriteClick = { _, _ -> },
-        onFilterClicked = {},
-        onResetFilters = {},
-        filters = listOf(
-            Filter.FromEateryFilter.North,
-            Filter.FromEateryFilter.West,
-            Filter.FromEateryFilter.Central,
-            Filter.FromEateryFilter.Swipes,
-            Filter.FromEateryFilter.BRB,
-            Filter.RequiresFavoriteEateries.Favorites,
-            Filter.FromEateryFilter.Under10,
-        ),
-        onAddPaymentMethodFilters = {},
-        onReload = {},
-        onErrorShown = {},
-        onUpdateNotificationFlowStatus = {},
-        isDarkMode = isSystemInDarkTheme(),
-        showPermissionDialog = false,
-    )
-}
-
 private fun LazyListScope.regularContent(
     eateriesApiResponse: EateryApiResponse.Success<List<Eatery>>,
     selectedFilters: List<Filter>,
@@ -843,7 +776,7 @@ private fun HomeStickyHeader(
                             color = currentColors.oppTextPrimary,
                             style = EateryBlueTypography.h2
                         )
-                        if (BuildConfig.ENABLE_NOTIFICATIONS && showNotificationBell) {
+                        if (showNotificationBell) {
                             Box(
                                 modifier = Modifier.clickable { onNotificationsClick() }
                             ) {
@@ -909,4 +842,82 @@ private fun HomeMainHeader(
  */
 object FirstTimeShown {
     var firstTimeShown = true
+}
+
+private val previewEateries = listOf(
+    PreviewData.mockEatery(1).copy(name = "Okenshields"),
+    PreviewData.mockEatery(2).copy(name = "Becker House Dining Room"),
+    PreviewData.mockEatery(3).copy(name = "Morrison Dining")
+)
+
+@DualModePreview
+@Composable
+private fun PreviewErrorContent() = EateryPreview {
+    PreviewHomeScreen(
+        uiState = HomeUiState(eateriesApiResponse = EateryApiResponse.Error)
+    )
+}
+
+@DualModePreview
+@Composable
+private fun PreviewSuccessContent() = EateryPreview {
+    PreviewHomeScreen(
+        uiState = HomeUiState(
+            eateriesApiResponse = EateryApiResponse.Success(previewEateries),
+            favoriteEateries = listOf(previewEateries.first()),
+            nearestEateries = previewEateries
+        )
+    )
+}
+
+@DualModePreview
+@Composable
+private fun PreviewUnreadNotificationsContent() = EateryPreview {
+    PreviewHomeScreen(
+        uiState = HomeUiState(
+            eateriesApiResponse = EateryApiResponse.Success(previewEateries),
+            nearestEateries = previewEateries,
+            hasUnreadNotifications = true,
+            showNotificationBell = true
+        )
+    )
+}
+
+@DualModePreview
+@Composable
+private fun PreviewPendingContent() = EateryPreview {
+    PreviewHomeScreen(
+        uiState = HomeUiState(eateriesApiResponse = EateryApiResponse.Pending)
+    )
+}
+
+@Composable
+private fun PreviewHomeScreen(uiState: HomeUiState) {
+    HomeScreenContent(
+        uiState = uiState,
+        showBottomBar = remember { mutableStateOf(true) },
+        onSearchClick = {},
+        onEateryClick = {},
+        onFavoriteExpand = {},
+        onCompareMenusClick = {},
+        onNotificationsClick = {},
+        onFavoriteClick = { _, _ -> },
+        onFilterClicked = {},
+        onResetFilters = {},
+        filters = listOf(
+            Filter.FromEateryFilter.North,
+            Filter.FromEateryFilter.West,
+            Filter.FromEateryFilter.Central,
+            Filter.FromEateryFilter.Swipes,
+            Filter.FromEateryFilter.BRB,
+            Filter.RequiresFavoriteEateries.Favorites,
+            Filter.FromEateryFilter.Under10,
+        ),
+        onAddPaymentMethodFilters = {},
+        onReload = {},
+        onErrorShown = {},
+        onUpdateNotificationFlowStatus = {},
+        isDarkMode = isSystemInDarkTheme(),
+        showPermissionDialog = false,
+    )
 }

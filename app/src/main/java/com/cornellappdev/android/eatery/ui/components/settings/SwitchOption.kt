@@ -9,14 +9,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
 fun SwitchOption(
     title: String,
-    description: String? = null,
-    onCheckedChange: (Boolean) -> Unit,
     checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    description: String? = null,
     enabled: Boolean = true,
     compact: Boolean = true,
 ) {
@@ -44,5 +46,37 @@ fun SwitchOption(
                 ),
             )
         }
+    )
+}
+
+@DualModePreview
+@Composable
+private fun SwitchOptionCheckedPreview() = EateryPreview {
+    SwitchOption(
+        title = "Favorite Item Notifications",
+        description = "Get notified when your favorite items are served",
+        checked = true,
+        onCheckedChange = {}
+    )
+}
+
+@DualModePreview
+@Composable
+private fun SwitchOptionUncheckedPreview() = EateryPreview {
+    SwitchOption(
+        title = "Pause All Notifications",
+        checked = false,
+        onCheckedChange = {}
+    )
+}
+
+@DualModePreview
+@Composable
+private fun SwitchOptionDisabledPreview() = EateryPreview {
+    SwitchOption(
+        title = "Pause All Notifications",
+        checked = false,
+        onCheckedChange = {},
+        enabled = false
     )
 }

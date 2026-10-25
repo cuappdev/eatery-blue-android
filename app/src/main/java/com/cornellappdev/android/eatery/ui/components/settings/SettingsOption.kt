@@ -12,16 +12,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
  * A tappable settings row. [compact] gives the denser cell used on the notification and privacy
@@ -30,9 +35,9 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 @Composable
 fun SettingsOption(
     title: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     description: String? = null,
-    modifier: Modifier = Modifier,
     compact: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -90,5 +95,38 @@ fun SettingsLineSeparator() {
         color = currentColors.accentPrimary,
         modifier = Modifier.fillMaxWidth(),
         thickness = 1.dp
+    )
+}
+
+@DualModePreview
+@Composable
+private fun SettingsOptionPreview() = EateryPreview {
+    SettingsOption(
+        title = "Notifications",
+        description = "Manage item notifications",
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_bell),
+                contentDescription = null,
+                tint = currentColors.textPrimary
+            )
+        }
+    )
+}
+
+@DualModePreview
+@Composable
+private fun CompactSettingsOptionPreview() = EateryPreview {
+    SettingsOption(
+        title = "Notification Settings",
+        description = "Choose which notifications you get",
+        compact = true,
+        trailingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chevron_right),
+                contentDescription = null,
+                tint = currentColors.contentBrand
+            )
+        }
     )
 }

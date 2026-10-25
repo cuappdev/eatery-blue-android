@@ -41,7 +41,7 @@ message UserPreferences {
   // True once POST_NOTIFICATIONS has been requested, so a denial isn't re-prompted.
   bool notificationPermissionRequested = 23;
 
-  bool cornellAppdevNotificationsDisabled = 24;
+  bool appDevNotificationsDisabled = 24;
 
   // Favorite item changes not yet synced to the backend, keyed by item name (true = favorited).
   map<string, bool> pendingFavoriteItemUpdates = 25;

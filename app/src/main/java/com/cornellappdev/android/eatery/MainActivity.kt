@@ -1,8 +1,8 @@
 package com.cornellappdev.android.eatery
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -69,7 +69,11 @@ class MainActivity : ComponentActivity() {
     lateinit var notificationRepository: NotificationRepository
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<IntentSenderRequest>
-    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) syncFcmTokenWithBackendIfAllowed()
+    }
     private val appUpdateManager by lazy { AppUpdateManagerFactory.create(applicationContext) }
     private var flexibleUpdateListener: InstallStateUpdatedListener? = null
 
@@ -82,12 +86,6 @@ class MainActivity : ComponentActivity() {
         activityResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartIntentSenderForResult()
         ) {}
-
-        notificationPermissionLauncher = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            if (granted) syncFcmTokenWithBackendIfAllowed()
-        }
 
         val hasOnboarded = runBlocking { userRepository.hasOnboarded() }
 
@@ -125,11 +123,7 @@ class MainActivity : ComponentActivity() {
         }
         lifecycle.addObserver(dataRefresher)
         checkForUpdateAvailability()
-        lifecycleScope.launch {
-            // Waits for onboarding so a first-launch prompt doesn't cover the intro screens.
-            userPreferencesRepository.hasOnboardedFlow.first { it }
-            requestNotificationPermissionIfNeeded()
-        }
+        lifecycleScope.launch { requestNotificationPermissionIfNeeded() }
         lifecycleScope.launch {
             configureTokens()
             syncFcmTokenWithBackendIfAllowed()
@@ -227,8 +221,13 @@ class MainActivity : ComponentActivity() {
         authTokenRepository.getTokens()
     }
 
-    @SuppressLint("InlinedApi")
     private suspend fun requestNotificationPermissionIfNeeded() {
+        // POST_NOTIFICATIONS is a runtime permission only on API 33+; older versions grant it.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+
+        // Waits for onboarding so a first-launch prompt doesn't cover the intro screens.
+        userPreferencesRepository.hasOnboardedFlow.first { it }
+
         // Prompt at most once; the notification settings screen is the way back in after a denial.
         if (userPreferencesRepository.notificationPermissionRequestedFlow.firstOrOnReadFailure(true)) {
             return

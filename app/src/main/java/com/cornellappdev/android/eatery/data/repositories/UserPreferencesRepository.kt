@@ -5,13 +5,8 @@ import com.cornellappdev.android.eatery.UserPreferences
 import com.cornellappdev.android.eatery.data.models.ThemePreference
 import com.cornellappdev.android.eatery.util.decryptData
 import com.cornellappdev.android.eatery.util.encryptData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -41,8 +36,8 @@ class UserPreferencesRepository @Inject constructor(
         userPreferencesFlow.map { !it.notificationsDisabled }
     val favoriteItemNotificationsEnabledFlow: Flow<Boolean> =
         userPreferencesFlow.map { !it.favoriteItemNotificationsDisabled }
-    val cornellAppdevNotificationsEnabledFlow: Flow<Boolean> =
-        userPreferencesFlow.map { !it.cornellAppdevNotificationsDisabled }
+    val appDevNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.appDevNotificationsDisabled }
     val notificationPermissionRequestedFlow: Flow<Boolean> =
         userPreferencesFlow.map { it.notificationPermissionRequested }
 
@@ -63,13 +58,6 @@ class UserPreferencesRepository @Inject constructor(
 
     val isLoggedInFlow: Flow<Boolean> = userPreferencesFlow.map { it.isLoggedIn }
 
-    val isDarkModeFlow : StateFlow<Boolean?> = userPreferencesFlow.map { prefs ->
-        if (prefs.hasIsDarkMode()) prefs.isDarkMode else null}
-        .stateIn(
-            CoroutineScope(Dispatchers.IO),
-            SharingStarted.Eagerly,
-            null
-        )
     val themePreferenceFlow: Flow<ThemePreference> = userPreferencesFlow.map { prefs ->
         when {
             !prefs.hasIsDarkMode() -> ThemePreference.SYSTEM
@@ -142,8 +130,8 @@ class UserPreferencesRepository @Inject constructor(
         setFavoriteItemNotificationsDisabled(!enabled)
     }
 
-    suspend fun setCornellAppdevNotificationsEnabled(enabled: Boolean) = setPref {
-        setCornellAppdevNotificationsDisabled(!enabled)
+    suspend fun setAppDevNotificationsEnabled(enabled: Boolean) = setPref {
+        setAppDevNotificationsDisabled(!enabled)
     }
 
     suspend fun addRecentSearch(eateryId: Int) = setPref {

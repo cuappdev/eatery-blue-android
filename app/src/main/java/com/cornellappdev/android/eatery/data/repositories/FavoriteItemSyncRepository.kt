@@ -71,8 +71,9 @@ class FavoriteItemSyncRepository @Inject constructor(
     }
 
     private suspend fun sync(itemName: String) {
-        val started = syncingItemsMutex.withLock { syncingItems.add(itemName) }
-        if (!started) return
+        // False when another call is already syncing this item; that call will pick up the change.
+        val claimedItem = syncingItemsMutex.withLock { syncingItems.add(itemName) }
+        if (!claimedItem) return
 
         try {
             // Loops in case the item is toggled again while a request is in flight.

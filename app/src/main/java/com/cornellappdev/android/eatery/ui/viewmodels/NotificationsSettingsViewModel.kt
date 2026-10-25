@@ -24,7 +24,7 @@ import javax.inject.Inject
 data class NotificationsSettingsUiState(
     val allNotificationsEnabled: Boolean = true,
     val favoriteItemNotificationsEnabled: Boolean = true,
-    val cornellAppdevNotificationsEnabled: Boolean = true,
+    val appDevNotificationsEnabled: Boolean = true,
     val permissionRequested: Boolean = false,
     /** The backend couldn't be reached, so the local values may not be what it will send. */
     val settingsLoadFailed: Boolean = false,
@@ -50,14 +50,14 @@ class NotificationsSettingsViewModel @Inject constructor(
     val uiState: StateFlow<NotificationsSettingsUiState> = combine(
         userPreferencesRepository.notificationsEnabledFlow,
         userPreferencesRepository.favoriteItemNotificationsEnabledFlow,
-        userPreferencesRepository.cornellAppdevNotificationsEnabledFlow,
+        userPreferencesRepository.appDevNotificationsEnabledFlow,
         userPreferencesRepository.notificationPermissionRequestedFlow,
         settingsLoadFailed,
-    ) { allNotificationsEnabled, favoriteItemEnabled, cornellAppdevEnabled, permissionRequested, loadFailed ->
+    ) { allNotificationsEnabled, favoriteItemEnabled, appDevEnabled, permissionRequested, loadFailed ->
         NotificationsSettingsUiState(
             allNotificationsEnabled = allNotificationsEnabled,
             favoriteItemNotificationsEnabled = favoriteItemEnabled,
-            cornellAppdevNotificationsEnabled = cornellAppdevEnabled,
+            appDevNotificationsEnabled = appDevEnabled,
             permissionRequested = permissionRequested,
             settingsLoadFailed = loadFailed,
         )
@@ -84,7 +84,7 @@ class NotificationsSettingsViewModel @Inject constructor(
                     userPreferencesRepository.setFavoriteItemNotificationsEnabled(
                         result.data.favoriteItemPushNotifications
                     )
-                    userPreferencesRepository.setCornellAppdevNotificationsEnabled(
+                    userPreferencesRepository.setAppDevNotificationsEnabled(
                         result.data.cornellAppdevPushNotifications
                     )
                     settingsLoadFailed.value = false
@@ -113,7 +113,7 @@ class NotificationsSettingsViewModel @Inject constructor(
                 favoriteItemPushNotifications = userPreferencesRepository
                     .favoriteItemNotificationsEnabledFlow.firstOrOnReadFailure(true),
                 cornellAppdevPushNotifications = userPreferencesRepository
-                    .cornellAppdevNotificationsEnabledFlow.firstOrOnReadFailure(true),
+                    .appDevNotificationsEnabledFlow.firstOrOnReadFailure(true),
             )
         } else {
             UserSettingsUpdate(
@@ -132,11 +132,11 @@ class NotificationsSettingsViewModel @Inject constructor(
         )
     }
 
-    fun setCornellAppdevNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
+    fun setAppDevNotificationsEnabled(enabled: Boolean) = viewModelScope.launch {
         updateSetting(
             enabled,
             UserSettingsUpdate(cornellAppdevPushNotifications = enabled),
-            userPreferencesRepository::setCornellAppdevNotificationsEnabled,
+            userPreferencesRepository::setAppDevNotificationsEnabled,
         )
     }
 

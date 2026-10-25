@@ -47,7 +47,7 @@ class HomeViewModel @Inject constructor(
         val selectedFilters: List<Filter> = emptyList(),
         val notificationFlowCompleted: Boolean = false,
         val hasUnreadNotifications: Boolean = false,
-        val showNotificationBell: Boolean = true,
+        val showNotificationBell: Boolean = BuildConfig.ENABLE_NOTIFICATIONS,
         val error: NetworkUiError? = null
     )
 
@@ -175,7 +175,8 @@ class HomeViewModel @Inject constructor(
             error = networkError,
             hasUnreadNotifications = notifications.any { !it.isRead },
             // Release hides the bell until the backend serves the hub; debug keeps it for review.
-            showNotificationBell = BuildConfig.DEBUG || hubAvailable,
+            showNotificationBell = BuildConfig.ENABLE_NOTIFICATIONS &&
+                    (BuildConfig.DEBUG || hubAvailable),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 

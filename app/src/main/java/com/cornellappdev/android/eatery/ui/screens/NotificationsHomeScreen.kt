@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.data.models.HubNotification
+import com.cornellappdev.android.eatery.ui.components.general.CENTERED_STATE_HEIGHT_FRACTION
 import com.cornellappdev.android.eatery.ui.components.general.ErrorContent
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
 import com.cornellappdev.android.eatery.ui.components.notifications.NotificationRow
@@ -48,7 +50,6 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationsHomeScreen(
     onBackClick: () -> Unit,
@@ -57,6 +58,24 @@ fun NotificationsHomeScreen(
     val uiState by notificationsHomeViewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by notificationsHomeViewModel.isRefreshing.collectAsStateWithLifecycle()
 
+    NotificationsHomeScreenContent(
+        uiState = uiState,
+        isRefreshing = isRefreshing,
+        onBackClick = onBackClick,
+        onRefresh = notificationsHomeViewModel::pullToRefresh,
+        onTryAgain = notificationsHomeViewModel::refresh,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NotificationsHomeScreenContent(
+    uiState: NotificationsHomeViewState,
+    isRefreshing: Boolean,
+    onBackClick: () -> Unit,
+    onRefresh: () -> Unit,
+    onTryAgain: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .background(color = currentColors.backgroundDefault)
@@ -76,13 +95,11 @@ fun NotificationsHomeScreen(
                 }
             }
 
-            is NotificationsHomeViewState.Error -> NotificationsErrorState(
-                onTryAgain = notificationsHomeViewModel::refresh
-            )
+            is NotificationsHomeViewState.Error -> NotificationsErrorState(onTryAgain = onTryAgain)
 
             is NotificationsHomeViewState.Loaded -> PullToRefreshBox(
                 isRefreshing = isRefreshing,
-                onRefresh = notificationsHomeViewModel::pullToRefresh,
+                onRefresh = onRefresh,
                 modifier = Modifier.fillMaxSize()
             ) {
                 // The pull gesture only reaches scrollable content, so the empty state is
@@ -91,7 +108,9 @@ fun NotificationsHomeScreen(
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         item {
                             NotificationsEmptyState(
-                                modifier = Modifier.fillParentMaxHeight(0.7f)
+                                modifier = Modifier.fillParentMaxHeight(
+                                    CENTERED_STATE_HEIGHT_FRACTION
+                                )
                             )
                         }
                     }
@@ -188,7 +207,7 @@ private fun NotificationsEmptyState(modifier: Modifier = Modifier) {
 private fun NotificationsErrorState(onTryAgain: () -> Unit) {
     Box(
         modifier = Modifier
-            .fillMaxHeight(0.7f)
+            .fillMaxHeight(CENTERED_STATE_HEIGHT_FRACTION)
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
@@ -199,8 +218,54 @@ private fun NotificationsErrorState(onTryAgain: () -> Unit) {
     }
 }
 
+@Composable
+private fun PreviewNotificationsHomeScreen(uiState: NotificationsHomeViewState) {
+    NotificationsHomeScreenContent(
+        uiState = uiState,
+        isRefreshing = false,
+        onBackClick = {},
+        onRefresh = {},
+        onTryAgain = {},
+    )
+}
+
 @DualModePreview
 @Composable
 private fun NotificationsHomeScreenPreview() = EateryPreview {
-    NotificationsHomeScreen(onBackClick = {})
+    PreviewNotificationsHomeScreen(
+        uiState = NotificationsHomeViewState.Loaded(
+            listOf(
+                HubNotification(
+                    id = 1,
+                    title = "Chicken Tenders",
+                    body = "Now serving at Morrison Dining",
+                    isRead = false
+                ),
+                HubNotification(
+                    id = 2,
+                    title = "Mac and Cheese",
+                    body = "Now serving at Okenshields",
+                    isRead = true
+                ),
+            )
+        )
+    )
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsHomeEmptyPreview() = EateryPreview {
+    PreviewNotificationsHomeScreen(uiState = NotificationsHomeViewState.Loaded(emptyList()))
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsHomeLoadingPreview() = EateryPreview {
+    PreviewNotificationsHomeScreen(uiState = NotificationsHomeViewState.Loading)
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsHomeErrorPreview() = EateryPreview {
+    PreviewNotificationsHomeScreen(uiState = NotificationsHomeViewState.Error)
 }

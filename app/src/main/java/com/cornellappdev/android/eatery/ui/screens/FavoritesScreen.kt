@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -237,7 +236,7 @@ private fun FavoritesScreenErrorPreview() = EateryPreview {
 
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
-private fun ColumnScope.MainScrollableContent(
+private fun MainScrollableContent(
     toggle: Boolean,
     setToggle: (Boolean) -> Unit,
     favoritesScreenViewState: FavoritesScreenViewState.Loaded,

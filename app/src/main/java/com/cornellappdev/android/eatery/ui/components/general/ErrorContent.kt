@@ -25,6 +25,11 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
+
+/** Share of the space below the header used to center full-screen error and empty states. */
+const val CENTERED_STATE_HEIGHT_FRACTION = 0.7f
 
 /**
  * Full-screen network error with a [title] and a Try Again button.
@@ -82,4 +87,10 @@ fun ErrorContent(
             )
         }
     }
+}
+
+@DualModePreview
+@Composable
+private fun ErrorContentPreview() = EateryPreview {
+    ErrorContent(onTryAgain = {})
 }
