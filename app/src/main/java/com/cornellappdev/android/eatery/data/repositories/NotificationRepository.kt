@@ -31,6 +31,7 @@ class NotificationRepository @Inject constructor(
     @ApplicationContext private val context: Context,
     private val networkApi: NetworkApi,
     private val userPreferencesRepository: UserPreferencesRepository,
+    private val authTokenRepository: AuthTokenRepository,
 ) {
     companion object {
         private const val LOG_TAG = "NotificationRepository"
@@ -56,6 +57,7 @@ class NotificationRepository @Inject constructor(
      */
     suspend fun registerFcmToken(token: String) {
         if (!areNotificationsAllowedBySystem(context)) return
+        authTokenRepository.awaitTokensConfigured()
 
         registerTokenMutex.withLock {
             if (token == registeredFcmToken) return
@@ -83,6 +85,7 @@ class NotificationRepository @Inject constructor(
     val hubAvailableFlow: StateFlow<Boolean> = _hubAvailableFlow.asStateFlow()
 
     suspend fun fetchNotifications(): Result<Unit> {
+        authTokenRepository.awaitTokensConfigured()
         val result = resultOfNetworkCall {
             _notificationsFlow.value = networkApi.getNotifications().notifications
         }

@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Result
-import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.NotificationRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
@@ -25,7 +24,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -38,7 +36,6 @@ class HomeViewModel @Inject constructor(
     private val eateryRepository: EateryRepository,
     private val userRepository: UserRepository,
     private val notificationRepository: NotificationRepository,
-    private val authTokenRepository: AuthTokenRepository
 ) : ViewModel() {
     data class HomeUiState(
         val eateriesApiResponse: EateryApiResponse<List<Eatery>> = EateryApiResponse.Pending,
@@ -247,30 +244,27 @@ class HomeViewModel @Inject constructor(
         eateryRepository.pingEateries()
     }
 
-    fun updateFavoritesIfTokensConfigured() {
-        if (authTokenRepository.tokensConfiguredFlow.value) {
-            viewModelScope.launch {
-                when (val result = userRepository.updateFavorites()) {
-                    is Result.Success -> {
-                        _error.value = null
-                    }
+    fun updateFavorites() {
+        viewModelScope.launch {
+            when (val result = userRepository.updateFavorites()) {
+                is Result.Success -> {
+                    _error.value = null
+                }
 
-                    is Result.Error -> {
-                        _error.value =
-                            NetworkUiError.Failed(NetworkAction.UpdateFavorites, result.error)
-                    }
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.UpdateFavorites, result.error)
                 }
             }
         }
     }
 
     /**
-     * Refreshes notifications for the bell's unread dot, waiting for auth tokens on launch.
-     * Failures are ignored since a missing dot isn't worth an error toast.
+     * Refreshes notifications for the bell's unread dot. Failures are ignored since a missing dot
+     * isn't worth an error toast.
      */
-    fun refreshNotificationsWhenTokensConfigured() {
+    fun refreshNotifications() {
         viewModelScope.launch {
-            authTokenRepository.tokensConfiguredFlow.first { it }
             notificationRepository.fetchNotifications()
         }
     }

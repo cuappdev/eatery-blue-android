@@ -7,6 +7,7 @@ import com.cornellappdev.android.eatery.data.models.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,23 +26,32 @@ class AuthTokenRepository @Inject constructor(
 
     /**
      * Fetches the initial token pair from the API using the device ID.
-     * Called on app launch.
+     * Called on app launch. Marks tokens as configured even on failure, so requests waiting in
+     * [awaitTokensConfigured] go ahead and the auth interceptor can retry with a refresh.
      */
-    suspend fun getTokens(): Result<Unit> = resultOfNetworkCall {
-        val deviceId = userPreferencesRepository.getOrCreateDeviceId()
-        val tokenResponse = networkApi.verifyToken(DeviceId(deviceId))
-        val accessToken = tokenResponse.accessToken
-            ?: throw IllegalStateException("verifyToken returned null access token")
-        val refreshToken = tokenResponse.refreshToken
-            ?: throw IllegalStateException("verifyToken returned null refresh token")
-        storeTokens(
-            accessToken = accessToken,
-            refreshToken = refreshToken
-        )
+    suspend fun getTokens(): Result<Unit> = try {
+        resultOfNetworkCall {
+            val deviceId = userPreferencesRepository.getOrCreateDeviceId()
+            val tokenResponse = networkApi.verifyToken(DeviceId(deviceId))
+            val accessToken = tokenResponse.accessToken
+                ?: throw IllegalStateException("verifyToken returned null access token")
+            val refreshToken = tokenResponse.refreshToken
+                ?: throw IllegalStateException("verifyToken returned null refresh token")
+            storeTokens(
+                accessToken = accessToken,
+                refreshToken = refreshToken
+            )
+        }
+    } finally {
+        _tokensConfiguredFlow.value = true
     }
 
-    fun markTokensAsConfigured() {
-        _tokensConfiguredFlow.value = true
+    /**
+     * Suspends until [getTokens] has finished on launch. Repositories call this before
+     * authenticated requests so callers don't have to know about token setup.
+     */
+    suspend fun awaitTokensConfigured() {
+        tokensConfiguredFlow.first { it }
     }
 
     /**

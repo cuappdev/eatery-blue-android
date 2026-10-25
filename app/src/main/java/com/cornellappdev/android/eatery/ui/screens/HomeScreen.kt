@@ -134,13 +134,13 @@ fun HomeScreen(
     }
 
     LaunchedEffect(Unit) {
-        homeViewModel.updateFavoritesIfTokensConfigured()
+        homeViewModel.updateFavorites()
     }
 
     // Refreshed on every resume so a push that arrived while the app was backgrounded, or
     // notifications read in the hub, are reflected in the bell's unread dot.
     LifecycleResumeEffect(Unit) {
-        homeViewModel.refreshNotificationsWhenTokensConfigured()
+        homeViewModel.refreshNotifications()
         onPauseOrDispose { }
     }
 

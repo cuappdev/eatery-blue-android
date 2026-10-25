@@ -29,6 +29,7 @@ class UserRepository @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val getAccountRepository: GETAccountRepository,
     private val favoriteItemSyncRepository: FavoriteItemSyncRepository,
+    private val authTokenRepository: AuthTokenRepository,
 ) {
     private val _loadedUser: MutableStateFlow<User?> = MutableStateFlow(null)
 
@@ -65,6 +66,7 @@ class UserRepository @Inject constructor(
             return Result.Success(Unit)
         }
 
+        authTokenRepository.awaitTokensConfigured()
         return resultOfNetworkCall {
             val matches = networkApi.getFavoriteMatches()
             _favoriteEateriesFlow.value = matches.mapNotNull { it.eateryName }

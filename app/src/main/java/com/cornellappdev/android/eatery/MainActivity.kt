@@ -115,22 +115,17 @@ class MainActivity : ComponentActivity() {
                 eateryRepository.pingEateries()
                 // Picks up notifications being turned on in system settings while away, and
                 // retries anything that failed while the backend was unreachable or not deployed.
-                if (authTokenRepository.tokensConfiguredFlow.value) {
-                    syncFcmTokenWithBackendIfAllowed()
-                    favoriteItemSyncRepository.syncPendingFavorites()
-                }
+                // Both wait for auth tokens on launch, and repeats are deduplicated.
+                syncFcmTokenWithBackendIfAllowed()
+                favoriteItemSyncRepository.syncPendingFavorites()
             }
         }
         lifecycle.addObserver(dataRefresher)
         checkForUpdateAvailability()
         lifecycleScope.launch { requestNotificationPermissionIfNeeded() }
-        lifecycleScope.launch {
-            configureTokens()
-            syncFcmTokenWithBackendIfAllowed()
-            userRepository.updateFavorites()
-            favoriteItemSyncRepository.syncPendingFavorites()
-            authTokenRepository.markTokensAsConfigured()
-        }
+        // Favorites, FCM registration and pending favorite syncs wait on this inside their
+        // repositories; onResume kicks off the latter two and HomeScreen loads favorites.
+        lifecycleScope.launch { authTokenRepository.getTokens() }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -215,10 +210,6 @@ class MainActivity : ComponentActivity() {
     private fun unregisterFlexibleUpdateListener() {
         flexibleUpdateListener?.let(appUpdateManager::unregisterListener)
         flexibleUpdateListener = null
-    }
-
-    private suspend fun configureTokens() {
-        authTokenRepository.getTokens()
     }
 
     private suspend fun requestNotificationPermissionIfNeeded() {
