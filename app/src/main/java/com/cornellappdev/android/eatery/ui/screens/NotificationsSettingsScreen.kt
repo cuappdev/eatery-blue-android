@@ -52,8 +52,6 @@ import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsSettingsUiSta
 import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsSettingsViewModel
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
-import com.cornellappdev.android.eatery.util.areNotificationsAllowedBySystem
-import com.cornellappdev.android.eatery.util.needsNotificationPermissionRequest
 
 @Composable
 fun NotificationsSettingsScreen(
@@ -73,14 +71,13 @@ fun NotificationsSettingsScreen(
         }
     }
 
-    var systemNotificationsAllowed by remember {
-        mutableStateOf(areNotificationsAllowedBySystem(context))
-    }
+    val systemNotificationsAllowed by notificationsSettingsViewModel.systemNotificationsAllowed
+        .collectAsStateWithLifecycle()
 
     // Recheck on resume so returning from system settings, or changes made on another device,
     // are reflected without reopening the screen.
     LifecycleResumeEffect(Unit) {
-        systemNotificationsAllowed = areNotificationsAllowedBySystem(context)
+        notificationsSettingsViewModel.refreshSystemNotificationsAllowed()
         notificationsSettingsViewModel.loadSettingsFromBackend()
         onPauseOrDispose { }
     }
@@ -94,7 +91,7 @@ fun NotificationsSettingsScreen(
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
-        systemNotificationsAllowed = areNotificationsAllowedBySystem(context)
+        notificationsSettingsViewModel.refreshSystemNotificationsAllowed()
         if (granted && pendingEnablePermissionRequest) {
             notificationsSettingsViewModel.setAllNotificationsEnabled(true)
         }
@@ -117,7 +114,7 @@ fun NotificationsSettingsScreen(
             if (
                 isEnabled &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                needsNotificationPermissionRequest(context)
+                notificationsSettingsViewModel.needsNotificationPermissionRequest()
             ) {
                 pendingEnablePermissionRequest = true
                 notificationsSettingsViewModel.markPermissionRequested()

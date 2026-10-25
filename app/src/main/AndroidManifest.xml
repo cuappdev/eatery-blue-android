@@ -163,7 +163,7 @@
         </activity-alias>
 
         <service
-            android:name=".util.FirebaseMessaging"
+            android:name=".notifications.EateryMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

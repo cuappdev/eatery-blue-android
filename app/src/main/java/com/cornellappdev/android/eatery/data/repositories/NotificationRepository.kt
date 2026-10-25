@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.data.repositories
 
-import android.content.Context
 import android.util.Log
 import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.FcmToken
@@ -10,9 +9,7 @@ import com.cornellappdev.android.eatery.data.models.NotificationIds
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.UserSettings
 import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
-import com.cornellappdev.android.eatery.util.areNotificationsAllowedBySystem
-import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.cornellappdev.android.eatery.notifications.NotificationPermissionChecker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,7 +25,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class NotificationRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+    private val permissionChecker: NotificationPermissionChecker,
     private val networkApi: NetworkApi,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val authTokenRepository: AuthTokenRepository,
@@ -56,7 +53,7 @@ class NotificationRepository @Inject constructor(
      * Startup and resume can both ask at once, so an already-registered token is skipped.
      */
     suspend fun registerFcmToken(token: String) {
-        if (!areNotificationsAllowedBySystem(context)) return
+        if (!permissionChecker.areNotificationsAllowedBySystem()) return
         authTokenRepository.awaitTokensConfigured()
 
         registerTokenMutex.withLock {
@@ -74,7 +71,7 @@ class NotificationRepository @Inject constructor(
     /** Whether a push should be shown: allowed by the OS and not paused in-app. */
     suspend fun canShowNotifications(): Boolean =
         userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(false) &&
-                areNotificationsAllowedBySystem(context)
+                permissionChecker.areNotificationsAllowedBySystem()
 
     private val _hubAvailableFlow = MutableStateFlow(true)
 

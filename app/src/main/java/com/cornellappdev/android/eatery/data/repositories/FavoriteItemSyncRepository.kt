@@ -4,7 +4,6 @@ import android.util.Log
 import com.cornellappdev.android.eatery.data.NetworkApi
 import com.cornellappdev.android.eatery.data.models.FavoriteItem
 import com.cornellappdev.android.eatery.data.models.Result
-import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

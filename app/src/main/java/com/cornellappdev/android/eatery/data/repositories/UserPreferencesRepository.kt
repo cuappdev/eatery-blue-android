@@ -1,12 +1,15 @@
 package com.cornellappdev.android.eatery.data.repositories
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import com.cornellappdev.android.eatery.UserPreferences
 import com.cornellappdev.android.eatery.data.models.ThemePreference
 import com.cornellappdev.android.eatery.util.decryptData
 import com.cornellappdev.android.eatery.util.encryptData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -265,3 +268,15 @@ class UserPreferencesRepository @Inject constructor(
         return if (rawValue.isEmpty()) "" else encryptData(alias, rawValue)
     }
 }
+
+/**
+ * Reads a stored preference, falling back to [default] when DataStore can't be read rather than
+ * propagating the IOException to a caller that has no way to recover from it.
+ */
+suspend fun Flow<Boolean>.firstOrOnReadFailure(default: Boolean): Boolean =
+    try {
+        first()
+    } catch (e: IOException) {
+        Log.w("UserPreferences", "Failed to read a stored preference", e)
+        default
+    }

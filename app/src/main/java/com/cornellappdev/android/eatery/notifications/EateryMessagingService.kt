@@ -1,4 +1,4 @@
-package com.cornellappdev.android.eatery.util
+package com.cornellappdev.android.eatery.notifications
 
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -25,17 +25,21 @@ import javax.inject.Inject
  * or one the system displayed while the app was backgrounded.
  */
 fun Intent.isNotificationTap(): Boolean =
-    action == FirebaseMessaging.BACKEND_CLICK_ACTION ||
-            getBooleanExtra(FirebaseMessaging.EXTRA_OPEN_NOTIFICATION_HUB, false) ||
+    action == EateryMessagingService.BACKEND_CLICK_ACTION ||
+            getBooleanExtra(EateryMessagingService.EXTRA_OPEN_NOTIFICATION_HUB, false) ||
             extras?.containsKey("google.message_id") == true
 
+/**
+ * Receives FCM pushes and token updates, showing notifications that arrive while the app is
+ * foregrounded.
+ */
 @AndroidEntryPoint
-class FirebaseMessaging : FirebaseMessagingService() {
+class EateryMessagingService : FirebaseMessagingService() {
     @Inject
     lateinit var notificationRepository: NotificationRepository
 
     companion object {
-        const val LOG_TAG = "FirebaseMessaging"
+        const val LOG_TAG = "EateryMessagingService"
         private const val DEFAULT_TITLE = "Eatery Blue"
 
         /** Marks intents from notifications this service builds while the app is foregrounded. */

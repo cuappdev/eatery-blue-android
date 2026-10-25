@@ -25,10 +25,9 @@ import com.cornellappdev.android.eatery.ui.theme.AppColorTheme
 import com.cornellappdev.android.eatery.ui.theme.ColorTheme
 import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.LockScreenOrientation
-import com.cornellappdev.android.eatery.util.areNotificationsAllowedBySystem
-import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
-import com.cornellappdev.android.eatery.util.isNotificationTap
-import com.cornellappdev.android.eatery.util.needsNotificationPermissionRequest
+import com.cornellappdev.android.eatery.data.repositories.firstOrOnReadFailure
+import com.cornellappdev.android.eatery.notifications.NotificationPermissionChecker
+import com.cornellappdev.android.eatery.notifications.isNotificationTap
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.InstallStateUpdatedListener
@@ -67,6 +66,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var notificationRepository: NotificationRepository
+
+    @Inject
+    lateinit var notificationPermissionChecker: NotificationPermissionChecker
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<IntentSenderRequest>
     private val notificationPermissionLauncher = registerForActivityResult(
@@ -226,14 +228,14 @@ class MainActivity : ComponentActivity() {
 
         val notificationsEnabled =
             userPreferencesRepository.notificationsEnabledFlow.firstOrOnReadFailure(false)
-        if (notificationsEnabled && needsNotificationPermissionRequest(this)) {
+        if (notificationsEnabled && notificationPermissionChecker.needsPermissionRequest()) {
             userPreferencesRepository.setNotificationPermissionRequested(true)
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 
     private fun syncFcmTokenWithBackendIfAllowed() {
-        if (!areNotificationsAllowedBySystem(this)) return
+        if (!notificationPermissionChecker.areNotificationsAllowedBySystem()) return
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {

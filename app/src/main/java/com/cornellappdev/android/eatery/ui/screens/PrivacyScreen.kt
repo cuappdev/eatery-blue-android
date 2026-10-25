@@ -40,7 +40,6 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.PrivacyViewModel
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
-import com.cornellappdev.android.eatery.util.areNotificationsAllowedBySystem
 import com.google.firebase.analytics.FirebaseAnalytics
 
 @Composable
@@ -52,13 +51,13 @@ fun PrivacyScreen(
     val context = LocalContext.current
     val uriCurrent = LocalUriHandler.current
     val analyticsDisabled by privacyViewModel.analyticsDisabledFlow.collectAsStateWithLifecycle()
+    val notificationsAllowed by privacyViewModel.notificationsAllowed.collectAsStateWithLifecycle()
 
     // Re-read on resume, since the user may have changed these in system settings.
     var locationAllowed by remember { mutableStateOf(isLocationAllowed(context)) }
-    var notificationsAllowed by remember { mutableStateOf(areNotificationsAllowedBySystem(context)) }
     LifecycleResumeEffect(Unit) {
         locationAllowed = isLocationAllowed(context)
-        notificationsAllowed = areNotificationsAllowedBySystem(context)
+        privacyViewModel.refreshNotificationsAllowed()
         onPauseOrDispose { }
     }
 

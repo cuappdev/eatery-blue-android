@@ -7,13 +7,15 @@ import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.NotificationRepository
-import com.cornellappdev.android.eatery.util.firstOrOnReadFailure
+import com.cornellappdev.android.eatery.data.repositories.firstOrOnReadFailure
+import com.cornellappdev.android.eatery.notifications.NotificationPermissionChecker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -34,10 +36,24 @@ data class NotificationsSettingsUiState(
 class NotificationsSettingsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val notificationRepository: NotificationRepository,
+    private val permissionChecker: NotificationPermissionChecker,
 ) : ViewModel() {
     companion object {
         private const val LOG_TAG = "NotificationsSettingsVM"
     }
+
+    private val _systemNotificationsAllowed =
+        MutableStateFlow(permissionChecker.areNotificationsAllowedBySystem())
+
+    /** Whether the OS allows notifications; see [refreshSystemNotificationsAllowed]. */
+    val systemNotificationsAllowed: StateFlow<Boolean> = _systemNotificationsAllowed.asStateFlow()
+
+    /** Re-reads the OS permission, which can change in system settings or via the prompt. */
+    fun refreshSystemNotificationsAllowed() {
+        _systemNotificationsAllowed.value = permissionChecker.areNotificationsAllowedBySystem()
+    }
+
+    fun needsNotificationPermissionRequest(): Boolean = permissionChecker.needsPermissionRequest()
 
     private val _syncErrorFlow = MutableSharedFlow<Unit>()
     val syncErrorFlow = _syncErrorFlow.asSharedFlow()
