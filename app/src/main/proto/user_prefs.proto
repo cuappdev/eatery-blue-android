@@ -36,7 +36,6 @@ message UserPreferences {
   // Notification settings are stored as disabled flags so existing users default to enabled.
   bool notificationsDisabled = 19;
   bool favoriteItemNotificationsDisabled = 20;
-  reserved 21, 22;
 
   // True once POST_NOTIFICATIONS has been requested, so a denial isn't re-prompted.
   bool notificationPermissionRequested = 23;
