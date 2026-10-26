@@ -8,7 +8,6 @@ import com.cornellappdev.android.eatery.data.models.NetworkError
 import com.cornellappdev.android.eatery.data.models.NotificationIds
 import com.cornellappdev.android.eatery.data.models.NotificationSettings
 import com.cornellappdev.android.eatery.data.models.Result
-import com.cornellappdev.android.eatery.data.models.UserSettings
 import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
 import com.cornellappdev.android.eatery.notifications.NotificationPermissionChecker
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +18,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -57,12 +59,13 @@ class NotificationRepository @Inject constructor(
      */
     suspend fun registerFcmToken(token: String) {
         if (!permissionChecker.areNotificationsAllowedBySystem()) return
-        authTokenRepository.awaitTokensConfigured()
 
         registerTokenMutex.withLock {
             if (token == registeredFcmToken) return
 
-            val result = resultOfNetworkCall { networkApi.enableNotifications(FcmToken(token)) }
+            val result = authTokenRepository.authorizedNetworkCall {
+                networkApi.enableNotifications(FcmToken(token))
+            }
             if (result is Result.Error) {
                 Log.w(LOG_TAG, "Failed to register FCM token: ${result.error}")
             } else {
@@ -85,8 +88,7 @@ class NotificationRepository @Inject constructor(
     val hubAvailableFlow: StateFlow<Boolean> = _hubAvailableFlow.asStateFlow()
 
     suspend fun fetchNotifications(): Result<Unit> {
-        authTokenRepository.awaitTokensConfigured()
-        val result = resultOfNetworkCall {
+        val result = authTokenRepository.authorizedNetworkCall {
             _notificationsFlow.value = networkApi.getNotifications().notifications
         }
         when (result) {
@@ -101,15 +103,26 @@ class NotificationRepository @Inject constructor(
         return result
     }
 
-    suspend fun markAsRead(ids: List<Int>): Result<Unit> = resultOfNetworkCall {
+    suspend fun markAsRead(ids: List<Int>): Result<Unit> = authTokenRepository.authorizedNetworkCall {
         networkApi.markNotificationsRead(NotificationIds(ids))
         _notificationsFlow.update { notifications ->
             notifications.map { if (it.id in ids) it.copy(isRead = true) else it }
         }
     }
 
-    /** Serializes settings updates and backend loads. */
+    /** Serializes settings requests and backend loads. */
     private val settingsMutex = Mutex()
+
+    private enum class Setting { ALL, FAVORITE_ITEMS, APP_DEV }
+
+    /** Source of ids for settings updates. */
+    private val settingsUpdateCount = AtomicLong()
+
+    /** Settings updates saved locally whose request hasn't finished yet. */
+    private val inFlightSettingsUpdates = AtomicInteger()
+
+    /** The id of the newest update to each setting; older queued updates are superseded. */
+    private val latestSettingUpdates = ConcurrentHashMap<Setting, Long>()
 
     /** The user's notification settings as stored on this device. */
     val settingsFlow: Flow<NotificationSettings> = combine(
@@ -136,14 +149,18 @@ class NotificationRepository @Inject constructor(
             return Result.Success(Unit)
         }
 
-        when (val result = getSettings()) {
+        when (val result = authTokenRepository.authorizedNetworkCall { networkApi.getSettings() }) {
             is Result.Success -> {
-                userPreferencesRepository.setFavoriteItemNotificationsEnabled(
-                    result.data.favoriteItemPushNotifications
-                )
-                userPreferencesRepository.setAppDevNotificationsEnabled(
-                    result.data.cornellAppdevPushNotifications
-                )
+                // A toggle that's already shown but not yet sent is newer than the backend's
+                // values, so don't overwrite it.
+                if (inFlightSettingsUpdates.get() == 0) {
+                    userPreferencesRepository.setFavoriteItemNotificationsEnabled(
+                        result.data.favoriteItemPushNotifications
+                    )
+                    userPreferencesRepository.setAppDevNotificationsEnabled(
+                        result.data.cornellAppdevPushNotifications
+                    )
+                }
                 Result.Success(Unit)
             }
 
@@ -177,11 +194,17 @@ class NotificationRepository @Inject constructor(
                 cornellAppdevPushNotifications = false,
             )
         }
-        return updateSetting(enabled, update, userPreferencesRepository::setNotificationsEnabled)
+        return updateSetting(
+            Setting.ALL,
+            enabled,
+            update,
+            userPreferencesRepository::setNotificationsEnabled,
+        )
     }
 
     suspend fun setFavoriteItemNotificationsEnabled(enabled: Boolean): Result<Unit> =
         updateSetting(
+            Setting.FAVORITE_ITEMS,
             enabled,
             UserSettingsUpdate(favoriteItemPushNotifications = enabled),
             userPreferencesRepository::setFavoriteItemNotificationsEnabled,
@@ -189,40 +212,47 @@ class NotificationRepository @Inject constructor(
 
     suspend fun setAppDevNotificationsEnabled(enabled: Boolean): Result<Unit> =
         updateSetting(
+            Setting.APP_DEV,
             enabled,
             UserSettingsUpdate(cornellAppdevPushNotifications = enabled),
             userPreferencesRepository::setAppDevNotificationsEnabled,
         )
 
     /**
-     * Saves [enabled] locally first so the UI updates immediately, then syncs [update] to the
-     * backend, reverting the local value if that fails. Runs under [settingsMutex] so updates reach
-     * the backend in tap order and a resume-triggered load can't overwrite one in flight.
+     * Saves [enabled] locally right away so the UI updates on tap, then syncs [update] to the
+     * backend under [settingsMutex] so requests go out in tap order. If the [setting] is toggled
+     * again before this one is sent, only the newest is sent; if a request fails, the local value
+     * is reverted unless a newer toggle has already replaced it.
      */
     private suspend fun updateSetting(
+        setting: Setting,
         enabled: Boolean,
         update: UserSettingsUpdate,
         setLocal: suspend (Boolean) -> Unit,
-    ): Result<Unit> = settingsMutex.withLock {
-        setLocal(enabled)
+    ): Result<Unit> {
+        inFlightSettingsUpdates.incrementAndGet()
+        try {
+            val updateId = settingsUpdateCount.incrementAndGet()
+            latestSettingUpdates[setting] = updateId
+            setLocal(enabled)
 
-        when (val result = updateSettings(update)) {
-            is Result.Success -> Result.Success(Unit)
-            is Result.Error -> {
-                Log.w(LOG_TAG, "Failed to sync notification setting: ${result.error}")
-                setLocal(!enabled)
-                result
+            return settingsMutex.withLock {
+                if (latestSettingUpdates[setting] != updateId) return Result.Success(Unit)
+
+                when (val result = authTokenRepository.authorizedNetworkCall {
+                    networkApi.updateSettings(update)
+                }) {
+                    is Result.Success -> Result.Success(Unit)
+                    is Result.Error -> {
+                        Log.w(LOG_TAG, "Failed to sync notification setting: ${result.error}")
+                        if (latestSettingUpdates[setting] != updateId) return Result.Success(Unit)
+                        setLocal(!enabled)
+                        result
+                    }
+                }
             }
+        } finally {
+            inFlightSettingsUpdates.decrementAndGet()
         }
-    }
-
-    private suspend fun getSettings(): Result<UserSettings> {
-        authTokenRepository.awaitTokensConfigured()
-        return resultOfNetworkCall { networkApi.getSettings() }
-    }
-
-    private suspend fun updateSettings(update: UserSettingsUpdate): Result<UserSettings> {
-        authTokenRepository.awaitTokensConfigured()
-        return resultOfNetworkCall { networkApi.updateSettings(update) }
     }
 }

@@ -75,13 +75,11 @@ class FavoriteItemSyncRepository @Inject constructor(
      * a toggle made mid-request is sent right after it, and a duplicate call finds nothing pending.
      */
     private suspend fun sync(itemName: String) {
-        authTokenRepository.awaitTokensConfigured()
-
         itemMutexes.getOrPut(itemName) { Mutex() }.withLock {
             val desiredState = userPreferencesRepository.pendingFavoriteItemUpdatesFlow
                 .first()[itemName] ?: return
 
-            val result = resultOfNetworkCall {
+            val result = authTokenRepository.authorizedNetworkCall {
                 if (desiredState) {
                     networkApi.addFavoriteItem(FavoriteItem(itemName))
                 } else {

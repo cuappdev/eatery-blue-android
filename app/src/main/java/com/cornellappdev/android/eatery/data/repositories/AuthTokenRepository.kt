@@ -27,7 +27,7 @@ class AuthTokenRepository @Inject constructor(
     /**
      * Fetches the initial token pair from the API using the device ID.
      * Called on app launch. Marks tokens as configured even on failure, so requests waiting in
-     * [awaitTokensConfigured] go ahead and the auth interceptor can retry with a refresh.
+     * [authorizedNetworkCall] go ahead and the auth interceptor can retry with a refresh.
      */
     suspend fun getTokens(): Result<Unit> = try {
         resultOfNetworkCall {
@@ -47,11 +47,13 @@ class AuthTokenRepository @Inject constructor(
     }
 
     /**
-     * Suspends until [getTokens] has finished on launch. Repositories call this before
-     * authenticated requests so callers don't have to know about token setup.
+     * Runs [request] like [resultOfNetworkCall], but first waits for [getTokens] to finish on
+     * launch. Use for requests that need an access token, so callers don't have to know about
+     * token setup.
      */
-    suspend fun awaitTokensConfigured() {
+    suspend fun <T> authorizedNetworkCall(request: suspend () -> T): Result<T> {
         tokensConfiguredFlow.first { it }
+        return resultOfNetworkCall(request)
     }
 
     /**

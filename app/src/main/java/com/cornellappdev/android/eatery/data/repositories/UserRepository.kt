@@ -66,8 +66,7 @@ class UserRepository @Inject constructor(
             return Result.Success(Unit)
         }
 
-        authTokenRepository.awaitTokensConfigured()
-        return resultOfNetworkCall {
+        return authTokenRepository.authorizedNetworkCall {
             val matches = networkApi.getFavoriteMatches()
             _favoriteEateriesFlow.value = matches.mapNotNull { it.eateryName }
             _favoriteItemsFlow.value = run {
