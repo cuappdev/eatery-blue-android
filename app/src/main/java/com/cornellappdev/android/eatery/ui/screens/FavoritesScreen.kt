@@ -3,11 +3,11 @@ package com.cornellappdev.android.eatery.ui.screens
 import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCard
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,14 +15,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,8 +50,8 @@ import com.cornellappdev.android.eatery.ui.components.details.ToggleRow
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
+import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
-import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
@@ -106,80 +106,69 @@ private fun FavoritesScreenContent(
     Column(
         modifier = Modifier
             .background(color = currentColors.backgroundDefault)
-            .padding(horizontal = 16.dp)
-            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(
-                onClick = { onBackClick() },
-                // The chevron sits 16dp into this 48dp button (12dp centering + 4dp inside the
-                // vector), so shift it left to line up with the title's 6dp inset.
-                modifier = Modifier.offset(x = (-10).dp)
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_left_chevron),
-                    contentDescription = stringResource(R.string.back),
-                    tint = currentColors.textPrimary
-                )
-            }
-            IconButton(
-                onClick = { onSearchClick() }
-            ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_search),
-                    contentDescription = stringResource(R.string.search),
-                    tint = currentColors.textPrimary
-                )
-            }
-
-        }
-        Text(
-            text = stringResource(R.string.favorites_title),
-            color = currentColors.contentBrand,
-            style = EateryBlueTypography.h2,
-            modifier = Modifier.padding(horizontal = 6.dp)
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        when (favoritesScreenViewState) {
-            is FavoritesScreenViewState.Loading -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+        LargeTitleHeader(
+            title = stringResource(R.string.favorites_title),
+            onBackClick = onBackClick,
+            trailingContent = {
+                Box(
+                    modifier = Modifier
+                        // Same 40dp target as the back button, shifted so the 24dp icon sits
+                        // on the header's edge.
+                        .offset(x = 8.dp)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .clickable(onClick = onSearchClick),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(15) {
-                        EateryBlob(
-                            modifier = Modifier.shimmer(shimmer),
-                            height = 216.dp,
-                        )
-                    }
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_plus),
+                        contentDescription = stringResource(R.string.favorites_add),
+                        tint = currentColors.textSecondary
+                    )
                 }
             }
+        )
 
-            is FavoritesScreenViewState.Error -> {
-                // TODO we should have a better no internet display
-                EateriesEmptyState(stringResource(R.string.favorites_load_error))
-            }
+        Spacer(modifier = Modifier.height(13.dp))
 
-            is FavoritesScreenViewState.Loaded -> {
-                val favoriteEateries = favoritesScreenViewState.eateries
-                MainScrollableContent(
-                    toggle,
-                    setToggle = { toggle = it },
-                    favoritesScreenViewState,
-                    favoriteEateries,
-                    onEateryClick,
-                    toggleEateryFilter = toggleEateryFilter,
-                    toggleItemFilter = toggleItemFilter,
-                    removeFavorite = removeFavorite,
-                    removeFavoriteMenuItem = removeFavoriteMenuItem,
-                )
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            when (favoritesScreenViewState) {
+                is FavoritesScreenViewState.Loading -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        items(15) {
+                            EateryBlob(
+                                modifier = Modifier.shimmer(shimmer),
+                                height = 216.dp,
+                            )
+                        }
+                    }
+                }
+
+                is FavoritesScreenViewState.Error -> {
+                    // TODO we should have a better no internet display
+                    EateriesEmptyState(stringResource(R.string.favorites_load_error))
+                }
+
+                is FavoritesScreenViewState.Loaded -> {
+                    val favoriteEateries = favoritesScreenViewState.eateries
+                    MainScrollableContent(
+                        toggle,
+                        setToggle = { toggle = it },
+                        favoritesScreenViewState,
+                        favoriteEateries,
+                        onEateryClick,
+                        toggleEateryFilter = toggleEateryFilter,
+                        toggleItemFilter = toggleItemFilter,
+                        removeFavorite = removeFavorite,
+                        removeFavoriteMenuItem = removeFavoriteMenuItem,
+                    )
+                }
             }
         }
     }

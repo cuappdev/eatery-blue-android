@@ -127,8 +127,8 @@
     <string name="expand_filters">Expand filters</string>
     <string name="change_date">Change date</string>
     <string name="back">Back</string>
-    <string name="search">Search</string>
     <string name="favorites_title">Favorites</string>
+    <string name="favorites_add">Add favorites</string>
     <string name="account_title">Account</string>
     <string name="account_meal_plan">Meal Plan</string>
     <string name="account_type_meal_swipes">Meal Swipes</string>

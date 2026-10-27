@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
@@ -58,6 +60,7 @@ fun CircularBackButton(
 
 /**
  * Page header with a back button, a large brand-colored title and an optional [subtitle].
+ * [trailingContent], if given, sits at the end of the back button's row.
  * Handles the status bar inset itself, so callers should not add `statusBarsPadding`.
  */
 @Composable
@@ -66,6 +69,7 @@ fun LargeTitleHeader(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
 ) {
     Column(
         modifier = modifier
@@ -74,10 +78,16 @@ fun LargeTitleHeader(
             .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 7.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        CircularBackButton(
-            onClick = onBackClick,
-            modifier = Modifier.padding(vertical = 5.dp)
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 5.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CircularBackButton(onClick = onBackClick)
+            trailingContent?.invoke()
+        }
         Column {
             Text(
                 text = title,
