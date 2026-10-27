@@ -1,8 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.settings
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -37,9 +35,6 @@ fun SwitchOption(
                     .height(31.dp),
                 checked = checked,
                 onCheckedChange = onCheckedChange,
-                // Material 3 shrinks the unchecked thumb unless it has sized content; an
-                // invisible spacer keeps it the same size in both states.
-                thumbContent = { Spacer(modifier = Modifier.size(SwitchDefaults.IconSize)) },
                 enabled = enabled,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = currentColors.backgroundDefault,
