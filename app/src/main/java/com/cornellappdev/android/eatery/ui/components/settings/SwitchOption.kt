@@ -45,7 +45,7 @@ fun SwitchOption(
                     checkedThumbColor = currentColors.backgroundDefault,
                     uncheckedThumbColor = currentColors.backgroundDefault,
                     checkedTrackColor = currentColors.contentBrand,
-                    uncheckedTrackColor = currentColors.accentPrimary,
+                    uncheckedTrackColor = currentColors.borderDefault,
                     checkedBorderColor = Color.Transparent,
                     uncheckedBorderColor = Color.Transparent,
                 ),
