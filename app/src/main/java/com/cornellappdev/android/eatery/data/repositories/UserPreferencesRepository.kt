@@ -1,17 +1,15 @@
 package com.cornellappdev.android.eatery.data.repositories
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import com.cornellappdev.android.eatery.UserPreferences
 import com.cornellappdev.android.eatery.data.models.ThemePreference
 import com.cornellappdev.android.eatery.util.decryptData
 import com.cornellappdev.android.eatery.util.encryptData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import java.io.IOException
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,6 +35,14 @@ class UserPreferencesRepository @Inject constructor(
     val notificationFlowCompletedFlow: Flow<Boolean> =
         userPreferencesFlow.map { it.notificationFlowCompleted }
     val analyticsDisabledFlow: Flow<Boolean> = userPreferencesFlow.map { it.analyticsDisabled }
+    val notificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.notificationsDisabled }
+    val favoriteItemNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.favoriteItemNotificationsDisabled }
+    val appDevNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.appDevNotificationsDisabled }
+    val notificationPermissionRequestedFlow: Flow<Boolean> =
+        userPreferencesFlow.map { it.notificationPermissionRequested }
 
     /**
      * Emits the decrypted access token, or null if absent or decryption fails.
@@ -55,13 +61,6 @@ class UserPreferencesRepository @Inject constructor(
 
     val isLoggedInFlow: Flow<Boolean> = userPreferencesFlow.map { it.isLoggedIn }
 
-    val isDarkModeFlow : StateFlow<Boolean?> = userPreferencesFlow.map { prefs ->
-        if (prefs.hasIsDarkMode()) prefs.isDarkMode else null}
-        .stateIn(
-            CoroutineScope(Dispatchers.IO),
-            SharingStarted.Eagerly,
-            null
-        )
     val themePreferenceFlow: Flow<ThemePreference> = userPreferencesFlow.map { prefs ->
         when {
             !prefs.hasIsDarkMode() -> ThemePreference.SYSTEM
@@ -102,6 +101,12 @@ class UserPreferencesRepository @Inject constructor(
     val favoriteItemNamesFlow: Flow<List<String>> =
         userPreferencesFlow.map { it.itemFavoritesMap.keys.toList() }
 
+    val pendingFavoriteItemUpdatesFlow: Flow<Map<String, Boolean>> =
+        userPreferencesFlow.map { it.pendingFavoriteItemUpdatesMap }
+
+    val favoriteItemsMigratedToBackendFlow: Flow<Boolean> =
+        userPreferencesFlow.map { it.favoriteItemsMigratedToBackend }
+
     val recentSearchesFlow: Flow<List<Int>> = userPreferencesFlow.map { it.recentSearchesList }
 
     suspend fun setHasOnboarded(hasOnboarded: Boolean) = setPref {
@@ -114,6 +119,22 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun setAnalyticsDisabled(analyticsDisabled: Boolean) = setPref {
         setAnalyticsDisabled(analyticsDisabled)
+    }
+
+    suspend fun setNotificationsEnabled(enabled: Boolean) = setPref {
+        setNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setNotificationPermissionRequested(requested: Boolean) = setPref {
+        setNotificationPermissionRequested(requested)
+    }
+
+    suspend fun setFavoriteItemNotificationsEnabled(enabled: Boolean) = setPref {
+        setFavoriteItemNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setAppDevNotificationsEnabled(enabled: Boolean) = setPref {
+        setAppDevNotificationsDisabled(!enabled)
     }
 
     suspend fun addRecentSearch(eateryId: Int) = setPref {
@@ -149,6 +170,26 @@ class UserPreferencesRepository @Inject constructor(
                 removeItemFavorites(itemName)
             }
         }
+    }
+
+    suspend fun setPendingFavoriteItemUpdate(itemName: String, isFavorite: Boolean) = setPref {
+        putPendingFavoriteItemUpdates(itemName, isFavorite)
+    }
+
+    /**
+     * Removes the pending update for [itemName] only if it's still [syncedState], so a change made
+     * while that state was being synced isn't lost.
+     */
+    suspend fun clearPendingFavoriteItemUpdate(itemName: String, syncedState: Boolean) = setPref {
+        if (pendingFavoriteItemUpdatesMap[itemName] == syncedState) {
+            removePendingFavoriteItemUpdates(itemName)
+        } else {
+            this
+        }
+    }
+
+    suspend fun setFavoriteItemsMigratedToBackend(migrated: Boolean) = setPref {
+        setFavoriteItemsMigratedToBackend(migrated)
     }
 
     private suspend fun setPref(setter: UserPreferences.Builder.() -> UserPreferences.Builder) {
@@ -227,3 +268,15 @@ class UserPreferencesRepository @Inject constructor(
         return if (rawValue.isEmpty()) "" else encryptData(alias, rawValue)
     }
 }
+
+/**
+ * Reads a stored preference, falling back to [default] when DataStore can't be read rather than
+ * propagating the IOException to a caller that has no way to recover from it.
+ */
+suspend fun Flow<Boolean>.firstOrOnReadFailure(default: Boolean): Boolean =
+    try {
+        first()
+    } catch (e: IOException) {
+        Log.w("UserPreferences", "Failed to read a stored preference", e)
+        default
+    }

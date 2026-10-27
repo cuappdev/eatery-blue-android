@@ -27,7 +27,9 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(
     private val networkApi: NetworkApi,
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val getAccountRepository: GETAccountRepository
+    private val getAccountRepository: GETAccountRepository,
+    private val favoriteItemSyncRepository: FavoriteItemSyncRepository,
+    private val authTokenRepository: AuthTokenRepository,
 ) {
     private val _loadedUser: MutableStateFlow<User?> = MutableStateFlow(null)
 
@@ -64,7 +66,7 @@ class UserRepository @Inject constructor(
             return Result.Success(Unit)
         }
 
-        return resultOfNetworkCall {
+        return authTokenRepository.authorizedNetworkCall {
             val matches = networkApi.getFavoriteMatches()
             _favoriteEateriesFlow.value = matches.mapNotNull { it.eateryName }
             _favoriteItemsFlow.value = run {
@@ -91,6 +93,7 @@ class UserRepository @Inject constructor(
             _favoriteItemsFlow.update { currentItems ->
                 if (name !in currentItems) currentItems + name else currentItems
             }
+            favoriteItemSyncRepository.setFavorite(name, isFavorite = true)
             return Result.Success(Unit)
         }
 
@@ -110,6 +113,7 @@ class UserRepository @Inject constructor(
             _favoriteItemsFlow.update { currentItems ->
                 currentItems.filter { it != name }
             }
+            favoriteItemSyncRepository.setFavorite(name, isFavorite = false)
             return Result.Success(Unit)
         }
 
@@ -160,7 +164,6 @@ class UserRepository @Inject constructor(
             }
         }
     }
-
 
     suspend fun getFinancials(): Result<Financials> = resultOfNetworkCall {
         var financials: Financials

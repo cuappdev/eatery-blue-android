@@ -5,10 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.android.eatery.BuildConfig
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.Result
-import com.cornellappdev.android.eatery.data.repositories.AuthTokenRepository
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
+import com.cornellappdev.android.eatery.data.repositories.NotificationRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
@@ -34,7 +35,7 @@ class HomeViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
     private val eateryRepository: EateryRepository,
     private val userRepository: UserRepository,
-    private val authTokenRepository: AuthTokenRepository
+    private val notificationRepository: NotificationRepository,
 ) : ViewModel() {
     data class HomeUiState(
         val eateriesApiResponse: EateryApiResponse<List<Eatery>> = EateryApiResponse.Pending,
@@ -42,6 +43,8 @@ class HomeViewModel @Inject constructor(
         val nearestEateries: List<Eatery> = emptyList(),
         val selectedFilters: List<Filter> = emptyList(),
         val notificationFlowCompleted: Boolean = false,
+        val hasUnreadNotifications: Boolean = false,
+        val showNotificationBell: Boolean = BuildConfig.ENABLE_NOTIFICATIONS,
         val error: NetworkUiError? = null
     )
 
@@ -161,9 +164,17 @@ class HomeViewModel @Inject constructor(
 
     val uiState: StateFlow<HomeUiState> = combine(
         homeDataState,
-        _error
-    ) { dataState, networkError ->
-        dataState.copy(error = networkError)
+        _error,
+        notificationRepository.notificationsFlow,
+        notificationRepository.hubAvailableFlow,
+    ) { dataState, networkError, notifications, hubAvailable ->
+        dataState.copy(
+            error = networkError,
+            hasUnreadNotifications = notifications.any { !it.isRead },
+            // Release hides the bell until the backend serves the hub; debug keeps it for review.
+            showNotificationBell = BuildConfig.ENABLE_NOTIFICATIONS &&
+                    (BuildConfig.DEBUG || hubAvailable),
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
 
     var bigPopUp by mutableStateOf(false)
@@ -233,20 +244,28 @@ class HomeViewModel @Inject constructor(
         eateryRepository.pingEateries()
     }
 
-    fun updateFavoritesIfTokensConfigured() {
-        if (authTokenRepository.tokensConfiguredFlow.value) {
-            viewModelScope.launch {
-                when (val result = userRepository.updateFavorites()) {
-                    is Result.Success -> {
-                        _error.value = null
-                    }
+    fun updateFavorites() {
+        viewModelScope.launch {
+            when (val result = userRepository.updateFavorites()) {
+                is Result.Success -> {
+                    _error.value = null
+                }
 
-                    is Result.Error -> {
-                        _error.value =
-                            NetworkUiError.Failed(NetworkAction.UpdateFavorites, result.error)
-                    }
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.UpdateFavorites, result.error)
                 }
             }
+        }
+    }
+
+    /**
+     * Refreshes notifications for the bell's unread dot. Failures are ignored since a missing dot
+     * isn't worth an error toast.
+     */
+    fun refreshNotifications() {
+        viewModelScope.launch {
+            notificationRepository.fetchNotifications()
         }
     }
 }

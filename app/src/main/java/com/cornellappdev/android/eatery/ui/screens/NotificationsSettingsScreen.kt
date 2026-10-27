@@ -1,95 +1,289 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import android.Manifest
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
+import com.cornellappdev.android.eatery.ui.components.notifications.NotificationsErrorState
+import com.cornellappdev.android.eatery.ui.components.settings.SettingsCard
+import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsSettingsUiState
+import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsSettingsViewModel
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
-fun NotificationsSettingsScreen() {
+fun NotificationsSettingsScreen(
+    onBackClick: () -> Unit,
+    notificationsSettingsViewModel: NotificationsSettingsViewModel = hiltViewModel(),
+) {
+    val context = LocalContext.current
+    val uiState by notificationsSettingsViewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(
+    var pendingEnablePermissionRequest by rememberSaveable { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val syncErrorMessage = stringResource(R.string.notifications_sync_error)
+    LaunchedEffect(Unit) {
+        notificationsSettingsViewModel.syncErrorFlow.collect {
+            snackbarHostState.showSnackbar(syncErrorMessage)
+        }
+    }
+
+    val systemNotificationsAllowed by notificationsSettingsViewModel.systemNotificationsAllowed
+        .collectAsStateWithLifecycle()
+
+    // Recheck on resume so returning from system settings, or changes made on another device,
+    // are reflected without reopening the screen.
+    LifecycleResumeEffect(Unit) {
+        notificationsSettingsViewModel.refreshSystemNotificationsAllowed()
+        notificationsSettingsViewModel.loadSettingsFromBackend()
+        onPauseOrDispose { }
+    }
+
+    // Before the first prompt on API 33+ the permission isn't granted, but the user hasn't turned
+    // notifications off either, so unpausing should still prompt rather than point to Settings.
+    val systemNotificationsDenied = !systemNotificationsAllowed && (
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || uiState.permissionRequested
+            )
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        notificationsSettingsViewModel.refreshSystemNotificationsAllowed()
+        if (granted && pendingEnablePermissionRequest) {
+            notificationsSettingsViewModel.setAllNotificationsEnabled(true)
+        }
+        pendingEnablePermissionRequest = false
+    }
+
+    NotificationsSettingsScreenContent(
+        uiState = uiState,
+        systemNotificationsDenied = systemNotificationsDenied,
+        snackbarHostState = snackbarHostState,
+        onBackClick = onBackClick,
+        onOpenSettingsClick = {
+            context.startActivity(
+                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            )
+        },
+        onPauseAllChange = { isPaused ->
+            val isEnabled = !isPaused
+            if (
+                isEnabled &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                notificationsSettingsViewModel.needsNotificationPermissionRequest()
+            ) {
+                pendingEnablePermissionRequest = true
+                notificationsSettingsViewModel.markPermissionRequested()
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                return@NotificationsSettingsScreenContent
+            }
+
+            pendingEnablePermissionRequest = false
+            notificationsSettingsViewModel.setAllNotificationsEnabled(isEnabled)
+        },
+        onFavoriteItemChange = notificationsSettingsViewModel::setFavoriteItemNotificationsEnabled,
+        onAppDevChange = notificationsSettingsViewModel::setAppDevNotificationsEnabled,
+        onTryAgain = { notificationsSettingsViewModel.loadSettingsFromBackend() },
+    )
+}
+
+@Composable
+private fun NotificationsSettingsScreenContent(
+    uiState: NotificationsSettingsUiState,
+    systemNotificationsDenied: Boolean,
+    snackbarHostState: SnackbarHostState,
+    onBackClick: () -> Unit,
+    onOpenSettingsClick: () -> Unit,
+    onPauseAllChange: (Boolean) -> Unit,
+    onFavoriteItemChange: (Boolean) -> Unit,
+    onAppDevChange: (Boolean) -> Unit,
+    onTryAgain: () -> Unit,
+) {
+    Box(
         modifier = Modifier
             .background(color = currentColors.backgroundDefault)
-            .padding(horizontal = 16.dp)
-            .then(Modifier.statusBarsPadding())
             .fillMaxSize()
     ) {
-        Text(
-            text = stringResource(R.string.notifications_title),
-            color = currentColors.contentBrand,
-            style = EateryBlueTypography.h2,
-            modifier = Modifier.padding(top = 7.dp)
-        )
+        Column {
+            LargeTitleHeader(
+                title = stringResource(R.string.notifications_title),
+                subtitle = stringResource(R.string.notifications_description),
+                onBackClick = onBackClick
+            )
 
-        Text(
-            text = stringResource(R.string.notifications_description),
-            style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = currentColors.textPrimary,
-            modifier = Modifier.padding(top = 7.dp, bottom = 12.dp)
-        )
+            Column(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (systemNotificationsDenied) {
+                    SystemNotificationsOffCard(onOpenSettingsClick = onOpenSettingsClick)
+                }
 
-        SwitchOption(
-            title = stringResource(R.string.notifications_all_title),
-            description = "",
-            initialValue = true,
-            onCheckedChange = {
-//                TODO()
+                SettingsCard(shape = CircleShape) {
+                    SwitchOption(
+                        title = stringResource(R.string.notifications_pause_all_title),
+                        checked = !uiState.allNotificationsEnabled,
+                        enabled = !systemNotificationsDenied,
+                        onCheckedChange = onPauseAllChange
+                    )
+                }
+
+                if (uiState.settingsLoadFailed) {
+                    NotificationsErrorState(
+                        title = stringResource(R.string.notifications_settings_error),
+                        onTryAgain = onTryAgain
+                    )
+                } else if (uiState.allNotificationsEnabled) {
+                    SettingsCard {
+                        SwitchOption(
+                            title = stringResource(R.string.notifications_favorite_item_title),
+                            description = stringResource(R.string.notifications_favorite_item_description),
+                            checked = uiState.favoriteItemNotificationsEnabled,
+                            enabled = !systemNotificationsDenied,
+                            onCheckedChange = onFavoriteItemChange
+                        )
+                        SettingsLineSeparator()
+                        SwitchOption(
+                            title = stringResource(R.string.notifications_cornell_appdev_title),
+                            description = stringResource(R.string.notifications_cornell_appdev_description),
+                            checked = uiState.appDevNotificationsEnabled,
+                            enabled = !systemNotificationsDenied,
+                            onCheckedChange = onAppDevChange
+                        )
+                    }
+                }
             }
+        }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
         )
+    }
+}
 
-        // TODO: Conditional visibility based on whether all notifications are enabled
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        SwitchOption(
-            title = stringResource(R.string.notifications_favorite_item_title),
-            description = stringResource(R.string.notifications_favorite_item_description),
-            initialValue = true,
-            onCheckedChange = {
-//                TODO()
+@Composable
+private fun SystemNotificationsOffCard(onOpenSettingsClick: () -> Unit) {
+    SettingsCard {
+        Column(modifier = Modifier.padding(vertical = 16.dp)) {
+            Text(
+                text = stringResource(R.string.notifications_system_off_title),
+                style = EateryBlueTypography.subtitle1.copy(fontWeight = FontWeight.SemiBold),
+                color = currentColors.textPrimary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = stringResource(R.string.notifications_system_off_description),
+                style = EateryBlueTypography.body2,
+                color = currentColors.textSecondary
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = onOpenSettingsClick,
+                shape = CircleShape,
+                colors = ButtonDefaults.buttonColors(containerColor = currentColors.accentPrimary)
+            ) {
+                Text(
+                    text = stringResource(R.string.notifications_open_settings),
+                    color = currentColors.textPrimary,
+                    style = EateryBlueTypography.button
+                )
             }
-        )
-
-        SwitchOption(
-            title = stringResource(R.string.notifications_favorite_eatery_open_title),
-            description = stringResource(R.string.notifications_favorite_eatery_open_description),
-            initialValue = true,
-            onCheckedChange = {
-//                TODO()
-            }
-        )
-
-        SwitchOption(
-            title = stringResource(R.string.notifications_favorite_eatery_close_title),
-            description = stringResource(R.string.notifications_favorite_eatery_close_description),
-            initialValue = true,
-            onCheckedChange = {
-//                TODO()
-            }
-        )
+        }
     }
 }
 
 @DualModePreview
 @Composable
+private fun SystemNotificationsOffCardPreview() = EateryPreview {
+    SystemNotificationsOffCard(onOpenSettingsClick = {})
+}
+
+@Composable
+private fun PreviewNotificationsSettingsScreen(
+    uiState: NotificationsSettingsUiState = NotificationsSettingsUiState(),
+    systemNotificationsDenied: Boolean = false,
+) {
+    NotificationsSettingsScreenContent(
+        uiState = uiState,
+        systemNotificationsDenied = systemNotificationsDenied,
+        snackbarHostState = remember { SnackbarHostState() },
+        onBackClick = {},
+        onOpenSettingsClick = {},
+        onPauseAllChange = {},
+        onFavoriteItemChange = {},
+        onAppDevChange = {},
+        onTryAgain = {},
+    )
+}
+
+@DualModePreview
+@Composable
 private fun NotificationsSettingsScreenPreview() = EateryPreview {
-    NotificationsSettingsScreen()
+    PreviewNotificationsSettingsScreen()
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsSettingsPausedPreview() = EateryPreview {
+    PreviewNotificationsSettingsScreen(
+        uiState = NotificationsSettingsUiState(allNotificationsEnabled = false)
+    )
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsSettingsSystemOffPreview() = EateryPreview {
+    PreviewNotificationsSettingsScreen(systemNotificationsDenied = true)
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsSettingsLoadFailedPreview() = EateryPreview {
+    PreviewNotificationsSettingsScreen(
+        uiState = NotificationsSettingsUiState(settingsLoadFailed = true)
+    )
 }
