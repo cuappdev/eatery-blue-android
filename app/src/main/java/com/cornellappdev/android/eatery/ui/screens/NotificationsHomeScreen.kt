@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,9 +15,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,10 +35,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.HubNotification
-import com.cornellappdev.android.eatery.ui.components.general.CENTERED_STATE_HEIGHT_FRACTION
-import com.cornellappdev.android.eatery.ui.components.general.ErrorContent
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
+import com.cornellappdev.android.eatery.ui.components.notifications.NOTIFICATIONS_STATE_HEIGHT_FRACTION
 import com.cornellappdev.android.eatery.ui.components.notifications.NotificationRow
+import com.cornellappdev.android.eatery.ui.components.notifications.NotificationsErrorState
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsHomeViewModel
@@ -95,7 +94,10 @@ private fun NotificationsHomeScreenContent(
                 }
             }
 
-            is NotificationsHomeViewState.Error -> NotificationsErrorState(onTryAgain = onTryAgain)
+            is NotificationsHomeViewState.Error -> NotificationsErrorState(
+                title = stringResource(R.string.notifications_home_error),
+                onTryAgain = onTryAgain
+            )
 
             is NotificationsHomeViewState.Loaded -> PullToRefreshBox(
                 isRefreshing = isRefreshing,
@@ -109,7 +111,7 @@ private fun NotificationsHomeScreenContent(
                         item {
                             NotificationsEmptyState(
                                 modifier = Modifier.fillParentMaxHeight(
-                                    CENTERED_STATE_HEIGHT_FRACTION
+                                    NOTIFICATIONS_STATE_HEIGHT_FRACTION
                                 )
                             )
                         }
@@ -200,21 +202,6 @@ private fun NotificationsEmptyState(modifier: Modifier = Modifier) {
                 textAlign = TextAlign.Center,
             )
         }
-    }
-}
-
-@Composable
-private fun NotificationsErrorState(onTryAgain: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight(CENTERED_STATE_HEIGHT_FRACTION)
-            .fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        ErrorContent(
-            title = stringResource(R.string.notifications_home_error),
-            onTryAgain = onTryAgain
-        )
     }
 }
 

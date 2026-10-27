@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,9 +39,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.components.general.CENTERED_STATE_HEIGHT_FRACTION
-import com.cornellappdev.android.eatery.ui.components.general.ErrorContent
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
+import com.cornellappdev.android.eatery.ui.components.notifications.NotificationsErrorState
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsCard
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SwitchOption
@@ -173,7 +171,10 @@ private fun NotificationsSettingsScreenContent(
                 }
 
                 if (uiState.settingsLoadFailed) {
-                    SettingsErrorState(onTryAgain = onTryAgain)
+                    NotificationsErrorState(
+                        title = stringResource(R.string.notifications_settings_error),
+                        onTryAgain = onTryAgain
+                    )
                 } else if (uiState.allNotificationsEnabled) {
                     SettingsCard {
                         SwitchOption(
@@ -234,27 +235,6 @@ private fun SystemNotificationsOffCard(onOpenSettingsClick: () -> Unit) {
             }
         }
     }
-}
-
-@Composable
-private fun SettingsErrorState(onTryAgain: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight(CENTERED_STATE_HEIGHT_FRACTION)
-            .fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        ErrorContent(
-            title = stringResource(R.string.notifications_settings_error),
-            onTryAgain = onTryAgain
-        )
-    }
-}
-
-@DualModePreview
-@Composable
-private fun SettingsErrorStatePreview() = EateryPreview {
-    SettingsErrorState(onTryAgain = {})
 }
 
 @DualModePreview

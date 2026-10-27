@@ -38,15 +38,15 @@ message UserPreferences {
   bool favoriteItemNotificationsDisabled = 20;
 
   // True once POST_NOTIFICATIONS has been requested, so a denial isn't re-prompted.
-  bool notificationPermissionRequested = 23;
+  bool notificationPermissionRequested = 21;
 
-  bool appDevNotificationsDisabled = 24;
+  bool appDevNotificationsDisabled = 22;
 
   // Favorite item changes not yet synced to the backend, keyed by item name (true = favorited).
-  map<string, bool> pendingFavoriteItemUpdates = 25;
+  map<string, bool> pendingFavoriteItemUpdates = 23;
 
   // True once favorites saved before backend sync existed have been queued for upload.
-  bool favoriteItemsMigratedToBackend = 26;
+  bool favoriteItemsMigratedToBackend = 24;
 
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
