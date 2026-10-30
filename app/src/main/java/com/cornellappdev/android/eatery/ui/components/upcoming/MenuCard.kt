@@ -12,78 +12,82 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.data.models.Eatery
-import com.cornellappdev.android.eatery.data.models.Event
+import com.cornellappdev.android.eatery.data.models.EateryStatus
 import com.cornellappdev.android.eatery.data.models.MenuItem
-import com.cornellappdev.android.eatery.ui.components.general.MealFilter
+import com.cornellappdev.android.eatery.ui.components.general.FavoriteIcon
+import com.cornellappdev.android.eatery.ui.components.general.MenuCategoryViewState
+import com.cornellappdev.android.eatery.ui.components.general.MenuItemViewState
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayZero
-import com.cornellappdev.android.eatery.ui.theme.Green
-import com.cornellappdev.android.eatery.ui.theme.Orange
-import com.cornellappdev.android.eatery.ui.viewmodels.UpcomingViewModel
-import java.time.format.DateTimeFormatter
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 
-/**
- * Represents the card for each eatery that is shown in the list
- * in the upcoming menu screen
- */
-@OptIn(ExperimentalMaterialApi::class)
+data class MenuCardViewState(
+    val eateryId: Int,
+    val menu: List<MenuCategoryViewState>,
+    val name: String,
+    val eateryHours: EateryHours?,
+    val eateryStatus: EateryStatus?,
+)
+
+data class EateryHours(
+    val startTime: String,
+    val endTime: String,
+)
+
 @Composable
 fun MenuCard(
-    eatery: Eatery,
-    upcomingViewModel: UpcomingViewModel,
-    day: Int,
-    selectEatery: (eatery: Eatery) -> Unit = {},
-) {
+    menuCardViewState: MenuCardViewState,
+    onEateryCardContract: () -> Unit = {},
+    selectEatery: (eateryId: Int) -> Unit = {},
+) = with(menuCardViewState) {
     var openDropdown by remember { mutableStateOf(false) }
-    val mealFilter = upcomingViewModel.mealFilterFlow.collectAsState().value
-    val event = eatery.getSelectedDayMeal(mealFilter, day)
 
     Card(
-        elevation = 5.dp,
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
         shape = RoundedCornerShape(10.dp),
-        backgroundColor = Color.White,
+        colors = CardDefaults.cardColors(containerColor = currentColors.accentPrimary),
         modifier = Modifier.clickable {
             openDropdown = !openDropdown
+            if (!openDropdown) onEateryCardContract()
         }
     ) {
         Column(modifier = Modifier.padding(start = 12.dp, top = 10.dp, bottom = 5.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = eatery.name ?: "",
-                    style = EateryBlueTypography.h5,
+                    text = name, style = EateryBlueTypography.h5,
+                    color = currentColors.textPrimary
                 )
                 Icon(
                     imageVector = if (!openDropdown) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
-                    contentDescription = "Expand menu",
-                    tint = Color.Black,
+                    contentDescription = stringResource(R.string.a11y_expand_menu),
+                    tint = currentColors.textPrimary,
                     modifier = Modifier
                         .padding(top = 10.dp, end = 20.dp)
                         .size(24.dp)
@@ -91,60 +95,33 @@ fun MenuCard(
                 )
 
                 Row(modifier = Modifier.padding(top = 24.dp)) {
-                    if (event!![0].startTime != null && event[0].endTime != null) {
-                        val closed = eatery.isClosed()
-                        val meal = eatery.getCurrentEvent()
-
-                        val mealName = meal?.description
-                        val differentMeal = !mealFilter.text.contains(meal?.description)
-
-                        val openText = when {
-                            closed -> "Closed"
-                            eatery.isClosingSoon() -> "Closing Soon"
-                            differentMeal -> "Open for $mealName"
-                            else -> "Open"
-                        }
-
-                        val openColor = when {
-                            closed -> Red
-                            eatery.isClosingSoon() -> Orange
-                            differentMeal -> Orange
-                            else -> Green
-                        }
-
-                        if (day == 0) {
-                            Text(
-                                text = openText,
-                                style = EateryBlueTypography.subtitle2,
-                                color = openColor
-                            )
-                            Text(
-                                text = " • ",
-                                style = EateryBlueTypography.subtitle2,
-                                color = GrayFive
-                            )
-                        }
+                    eateryStatus?.let {
                         Text(
-                            modifier = Modifier.padding(
-                                bottom = 8.dp
-                            ),
-                            text = "${
-                                event[0].startTime?.format(
-                                    DateTimeFormatter.ofPattern(
-                                        "K:mm a"
-                                    )
-                                )
-                            } - ${
-                                event[0].endTime?.format(
-                                    DateTimeFormatter.ofPattern("K:mm a")
-                                )
-                            }",
+                            text = it.statusText,
                             style = EateryBlueTypography.subtitle2,
-                            color = GrayFive
+                            color = it.statusColor
+                        )
+                        Text(
+                            text = " ${stringResource(R.string.bullet_separator)} ",
+                            style = EateryBlueTypography.subtitle2,
+                            color = currentColors.textSecondary
+                        )
+                    }
+                    eateryHours?.let {
+                        Text(
+                            modifier = Modifier.padding(bottom = 8.dp),
+                            text = stringResource(
+                                R.string.menu_time_range,
+                                it.startTime,
+                                it.endTime
+                            ),
+                            style = EateryBlueTypography.subtitle2,
+                            color = currentColors.textSecondary
                         )
                     }
                 }
             }
+
             Column(
                 modifier = Modifier
                     .animateContentSize(tween(250))
@@ -156,14 +133,12 @@ fun MenuCard(
                             .padding(end = 12.dp, bottom = 8.dp)
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(GrayZero, CircleShape)
+                            .background(currentColors.backgroundDefault, CircleShape)
                     )
                     Box(modifier = Modifier.padding(end = 12.dp)) {
                         EateryDetails(
-                            eatery = eatery,
-                            selectEatery = { selectEatery(eatery) },
-                            meal = mealFilter,
-                            day = day,
+                            selectEatery = { selectEatery(eateryId) },
+                            menu = menu,
                         )
                     }
                 }
@@ -172,32 +147,24 @@ fun MenuCard(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun EateryDetails(
-    eatery: Eatery,
-    meal: MealFilter,
-    day: Int,
-    selectEatery: (eatery: Eatery) -> Unit = {}
+private fun EateryDetails(
+    selectEatery: () -> Unit,
+    menu: List<MenuCategoryViewState>
 ) {
     Column {
-        eatery.getSelectedDayMeal(meal, day)!!.forEach { event ->
-            EateryEventMenu(event = event)
-        }
-
+        EateryEventMenu(menu)
         Card(
             shape = RoundedCornerShape(20.dp),
-            onClick = {
-                selectEatery(eatery)
-            },
-            backgroundColor = GrayZero,
+            colors = CardDefaults.cardColors(containerColor = currentColors.backgroundDefault),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp, bottom = 8.dp)
+                .clickable { selectEatery() }
         ) {
-
             Row(
                 modifier = Modifier.padding(
+                    start = 12.dp,
                     end = 12.dp,
                     top = 10.dp,
                     bottom = 10.dp
@@ -207,41 +174,39 @@ fun EateryDetails(
                 Icon(
                     painter = painterResource(R.drawable.ic_eatery),
                     contentDescription = null,
-                    tint = Color.Black
+                    tint = currentColors.textPrimary
                 )
                 Text(
-                    text = "View Eatery Details",
-                    color = Color.Black,
+                    text = stringResource(R.string.view_eatery_details),
+                    color = currentColors.textPrimary,
                     modifier = Modifier.padding(start = 8.dp),
                     fontWeight = FontWeight.Bold
                 )
-
             }
         }
     }
-
 }
 
 @Composable
-fun EateryEventMenu(event: Event) {
-
+private fun EateryEventMenu(menu: List<MenuCategoryViewState>) {
     Row(
         modifier = Modifier
             .padding(end = 16.dp)
             .wrapContentHeight(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.weight(1f),
-        ) {
-            event.menu!!.forEach { category ->
+        Column(modifier = Modifier.weight(1f)) {
+            menu.forEach { category ->
                 Text(
-                    text = category.category ?: "",
+                    text = category.category,
                     style = EateryBlueTypography.h5,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
+                    color = currentColors.textPrimary,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                 )
-                category.items!!.forEach { item ->
-                    MenuItemDisplay(item = item)
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    category.items.forEach { item ->
+                        MenuItemDisplay(item = item)
+                    }
                 }
             }
         }
@@ -249,10 +214,58 @@ fun EateryEventMenu(event: Event) {
 }
 
 @Composable
-fun MenuItemDisplay(item: MenuItem) {
-    Text(
-        text = item.name!!,
-        style = EateryBlueTypography.caption,
-        fontWeight = FontWeight.Normal
+private fun MenuItemDisplay(item: MenuItemViewState) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = item.item.name ?: stringResource(R.string.unknown_item),
+            style = EateryBlueTypography.caption,
+            color = currentColors.textSecondary,
+            fontWeight = FontWeight.Normal
+        )
+        if (item.isFavorite) {
+            FavoriteIcon(true, modifier = Modifier.requiredSize(18.dp))
+        }
+    }
+}
+
+@DualModePreview
+@Composable
+private fun MenuCardPreview() = EateryPreview {
+    MenuCard(
+        menuCardViewState = MenuCardViewState(
+            eateryId = 1,
+            name = "North Star",
+            eateryHours = EateryHours(startTime = "11:00 AM", endTime = "2:30 PM"),
+            eateryStatus = EateryStatus(statusText = "Open", statusColor = Green),
+            menu = listOf(
+                MenuCategoryViewState(
+                    category = "Lunch",
+                    items = listOf(
+                        MenuItemViewState(
+                            isFavorite = true,
+                            item = MenuItem(name = "Chicken Tikka Masala")
+                        ),
+                        MenuItemViewState(
+                            isFavorite = false,
+                            item = MenuItem(name = "Roasted Vegetables")
+                        )
+                    )
+                ),
+                MenuCategoryViewState(
+                    category = "Dessert",
+                    items = listOf(
+                        MenuItemViewState(
+                            isFavorite = false,
+                            item = MenuItem(name = "Chocolate Chip Cookie")
+                        )
+                    )
+                )
+            )
+        )
     )
 }
+

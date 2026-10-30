@@ -1,68 +1,82 @@
 package com.cornellappdev.android.eatery.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowOutward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsLineSeparator
 import com.cornellappdev.android.eatery.ui.components.settings.SettingsOption
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
 @Composable
 fun LegalScreen() {
     val uriCurrent = LocalUriHandler.current
     Column(
         modifier = Modifier
-            .padding(top = 36.dp, start = 16.dp, end = 16.dp)
-            .fillMaxWidth()
+            .background(color = currentColors.backgroundDefault)
+            .padding(horizontal = 16.dp)
+            .then(Modifier.statusBarsPadding())
+            .fillMaxSize()
     ) {
         Text(
-            text = "Legal",
-            color = EateryBlue,
+            text = stringResource(R.string.legal_title),
+            color = currentColors.contentBrand,
             style = EateryBlueTypography.h2,
             modifier = Modifier.padding(top = 7.dp)
         )
         Text(
-            text = "Find terms, conditions, and privacy policy",
+            text = stringResource(R.string.legal_description),
             style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-            color = GraySix,
+            color = currentColors.textPrimary,
             modifier = Modifier.padding(top = 7.dp, bottom = 12.dp)
         )
 
         SettingsOption(
-            title = "Terms and Conditions",
+            title = stringResource(R.string.legal_terms_and_conditions),
             onClick = { uriCurrent.openUri("https://www.cornellappdev.com/privacy") },
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = EateryBlue,
+                    tint = currentColors.backgroundSecondary,
                 )
             }
         )
         SettingsLineSeparator()
         SettingsOption(
-            title = "Privacy Policy",
+            title = stringResource(R.string.legal_privacy_policy),
             onClick = { uriCurrent.openUri("https://www.cornellappdev.com/privacy") },
             trailingIcon = {
                 Icon(
                     imageVector = Icons.Outlined.ArrowOutward,
                     contentDescription = null,
-                    tint = EateryBlue,
+                    tint = currentColors.backgroundSecondary,
                 )
             }
         )
     }
 }
+
+@DualModePreview
+@Composable
+private fun LegalScreenPreview() = EateryPreview {
+    LegalScreen()
+}
+

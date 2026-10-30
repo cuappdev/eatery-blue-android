@@ -1,66 +1,169 @@
 package com.cornellappdev.android.eatery.ui.components.general
 
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
+import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
+import java.time.LocalDateTime
 
-enum class Filter(val text: String) {
-    UNDER_10("Under 10 min"),
-    NORTH("North"),
-    WEST("West"),
-    CENTRAL("Central"),
-    FAVORITES("Favorites"),
-    BRB("BRBs"),
-    CASH("Cash or credit"),
-    SWIPES("Meal swipes"),
-    SELECTED("Selected");
+data class FilterData(
+    val eatery: Eatery? = null,
+    val favoriteEateryIds: Map<Int, Boolean>? = null,
+    val selectedEateryIds: List<Int>? = null,
+    val targetItemName: String? = null,
+)
+
+
+sealed class Filter(open val text: String) {
+
+    /**
+     * It was an intentional design decision to make passesFilter protected.
+     * This way, you have to go through the passesSelectedFilters method. This method enforces that
+     * you provided all the data that all the filters need up front, which makes it harder to
+     * accidentally forget to pass data to one of the filters and not notice until a user crashes.
+     */
+    protected abstract fun passesFilter(filterData: FilterData): Boolean
+
+    data object ItemAvailableToday : Filter(text = "Today") {
+        override fun passesFilter(filterData: FilterData): Boolean {
+            val itemName = checkNotNull(filterData.targetItemName)
+            val eatery = checkNotNull(filterData.eatery)
+
+            return eatery.events?.asSequence()?.filter {
+                it.endTimestamp?.let { end ->
+                    end < LocalDateTime.now().withHour(23).withMinute(59)
+                } == true
+            }?.flatMap { it.menu ?: emptyList() }
+                ?.flatMap { it.items?.map { item -> item.name } ?: emptyList() }
+                ?.contains(itemName) == true
+        }
+    }
+
+    data object Selected : Filter(text = "Selected") {
+        override fun passesFilter(filterData: FilterData): Boolean {
+            val selectedEateriesIds = checkNotNull(filterData.selectedEateryIds)
+            val eatery = checkNotNull(filterData.eatery)
+
+            return eatery.id in selectedEateriesIds
+        }
+    }
+
+    sealed class FromEateryFilter(
+        override val text: String,
+    ) : Filter(text) {
+        protected abstract fun passesEateryFilter(eatery: Eatery): Boolean
+
+        override fun passesFilter(filterData: FilterData): Boolean {
+            val eatery = checkNotNull(filterData.eatery)
+            return passesEateryFilter(eatery)
+        }
+
+        data object North : FromEateryFilter(text = "North") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.campusArea == "NORTH"
+
+        }
+
+        data object West : FromEateryFilter(text = "West") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.campusArea == "WEST"
+        }
+
+        data object Central : FromEateryFilter(text = "Central") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.campusArea == "CENTRAL"
+        }
+
+        data object Under10 : FromEateryFilter(text = "Under 10 min") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.getWalkTimeInMinutes()?.let { it <= 10 } == true
+        }
+
+        data object Swipes : FromEateryFilter(text = "Swipes") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.acceptsMealSwipes()
+        }
+
+        data object BRB : FromEateryFilter(text = "BRBs") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.acceptsBRB()
+        }
+
+        data object Cash : FromEateryFilter(text = "Cash") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.acceptsCash()
+        }
+
+        data object Card : FromEateryFilter(text = "Cash") {
+            override fun passesEateryFilter(eatery: Eatery): Boolean =
+                eatery.acceptsCard()
+        }
+    }
+
+    sealed class RequiresFavoriteEateries : Filter("Favorites") {
+        data object Favorites : RequiresFavoriteEateries() {
+            override fun passesFilter(filterData: FilterData): Boolean {
+                val favoriteEateryIds = checkNotNull(filterData.favoriteEateryIds)
+                val eatery = checkNotNull(filterData.eatery)
+
+                return favoriteEateryIds[eatery.id] == true
+            }
+        }
+    }
+
 
     companion object {
-        val PAYMENT_METHODS = setOf(BRB, CASH, SWIPES)
-        val LOCATIONS = setOf(NORTH, WEST, CENTRAL)
+        val paymentMethodFilters =
+            listOf(FromEateryFilter.Cash, FromEateryFilter.BRB, FromEateryFilter.Swipes)
+
+
+        /**
+         * Checks that the `filterData` passes all of the `selectedFilters`
+         * @param allFilters all the filters that the screen uses, must not be empty
+         * @param selectedFilters all the filters that the user has selected (the filters to
+         * check), must be a subset of `allFilters`
+         * @param filterData the data for the filter check, requires that enough data is provided
+         * such that each filter in `allFilters` can run `passesFilter` with the data
+         */
+        fun passesSelectedFilters(
+            allFilters: List<Filter>,
+            selectedFilters: List<Filter>,
+            filterData: FilterData
+        ): Boolean {
+            check(allFilters.isNotEmpty())
+            check(allFilters.containsAll(selectedFilters))
+            checkFilterContext(allFilters, filterData)
+            return selectedFilters.all { it.passesFilter(filterData) }
+        }
+
+        /**
+         * Verifies that the `filterContext` has enough information for the filters that could be
+         * used.
+         * @throws IllegalStateException if `filterContext` has `null` fields that the filters in
+         * `allFilters` require
+         */
+        private fun checkFilterContext(
+            allFilters: List<Filter>,
+            filterData: FilterData
+        ) {
+            allFilters.forEach {
+                it.passesFilter(filterData)
+            }
+        }
     }
 }
 
-fun Filter.passesFilter(
-    eatery: Eatery,
-    favorites: Map<Int, Boolean>,
-    selected: List<Eatery>
-): Boolean =
-    when (this) {
-        Filter.UNDER_10 -> {
-            eatery.getWalkTimes()?.let { it <= 10 } ?: false
-        }
-
-        Filter.NORTH -> {
-            eatery.campusArea == "North"
-        }
-
-        Filter.WEST -> {
-            eatery.campusArea == "West"
-        }
-
-        Filter.CENTRAL -> {
-            eatery.campusArea == "Central"
-        }
-
-        Filter.FAVORITES -> {
-            favorites[eatery.id] == true
-        }
-
-        Filter.BRB -> {
-            eatery.paymentAcceptsBrbs == true
-        }
-
-        Filter.CASH -> {
-            eatery.paymentAcceptsCash == true
-        }
-
-        Filter.SWIPES -> {
-            eatery.paymentAcceptsMealSwipes == true
-        }
-
-        Filter.SELECTED -> {
-            eatery in selected
-        }
+fun List<Filter>.updateFilters(newFilter: Filter): List<Filter> {
+    if (newFilter in this) {
+        return this - newFilter
     }
+    val locationFilters =
+        listOf(FromEateryFilter.Central, FromEateryFilter.West, FromEateryFilter.North)
+    if (newFilter in locationFilters
+    ) {
+        return (this - locationFilters.toSet()) + newFilter
+    }
+    return this + newFilter
+}
 
 
 /**
@@ -69,8 +172,11 @@ fun Filter.passesFilter(
  * endTimes: Float that represents average end time for meal out of 24
  */
 enum class MealFilter(val text: List<String>, val endTimes: Float) {
-    BREAKFAST(listOf("Breakfast", "Brunch"), 10.5f),
-    LUNCH(listOf("Lunch", "Brunch", "Late Lunch"), 16f),
-    DINNER(listOf("Dinner"), 20.5f),
-    LATE_DINNER(listOf("Late Night"), 22.5f);
+    BREAKFAST(listOf("BREAKFAST", "BRUNCH"), 10.5f),
+    LUNCH(listOf("LUNCH", "BRUNCH", "LATE_LUNCH"), 16f),
+    DINNER(listOf("DINNER"), 20.5f),
+    LATE_DINNER(listOf("LATE_NIGHT"), 22.5f);
+
+    val displayName: String
+        get() = name.toMealTypeDisplayName()
 }

@@ -1,120 +1,282 @@
 package com.cornellappdev.android.eatery.data.repositories
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import com.cornellappdev.android.eatery.UserPreferences
-import com.cornellappdev.android.eatery.util.Constants.PASSWORD_ALIAS
+import com.cornellappdev.android.eatery.data.models.ThemePreference
+import com.cornellappdev.android.eatery.util.decryptData
 import com.cornellappdev.android.eatery.util.encryptData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
+import java.io.IOException
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
-// TODO: Add flow for favorites map. Wherever filtering by favorites are needed, read from this
-//  flow, and combine to filter the eateries out with the latest favorites.
 @Singleton
 class UserPreferencesRepository @Inject constructor(
     private val userPreferencesStore: DataStore<UserPreferences>,
 ) {
+    companion object {
+        private const val MAX_RECENT_SEARCHES = 20
+
+        // Android KeyStore key aliases for sensitive credential fields
+        private const val ALIAS_ACCESS_TOKEN = "eatery_access_token"
+        private const val ALIAS_REFRESH_TOKEN = "eatery_refresh_token"
+        private const val ALIAS_SESSION_ID = "eatery_session_id"
+        private const val ALIAS_DEVICE_ID = "eatery_device_id"
+        private const val ALIAS_PIN = "eatery_pin"
+    }
+
     private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
 
+    val hasOnboardedFlow: Flow<Boolean> = userPreferencesFlow.map { it.hasOnboarded }
+    val notificationFlowCompletedFlow: Flow<Boolean> =
+        userPreferencesFlow.map { it.notificationFlowCompleted }
+    val analyticsDisabledFlow: Flow<Boolean> = userPreferencesFlow.map { it.analyticsDisabled }
+    val notificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.notificationsDisabled }
+    val favoriteItemNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.favoriteItemNotificationsDisabled }
+    val appDevNotificationsEnabledFlow: Flow<Boolean> =
+        userPreferencesFlow.map { !it.appDevNotificationsDisabled }
+    val notificationPermissionRequestedFlow: Flow<Boolean> =
+        userPreferencesFlow.map { it.notificationPermissionRequested }
+
     /**
-     * A flow automatically emitting maps indicating whether particular Eateries are favorited.
+     * Emits the decrypted access token, or null if absent or decryption fails.
+     * Tokens are encrypted at rest using AES/GCM via the Android KeyStore.
      */
-    val favoritesFlow: StateFlow<Map<Int, Boolean>> = userPreferencesFlow.map { prefs ->
-        prefs.favoritesMap
-    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, mapOf())
-
-    val recentSearchesFlow: StateFlow<List<Int>> = userPreferencesFlow.map { prefs ->
-        prefs.recentSearchesList
-    }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, listOf())
-
-    suspend fun setHasOnboarded(hasOnboarded: Boolean) {
-        userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder().setHasOnboarded(hasOnboarded).build()
-        }
-    }
-
-    suspend fun setNotificationFlowCompleted(value: Boolean) {
-        userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder().setNotificationFlowCompleted(value).build()
-        }
+    val accessTokenFlow: Flow<String?> = userPreferencesFlow.map { prefs ->
+        decryptOrNull(ALIAS_ACCESS_TOKEN, prefs.accessToken)
     }
 
     /**
-     * Asynchronously sets the indicated eatery id as favorite or not.
+     * Emits the decrypted refresh token, or null if absent or decryption fails.
      */
-    fun setFavorite(eateryId: Int, isFavorite: Boolean) {
-        CoroutineScope(Dispatchers.IO).launch {
-            userPreferencesStore.updateData { currentPreferences ->
-                // There's no set data structure for protobuffs, so if the ID isn't in the map then
-                // it isn't a favorite (hence the removal instead of making false)
-                if (isFavorite) {
-                    currentPreferences.toBuilder().putFavorites(eateryId, true).build()
-                } else {
-                    currentPreferences.toBuilder().removeFavorites(eateryId).build()
-                }
+    val refreshTokenFlow: Flow<String?> = userPreferencesFlow.map { prefs ->
+        decryptOrNull(ALIAS_REFRESH_TOKEN, prefs.refreshToken)
+    }
+
+    val isLoggedInFlow: Flow<Boolean> = userPreferencesFlow.map { it.isLoggedIn }
+
+    val themePreferenceFlow: Flow<ThemePreference> = userPreferencesFlow.map { prefs ->
+        when {
+            !prefs.hasIsDarkMode() -> ThemePreference.SYSTEM
+            prefs.isDarkMode -> ThemePreference.DARK
+            else -> ThemePreference.LIGHT
+        }
+    }
+
+    suspend fun setDarkMode(enabled: Boolean)
+    {
+        userPreferencesStore.updateData { prefs -> prefs.toBuilder()
+            .setIsDarkMode(enabled)
+            .build()}
+    }
+    suspend fun setSystemMode()
+    {
+        userPreferencesStore.updateData { prefs -> prefs.toBuilder()
+            .clearIsDarkMode()
+            .build()}
+    }
+    /**
+     * Emits the decrypted PIN from [UserPreferences.encryptedPin].
+     * Emits 0 if absent, decryption fails, or the decrypted value is invalid.
+     */
+    val pinFlow: Flow<Int> = userPreferencesFlow.map { prefs ->
+        decryptOrDefault(ALIAS_PIN, prefs.encryptedPin) { "0" }.toIntOrNull() ?: 0
+    }
+
+    /**
+     * Emits the decrypted session ID, or an empty string if absent or decryption fails.
+     */
+    val sessionIdFlow: Flow<String> = userPreferencesFlow.map { prefs ->
+        decryptOrDefault(ALIAS_SESSION_ID, prefs.sessionId) { "" }
+    }
+
+    val favoriteEateryNamesFlow: Flow<List<String>> =
+        userPreferencesFlow.map { it.favoriteEateryNamesList }
+    val favoriteItemNamesFlow: Flow<List<String>> =
+        userPreferencesFlow.map { it.itemFavoritesMap.keys.toList() }
+
+    val pendingFavoriteItemUpdatesFlow: Flow<Map<String, Boolean>> =
+        userPreferencesFlow.map { it.pendingFavoriteItemUpdatesMap }
+
+    val favoriteItemsMigratedToBackendFlow: Flow<Boolean> =
+        userPreferencesFlow.map { it.favoriteItemsMigratedToBackend }
+
+    val recentSearchesFlow: Flow<List<Int>> = userPreferencesFlow.map { it.recentSearchesList }
+
+    suspend fun setHasOnboarded(hasOnboarded: Boolean) = setPref {
+        setHasOnboarded(hasOnboarded)
+    }
+
+    suspend fun setNotificationFlowCompleted(value: Boolean) = setPref {
+        setNotificationFlowCompleted(value)
+    }
+
+    suspend fun setAnalyticsDisabled(analyticsDisabled: Boolean) = setPref {
+        setAnalyticsDisabled(analyticsDisabled)
+    }
+
+    suspend fun setNotificationsEnabled(enabled: Boolean) = setPref {
+        setNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setNotificationPermissionRequested(requested: Boolean) = setPref {
+        setNotificationPermissionRequested(requested)
+    }
+
+    suspend fun setFavoriteItemNotificationsEnabled(enabled: Boolean) = setPref {
+        setFavoriteItemNotificationsDisabled(!enabled)
+    }
+
+    suspend fun setAppDevNotificationsEnabled(enabled: Boolean) = setPref {
+        setAppDevNotificationsDisabled(!enabled)
+    }
+
+    suspend fun addRecentSearch(eateryId: Int) = setPref {
+        val updatedRecentSearches = recentSearchesList
+            .filter { it != eateryId }
+            .toMutableList()
+            .apply { add(eateryId) }
+            .takeLast(MAX_RECENT_SEARCHES)
+        clearRecentSearches()
+        addAllRecentSearches(updatedRecentSearches)
+    }
+
+    suspend fun setFavoriteEateryName(eateryName: String, isFavorite: Boolean) {
+        setPref {
+            val updatedFavorites = favoriteEateryNamesList
+                .filter { it != eateryName }
+                .toMutableList()
+
+            if (isFavorite) {
+                updatedFavorites.add(eateryName)
+            }
+
+            clearFavoriteEateryNames()
+            addAllFavoriteEateryNames(updatedFavorites)
+        }
+    }
+
+    suspend fun setFavoriteItemName(itemName: String, isFavorite: Boolean) {
+        setPref {
+            if (isFavorite) {
+                putItemFavorites(itemName, true)
+            } else {
+                removeItemFavorites(itemName)
             }
         }
     }
 
-    suspend fun saveLoginInfo(username: String, password: String) {
+    suspend fun setPendingFavoriteItemUpdate(itemName: String, isFavorite: Boolean) = setPref {
+        putPendingFavoriteItemUpdates(itemName, isFavorite)
+    }
+
+    /**
+     * Removes the pending update for [itemName] only if it's still [syncedState], so a change made
+     * while that state was being synced isn't lost.
+     */
+    suspend fun clearPendingFavoriteItemUpdate(itemName: String, syncedState: Boolean) = setPref {
+        if (pendingFavoriteItemUpdatesMap[itemName] == syncedState) {
+            removePendingFavoriteItemUpdates(itemName)
+        } else {
+            this
+        }
+    }
+
+    suspend fun setFavoriteItemsMigratedToBackend(migrated: Boolean) = setPref {
+        setFavoriteItemsMigratedToBackend(migrated)
+    }
+
+    private suspend fun setPref(setter: UserPreferences.Builder.() -> UserPreferences.Builder) {
         userPreferencesStore.updateData { currentPreferences ->
             currentPreferences.toBuilder()
-                .setUsername(username)
-                .setPassword(encryptData(PASSWORD_ALIAS, password))
+                .setter()
                 .build()
         }
     }
 
-    suspend fun setIsLoggedIn(isLoggdIn: Boolean) {
+    // The device ID is encrypted using the Android KeyStore.
+    suspend fun getOrCreateDeviceId(): String {
+        var resolvedDeviceId: String? = null
         userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder()
-                .setIsLoggedIn(isLoggdIn)
-                .build()
+            val existingRaw = currentPreferences.deviceId.nullIfEmpty()
+            val existingDecrypted = existingRaw?.let { decryptOrNull(ALIAS_DEVICE_ID, it) }
+            if (existingDecrypted != null) {
+                resolvedDeviceId = existingDecrypted
+                currentPreferences
+            } else {
+                val newDeviceId = UUID.randomUUID().toString()
+                resolvedDeviceId = newDeviceId
+                currentPreferences.toBuilder()
+                    .setDeviceId(encryptOrEmpty(ALIAS_DEVICE_ID, newDeviceId))
+                    .build()
+            }
         }
+        return checkNotNull(resolvedDeviceId)
     }
 
-    suspend fun setAnalyticsDisabled(analyticsDisabled: Boolean) {
-        userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder()
-                .setAnalyticsDisabled(analyticsDisabled)
-                .build()
-        }
+
+    /** Encrypts [accessToken] before persisting. Pass an empty string to clear the value. */
+    suspend fun setAccessToken(accessToken: String) {
+        setPref { setAccessToken(encryptOrEmpty(ALIAS_ACCESS_TOKEN, accessToken)) }
     }
 
-    suspend fun addRecentSearch(eateryId: Int) {
-        userPreferencesStore.updateData { currentPreferences ->
-            currentPreferences.toBuilder()
-                .addRecentSearches(eateryId)
-                .build()
-        }
+    /** Encrypts [refreshToken] before persisting. Pass an empty string to clear the value. */
+    suspend fun setRefreshToken(refreshToken: String) {
+        setPref { setRefreshToken(encryptOrEmpty(ALIAS_REFRESH_TOKEN, refreshToken)) }
     }
 
-    suspend fun getFavoritesMap(): Map<Int, Boolean> =
-        userPreferencesFlow.first().favoritesMap
+    suspend fun setIsLoggedIn(loggedIn: Boolean) = setPref {
+        setIsLoggedIn(loggedIn)
+    }
 
-    suspend fun getHasOnboarded(): Boolean =
-        userPreferencesFlow.first().hasOnboarded
+    /**
+     * Encrypts [pin] and stores it in [UserPreferences.encryptedPin].
+     */
+    suspend fun setPin(pin: Int) {
+        val toStore = encryptOrEmpty(ALIAS_PIN, pin.toString())
+        setPref { setEncryptedPin(toStore) }
+    }
 
-    suspend fun getNotificationFlowCompleted(): Boolean =
-        userPreferencesFlow.first().notificationFlowCompleted
+    /** Encrypts [sessionId] before persisting. Pass an empty string to clear the value. */
+    suspend fun setSessionId(sessionId: String) {
+        setPref { setSessionId(encryptOrEmpty(ALIAS_SESSION_ID, sessionId)) }
+    }
 
-    suspend fun getIsLoggedIn(): Boolean =
-        userPreferencesFlow.first().isLoggedIn
+    private fun String?.nullIfEmpty(): String? = if (this.isNullOrEmpty()) null else this
 
-    suspend fun getRecentSearches(): List<Int> =
-        userPreferencesFlow.first().recentSearchesList
+    private fun decryptOrNull(alias: String, encryptedValue: String?): String? {
+        val stored = encryptedValue.nullIfEmpty() ?: return null
+        return runCatching { decryptData(alias, stored) }.getOrNull()
+    }
 
-    suspend fun getAnalyticsDisabled(): Boolean =
-        userPreferencesFlow.first().analyticsDisabled
+    private fun decryptOrDefault(
+        alias: String,
+        encryptedValue: String?,
+        defaultValue: () -> String,
+    ): String {
+        val stored = encryptedValue.nullIfEmpty() ?: return defaultValue()
+        return runCatching { decryptData(alias, stored) }.getOrElse { defaultValue() }
+    }
 
-    suspend fun fetchLoginInfo(): Pair<String, String> =
-        Pair(userPreferencesFlow.first().username, userPreferencesFlow.first().password)
+    private fun encryptOrEmpty(alias: String, rawValue: String): String {
+        return if (rawValue.isEmpty()) "" else encryptData(alias, rawValue)
+    }
 }
+
+/**
+ * Reads a stored preference, falling back to [default] when DataStore can't be read rather than
+ * propagating the IOException to a caller that has no way to recover from it.
+ */
+suspend fun Flow<Boolean>.firstOrOnReadFailure(default: Boolean): Boolean =
+    try {
+        first()
+    } catch (e: IOException) {
+        Log.w("UserPreferences", "Failed to read a stored preference", e)
+        default
+    }

@@ -5,6 +5,18 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+
+        <package android:name="com.google.android.apps.maps" />
+        <package android:name="com.cbord.get" />
+        <package android:name="com.android.vending" />
+    </queries>
 
     <application
         android:name="com.cornellappdev.android.eatery.EateryBlueApplication"
@@ -22,12 +34,28 @@
         <!--            android:name="firebase_analytics_collection_deactivated"-->
         <!--            android:value="@bool/FIREBASE_ANALYTICS_DEACTIVATED" />-->
 
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/fcm_default_channel_id" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.EateryBlue">
+            android:theme="@style/Theme.EateryBlue"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="eatery" />
+            </intent-filter>
+            <!-- Opens the app when a background push is tapped; the backend sets this click action -->
+            <intent-filter>
+                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <meta-data
                 android:name="android.app.lib_name"
@@ -135,7 +163,7 @@
         </activity-alias>
 
         <service
-            android:name=".util.FirebaseMessaging"
+            android:name=".notifications.EateryMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

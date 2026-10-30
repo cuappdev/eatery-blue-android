@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository,
+    private val userPreferencesRepository: UserPreferencesRepository
 ) : ViewModel() {
     fun updateOnboardingCompleted() = viewModelScope.launch {
         userPreferencesRepository.setHasOnboarded(hasOnboarded = true)

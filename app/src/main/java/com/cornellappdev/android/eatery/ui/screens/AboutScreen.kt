@@ -17,17 +17,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,45 +39,48 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
-import com.cornellappdev.android.eatery.ui.theme.GraySix
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.launch
 
 @Composable
 fun AboutScreen() {
     val uriCurrent = LocalUriHandler.current
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = currentColors.backgroundDefault)
+    ) {
         Column(
             modifier = Modifier
-                .padding(top = 36.dp, start = 16.dp, end = 16.dp)
+                .padding(horizontal = 16.dp)
+                .then(Modifier.statusBarsPadding())
                 .fillMaxWidth()
         ) {
             Text(
-                text = "About Eatery",
-                color = EateryBlue,
+                text = stringResource(R.string.about_title),
+                color = currentColors.textPrimary,
                 style = EateryBlueTypography.h2,
                 modifier = Modifier.padding(top = 7.dp)
             )
             Text(
-                text = "Learn more about Cornell AppDev",
-                color = GraySix,
+                text = stringResource(R.string.about_description),
+                color = currentColors.textSecondary,
                 style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 18.sp),
                 modifier = Modifier.padding(top = 7.dp, bottom = 24.dp)
             )
-            Row(
-                horizontalArrangement = Arrangement.Center,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 36.dp)
@@ -85,16 +89,16 @@ fun AboutScreen() {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_appdev),
                         contentDescription = null,
-                        tint = GrayFive,
+                        tint = currentColors.textSecondary,
                         modifier = Modifier
                             .height(24.dp)
                             .width(24.dp)
                     )
 
                     Text(
-                        text = "DESIGNED AND DEVELOPED BY",
+                        text = stringResource(R.string.about_designed_and_developed_by),
                         style = EateryBlueTypography.subtitle1,
-                        color = GrayFive,
+                        color = currentColors.textSecondary,
                         modifier = Modifier.padding(top = 12.dp)
                     )
 
@@ -105,14 +109,14 @@ fun AboutScreen() {
                             .padding(top = 4.dp)
                     ) {
                         Text(
-                            text = "Cornell",
+                            text = stringResource(R.string.about_cornell),
                             style = EateryBlueTypography.h2,
-                            color = Color.Black,
+                            color = currentColors.textPrimary,
                         )
                         Text(
-                            text = "AppDev",
+                            text = stringResource(R.string.about_appdev),
                             style = EateryBlueTypography.h2,
-                            color = Color.Black,
+                            color = currentColors.textPrimary,
                         )
                     }
                 }
@@ -120,7 +124,7 @@ fun AboutScreen() {
         }
 
         Column {
-            TeamPosition.values().forEach {
+            TeamPosition.entries.forEach {
                 CreditsRow(position = it)
             }
         }
@@ -130,7 +134,7 @@ fun AboutScreen() {
         Button(
             shape = RoundedCornerShape(24.dp),
             modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp)
+                .padding(horizontal = 16.dp)
                 .then(Modifier.navigationBarsPadding())
                 .height(48.dp)
                 .fillMaxWidth(),
@@ -138,17 +142,22 @@ fun AboutScreen() {
                 uriCurrent.openUri("https://www.cornellappdev.com/")
             },
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = GrayOne,
-                contentColor = Color.Black
+                containerColor = currentColors.accentPrimary,
+                contentColor = currentColors.textPrimary
             )
         ) {
-            Icon(Icons.Default.Language, null)
+            Icon(
+                Icons.Default.Language,
+                contentDescription = null,
+                tint = currentColors.textPrimary
+            )
             Spacer(
                 Modifier.size(ButtonDefaults.IconSpacing)
             )
             Text(
-                text = "Visit our website",
+                text = stringResource(R.string.about_website_button),
                 style = EateryBlueTypography.h5,
+                color = currentColors.textPrimary,
                 modifier = Modifier.padding(start = 8.dp)
             )
         }
@@ -259,8 +268,7 @@ fun CreditsRow(position: TeamPosition) {
         targetValue = if (scrolled) 1.0f else 0.0f,
         animationSpec = tween(250, 0, LinearEasing)
     )
-    val configuration = LocalConfiguration.current
-    val screenDensity = configuration.densityDpi / 160f
+    val screenWidth = LocalWindowInfo.current.containerSize.width.toFloat()
 
     LazyRow(
         modifier = Modifier
@@ -271,7 +279,6 @@ fun CreditsRow(position: TeamPosition) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (!scrolled) {
-            val screenWidth = configuration.screenWidthDp.toFloat() * screenDensity
             val scrollDist = ((screenWidth / 2 + (Math.random() * screenWidth)) * .65).toFloat()
             val multFactor = 50000
             coroutineScope.launch {
@@ -291,7 +298,7 @@ fun CreditsRow(position: TeamPosition) {
                     Text(
                         text = teamNameMap[item]!!,
                         style = EateryBlueTypography.button,
-                        color = Color.Black,
+                        color = currentColors.textPrimary,
                         modifier = Modifier.padding(start = 15.dp)
                     )
                 } else {
@@ -299,12 +306,12 @@ fun CreditsRow(position: TeamPosition) {
                         modifier = Modifier
                             .height(34.dp)
                             .clip(RoundedCornerShape(17.dp))
-                            .background(GrayOne)
+                            .background(currentColors.accentPrimary)
                     ) {
                         Text(
                             text = item as String,
                             style = EateryBlueTypography.button,
-                            color = Color.Black,
+                            color = currentColors.textPrimary,
                             modifier = Modifier.padding(
                                 start = 10.dp,
                                 top = 8.dp,
@@ -318,12 +325,19 @@ fun CreditsRow(position: TeamPosition) {
                 Icon(
                     Icons.Filled.Star,
                     contentDescription = null,
-                    tint = GrayOne,
+                    tint = currentColors.accentPrimary,
                     modifier = Modifier
                         .height(7.dp)
-                        .padding(start = 12.33.dp, end = 12.33.dp)
+                        .padding(horizontal = 12.33.dp)
                         .width(7.33.dp)
                 )
             })
     }
 }
+
+@DualModePreview
+@Composable
+private fun AboutScreenPreview() = EateryPreview {
+    AboutScreen()
+}
+

@@ -7,13 +7,16 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,12 +25,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.cornellappdev.android.eatery.ui.components.general.AppStoreRatingPopup
 import com.cornellappdev.android.eatery.ui.screens.AboutScreen
 import com.cornellappdev.android.eatery.ui.screens.CompareMenusScreen
 import com.cornellappdev.android.eatery.ui.screens.EateryDetailScreen
@@ -36,6 +42,8 @@ import com.cornellappdev.android.eatery.ui.screens.FirstTimeShown
 import com.cornellappdev.android.eatery.ui.screens.HomeScreen
 import com.cornellappdev.android.eatery.ui.screens.LegalScreen
 import com.cornellappdev.android.eatery.ui.screens.NearestScreen
+import com.cornellappdev.android.eatery.ui.screens.NotificationsHomeScreen
+import com.cornellappdev.android.eatery.ui.screens.NotificationsSettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.OnboardingScreen
 import com.cornellappdev.android.eatery.ui.screens.PrivacyScreen
 import com.cornellappdev.android.eatery.ui.screens.ProfileScreen
@@ -43,55 +51,57 @@ import com.cornellappdev.android.eatery.ui.screens.SearchScreen
 import com.cornellappdev.android.eatery.ui.screens.SettingsScreen
 import com.cornellappdev.android.eatery.ui.screens.SupportScreen
 import com.cornellappdev.android.eatery.ui.screens.UpcomingMenuScreen
-import com.cornellappdev.android.eatery.ui.theme.EateryBlue
-import com.cornellappdev.android.eatery.ui.viewmodels.CompareMenusViewModel
-import com.cornellappdev.android.eatery.ui.viewmodels.LoginViewModel
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NavigationSetup(hasOnboarded: Boolean) {
-    val navController = rememberAnimatedNavController()
+fun NavigationSetup(
+    hasOnboarded: Boolean,
+    notificationHubRequests: Flow<Unit>,
+) {
+    val navController = rememberNavController()
+
+    // Tapping a push opens the hub, like tapping the bell. Onboarding users stay where they are;
+    // this checks the live route since onboarding can finish after launch.
+    LaunchedEffect(navController) {
+        notificationHubRequests.collect {
+            // Wait for the NavHost to set its graph on a cold start.
+            navController.currentBackStackEntryFlow.first()
+            if (navController.currentDestination?.route != Routes.ONBOARDING.route) {
+                navController.openNotificationHub()
+            }
+        }
+    }
     val showBottomBar = rememberSaveable {
         mutableStateOf(false)
     }
+    val resolvedDarkMode = rememberResolvedDarkMode()
 
     // Subscribe to navBackStackEntry, required to get current route
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val routeWithoutBottomBar = setOf(
+        Routes.ONBOARDING.route,
+        Routes.ABOUT.route,
+        Routes.NOTIFICATIONS_SETTING.route,
+        Routes.PRIVACY.route,
+        Routes.LEGAL.route,
+        Routes.SUPPORT.route
+    )
+    val currentRoute = navBackStackEntry?.destination?.route
 
-    when (navBackStackEntry?.destination?.route) {
-        Routes.ONBOARDING.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.ABOUT.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.FAVORITES.route -> {
-            showBottomBar.value = true
-        }
-
-        Routes.PRIVACY.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.LEGAL.route -> {
-            showBottomBar.value = false
-        }
-
-        Routes.SUPPORT.route -> {
-            showBottomBar.value = false
-        }
-
-        else -> {
-            showBottomBar.value = true
-        }
+    // Avoid mutating state during composition; update bottom bar visibility only when route changes.
+    LaunchedEffect(currentRoute) {
+        showBottomBar.value = currentRoute !in routeWithoutBottomBar
     }
 
     Scaffold(
+        containerColor = currentColors.backgroundDefault,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             AnimatedContent(
                 targetState = showBottomBar.value,
@@ -99,11 +109,15 @@ fun NavigationSetup(hasOnboarded: Boolean) {
                     expandVertically(
                         animationSpec = tween(durationMillis = 500),
                         expandFrom = Alignment.Bottom
-                    ) with shrinkVertically(animationSpec = tween(durationMillis = 500))
+                    ).togetherWith(shrinkVertically(animationSpec = tween(durationMillis = 500)))
                 }
             ) { state ->
                 if (state) {
-                    BottomNavigationBar(navController, NavigationItem.bottomNavTabList)
+                    BottomNavigationBar(
+                        navController = navController,
+                        tabItems = NavigationItem.bottomNavTabList,
+                        darkMode = resolvedDarkMode
+                    )
                 }
             }
         }
@@ -117,26 +131,52 @@ fun NavigationSetup(hasOnboarded: Boolean) {
     }
 }
 
+/**
+ * Switches to Home and opens the notification hub on top of it, unless the hub is already showing.
+ */
+private fun NavHostController.openNotificationHub() {
+    if (currentDestination?.route == Routes.NOTIFICATIONS_HOME.route) return
+
+    navigate(Routes.HOME.route) {
+        popUpTo(Routes.HOME.route)
+        launchSingleTop = true
+    }
+    navigate(Routes.NOTIFICATIONS_HOME.route)
+}
+
 @Composable
-fun BottomNavigationBar(navController: NavHostController, tabItems: List<NavigationItem>) {
+fun BottomNavigationBar(
+    navController: NavHostController,
+    tabItems: List<NavigationItem>,
+    darkMode: Boolean
+) {
     NavigationBar(
-        containerColor = Color.White,
-        contentColor = EateryBlue
+        containerColor = currentColors.accentPrimary
     ) {
         val currentRoute = currentRoute(navController)
         tabItems.forEach { item ->
-            BottomNavigationItem(
+            val isSelected = item.selectedRoutes.contains(currentRoute)
+            val iconId = if (isSelected) {
+                if (darkMode) item.selectedDarkIconId else item.selectedIconId
+            } else {
+                // Same icon for dark and light mode when unselected
+                item.unselectedIconId
+            }
+            NavigationBarItem(
+
                 icon = {
                     Icon(
                         painter = painterResource(
-                            id = if (item.selectedRoutes.contains(currentRoute)) item.selectedIconId else item.unselectedIconId
+                            id = iconId
                         ),
-                        contentDescription = item.route
+                        contentDescription = item.route,
+                        tint = Color.Unspecified
                     )
                 },
-                selected = item.selectedRoutes.contains(currentRoute),
-                selectedContentColor = Color.Unspecified,
-                unselectedContentColor = Color.Unspecified,
+                selected = isSelected,
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent
+                ),
                 onClick = {
                     FirstTimeShown.firstTimeShown = false
                     navController.navigate(item.route)
@@ -146,17 +186,29 @@ fun BottomNavigationBar(navController: NavHostController, tabItems: List<Navigat
     }
 }
 
+@DualModePreview
+@Composable
+private fun BottomNavBarPreview() = EateryPreview {
+    BottomNavigationBar(
+        navController = rememberNavController(),
+        tabItems = NavigationItem.bottomNavTabList,
+        darkMode = false
+    )
+}
+
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SetupNavHost(
     modifier: Modifier = Modifier,
     hasOnboarded: Boolean,
     navController: NavHostController,
-    showBottomBar: MutableState<Boolean>,
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    showBottomBar: MutableState<Boolean>
+
 ) {
+    AppStoreRatingPopup(navigateToSupport = { navController.navigate(Routes.SUPPORT.route) })
+
     // The starting destination switches to onboarding if it isn't completed.
-    AnimatedNavHost(
+    NavHost(
         modifier = modifier,
         navController = navController,
         startDestination = if (hasOnboarded) Routes.HOME.route else Routes.ONBOARDING.route
@@ -191,19 +243,27 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            HomeScreen(showBottomBar = showBottomBar, onSearchClick = {
-                FirstTimeShown.firstTimeShown = false
-                navController.navigate(Routes.SEARCH.route)
-            }, onEateryClick = {
-                FirstTimeShown.firstTimeShown = false
-                navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            }, onFavoriteExpand = {
-                navController.navigate(Routes.FAVORITES.route)
-            }, onNearestExpand = {
-                navController.navigate(Routes.NEAREST.route)
-            }, onCompareMenusClick = { selectedEateries ->
-                navController.navigate("comparemenus/${selectedEateries.joinToString(",") { it.toString() }}")
-            }
+            HomeScreen(
+                showBottomBar = showBottomBar, onSearchClick = {
+                    FirstTimeShown.firstTimeShown = false
+                    navController.navigate(Routes.SEARCH.route)
+                }, onEateryClick = {
+                    FirstTimeShown.firstTimeShown = false
+                    navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+                }, onFavoriteExpand = {
+                    navController.navigate(Routes.FAVORITES.route)
+                }, onCompareMenusClick = { selectedEateries ->
+                    navController.navigate(
+                        "${Routes.COMPAREMENUS.route}/${
+                            selectedEateries.joinToString(
+                                ","
+                            ) { it.toString() }
+                        }"
+                    )
+                },
+                onNotificationsClick = {
+                    navController.navigate("notifications_home")
+                }
             )
         }
         composable(
@@ -219,9 +279,9 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            UpcomingMenuScreen {
-                navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            }
+            UpcomingMenuScreen(onEateryClick = { eateryId ->
+                navController.navigate("${Routes.EATERY_DETAIL.route}/$eateryId")
+            })
         }
         composable(
             route = "${Routes.EATERY_DETAIL.route}/{eateryId}",
@@ -239,7 +299,13 @@ fun SetupNavHost(
             }) {
             EateryDetailScreen(
                 onCompareMenusClick = { selectedEateriesIds ->
-                    navController.navigate("comparemenus/${selectedEateriesIds.joinToString(",") { it.toString() }}")
+                    navController.navigate(
+                        "${Routes.COMPAREMENUS.route}/${
+                            selectedEateriesIds.joinToString(
+                                ","
+                            ) { it.toString() }
+                        }"
+                    )
                 }
             )
         }
@@ -280,8 +346,8 @@ fun SetupNavHost(
                 )
             }) {
             ProfileScreen(
-                loginViewModel = loginViewModel,
-                onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) }
+                onSettingsClicked = { navController.navigate(Routes.SETTINGS.route) },
+                onBackClick = navController::popBackStack
             )
         }
         composable(
@@ -301,6 +367,8 @@ fun SetupNavHost(
                 destinations = hashMapOf(
                     Routes.ABOUT to { navController.navigate(Routes.ABOUT.route) },
                     Routes.FAVORITES to { navController.navigate(Routes.FAVORITES.route) },
+                    Routes.NOTIFICATIONS_SETTING to { navController.navigate(Routes.NOTIFICATIONS_SETTING.route) },
+                    Routes.NOTIFICATIONS_HOME to { navController.navigate(Routes.NOTIFICATIONS_HOME.route) },
                     Routes.LEGAL to { navController.navigate(Routes.LEGAL.route) },
                     Routes.PRIVACY to { navController.navigate(Routes.PRIVACY.route) },
                     Routes.SUPPORT to { navController.navigate(Routes.SUPPORT.route) },
@@ -313,25 +381,8 @@ fun SetupNavHost(
                             }
                         }
                     }
-                ),
-                loginViewModel = loginViewModel
+                )
             )
-
-        }
-        composable(
-            route = Routes.ACCOUNT.route,
-            enterTransition = {
-                fadeIn(
-                    initialAlpha = 0f,
-                    animationSpec = tween(durationMillis = 500)
-                )
-            },
-            exitTransition = {
-                fadeOut(
-                    animationSpec = tween(durationMillis = 500)
-                )
-            }) { backStackEntry ->
-            // TODO account page
         }
         composable(
             route = Routes.ABOUT.route,
@@ -361,9 +412,48 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            FavoritesScreen(onEateryClick = {
-                navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
-            })
+            FavoritesScreen(
+                onEateryClick = {
+                    navController.navigate("${Routes.EATERY_DETAIL.route}/${it.id}")
+                }, onSearchClick = {
+                    FirstTimeShown.firstTimeShown = false
+                    navController.navigate(Routes.SEARCH.route)
+                },
+                onBackClick = {
+                    navController.popBackStack()
+                })
+        }
+
+        composable(
+            route = Routes.NOTIFICATIONS_SETTING.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
+            }) {
+            NotificationsSettingsScreen(onBackClick = navController::popBackStack)
+        }
+
+        composable(
+            route = Routes.NOTIFICATIONS_HOME.route,
+            enterTransition = {
+                fadeIn(
+                    initialAlpha = 0f,
+                    animationSpec = tween(durationMillis = 500)
+                )
+            },
+            exitTransition = {
+                fadeOut(
+                    animationSpec = tween(durationMillis = 500)
+                )
+            }) {
+            NotificationsHomeScreen(onBackClick = navController::popBackStack)
         }
 
         composable(
@@ -396,7 +486,8 @@ fun SetupNavHost(
                 fadeOut(
                     animationSpec = tween(durationMillis = 500)
                 )
-            }) {
+            }
+        ) {
             LegalScreen()
         }
         composable(
@@ -412,7 +503,12 @@ fun SetupNavHost(
                     animationSpec = tween(durationMillis = 500)
                 )
             }) {
-            PrivacyScreen()
+            PrivacyScreen(
+                onBackClick = navController::popBackStack,
+                onNotificationSettingsClick = {
+                    navController.navigate(Routes.NOTIFICATIONS_SETTING.route)
+                }
+            )
         }
         composable(
             route = Routes.SUPPORT.route,
@@ -430,7 +526,7 @@ fun SetupNavHost(
             SupportScreen()
         }
         composable(
-            route = "comparemenus/{eateryIds}",
+            route = "${Routes.COMPAREMENUS.route}/{eateryIds}",
             arguments = listOf(navArgument("eateryIds") { type = NavType.StringType }),
             enterTransition = { fadeIn(animationSpec = tween(durationMillis = 500)) },
             exitTransition = { fadeOut(animationSpec = tween(durationMillis = 500)) }
@@ -455,8 +551,9 @@ private fun currentRoute(navController: NavHostController): String? {
     return navBackStackEntry?.destination?.route
 }
 
-fun NavController.isOnBackStack(route: String): Boolean = try {
+private fun NavController.isOnBackStack(route: String): Boolean = try {
     getBackStackEntry(route); true
-} catch (e: Throwable) {
+} catch (_: IllegalArgumentException) {
     false
 }
+

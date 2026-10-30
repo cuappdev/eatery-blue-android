@@ -18,7 +18,7 @@ object Constants {
         "unlimited" to AccountType.UNLIMITED,
         "basic" to AccountType.BEAR_BASIC,
         "choice" to AccountType.BEAR_CHOICE,
-        "house meal plan" to AccountType.HOUSE_MEALPLAN,
+        "house meal plan" to AccountType.HOUSE_MEAL_PLAN,
         "house affiliate" to AccountType.HOUSE_AFFILIATE,
         "flex" to AccountType.FLEX,
         "just bucks" to AccountType.JUST_BUCKS

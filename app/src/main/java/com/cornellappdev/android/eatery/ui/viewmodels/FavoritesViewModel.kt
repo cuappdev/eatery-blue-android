@@ -2,38 +2,246 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.EateryStatus
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
-import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.UserRepository
+import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCardViewState
+import com.cornellappdev.android.eatery.ui.components.general.Filter
+import com.cornellappdev.android.eatery.ui.components.general.Filter.FromEateryFilter
+import com.cornellappdev.android.eatery.ui.components.general.FilterData
+import com.cornellappdev.android.eatery.ui.components.general.updateFilters
+import com.cornellappdev.android.eatery.ui.theme.ErrorLight
+import com.cornellappdev.android.eatery.ui.theme.SuccessLight
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
+
+private val allEateryFilters = listOf(
+    FromEateryFilter.Central,
+    FromEateryFilter.North,
+    FromEateryFilter.West,
+    FromEateryFilter.Swipes,
+    FromEateryFilter.BRB,
+    FromEateryFilter.Under10,
+    FromEateryFilter.Cash
+)
+private val allItemFilters = listOf(
+    Filter.ItemAvailableToday,
+    FromEateryFilter.Central,
+    FromEateryFilter.North,
+    FromEateryFilter.West,
+)
+
+sealed class FavoritesScreenViewState {
+    data class Loaded(
+        val eateries: List<Eatery>,
+        val favoriteCards: List<ItemFavoritesCardViewState>,
+        val selectedEateryFilters: List<Filter>,
+        val selectedItemFilters: List<Filter>,
+        val eateryFilters: List<Filter> = allEateryFilters,
+        val itemFilters: List<Filter> = allItemFilters,
+    ) : FavoritesScreenViewState()
+
+    data object Error : FavoritesScreenViewState()
+    data object Loading : FavoritesScreenViewState()
+}
+
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
-    private val userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository
+    eateryRepository: EateryRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
+    data class FavoritesUiState(
+        val screenState: FavoritesScreenViewState = FavoritesScreenViewState.Loading,
+        val error: NetworkUiError? = null
+    )
+
+    private val selectedEateryFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
+    private val selectedItemFiltersFlow = MutableStateFlow<List<Filter>>(emptyList())
+
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+
+    fun clearError() {
+        _error.value = null
+    }
+
     /**
-     * A flow emitting all the eateries the user has favorited.
+     * A flow emitting the latest UI state
      */
-    val favoriteEateries = combine(
-        eateryRepository.homeEateryFlow, userPreferencesRepository.favoritesFlow
-    ) { apiResponse, favorites ->
+    private val favoritesScreenViewState: StateFlow<FavoritesScreenViewState> = combine(
+        eateryRepository.eateryFlow,
+        userRepository.favoriteEateriesFlow,
+        userRepository.favoriteItemsFlow,
+        selectedEateryFiltersFlow,
+        selectedItemFiltersFlow
+    ) { apiResponse, favoriteEateries, favoriteItems, selectedEateryFilters, selectedItemFilters ->
         when (apiResponse) {
-            is EateryApiResponse.Error -> EateryApiResponse.Pending
-            is EateryApiResponse.Pending -> EateryApiResponse.Error
+            is EateryApiResponse.Error -> FavoritesScreenViewState.Error
+            is EateryApiResponse.Pending -> FavoritesScreenViewState.Loading
             is EateryApiResponse.Success -> {
-                EateryApiResponse.Success(apiResponse.data.filter {
-                    favorites[it.id] == true
-                }.sortedBy { it.name }.sortedBy { it.isClosed() })
+                val allEateries = apiResponse.data
+
+                val favoriteEateryObjects = allEateries.filter { eatery ->
+                    eatery.name in favoriteEateries
+                }
+
+                val filteredEateries = favoriteEateryObjects.filter {
+                    Filter.passesSelectedFilters(
+                        allEateryFilters, selectedEateryFilters, FilterData(
+                            eatery = it,
+                        )
+                    )
+                }
+
+                val today = LocalDate.now()
+                val menuItemsToEateries: Map<String, List<Eatery>> =
+                    favoriteItems.associateWith { itemName ->
+                        allEateries.filter { eatery ->
+                            val todayEvents = eatery.events?.filter {
+                                it.startTimestamp?.toLocalDate() == today
+                            }
+                            todayEvents?.any { event ->
+                                event.menu?.flatMap { it.items ?: emptyList() }?.any {
+                                    itemName == it.name
+                                } == true
+                            } == true
+                        }
+                    }.mapValues { (itemName, eateries) ->
+                        eateries.filter {
+                            Filter.passesSelectedFilters(
+                                allItemFilters, selectedItemFilters, FilterData(
+                                    eatery = it,
+                                    targetItemName = itemName,
+                                )
+                            )
+                        }
+                    }.filter { (_, eateries) ->
+                        if (Filter.ItemAvailableToday in selectedItemFilters) {
+                            eateries.isNotEmpty()
+                        } else true
+                    }
+
+                val itemFavoriteCards = menuItemsToEateries.map { (itemName, eateriesByItem) ->
+                    ItemFavoritesCardViewState(
+                        itemName = itemName,
+                        availability = if (eateriesByItem.isEmpty()) EateryStatus(
+                            "Not available",
+                            ErrorLight
+                        ) else EateryStatus("Available today", SuccessLight),
+                        mealAvailability = buildMap {
+                            eateriesByItem.forEach { eatery ->
+                                eatery.events?.filter { event ->
+                                    event.startTimestamp?.toLocalDate() == today &&
+                                            event.menu?.any { category ->
+                                                category.items?.any { menuItem -> menuItem.name == itemName } == true
+                                            } == true
+                                }?.forEach { event ->
+                                    val mealType = normalizeMealType(event.type ?: "Other")
+                                    getOrPut(mealType) { mutableListOf() }
+                                        .also {
+                                            if (eatery.name != null && eatery.name !in it) it.add(
+                                                eatery.name
+                                            )
+                                        }
+                                }
+                            }
+                        }.toSortedMap { s1, s2 -> s1.toSortOrder().compareTo(s2.toSortOrder()) }
+                    )
+                }.sortedByDescending { it.availability.statusColor == SuccessLight }
+
+
+                FavoritesScreenViewState.Loaded(
+                    eateries = filteredEateries,
+                    favoriteCards = itemFavoriteCards,
+                    selectedItemFilters = selectedItemFilters,
+                    selectedEateryFilters = selectedEateryFilters,
+                )
             }
         }
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, FavoritesScreenViewState.Loading)
 
-    fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null) userPreferencesRepository.setFavorite(eateryId, false)
+    val uiState: StateFlow<FavoritesUiState> = combine(
+        favoritesScreenViewState,
+        _error
+    ) { screenState, networkError ->
+        FavoritesUiState(
+            screenState = screenState,
+            error = networkError
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), FavoritesUiState())
+
+    private fun normalizeMealType(raw: String): String {
+        return when (val normalized = raw.replace("_", " ").trim().lowercase()) {
+            "late night", "late_night" -> "Late Dinner"
+            "empty" -> "All Day"
+            else -> normalized.split(" ").joinToString(" ") { w ->
+                w.replaceFirstChar { it.uppercase() }
+            }
+        }
+    }
+
+    private fun String.toSortOrder(): Int = when (this.lowercase()) {
+        "breakfast" -> 1
+        "brunch" -> 2
+        "lunch" -> 3
+        "late lunch" -> 4
+        "dinner" -> 5
+        "late dinner" -> 6
+        else -> Int.MAX_VALUE
+    }
+
+    fun removeFavoriteMenuItem(menuItemName: String) = viewModelScope.launch {
+        when (val result = userRepository.removeFavoriteItem(menuItemName)) {
+            is Result.Success -> {
+                _error.value = null
+            }
+
+            is Result.Error -> {
+                _error.value = NetworkUiError.Failed(
+                    NetworkAction.RemoveFavoriteItem,
+                    result.error
+                )
+            }
+        }
+    }
+
+    fun toggleEateryFilter(filter: FromEateryFilter) {
+        selectedEateryFiltersFlow.update {
+            it.updateFilters(filter)
+        }
+    }
+
+    fun toggleItemFilter(filter: Filter) {
+        selectedItemFiltersFlow.update {
+            it.updateFilters(filter)
+        }
+    }
+
+    fun removeFavorite(eateryId: Int, eateryName: String) {
+        viewModelScope.launch {
+            when (val result = userRepository.removeFavoriteEatery(eateryId, eateryName)) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.RemoveFavoriteEatery, result.error)
+                }
+            }
+        }
     }
 }

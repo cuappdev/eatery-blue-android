@@ -3,85 +3,208 @@ package com.cornellappdev.android.eatery.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.EateryRepository
 import com.cornellappdev.android.eatery.data.repositories.UserPreferencesRepository
+import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.components.general.Filter
+import com.cornellappdev.android.eatery.ui.components.general.FilterData
+import com.cornellappdev.android.eatery.ui.components.general.updateFilters
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkAction
+import com.cornellappdev.android.eatery.ui.viewmodels.state.NetworkUiError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+/**
+ * A single food item result from a cross-eatery search, paired with the eatery that serves it.
+ */
+data class FoodItemSearchResult(
+    val itemName: String,
+    val eatery: Eatery,
+    val isFavorite: Boolean = false
+)
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
-    private val eateryRepository: EateryRepository
+    private val eateryRepository: EateryRepository,
+    private val userRepository: UserRepository
 ) : ViewModel() {
+    data class SearchUiState(
+        val query: String = "",
+        val filters: List<Filter> = emptyList(),
+        val searchResponse: EateryApiResponse<List<Eatery>> = EateryApiResponse.Pending,
+        val foodItemResults: List<FoodItemSearchResult> = emptyList(),
+        val favoriteEateries: List<Eatery> = emptyList(),
+        val recentSearches: List<Int> = emptyList(),
+        val error: NetworkUiError? = null
+    )
+
+    private val eateryFlowCache = mutableMapOf<Int, StateFlow<EateryApiResponse<Eatery>>>()
+
     private val _filtersFlow: MutableStateFlow<List<Filter>> = MutableStateFlow(listOf())
 
-    /**
-     * A flow of filters applied to the screen.
-     */
-    val filtersFlow = _filtersFlow.asStateFlow()
+    private val _error = MutableStateFlow<NetworkUiError?>(null)
+
+    fun clearError() {
+        _error.value = null
+    }
 
     /**
      * The current search query. Combine with other flows to filter by search query.
      */
     private val _searchFlow: MutableStateFlow<String> = MutableStateFlow("")
 
-    /**
-     * The current String search query.
-     */
-    val searchFlow = _searchFlow.asStateFlow()
+    val searchScreenFilters = listOf(
+        Filter.FromEateryFilter.North,
+        Filter.FromEateryFilter.West,
+        Filter.FromEateryFilter.Central,
+        Filter.FromEateryFilter.BRB,
+        Filter.FromEateryFilter.Swipes,
+        Filter.RequiresFavoriteEateries.Favorites,
+        Filter.FromEateryFilter.Under10
+    )
 
     /**
      * A flow of the eateries that should show up with the current query.
      */
-    val searchResultEateries = combine(
-        eateryRepository.homeEateryFlow,
-        filtersFlow,
+    private val searchResultEateries = combine(
+        eateryRepository.eateryFlow,
+        _filtersFlow,
+        userRepository.favoriteEateriesFlow,
         _searchFlow
-    ) { eateryApiResponse, filters, searchQuery ->
+    ) { eateryApiResponse, filters, favorites, searchQuery ->
         when (eateryApiResponse) {
             is EateryApiResponse.Error -> EateryApiResponse.Error
             is EateryApiResponse.Pending -> EateryApiResponse.Pending
             is EateryApiResponse.Success -> {
+                val favoriteEateryIds = eateryApiResponse.data.filter { it.id != null }
+                    .associate { it.id!! to (it.name in favorites) }
                 EateryApiResponse.Success(
-                    eateryApiResponse.data.sortedBy { it.isClosed() }.filter {
-                        it.passesFilter(filters) && it.passesSearch(searchQuery)
+                    eateryApiResponse.data.sortedBy { it.isClosed() }.filter { eatery ->
+                        Filter.passesSelectedFilters(
+                            searchScreenFilters, filters, FilterData(
+                                eatery = eatery,
+                                favoriteEateryIds = favoriteEateryIds
+                            )
+                        ) && eatery.passesSearch(searchQuery)
                     })
             }
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, EateryApiResponse.Pending)
 
     /**
+     * A flow of the food items (across all eateries) that match the current query.
+     */
+    private val searchResultFoodItems = combine(
+        eateryRepository.eateryFlow,
+        _filtersFlow,
+        userRepository.favoriteEateriesFlow,
+        userRepository.favoriteItemsFlow,
+        _searchFlow
+    ) { eateryApiResponse, filters, favorites, favoriteItems, searchQuery ->
+        if (searchQuery.isEmpty() || eateryApiResponse !is EateryApiResponse.Success) {
+            emptyList()
+        } else {
+            val favoriteEateryIds = eateryApiResponse.data.filter { it.id != null }
+                .associate { it.id!! to (it.name in favorites) }
+            val seenItems = mutableSetOf<Pair<Int?, String>>()
+            val results = mutableListOf<FoodItemSearchResult>()
+            eateryApiResponse.data.forEach { eatery ->
+                val passesFilters = Filter.passesSelectedFilters(
+                    searchScreenFilters, filters, FilterData(
+                        eatery = eatery,
+                        favoriteEateryIds = favoriteEateryIds
+                    )
+                )
+                if (!passesFilters) return@forEach
+
+                eatery.events?.forEach { event ->
+                    event.menu?.forEach { menuCategory ->
+                        menuCategory.items?.forEach { menuItem ->
+                            val itemName = menuItem.name
+                            if (itemName != null && itemName.contains(searchQuery, true)) {
+                                if (seenItems.add(eatery.id to itemName)) {
+                                    results.add(
+                                        FoodItemSearchResult(
+                                            itemName = itemName,
+                                            eatery = eatery,
+                                            isFavorite = itemName in favoriteItems
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            results
+        }
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    /**
      * A flow of the user's recent searches.
      */
-    val recentSearches = userPreferencesRepository.recentSearchesFlow
+    private val recentSearches = userPreferencesRepository.recentSearchesFlow
         .stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
     /**
      * A flow of the user's current favorite eateries.
      */
-    val favoriteEateries =
+    private val favoriteEateries =
         combine(
-            eateryRepository.homeEateryFlow,
-            userPreferencesRepository.favoritesFlow
+            eateryRepository.eateryFlow,
+            userRepository.favoriteEateriesFlow
         ) { apiResponse, favorites ->
             when (apiResponse) {
                 is EateryApiResponse.Error -> listOf()
                 is EateryApiResponse.Pending -> listOf()
                 is EateryApiResponse.Success -> {
                     apiResponse.data.filter {
-                        favorites[it.id] == true
+                        it.name in favorites
                     }
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+
+    private val baseSearchDataState: Flow<SearchUiState> = combine(
+        _searchFlow,
+        _filtersFlow,
+        searchResultEateries,
+        favoriteEateries,
+        recentSearches
+    ) { query, filters, searchResponse, favorites, recents ->
+        SearchUiState(
+            query = query,
+            filters = filters,
+            searchResponse = searchResponse,
+            favoriteEateries = favorites,
+            recentSearches = recents.reversed().take(10).distinct()
+        )
+    }
+
+    private val searchDataState: Flow<SearchUiState> = combine(
+        baseSearchDataState,
+        searchResultFoodItems
+    ) { dataState, foodItemResults ->
+        dataState.copy(foodItemResults = foodItemResults)
+    }
+
+    val uiState: StateFlow<SearchUiState> = combine(
+        searchDataState,
+        _error
+    ) { dataState, networkError ->
+        dataState.copy(error = networkError)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SearchUiState())
 
     fun addPaymentMethodFilters(filters: List<Filter>) {
         val newList = _filtersFlow.value.toMutableList()
@@ -90,84 +213,89 @@ class SearchViewModel @Inject constructor(
         _filtersFlow.value = newList
     }
 
-    fun addFilter(filter: Filter) {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.add(filter)
-        _filtersFlow.value = newList
-    }
-
-    fun removeFilter(filter: Filter) {
-        val newList = _filtersFlow.value.toMutableList()
-        newList.remove(filter)
-        _filtersFlow.value = newList
+    fun toggleFilter(filter: Filter) {
+        _filtersFlow.update {
+            it.updateFilters(filter)
+        }
     }
 
     fun queryEateries(query: String) {
         _searchFlow.value = query
     }
 
-    private fun Eatery.passesFilter(filters: List<Filter>): Boolean {
-        var passesFilter = true
-        if (filters.contains(Filter.UNDER_10)) {
-            val walkTimes = getWalkTimes()
-            passesFilter = walkTimes != null && walkTimes <= 10
-        }
-
-        if (filters.contains(Filter.FAVORITES)) {
-            passesFilter = favoriteEateries.value.contains(this) == true
-        }
-
-        val allLocationsValid =
-            !filters.contains(Filter.NORTH) &&
-                    !filters.contains(Filter.CENTRAL) &&
-                    !filters.contains(Filter.WEST)
-
-        // Passes filter if all locations aren't selected (therefore any location is valid, specified by allLocationsValid)
-        // or one/multiple are selected and the eatery is located there.
-        passesFilter = passesFilter &&
-                (allLocationsValid || ((filters.contains(Filter.NORTH) && campusArea == "North") ||
-                        (filters.contains(Filter.WEST) && campusArea == "West") ||
-                        (filters.contains(Filter.CENTRAL) && campusArea == "Central")))
-
-        val allPaymentMethodsValid =
-            !filters.contains(Filter.CASH) &&
-                    !filters.contains(Filter.BRB) &&
-                    !filters.contains(Filter.SWIPES)
-
-        // Passes filter if all three aren't selected (therefore any payment method is valid, specified by allPaymentMethodsValid)
-        // or one/multiple are selected and the eatery takes it.
-        return passesFilter &&
-                (allPaymentMethodsValid || ((filters.contains(Filter.SWIPES) && paymentAcceptsMealSwipes == true) ||
-                        (filters.contains(Filter.BRB) && paymentAcceptsBrbs == true) ||
-                        (filters.contains(Filter.CASH) && paymentAcceptsCash == true)))
-    }
-
     private fun Eatery.passesSearch(query: String): Boolean {
         // TODO: We might want to make an asynchronous search repository, cuz this search is SLOW.
         if (query.isEmpty()) return false
-        val nameMatch = name?.contains(query, true) ?: false
-        val menuMatch = events?.any { event ->
-            event.menu?.any { menuCategory ->
-                menuCategory.items?.any { it.name?.contains(query, true) ?: false } ?: false
-            } ?: false
-        } ?: false
-        return nameMatch || menuMatch
+        return name?.contains(query, true) ?: false
     }
 
-    fun addFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, true)
+    fun addFavorite(eateryId: Int, eateryName: String) {
+        viewModelScope.launch {
+            when (val result = userRepository.addFavoriteEatery(eateryId, eateryName)) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.AddFavoriteEatery, result.error)
+                }
+            }
+        }
     }
 
-    fun removeFavorite(eateryId: Int?) {
-        if (eateryId != null)
-            userPreferencesRepository.setFavorite(eateryId, false)
+    fun removeFavorite(eateryId: Int, eateryName: String) {
+        viewModelScope.launch {
+            when (val result = userRepository.removeFavoriteEatery(eateryId, eateryName)) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value =
+                        NetworkUiError.Failed(NetworkAction.RemoveFavoriteEatery, result.error)
+                }
+            }
+        }
+    }
+
+    /**
+     * Asynchronously toggles the favorite status of a menu item by its name
+     */
+    fun toggleFavoriteMenuItem(menuItem: String) {
+        viewModelScope.launch {
+            val isRemoving = menuItem in userRepository.favoriteItemsFlow.value
+            val result = if (isRemoving) {
+                userRepository.removeFavoriteItem(menuItem)
+            } else {
+                userRepository.addFavoriteItem(menuItem)
+            }
+            when (result) {
+                is Result.Success -> {
+                    _error.value = null
+                }
+
+                is Result.Error -> {
+                    _error.value = NetworkUiError.Failed(
+                        if (isRemoving) NetworkAction.RemoveFavoriteItem else NetworkAction.AddFavoriteItem,
+                        result.error
+                    )
+                }
+            }
+        }
     }
 
     fun addRecentSearch(eateryId: Int?) = viewModelScope.launch {
         userPreferencesRepository.addRecentSearch(eateryId ?: 0)
     }
 
-    fun openEatery(eateryId: Int) = eateryRepository.getEateryFlow(eateryId)
+    fun observeEatery(eateryId: Int): StateFlow<EateryApiResponse<Eatery>> =
+        eateryFlowCache.getOrPut(eateryId) {
+            eateryRepository.getEateryFlow(eateryId).stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = EateryApiResponse.Pending
+            )
+        }
 
 }

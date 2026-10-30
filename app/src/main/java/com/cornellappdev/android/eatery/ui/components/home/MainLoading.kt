@@ -1,7 +1,7 @@
 package com.cornellappdev.android.eatery.ui.components.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,9 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -23,26 +22,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayThree
-import com.cornellappdev.android.eatery.ui.theme.GrayTwo
+import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.shimmer
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun MainLoading() {
-
-}
-
 @Composable
 fun FilterItem(width: Dp, modifier: Modifier = Modifier) {
-    Card(
+    Surface(
         modifier = Modifier
             .padding(end = 8.dp)
             .then(modifier)
             .width(width)
             .fillMaxHeight(),
-        backgroundColor = GrayTwo,
+        color = currentColors.backgroundDefault92,
         shape = RoundedCornerShape(8.dp),
         content = {}
     )
@@ -65,7 +57,7 @@ fun EateryBlob(
             )
             .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(295.dp))
             .height(height),
-        color = GrayTwo
+        color = currentColors.backgroundDefault92
     ) {}
 }
 
@@ -100,7 +92,7 @@ sealed class MainLoadingItem {
                             .padding(top = 12.dp, start = 16.dp, end = 16.dp, bottom = 12.dp)
                             .height(38.dp)
                             .fillMaxWidth(),
-                        color = GrayTwo,
+                        color = currentColors.backgroundDefault92,
                         shape = RoundedCornerShape(
                             CornerSize(8.dp)
                         )
@@ -131,13 +123,13 @@ sealed class MainLoadingItem {
                         modifier = Modifier
                             .shimmer(shimmer)
                             .padding(top = 12.dp, bottom = 12.dp, start = 16.dp),
-                        color = GrayThree
+                        color = currentColors.backgroundDefault10
                     )
                 }
 
                 is EaterySectionList -> {
                     CompositionLocalProvider(
-                        LocalOverscrollConfiguration provides null
+                        LocalOverscrollFactory provides null
                     ) {
                         Row(
                             modifier = Modifier
@@ -161,7 +153,7 @@ sealed class MainLoadingItem {
                         modifier = Modifier
                             .padding(start = 16.dp)
                             .shimmer(shimmer),
-                        color = GrayThree
+                        color = currentColors.backgroundDefault10
                     )
                 }
 

@@ -1,0 +1,153 @@
+package com.cornellappdev.android.eatery.ui.components.details
+
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.data.models.EateryStatus
+import com.cornellappdev.android.eatery.ui.components.general.FavoriteButton
+import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.conditional
+
+data class ItemFavoritesCardViewState(
+    val itemName: String,
+    val availability: EateryStatus,
+    val mealAvailability: Map<String, List<String>>
+)
+
+@Composable
+fun ItemFavoritesCard(
+    viewState: ItemFavoritesCardViewState,
+    onFavoriteClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val rotation: Float by animateFloatAsState(
+        if (isExpanded) 180F else 0F,
+        label = "chevron rotation"
+    )
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(10.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = currentColors.backgroundDefault
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .animateContentSize()
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Text(
+                    viewState.itemName,
+                    style = EateryBlueTypography.h5,
+                    color = currentColors.textPrimary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                FavoriteButton(isFavorite = true, onFavoriteClick = { onFavoriteClick() })
+            }
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .conditional(viewState.mealAvailability.isNotEmpty()) {
+                        clickable { isExpanded = !isExpanded }
+                    }
+            ) {
+                Text(
+                    viewState.availability.statusText,
+                    fontSize = 12.sp,
+                    color = viewState.availability.statusColor,
+                    style = EateryBlueTypography.button
+                )
+                if (viewState.mealAvailability.isNotEmpty()) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_down_chevron),
+                        contentDescription = "expand",
+                        tint = currentColors.textPrimary,
+                        modifier = Modifier.rotate(rotation)
+                    )
+                }
+
+            }
+            if (isExpanded) {
+                HorizontalDivider(thickness = Dp.Hairline, color = currentColors.borderDefault)
+                viewState.mealAvailability.forEach { availability ->
+                    ItemInformation(availability.key, availability.value)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ItemInformation(meal: String, eateryName: List<String>) {
+    Column(
+        modifier = Modifier.padding(top = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            meal,
+            style = EateryBlueTypography.h5,
+            color = currentColors.textPrimary
+        )
+        eateryName.forEach { eatery ->
+            Text(eatery, style = EateryBlueTypography.caption, color = currentColors.textSecondary)
+        }
+    }
+
+}
+
+@DualModePreview
+@Composable
+private fun FavoritesCardPreview() = EateryPreview {
+    ItemFavoritesCard(
+        ItemFavoritesCardViewState(
+            "tes",
+            EateryStatus("Available", currentColors.success),
+            mapOf(
+                "lunch" to listOf("becker"),
+                "lunch" to listOf("becker"),
+                "lunch" to listOf("becker"),
+                "lunch" to listOf("becker")
+            ),
+        ),
+        onFavoriteClick = {}
+    )
+}

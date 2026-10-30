@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.util.DualModePreview
 import kotlin.math.absoluteValue
 
 @Composable
@@ -20,8 +21,7 @@ fun OnboardingPage(
     pagerOffset: Float,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Box(modifier = Modifier.weight(1f)) {
             Row(
@@ -63,8 +63,13 @@ fun OnboardingPage(
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize()
                 )
-
             }
         }
     }
+}
+
+@DualModePreview
+@Composable
+private fun OnboardingPagePreview() {
+    OnboardingPage(num = 0, pagerOffset = 0f)
 }

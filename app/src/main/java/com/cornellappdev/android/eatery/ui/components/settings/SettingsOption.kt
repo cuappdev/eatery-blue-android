@@ -1,5 +1,6 @@
 package com.cornellappdev.android.eatery.ui.components.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -9,40 +10,50 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material3.Divider
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
-import com.cornellappdev.android.eatery.ui.theme.GrayFive
-import com.cornellappdev.android.eatery.ui.theme.GrayOne
+import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 
+/**
+ * A tappable settings row. [compact] gives the denser cell used on the notification and privacy
+ * pages: smaller text, a secondary-colored description and height that wraps its content.
+ */
 @Composable
 fun SettingsOption(
     title: String,
-    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
     description: String? = null,
+    compact: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
-        modifier = Modifier
+        modifier = modifier
+            .background(color = currentColors.backgroundDefault)
             .fillMaxWidth()
-            .height(80.dp)
+            .then(if (compact) Modifier else Modifier.height(80.dp))
             .clickable(
                 onClick = { onClick() },
                 interactionSource = interactionSource,
-                indication = rememberRipple()
-            ),
+                indication = ripple()
+            )
+            .then(if (compact) Modifier.padding(vertical = 16.dp) else Modifier),
         verticalAlignment = CenterVertically
     ) {
         Row(
@@ -57,14 +68,17 @@ fun SettingsOption(
             Column {
                 Text(
                     text = title,
-                    style = EateryBlueTypography.h5,
+                    style = if (compact) EateryBlueTypography.button else EateryBlueTypography.h5,
+                    color = currentColors.textPrimary
                 )
                 if (!description.isNullOrEmpty())
                     Text(
                         text = description,
-                        style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
-                        color = GrayFive,
-                        modifier = Modifier.padding(top = 2.dp)
+                        style = EateryBlueTypography.caption.copy(
+                            fontWeight = if (compact) FontWeight.Medium else FontWeight.SemiBold
+                        ),
+                        color = if (compact) currentColors.textSecondary else currentColors.textPrimary,
+                        modifier = Modifier.padding(top = if (compact) 4.dp else 2.dp)
                     )
             }
         }
@@ -77,5 +91,42 @@ fun SettingsOption(
 
 @Composable
 fun SettingsLineSeparator() {
-    Divider(color = GrayOne, modifier = Modifier.fillMaxWidth(), thickness = 1.dp)
+    HorizontalDivider(
+        color = currentColors.accentPrimary,
+        modifier = Modifier.fillMaxWidth(),
+        thickness = 1.dp
+    )
+}
+
+@DualModePreview
+@Composable
+private fun SettingsOptionPreview() = EateryPreview {
+    SettingsOption(
+        title = "Notifications",
+        description = "Manage item notifications",
+        leadingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_bell),
+                contentDescription = null,
+                tint = currentColors.textPrimary
+            )
+        }
+    )
+}
+
+@DualModePreview
+@Composable
+private fun CompactSettingsOptionPreview() = EateryPreview {
+    SettingsOption(
+        title = "Notification Settings",
+        description = "Choose which notifications you get",
+        compact = true,
+        trailingIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chevron_right),
+                contentDescription = null,
+                tint = currentColors.contentBrand
+            )
+        }
+    )
 }
