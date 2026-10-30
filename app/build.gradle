@@ -19,7 +19,7 @@ android {
         applicationId = "com.cornellappdev.android.eatery"
         minSdk = 28
         targetSdk = 37
-        versionCode = 78
+        versionCode = 79
         versionName = "1.4.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
