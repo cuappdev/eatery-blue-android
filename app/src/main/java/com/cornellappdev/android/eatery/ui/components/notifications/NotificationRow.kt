@@ -79,8 +79,8 @@ fun NotificationRow(
                         }
                     }
                 },
-                style = EateryBlueTypography.caption.copy(lineHeight = 16.sp),
-                color = currentColors.textSecondary
+                style = EateryBlueTypography.body2.copy(lineHeight = 18.sp),
+                color = currentColors.textPrimary
             )
         }
     }
