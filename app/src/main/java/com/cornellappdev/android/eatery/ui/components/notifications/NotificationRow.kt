@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +32,6 @@ import com.cornellappdev.android.eatery.util.EateryPreview
  */
 @Composable
 fun NotificationRow(
-    title: String,
     body: String,
     isRead: Boolean,
     modifier: Modifier = Modifier,
@@ -49,40 +49,32 @@ fun NotificationRow(
             contentDescription = stringResource(R.string.a11y_notification_star_icon),
             tint = Color.Unspecified
         )
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            if (title.isNotBlank()) {
-                Text(
-                    text = title,
-                    style = EateryBlueTypography.body2.copy(fontWeight = FontWeight.Bold, lineHeight = 20.sp),
-                    color = currentColors.textPrimary
-                )
-            }
-            Text(
-                text = remember(body) {
-                    buildAnnotatedString {
-                        var i = 0
-                        while (true) {
-                            val start = body.indexOf("**", i)
-                            val end = if (start == -1) -1 else body.indexOf("**", start + 2)
-                            if (end == -1) {
-                                append(body.substring(i))
-                                break
-                            }
-                            append(body.substring(i, start))
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append(body.substring(start + 2, end))
-                            }
-                            i = end + 2
-                        }
-                    }
-                },
-                style = EateryBlueTypography.body2.copy(lineHeight = 18.sp),
-                color = currentColors.textPrimary
-            )
+        Text(
+            text = remember(body) { parseBoldMarkdown(body) },
+            style = EateryBlueTypography.body2.copy(lineHeight = 18.sp),
+            color = currentColors.textPrimary,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+/**
+ * Bolds each `**…**` span in [text] and drops the markers. An unmatched `**` is left as-is.
+ */
+private fun parseBoldMarkdown(text: String): AnnotatedString = buildAnnotatedString {
+    var i = 0
+    while (true) {
+        val start = text.indexOf("**", i)
+        val end = if (start == -1) -1 else text.indexOf("**", start + 2)
+        if (end == -1) {
+            append(text.substring(i))
+            break
         }
+        append(text.substring(i, start))
+        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+            append(text.substring(start + 2, end))
+        }
+        i = end + 2
     }
 }
 
@@ -91,13 +83,11 @@ fun NotificationRow(
 private fun NotificationRowPreview() = EateryPreview {
     Column {
         NotificationRow(
-            title = "",
             body = "**Chicken Nuggets** is being served at Becker House at 5:35 PM!",
             isRead = false
         )
         NotificationRow(
-            title = "Chicken Nuggets",
-            body = "At Becker House, Keeton House, Morrison Dining",
+            body = "**Pad Thai** is being served at Morrison Dining and 3 others at 10:30 AM!",
             isRead = true
         )
     }

@@ -128,7 +128,6 @@ private fun NotificationsHomeScreenContent(
                                 key = { it.id }
                             ) { notification ->
                                 NotificationRow(
-                                    title = notification.title,
                                     body = notification.body,
                                     isRead = notification.isRead,
                                 )
@@ -225,13 +224,13 @@ private fun NotificationsHomeScreenPreview() = EateryPreview {
                 HubNotification(
                     id = 1,
                     title = "Chicken Tenders",
-                    body = "Now serving at Morrison Dining",
+                    body = "**Chicken Tenders** is being served at Morrison Dining at 5:00 PM!",
                     isRead = false
                 ),
                 HubNotification(
                     id = 2,
                     title = "Mac and Cheese",
-                    body = "Now serving at Okenshields",
+                    body = "**Mac and Cheese** is being served at Okenshields at 5:00 PM!",
                     isRead = true
                 ),
             )
