@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
@@ -49,13 +53,35 @@ fun NotificationRow(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
+            // Hub notifications from the backend have an empty title, so skip it to keep the
+            // body centered on the star.
+            if (title.isNotBlank()) {
+                Text(
+                    text = title,
+                    style = EateryBlueTypography.body2.copy(fontWeight = FontWeight.Bold, lineHeight = 20.sp),
+                    color = currentColors.textPrimary
+                )
+            }
             Text(
-                text = title,
-                style = EateryBlueTypography.body2.copy(fontWeight = FontWeight.Bold, lineHeight = 20.sp),
-                color = currentColors.textPrimary
-            )
-            Text(
-                text = body,
+                text = remember(body) {
+                    // Bolds each **…** span; an unmatched ** is left as plain text.
+                    buildAnnotatedString {
+                        var i = 0
+                        while (true) {
+                            val start = body.indexOf("**", i)
+                            val end = if (start == -1) -1 else body.indexOf("**", start + 2)
+                            if (end == -1) {
+                                append(body.substring(i))
+                                break
+                            }
+                            append(body.substring(i, start))
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append(body.substring(start + 2, end))
+                            }
+                            i = end + 2
+                        }
+                    }
+                },
                 style = EateryBlueTypography.caption.copy(lineHeight = 16.sp),
                 color = currentColors.textSecondary
             )
@@ -66,9 +92,16 @@ fun NotificationRow(
 @DualModePreview
 @Composable
 private fun NotificationRowPreview() = EateryPreview {
-    NotificationRow(
-        title = "Chicken Nuggets",
-        body = "At Becker House, Keeton House, Morrison Dining",
-        isRead = true
-    )
+    Column {
+        NotificationRow(
+            title = "",
+            body = "**Chicken Nuggets** is being served at Becker House at 5:35 PM!",
+            isRead = false
+        )
+        NotificationRow(
+            title = "Chicken Nuggets",
+            body = "At Becker House, Keeton House, Morrison Dining",
+            isRead = true
+        )
+    }
 }
