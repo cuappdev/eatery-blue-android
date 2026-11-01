@@ -53,8 +53,6 @@ fun NotificationRow(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            // Hub notifications from the backend have an empty title, so skip it to keep the
-            // body centered on the star.
             if (title.isNotBlank()) {
                 Text(
                     text = title,
@@ -64,7 +62,6 @@ fun NotificationRow(
             }
             Text(
                 text = remember(body) {
-                    // Bolds each **…** span; an unmatched ** is left as plain text.
                     buildAnnotatedString {
                         var i = 0
                         while (true) {
