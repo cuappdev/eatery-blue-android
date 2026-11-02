@@ -225,8 +225,7 @@ class SearchViewModel @Inject constructor(
 
     private fun Eatery.passesSearch(query: String): Boolean {
         // TODO: We might want to make an asynchronous search repository, cuz this search is SLOW.
-        if (query.isEmpty()) return false
-        return name?.contains(query, true) ?: false
+        return query.isNotEmpty() && name?.contains(query, true) ?: false
     }
 
     fun addFavorite(eateryId: Int, eateryName: String) {

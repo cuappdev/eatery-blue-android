@@ -228,7 +228,6 @@ private fun FavoritesScreenErrorPreview() = EateryPreview {
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 private fun MainScrollableContent(
     toggle: Boolean,
     setToggle: (Boolean) -> Unit,

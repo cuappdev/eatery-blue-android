@@ -65,8 +65,7 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlin.math.abs
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
+    ExperimentalMaterial3Api::class
 )
 @Composable
 fun AccountPage(
@@ -126,10 +125,6 @@ fun AccountPage(
     }
 }
 
-@OptIn(
-    ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
-)
 @Composable
 private fun AccountPageContent(
     onSettingsClicked: () -> Unit,
@@ -289,7 +284,6 @@ private fun TransactionsHeader(
 }
 
 @Composable
-@OptIn(ExperimentalAnimationApi::class)
 private fun AccountPageHeader(
     isFirstVisible: Boolean,
     onSettingsClicked: () -> Unit

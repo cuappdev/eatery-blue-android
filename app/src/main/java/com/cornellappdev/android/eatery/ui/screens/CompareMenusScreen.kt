@@ -84,10 +84,6 @@ import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import kotlinx.coroutines.launch
 
-@OptIn(
-    ExperimentalFoundationApi::class,
-    ExperimentalMaterial3Api::class,
-)
 @Composable
 fun CompareMenusScreen(
     eateryIds: List<Int>,
@@ -115,7 +111,6 @@ fun CompareMenusScreen(
 }
 
 @OptIn(
-    ExperimentalFoundationApi::class,
     ExperimentalMaterial3Api::class,
 )
 @Composable
@@ -252,10 +247,6 @@ private fun CompareMenusScreenPreview() = EateryPreview {
 
 
 @Composable
-@OptIn(
-    ExperimentalFoundationApi::class,
-    ExperimentalMaterial3Api::class
-)
 private fun MenuPager(
     eateries: List<Eatery>,
     firstPagerState: PagerState,
@@ -489,7 +480,6 @@ private fun MenuPager(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 private fun TitlePager(
     eateries: List<Eatery>,
     pagerState: PagerState,

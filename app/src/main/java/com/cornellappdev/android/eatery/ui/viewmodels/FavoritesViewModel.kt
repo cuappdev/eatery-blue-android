@@ -129,9 +129,7 @@ class FavoritesViewModel @Inject constructor(
                             )
                         }
                     }.filter { (_, eateries) ->
-                        if (Filter.ItemAvailableToday in selectedItemFilters) {
-                            eateries.isNotEmpty()
-                        } else true
+                        Filter.ItemAvailableToday !in selectedItemFilters || eateries.isNotEmpty()
                     }
 
                 val itemFavoriteCards = menuItemsToEateries.map { (itemName, eateriesByItem) ->

@@ -81,7 +81,6 @@ sealed class MainLoadingItem {
             List(15) { EateryItem }
         ).flatten()
 
-        @OptIn(ExperimentalFoundationApi::class)
         @Composable
         fun CreateMainLoadingItem(item: MainLoadingItem, shimmer: Shimmer) {
             when (item) {

@@ -39,18 +39,3 @@ val EateryBlueTypography = EateryLegacyTypography(
     caption = captionStyle,
     button = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
 )
-
-val EateryBlueMaterial3Typography = Typography(
-    displayLarge = EateryBlueTypography.h1,
-    displayMedium = EateryBlueTypography.h2,
-    displaySmall = EateryBlueTypography.h3,
-    headlineMedium = EateryBlueTypography.h4,
-    titleLarge = EateryBlueTypography.h5,
-    titleMedium = EateryBlueTypography.h6,
-    titleSmall = EateryBlueTypography.subtitle1,
-    bodyLarge = EateryBlueTypography.body1,
-    bodyMedium = EateryBlueTypography.body2,
-    bodySmall = EateryBlueTypography.caption,
-    labelLarge = EateryBlueTypography.button
-)
-

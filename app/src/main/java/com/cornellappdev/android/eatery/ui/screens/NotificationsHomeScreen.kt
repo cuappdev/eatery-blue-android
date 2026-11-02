@@ -66,7 +66,6 @@ fun NotificationsHomeScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NotificationsHomeScreenContent(
     uiState: NotificationsHomeViewState,
@@ -86,7 +85,7 @@ private fun NotificationsHomeScreenContent(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        when (val state = uiState) {
+        when (uiState) {
             is NotificationsHomeViewState.Loading -> {
                 FavoriteItemsHeading()
                 Box(modifier = Modifier.padding(horizontal = 16.dp)) {
@@ -106,7 +105,7 @@ private fun NotificationsHomeScreenContent(
             ) {
                 // The pull gesture only reaches scrollable content, so the empty state is
                 // wrapped in a LazyColumn as well.
-                if (state.notifications.isEmpty()) {
+                if (uiState.notifications.isEmpty()) {
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         item {
                             NotificationsEmptyState(
@@ -124,7 +123,7 @@ private fun NotificationsHomeScreenContent(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(
-                                items = state.notifications,
+                                items = uiState.notifications,
                                 key = { it.id }
                             ) { notification ->
                                 NotificationRow(

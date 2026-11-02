@@ -64,7 +64,6 @@ fun AppStoreRatingPopup(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () -> Unit) {
     var rating by remember { mutableIntStateOf(0) }

@@ -37,7 +37,6 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OnboardingCarousel(
     fadePage: Boolean,

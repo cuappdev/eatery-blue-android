@@ -133,7 +133,6 @@ private fun EateryHomeSectionHeader(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun EaterySectionRow(
     eateries: List<Eatery>,

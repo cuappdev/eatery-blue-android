@@ -104,7 +104,6 @@ import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
 
 @OptIn(
-    ExperimentalMaterial3Api::class,
     ExperimentalPermissionsApi::class
 )
 @Composable
@@ -365,9 +364,6 @@ private fun SheetContent(
     }
 }
 
-@OptIn(
-    ExperimentalFoundationApi::class,
-)
 @Composable
 private fun HomeScrollableMainContent(
     onSearchClick: () -> Unit,
@@ -479,7 +475,6 @@ private fun HomeScrollableMainContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HomeLazyColumn(
     listState: LazyListState,
@@ -698,7 +693,6 @@ private fun LazyListScope.regularContent(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun HomeStickyHeader(
     collapsed: Boolean,

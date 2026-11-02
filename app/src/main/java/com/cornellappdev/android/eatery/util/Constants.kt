@@ -5,8 +5,6 @@ import com.cornellappdev.android.eatery.data.models.AccountType
 object Constants {
     const val AVERAGE_WALK_SPEED = 1.42
 
-    const val PASSWORD_ALIAS = "Eatery Alias"
-
     /*
     I have no idea if these strings actually correspond to the meal plans as they show up in the GET API. For example,
     You'd expect Bear Traditional to appear as "Bear Traditional" but it shows up as "Traditional Bear" ...?

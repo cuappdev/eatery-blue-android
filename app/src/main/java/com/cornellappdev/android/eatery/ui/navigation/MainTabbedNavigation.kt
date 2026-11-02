@@ -58,7 +58,6 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationSetup(
     hasOnboarded: Boolean,
@@ -196,7 +195,6 @@ private fun BottomNavBarPreview() = EateryPreview {
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SetupNavHost(
     modifier: Modifier = Modifier,

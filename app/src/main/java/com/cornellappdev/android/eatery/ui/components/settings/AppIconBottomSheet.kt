@@ -48,7 +48,6 @@ import com.cornellappdev.android.eatery.util.changeIcon
 import com.cornellappdev.android.eatery.util.currentIcon
 import com.cornellappdev.android.eatery.util.iconMap
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppIconBottomSheet(hide: () -> Unit) {
     val context = LocalContext.current

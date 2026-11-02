@@ -392,7 +392,6 @@ enum class PaymentMethod {
     MEAL_SWIPE,
     CARD,
     BRB,
-    FREE,
     UNKNOWN
 }
 

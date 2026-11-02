@@ -20,7 +20,6 @@ import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun ProfileScreen(
     loginViewModel: LoginViewModel = hiltViewModel(),
