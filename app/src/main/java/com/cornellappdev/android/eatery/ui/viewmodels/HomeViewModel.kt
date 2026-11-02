@@ -179,10 +179,6 @@ class HomeViewModel @Inject constructor(
 
     var bigPopUp by mutableStateOf(false)
 
-    fun setPopUp(bool: Boolean) {
-        bigPopUp = bool
-    }
-
     fun onToggleFilterPressed(filter: Filter) {
         if (eateryFlow.value is EateryApiResponse.Error) {
             pingEateries()

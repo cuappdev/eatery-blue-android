@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.components.home
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row

@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.screens
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
