@@ -223,13 +223,11 @@ private fun NotificationsHomeScreenPreview() = EateryPreview {
             listOf(
                 HubNotification(
                     id = 1,
-                    title = "Chicken Tenders",
                     body = "**Chicken Tenders** is being served at Morrison Dining at 5:00 PM!",
                     isRead = false
                 ),
                 HubNotification(
                     id = 2,
-                    title = "Mac and Cheese",
                     body = "**Mac and Cheese** is being served at Okenshields at 5:00 PM!",
                     isRead = true
                 ),
