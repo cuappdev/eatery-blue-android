@@ -2,8 +2,6 @@ package com.cornellappdev.android.eatery.ui.components.login
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,8 +63,7 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlin.math.abs
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
+    ExperimentalMaterial3Api::class
 )
 @Composable
 fun AccountPage(
@@ -126,10 +123,6 @@ fun AccountPage(
     }
 }
 
-@OptIn(
-    ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
-)
 @Composable
 private fun AccountPageContent(
     onSettingsClicked: () -> Unit,
@@ -289,7 +282,6 @@ private fun TransactionsHeader(
 }
 
 @Composable
-@OptIn(ExperimentalAnimationApi::class)
 private fun AccountPageHeader(
     isFirstVisible: Boolean,
     onSettingsClicked: () -> Unit

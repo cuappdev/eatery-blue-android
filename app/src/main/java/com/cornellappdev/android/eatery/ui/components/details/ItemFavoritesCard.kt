@@ -142,9 +142,6 @@ private fun FavoritesCardPreview() = EateryPreview {
             "tes",
             EateryStatus("Available", currentColors.success),
             mapOf(
-                "lunch" to listOf("becker"),
-                "lunch" to listOf("becker"),
-                "lunch" to listOf("becker"),
                 "lunch" to listOf("becker")
             ),
         ),

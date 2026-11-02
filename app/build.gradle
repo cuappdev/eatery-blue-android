@@ -33,7 +33,6 @@ android {
 
     buildTypes {
         debug {
-            resValue("bool", "FIREBASE_ANALYTICS_DEACTIVATED", "true")
             buildConfigField("String", "BACKEND_URL", secretsProperties['BACKEND_URL'])
             buildConfigField("boolean", "ENABLE_NOTIFICATIONS", "true")
         }

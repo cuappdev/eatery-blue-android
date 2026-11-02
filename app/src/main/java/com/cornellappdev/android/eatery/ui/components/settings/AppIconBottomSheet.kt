@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.components.settings
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -48,7 +47,6 @@ import com.cornellappdev.android.eatery.util.changeIcon
 import com.cornellappdev.android.eatery.util.currentIcon
 import com.cornellappdev.android.eatery.util.iconMap
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AppIconBottomSheet(hide: () -> Unit) {
     val context = LocalContext.current

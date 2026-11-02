@@ -2,7 +2,6 @@ package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -58,11 +57,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
+import com.cornellappdev.android.eatery.ui.components.general.FavoriteButton
 import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.general.PaymentMethodsBottomSheet
-import com.cornellappdev.android.eatery.ui.components.general.FavoriteButton
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
@@ -82,10 +81,6 @@ import com.skydoves.landscapist.placeholder.shimmer.Shimmer
 import com.skydoves.landscapist.placeholder.shimmer.ShimmerPlugin
 import kotlinx.coroutines.launch
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
-)
 @Composable
 fun SearchScreen(
     searchViewModel: SearchViewModel = hiltViewModel(),
@@ -120,8 +115,7 @@ fun SearchScreen(
 }
 
 @OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalFoundationApi::class
+    ExperimentalMaterial3Api::class
 )
 @Composable
 private fun SearchScreenContent(

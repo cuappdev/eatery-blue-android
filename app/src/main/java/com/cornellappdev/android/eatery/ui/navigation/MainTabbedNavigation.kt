@@ -1,7 +1,6 @@
 package com.cornellappdev.android.eatery.ui.navigation
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -58,7 +57,6 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationSetup(
     hasOnboarded: Boolean,
@@ -196,7 +194,6 @@ private fun BottomNavBarPreview() = EateryPreview {
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SetupNavHost(
     modifier: Modifier = Modifier,

@@ -127,7 +127,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EateryDetailScreen(
     eateryDetailViewModel: EateryDetailViewModel = hiltViewModel(),
@@ -975,15 +974,11 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
 
 private fun launchIntentSafely(context: android.content.Context, intent: Intent): Boolean {
     val packageManager = context.packageManager
-    return if (intent.resolveActivity(packageManager) != null) {
-        try {
-            context.startActivity(intent)
-            true
-        } catch (exception: ActivityNotFoundException) {
-            Log.w(EATERY_DETAIL_TAG, "Unable to start activity for intent: $intent", exception)
-            false
-        }
-    } else {
+    return intent.resolveActivity(packageManager) != null && try {
+        context.startActivity(intent)
+        true
+    } catch (exception: ActivityNotFoundException) {
+        Log.w(EATERY_DETAIL_TAG, "Unable to start activity for intent: $intent", exception)
         false
     }
 }
