@@ -19,8 +19,8 @@ android {
         applicationId = "com.cornellappdev.android.eatery"
         minSdk = 28
         targetSdk = 37
-        versionCode = 80
-        versionName = "1.5.0"
+        versionCode = 81
+        versionName = "1.5.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
