@@ -40,7 +40,6 @@ class EateryMessagingService : FirebaseMessagingService() {
 
     companion object {
         const val LOG_TAG = "EateryMessagingService"
-        private const val DEFAULT_TITLE = "Eatery Blue"
 
         /** Marks intents from notifications this service builds while the app is foregrounded. */
         const val EXTRA_OPEN_NOTIFICATION_HUB = "open_notification_hub"
@@ -61,10 +60,11 @@ class EateryMessagingService : FirebaseMessagingService() {
 
         // Notification payloads only reach here while the app is foregrounded; data-only
         // payloads always do.
-        val title = remoteMessage.notification?.title ?: remoteMessage.data["title"]
+        // The push's title is ignored: Android already shows the app name in the header, so the
+        // backend's "Eatery" title would appear twice.
         val body = remoteMessage.notification?.body ?: remoteMessage.data["body"]
         if (!body.isNullOrBlank()) {
-            sendNotification(messageTitle = title ?: DEFAULT_TITLE, messageBody = body)
+            sendNotification(messageBody = body)
         }
     }
 
@@ -77,7 +77,7 @@ class EateryMessagingService : FirebaseMessagingService() {
         super.onDestroy()
     }
 
-    private fun sendNotification(messageTitle: String, messageBody: String) {
+    private fun sendNotification(messageBody: String) {
         if (!runBlocking { notificationRepository.canShowNotifications() }) return
 
         val intent = Intent(this, MainActivity::class.java)
@@ -91,8 +91,8 @@ class EateryMessagingService : FirebaseMessagingService() {
         val channelId = getString(R.string.fcm_default_channel_id)
         val defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
-            .setContentTitle(messageTitle)
             .setContentText(messageBody)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(messageBody))
             .setAutoCancel(true)
             .setSound(defaultSoundUri)
             .setContentIntent(pendingIntent)
