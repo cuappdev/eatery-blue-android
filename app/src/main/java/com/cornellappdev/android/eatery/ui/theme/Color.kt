@@ -59,7 +59,7 @@ val BorderBlueDark = Color(0xFF1D4A7A)
 val FavoriteLight = Color(0xFFFFD700)
 val FavoriteDark = Color(0xFFFFD700)
 
-// Matches the red in ic_new_notif_star.
+// Red dot on the home screen's notification bell.
 val UnreadNotificationDot = Color(0xFFFF3737)
 
 

@@ -129,7 +129,6 @@ private fun NotificationsHomeScreenContent(
                             ) { notification ->
                                 NotificationRow(
                                     body = notification.body,
-                                    isRead = notification.isRead,
                                 )
                             }
                         }
