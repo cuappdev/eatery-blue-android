@@ -3,13 +3,12 @@ package com.cornellappdev.android.eatery.data.models
 import com.squareup.moshi.JsonClass
 
 /**
- * An entry in the notification hub. [title] and [body] are composed by the backend and shown
- * as-is.
+ * An entry in the notification hub. [body] is composed by the backend and may bold spans with
+ * `**…**`.
  */
 @JsonClass(generateAdapter = true)
 data class HubNotification(
     val id: Int,
-    val title: String,
     val body: String,
     val isRead: Boolean,
 )

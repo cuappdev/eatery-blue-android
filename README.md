@@ -19,38 +19,6 @@ From Android Studio:
 ## Maintainers
 This project is maintained by the [Android Team @ Cornell Appdev](https://www.cornellappdev.com/team)
 
-<details open>
-<summary><b>Current Roster</b></summary>
-
-- Aastha Shah (@aasthashah999)
-- Connor Reinhold (@connorreinhold)
-- Kevin Sun (@kevinsun-dev)
-- Justin Jiang (@JiangoJ)
-- Haichen Wang (@Haichen-Wang)
-- Shiyuan Huang (@Shiyuan-Huang-23)
-- Chris Desir (@ckdesir)
-- Junyu Wang (@JessieWang0706)
-- Corwin Zhang (@Corfish123)
-- Justin Guo (@thisjustin123)
-- Aarushi Singh (@AarushiSingh214)
-- Benjamin Harris (@BenHarris4848)
-
-</details>
-
-<details open>
-<summary><b>Alumni</b></summary>
-
-- Jae Choi (@jyc979)
-- Abdullah Islam (@abdullah248)
-- Lesley Huang (@ningning621)
-- Jehron Petty (@JehronPett)
-- Jonvi Rollins (@djr277)
-- Preston Rozwood (@Pdbz199)
-- Joseph Fulgieri (@jmf373)
-- Adam Kadhim (@hockeymonday)
-
-</details>
-
 ## Contributing
 
 1. Fork it
@@ -59,3 +27,8 @@ This project is maintained by the [Android Team @ Cornell Appdev](https://www.co
 4. Run the linter: https://developer.android.com/studio/write/lint
 5. Push your branch (git push origin my-new-feature)
 6. Create a new Pull Request
+
+## Internal Testing
+1. In the `main` branch, push a PR updating the `whatsnew-en-US` file as well as `versionCode` and `versionName` in the app `build.gradle`.
+2. Create a PR from `main` to `prod-beta`. Once merged, this will trigger the GitHub Action that publishes to the play store, as defined in `publish-to-play-store-beta.yml`.
+3. Open Eatery in the Google Play Console. In "Latest releases and bundles", you should see the new app bundle. Navigate to the new bundle to access the internal app sharing link. Once you set up proper access (update the email list), those in the list should be able to install this bundle.

@@ -92,10 +92,6 @@
 
     <string name="upcoming_menus_title">Upcoming Menus</string>
     <string name="menus_title">Menus</string>
-    <string name="meal_breakfast">Breakfast</string>
-    <string name="meal_lunch">Lunch</string>
-    <string name="meal_dinner">Dinner</string>
-    <string name="meal_late_dinner">Late Dinner</string>
     <string name="meal_time_breakfast">7:30 AM-10:30 AM</string>
     <string name="meal_time_lunch">10:30 AM-4:00 PM</string>
     <string name="meal_time_dinner">5:00 PM-8:30 PM</string>
@@ -114,7 +110,6 @@
     <string name="show_menu">Show menu</string>
     <string name="reset">Reset</string>
     <string name="close">Close</string>
-    <string name="close_upcoming">Close Upcoming</string>
 
     <string name="app_store_rating_positive_message">Awesome! We’d love to hear more in a review</string>
     <string name="app_store_rating_positive_button">Open PlayStore</string>
@@ -142,7 +137,6 @@
 
     <string name="permission_location_message">Location permissions are necessary to show you eateries that are the closest to you!</string>
     <string name="permission_location_message_with_settings">Location permissions are necessary to show you eateries that are the closest to you!\n\nPlease click the button below to go to the settings to enable location permissions.</string>
-    <string name="permission_location_settings_message">Please click the button below to go to the settings to enable location permissions.</string>
     <string name="request_permission">Request Permission</string>
     <string name="open_settings">Open Settings</string>
 
@@ -154,7 +148,6 @@
     <string name="a11y_grid_view">Grid View</string>
     <string name="all_eateries_title">All Eateries</string>
 
-    <string name="eatery_detail_error">Cannot load Eatery Details</string>
     <string name="loading">Loading…</string>
     <string name="eatery_detail_location_with_summary">%1$s · %2$s</string>
     <string name="eatery_detail_location_only">%1$s</string>
@@ -171,17 +164,12 @@
     <string name="open_until">Open until %1$s</string>
     <string name="unknown_location">Unknown location</string>
     <string name="menu_time_range">%1$s - %2$s</string>
-    <string name="week_day_time_range">%1$s - %2$s</string>
     <string name="a11y_expand_menu">Expand menu</string>
     <string name="bullet_separator">•</string>
     <string name="unknown_item">Unknown</string>
     <string name="view_eatery_details">View Eatery Details</string>
-    <string name="recommended_for_you">Recommended for You:</string>
-    <string name="meal_swipes_allowed">Meal swipes allowed</string>
-    <string name="cash_or_credit_only">Cash or credit only</string>
     <string name="closing_soon">Closing soon</string>
     <string name="closing_in_minutes">Closing in %1$d min</string>
-    <string name="min_walk">%1$s min walk</string>
     <string name="a11y_search_icon">Search</string>
     <string name="search_cancel">Cancel</string>
     <string name="search_placeholder_menu">Search the menu…</string>
@@ -216,7 +204,6 @@
     <string name="payment_methods_or">or</string>
     <string name="favorite_button_add">Add to favorites</string>
     <string name="favorite_button_remove">Remove from favorites</string>
-    <string name="today">Today</string>
     <string name="a11y_notification_star_icon">Notification Star Icon</string>
     <string name="a11y_bell">Notifications</string>
     <string name="a11y_bell_unread">Notifications, unread</string>

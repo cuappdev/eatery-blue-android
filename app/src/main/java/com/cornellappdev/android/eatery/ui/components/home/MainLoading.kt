@@ -1,6 +1,5 @@
 package com.cornellappdev.android.eatery.ui.components.home
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
@@ -81,7 +80,6 @@ sealed class MainLoadingItem {
             List(15) { EateryItem }
         ).flatten()
 
-        @OptIn(ExperimentalFoundationApi::class)
         @Composable
         fun CreateMainLoadingItem(item: MainLoadingItem, shimmer: Shimmer) {
             when (item) {
