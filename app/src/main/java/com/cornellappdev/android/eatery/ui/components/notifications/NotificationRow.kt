@@ -18,6 +18,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,7 +34,6 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 @Composable
 fun NotificationRow(
     body: String,
-    isRead: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -44,8 +44,7 @@ fun NotificationRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            painter = if (isRead) painterResource(id = R.drawable.ic_notif_star)
-            else painterResource(id = R.drawable.ic_new_notif_star),
+            painter = painterResource(id = R.drawable.ic_notif_star),
             contentDescription = stringResource(R.string.a11y_notification_star_icon),
             tint = Color.Unspecified
         )
@@ -53,6 +52,7 @@ fun NotificationRow(
             text = remember(body) { parseBoldMarkdown(body) },
             style = EateryBlueTypography.body2.copy(lineHeight = 18.sp),
             color = currentColors.textPrimary,
+            textAlign = TextAlign.Left,
             modifier = Modifier.weight(1f)
         )
     }
@@ -83,12 +83,10 @@ private fun parseBoldMarkdown(text: String): AnnotatedString = buildAnnotatedStr
 private fun NotificationRowPreview() = EateryPreview {
     Column {
         NotificationRow(
-            body = "**Chicken Nuggets** is being served at Becker House at 5:35 PM!",
-            isRead = false
+            body = "**Chicken Nuggets** is being served at Becker House at 5:35 PM!"
         )
         NotificationRow(
-            body = "**Pad Thai** is being served at Morrison Dining and 3 others at 10:30 AM!",
-            isRead = true
+            body = "**Pad Thai** is being served at Morrison Dining and 3 others at 10:30 AM!"
         )
     }
 }
