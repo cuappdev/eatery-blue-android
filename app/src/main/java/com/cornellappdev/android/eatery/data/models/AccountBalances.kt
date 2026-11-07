@@ -4,5 +4,6 @@ data class AccountBalances(
     val brbBalance: Double? = null,
     val cityBucksBalance: Double? = null,
     val laundryBalance: Double? = null,
-    val mealSwipes: Int? = null
+    val mealSwipes: Int? = null,
+    val hasUnlimitedSwipes: Boolean = false
 )

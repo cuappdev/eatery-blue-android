@@ -55,7 +55,8 @@ data class User(
     @Json(name = "city_bucks_balance") val cityBucksBalance: Double? = null,
     @Json(name = "laundry_balance") val laundryBalance: Double? = 0.0,
     @Json(name = "transactions") val transactions: List<Transaction> = emptyList(),
-    @Json(name = "meal_swipes") val mealSwipes: Int? = null // todo - backend should make this
+    @Json(name = "meal_swipes") val mealSwipes: Int? = null,
+    val hasUnlimitedSwipes: Boolean = false
 )
 
 @JsonClass(generateAdapter = true)
@@ -85,7 +86,8 @@ data class Financials(
 data class Accounts(
     @Json(name = "brb") val brbBalance: Account? = null,
     @Json(name = "city_bucks") val cityBucksBalance: Account? = null,
-    @Json(name = "laundry") val laundryBalance: Account? = null
+    @Json(name = "laundry") val laundryBalance: Account? = null,
+    @Json(name = "meal_swipes") val mealSwipes: MealSwipesAccount? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -93,6 +95,19 @@ data class Account(
     @Json(name = "name") val name: String? = null,
     @Json(name = "balance") val balance: Double? = null
 )
+
+/**
+ * Meal swipe account from the backend. [plan] is one of "unlimited", "weekly", or "semester";
+ * [balance] is null for unlimited plans.
+ */
+@JsonClass(generateAdapter = true)
+data class MealSwipesAccount(
+    @Json(name = "name") val name: String? = null,
+    @Json(name = "plan") val plan: String? = null,
+    @Json(name = "balance") val balance: Double? = null
+) {
+    val isUnlimited: Boolean get() = plan.equals("unlimited", ignoreCase = true)
+}
 
 @JsonClass(generateAdapter = true)
 data class TransactionResponse(

@@ -152,13 +152,6 @@ private fun AccountPageContent(
                             modifier = Modifier.padding(top = 16.dp),
                             color = currentColors.textPrimary
                         )
-                        accountTypeBalance.mealSwipes?.let {
-                            AccountBalanceRow(
-                                accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
-                                swipes = it
-                            )
-                        }
-                        HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
                         accountTypeBalance.brbBalance?.let {
                             AccountBalanceRow(
                                 accountName = stringResource(TransactionAccountType.BRBS.displayNameRes()),
@@ -166,6 +159,21 @@ private fun AccountPageContent(
                             )
                         }
                         HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
+                        if (accountTypeBalance.hasUnlimitedSwipes) {
+                            AccountRow(
+                                accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
+                                text = "Unlimited"
+                            )
+                            HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
+                        } else {
+                            accountTypeBalance.mealSwipes?.let {
+                                AccountBalanceRow(
+                                    accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
+                                    swipes = it
+                                )
+                                HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
+                            }
+                        }
                         accountTypeBalance.cityBucksBalance?.let {
                             AccountBalanceRow(
                                 accountName = stringResource(TransactionAccountType.CITY_BUCKS.displayNameRes()),
