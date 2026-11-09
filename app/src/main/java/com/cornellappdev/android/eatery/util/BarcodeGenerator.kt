@@ -16,6 +16,9 @@ object BarcodeGenerator {
     private const val OTP_MODULUS = 1_000_000_000
     private const val VERSION_DIGIT = 1
     private const val PADDED_LENGTH = 10
+
+    /** Smallest timestamp that no longer fits in [PADDED_LENGTH] digits. */
+    private const val MAX_TIMESTAMP_EXCLUSIVE = 10_000_000_000L
     private const val PATRON_BYTE_COUNT = 4
     private const val LONG_BYTE_COUNT = 8
 
@@ -29,11 +32,13 @@ object BarcodeGenerator {
      *
      * @param seedHex the user's barcodeSeed from GET, as a hex string
      * @param cashlessKey the user's numeric patronId from GET
-     * @param timestamp unix time in seconds
+     * @param timestamp unix time in seconds; must be non-negative and fit in ten digits
      * @throws IllegalArgumentException if any input is malformed
      */
     fun generateBarcode(seedHex: String, cashlessKey: String, timestamp: Long): String {
-        require(timestamp >= 0) { "Barcode timestamp must not be negative" }
+        require(timestamp in 0 until MAX_TIMESTAMP_EXCLUSIVE) {
+            "Barcode timestamp must be non-negative and fit in ten digits"
+        }
         val patronId = requireNotNull(cashlessKey.toULongOrNull()) {
             "Patron ID must be numeric"
         }
@@ -55,6 +60,7 @@ object BarcodeGenerator {
             (data[index].toInt() xor key[index % key.size].toInt()).toByte()
         }
 
+    /** Returns the Luhn check digit for [cashlessKey], used as the barcode's last digit. */
     private fun generateCheckDigit(cashlessKey: String): Int {
         val remainder = luhnTotal(cashlessKey) % 10
         return if (remainder == 0) 0 else 10 - remainder
@@ -96,6 +102,11 @@ object BarcodeGenerator {
             result or ((byte.toLong() and 0xFF) shl (Byte.SIZE_BITS * index))
         }
 
+    /**
+     * Parses [hex] into bytes, ignoring whitespace.
+     *
+     * @throws IllegalArgumentException if [hex] is empty, has an odd length or isn't hex
+     */
     private fun hexToBytes(hex: String): ByteArray {
         val cleaned = hex.filterNot(Char::isWhitespace)
         require(HEX_REGEX.matches(cleaned)) { "Barcode seed must be valid hex" }

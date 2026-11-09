@@ -79,9 +79,19 @@ class BarcodeGeneratorTest {
     }
 
     @Test
-    fun rejectsNegativeTimestamp() {
-        assertThrows(IllegalArgumentException::class.java) {
-            BarcodeGenerator.generateBarcode("0123456789abcdef", "12345", -1)
+    fun rejectsTimestampOutsideTenDigits() {
+        listOf(-1L, 10_000_000_000L).forEach { timestamp ->
+            assertThrows(IllegalArgumentException::class.java) {
+                BarcodeGenerator.generateBarcode("0123456789abcdef", "12345", timestamp)
+            }
         }
+    }
+
+    @Test
+    fun largestTenDigitTimestampKeepsBarcodeShape() {
+        val barcode = BarcodeGenerator.generateBarcode("0123456789abcdef", "12345", 9_999_999_999L)
+
+        assertEquals(22, barcode.length)
+        assertEquals("9999999999", barcode.take(10))
     }
 }
