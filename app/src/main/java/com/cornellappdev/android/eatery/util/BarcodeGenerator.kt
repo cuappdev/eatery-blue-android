@@ -31,7 +31,9 @@ object BarcodeGenerator {
      * Returns `[10-digit timestamp][version 1][10-digit payload][1 check digit]`.
      *
      * @param seedHex the user's barcodeSeed from GET, as a hex string
-     * @param cashlessKey the user's numeric patronId from GET
+     * @param cashlessKey the user's numeric patronId from GET. Only its low [PATRON_BYTE_COUNT]
+     * bytes feed the payload, since the ten-digit payload holds at most 2³² − 1; this matches
+     * generate_barcode.py and iOS. The check digit uses the full ID string.
      * @param timestamp unix time in seconds; must be non-negative and fit in ten digits
      * @throws IllegalArgumentException if any input is malformed
      */
