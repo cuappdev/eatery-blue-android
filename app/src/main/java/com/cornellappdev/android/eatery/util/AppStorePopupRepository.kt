@@ -28,12 +28,20 @@ class AppStorePopupRepository @Inject constructor(
     val popupShowing = popupEventFlow.asStateFlow()
 
     /**
+     * Guards against showing the popup more than once per app session, since requests can fire
+     * repeatedly (e.g. on every scroll-driven category change) before the DataStore write from
+     * [PopupDataRepository.onShownRating] is reflected in the cached flows.
+     */
+    private var requestedThisSession = false
+
+    /**
      * This function requests that the app store popup repository shows a rating popup to the user.
      * This request will not succeed if the number of days since the user has been shown the rating
      * prompt is less than the minimum number of days in between when the rating pop up should show.
      * This minimum days number is increased exponentially as the rating prompt is successfully shown.
      */
     fun requestRatingPopup() {
+        if (requestedThisSession) return
         val lastShowedRatingPopup =
             popupDataRepository.lastShowedRatingPopupFlow.value.atStartOfDay()
         val now = LocalDate.now().atStartOfDay()
@@ -44,6 +52,7 @@ class AppStorePopupRepository @Inject constructor(
         if (
             daysSinceRatingShown >= popupDataRepository.minDaysBetweenRatingShow.value
         ) {
+            requestedThisSession = true
             popupEventFlow.update { true }
             appScope.launch {
                 popupDataRepository.onShownRating()
