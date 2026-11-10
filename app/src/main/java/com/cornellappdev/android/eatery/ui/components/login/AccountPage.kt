@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.AccountBalances
+import com.cornellappdev.android.eatery.data.models.MealSwipePlan
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
@@ -152,6 +153,10 @@ private fun AccountPageContent(
                             modifier = Modifier.padding(top = 16.dp),
                             color = currentColors.textPrimary
                         )
+                        MealSwipesRow(
+                            plan = accountTypeBalance.mealSwipePlan,
+                            swipes = accountTypeBalance.mealSwipes
+                        )
                         accountTypeBalance.brbBalance?.let {
                             AccountBalanceRow(
                                 accountName = stringResource(TransactionAccountType.BRBS.displayNameRes()),
@@ -159,21 +164,6 @@ private fun AccountPageContent(
                             )
                         }
                         HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
-                        if (accountTypeBalance.hasUnlimitedSwipes) {
-                            AccountRow(
-                                accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
-                                text = "Unlimited"
-                            )
-                            HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
-                        } else {
-                            accountTypeBalance.mealSwipes?.let {
-                                AccountBalanceRow(
-                                    accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
-                                    swipes = it
-                                )
-                                HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
-                            }
-                        }
                         accountTypeBalance.cityBucksBalance?.let {
                             AccountBalanceRow(
                                 accountName = stringResource(TransactionAccountType.CITY_BUCKS.displayNameRes()),
@@ -420,12 +410,32 @@ fun AccountBalanceRow(
     AccountRow(accountName, "$" + "%.2f".format(balance))
 }
 
+/**
+ * Shows the meal swipe balance, labeled by how the plan resets. Renders nothing (including the
+ * divider) when there is no swipe balance to show.
+ */
 @Composable
-fun AccountBalanceRow(
-    accountName: String,
-    swipes: Int
+private fun MealSwipesRow(
+    plan: MealSwipePlan?,
+    swipes: Int?
 ) {
-    AccountRow(accountName, "$swipes remaining")
+    val text = when {
+        plan == MealSwipePlan.UNLIMITED -> stringResource(R.string.account_meal_swipes_unlimited)
+        swipes == null -> return
+        else -> stringResource(
+            when (plan) {
+                MealSwipePlan.WEEKLY -> R.string.account_meal_swipes_remaining_week
+                MealSwipePlan.SEMESTER -> R.string.account_meal_swipes_remaining_semester
+                else -> R.string.account_meal_swipes_remaining
+            },
+            swipes
+        )
+    }
+    AccountRow(
+        accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
+        text = text
+    )
+    HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
 }
 
 @Composable
@@ -587,7 +597,9 @@ private fun AccountPagePreview() = EateryPreview {
             brbBalance = 25.50,
             cityBucksBalance = 10.75,
             laundryBalance = 5.00,
-            mealSwipes = 42
+            mealSwipes = 42,
+            mealSwipePlan = MealSwipePlan.SEMESTER,
+            //mealSwipePlan = MealSwipePlan.UNLIMITED
         ),
         accountFilter = TransactionAccountType.BRBS,
         showBottomSheet = {},

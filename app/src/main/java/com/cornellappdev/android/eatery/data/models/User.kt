@@ -56,7 +56,7 @@ data class User(
     @Json(name = "laundry_balance") val laundryBalance: Double? = 0.0,
     @Json(name = "transactions") val transactions: List<Transaction> = emptyList(),
     @Json(name = "meal_swipes") val mealSwipes: Int? = null,
-    val hasUnlimitedSwipes: Boolean = false
+    val mealSwipePlan: MealSwipePlan? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -106,7 +106,7 @@ data class MealSwipesAccount(
     @Json(name = "plan") val plan: String? = null,
     @Json(name = "balance") val balance: Double? = null
 ) {
-    val isUnlimited: Boolean get() = plan.equals("unlimited", ignoreCase = true)
+    val planType: MealSwipePlan? get() = MealSwipePlan.from(plan)
 }
 
 @JsonClass(generateAdapter = true)

@@ -123,7 +123,7 @@ class LoginViewModel @Inject constructor(
                 cityBucksBalance = this.cityBucksBalance,
                 laundryBalance = this.laundryBalance,
                 mealSwipes = this.mealSwipes,
-                hasUnlimitedSwipes = this.hasUnlimitedSwipes
+                mealSwipePlan = this.mealSwipePlan
             )
         }
     }

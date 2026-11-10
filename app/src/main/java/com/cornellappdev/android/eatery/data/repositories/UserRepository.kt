@@ -200,7 +200,7 @@ class UserRepository @Inject constructor(
                     )
                 } ?: emptyList(),
             mealSwipes = financials.accounts?.mealSwipes?.balance?.toInt(),
-            hasUnlimitedSwipes = financials.accounts?.mealSwipes?.isUnlimited == true
+            mealSwipePlan = financials.accounts?.mealSwipes?.planType
         )
         financials
     }

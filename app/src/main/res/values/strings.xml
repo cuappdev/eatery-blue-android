@@ -127,6 +127,10 @@
     <string name="account_title">Account</string>
     <string name="account_meal_plan">Meal Plan</string>
     <string name="account_type_meal_swipes">Meal Swipes</string>
+    <string name="account_meal_swipes_unlimited">Unlimited</string>
+    <string name="account_meal_swipes_remaining_week">%d remaining this week</string>
+    <string name="account_meal_swipes_remaining_semester">%d remaining this semester</string>
+    <string name="account_meal_swipes_remaining">%d remaining</string>
     <string name="account_type_big_red_bucks">Big Red Bucks</string>
     <string name="account_type_city_bucks">City Bucks</string>
     <string name="account_type_laundry">Laundry</string>

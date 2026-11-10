@@ -5,5 +5,5 @@ data class AccountBalances(
     val cityBucksBalance: Double? = null,
     val laundryBalance: Double? = null,
     val mealSwipes: Int? = null,
-    val hasUnlimitedSwipes: Boolean = false
+    val mealSwipePlan: MealSwipePlan? = null
 )
