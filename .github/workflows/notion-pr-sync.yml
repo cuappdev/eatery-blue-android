@@ -61,24 +61,6 @@ jobs:
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
 
-      - name: Set pull request context
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          DIRECT_PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          if [ "$EVENT_NAME" = "workflow_run" ]; then
-            PR_NUMBER="$(cat .notion-review-context/pr-number)"
-          else
-            PR_NUMBER="$DIRECT_PR_NUMBER"
-          fi
-
-          if [ -n "$PR_NUMBER" ] && ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
-            echo "::error::Invalid pull request number"
-            exit 1
-          fi
-
-          echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
-
       - name: Validate configuration
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}

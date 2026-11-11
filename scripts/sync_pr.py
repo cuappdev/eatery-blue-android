@@ -14,6 +14,7 @@ NOTION_API = 'https://api.notion.com/v1'
 MAX_NOTION_RETRIES = 4
 MAX_RETRY_AFTER = 60
 MAX_PAGE_PASSES = 3
+REVIEW_CONTEXT_PATH = '.notion-review-context/pr-number'
 
 
 def request(method, url, token, payload=None, notion=False):
@@ -154,14 +155,33 @@ def sync(repo, number):
         print('Created', key)
 
 
+def event_pr_number():
+    if os.path.isfile(REVIEW_CONTEXT_PATH):
+        with open(REVIEW_CONTEXT_PATH, encoding='utf-8') as context:
+            value = context.read().strip()
+        if not value.isascii() or not value.isdigit() or int(value) <= 0:
+            raise RuntimeError('Invalid pull request number')
+        return int(value)
+
+    event_path = os.environ.get('GITHUB_EVENT_PATH')
+    if not event_path:
+        return None
+    with open(event_path, encoding='utf-8') as event_file:
+        event = json.load(event_file)
+    number = event.get('pull_request', {}).get('number')
+    if number is not None and (type(number) is not int or number <= 0):
+        raise RuntimeError('Invalid pull request number')
+    return number
+
+
 def main():
     for name in ('GITHUB_TOKEN', 'NOTION_TOKEN', 'NOTION_DATABASE_ID', 'GITHUB_REPOSITORY'):
         if not os.environ.get(name):
             raise RuntimeError(f'Missing {name}')
     repo = os.environ['GITHUB_REPOSITORY']
-    number = os.environ.get('PR_NUMBER')
-    if number:
-        sync(repo, int(number))
+    number = event_pr_number()
+    if number is not None:
+        sync(repo, number)
     else:
         # Backfill and reconcile all open and recently closed PRs.
         prs = pages(f'/repos/{repo}/pulls?state=all&sort=updated&direction=desc&per_page=100&page=1')
