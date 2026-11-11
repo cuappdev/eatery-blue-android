@@ -3,6 +3,7 @@
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -10,6 +11,9 @@ from datetime import datetime, timezone
 
 GITHUB_API = 'https://api.github.com'
 NOTION_API = 'https://api.notion.com/v1'
+MAX_NOTION_RETRIES = 4
+MAX_RETRY_AFTER = 60
+MAX_PAGE_PASSES = 3
 
 
 def request(method, url, token, payload=None, notion=False):
@@ -21,12 +25,22 @@ def request(method, url, token, payload=None, notion=False):
         headers['Content-Type'] = 'application/json'
     data = json.dumps(payload).encode() if payload is not None else None
     req = urllib.request.Request(url, data=data, headers=headers, method=method)
-    try:
-        with urllib.request.urlopen(req, timeout=30) as response:
-            return json.load(response)
-    except urllib.error.HTTPError as e:
-        print(f'HTTP {e.code} on {method} {url}: {e.read().decode()[:600]}', file=sys.stderr)
-        raise
+    for attempt in range(MAX_NOTION_RETRIES + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as response:
+                return json.load(response)
+        except urllib.error.HTTPError as e:
+            if notion and e.code == 429 and attempt < MAX_NOTION_RETRIES:
+                try:
+                    delay = float(e.headers.get('Retry-After', ''))
+                except (TypeError, ValueError):
+                    delay = 2 ** attempt
+                delay = max(0, min(delay, MAX_RETRY_AFTER))
+                print(f'Notion rate limited; retrying in {delay:g}s', file=sys.stderr)
+                time.sleep(delay)
+                continue
+            print(f'HTTP {e.code} on {method} {url}: {e.read().decode()[:600]}', file=sys.stderr)
+            raise
 
 
 def gh(path):
@@ -39,14 +53,28 @@ def notion(method, path, payload=None):
 
 def pages(path):
     result = []
-    while path:
-        response = gh(path)
-        result += response
-        if len(response) < 100:
+    seen = set()
+    first_path = path
+    # Re-scan from page one so items moved across an offset boundary are found.
+    # Stop early once a complete pass discovers nothing new.
+    for _ in range(MAX_PAGE_PASSES):
+        path = first_path
+        found_new = False
+        while path:
+            response = gh(path)
+            for item in response:
+                identity = item.get('id')
+                if identity not in seen:
+                    seen.add(identity)
+                    result.append(item)
+                    found_new = True
+            if len(response) < 100:
+                break
+            sep = '&' if '?' in path else '?'
+            page = int(urllib.parse.parse_qs(urllib.parse.urlsplit(path).query).get('page', ['1'])[0]) + 1
+            path = path.split('&page=')[0].split('?page=')[0] + sep + f'page={page}'
+        if not found_new:
             break
-        sep = '&' if '?' in path else '?'
-        page = int(urllib.parse.parse_qs(urllib.parse.urlsplit(path).query).get('page', ['1'])[0]) + 1
-        path = path.split('&page=')[0].split('?page=')[0] + sep + f'page={page}'
     return result
 
 
@@ -66,8 +94,9 @@ def sync(repo, number):
     decisions = {}
     for review in reviews:
         state = review['state']
-        if state in ('APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'):
-            decisions[review['user']['login']] = state
+        user = review.get('user')
+        if user and state in ('APPROVED', 'CHANGES_REQUESTED', 'DISMISSED'):
+            decisions[user['login']] = state
     requested = [r['login'] for r in pr.get('requested_reviewers', [])]
     requested += ['team:' + r['slug'] for r in pr.get('requested_teams', [])]
     if pr['state'] == 'closed':

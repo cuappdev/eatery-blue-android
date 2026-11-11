@@ -13,11 +13,11 @@ on:
       - review_requested
       - review_request_removed
 
-  pull_request_review:
+  workflow_run:
+    workflows:
+      - Queue Notion PR Review Sync
     types:
-      - submitted
-      - dismissed
-      - edited
+      - completed
 
   workflow_dispatch:
 
@@ -25,15 +25,20 @@ on:
     - cron: "17 */6 * * *"
 
 permissions:
+  actions: read
   contents: read
   pull-requests: read
 
 concurrency:
-  group: notion-pr-sync-${{ github.repository }}
+  # A newer event for the same PR supersedes an older pending event because
+  # each run reads current GitHub state. Different PR keys are safe to update
+  # concurrently in Notion.
+  group: notion-pr-sync-${{ github.repository }}-${{ github.event.pull_request.number || github.event.workflow_run.pull_requests[0].number || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   sync:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     name: Sync GitHub PRs to Notion
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -46,6 +51,33 @@ jobs:
         with:
           ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
+
+      - name: Download trusted review context
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: notion-pr-review-context
+          path: .notion-review-context
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Set pull request context
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          DIRECT_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_run" ]; then
+            PR_NUMBER="$(cat .notion-review-context/pr-number)"
+          else
+            PR_NUMBER="$DIRECT_PR_NUMBER"
+          fi
+
+          if [ -n "$PR_NUMBER" ] && ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "::error::Invalid pull request number"
+            exit 1
+          fi
+
+          echo "PR_NUMBER=$PR_NUMBER" >> "$GITHUB_ENV"
 
       - name: Validate configuration
         env:
@@ -67,6 +99,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ vars.NOTION_DATABASE_ID }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           python3 scripts/sync_pr.py
