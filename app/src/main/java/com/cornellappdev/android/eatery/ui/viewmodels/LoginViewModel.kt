@@ -185,8 +185,19 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun getFinancials() {
         when (val result = userRepository.getFinancials()) {
-            is Result.Success -> onNetworkSuccess()
+            is Result.Success -> {
+                onNetworkSuccess()
+                refreshBarcodeData()
+            }
             is Result.Error -> onNetworkFailure(NetworkAction.GetFinancials, result.error)
         }
+    }
+
+    /**
+     * Refreshes the cached barcode data while online so the barcode can be generated offline later.
+     * A failure keeps the existing cache and shows no error, since the balances already loaded.
+     */
+    private fun refreshBarcodeData() {
+        viewModelScope.launch { getAccountRepository.refreshBarcodeData() }
     }
 }
