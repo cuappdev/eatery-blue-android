@@ -22,7 +22,7 @@ class PopupDataRepository @Inject constructor(
         with(it.lastShowedRatingPopup) {
             // Default value should be min local date
             if (year == 0) LocalDate.MIN else
-                LocalDate.now().withYear(year).withDayOfMonth(day)
+                runCatching { LocalDate.of(year, month, day) }.getOrDefault(LocalDate.MIN)
         }
     }.stateIn(CoroutineScope(Dispatchers.IO), SharingStarted.Eagerly, LocalDate.MIN)
 
@@ -52,13 +52,17 @@ class PopupDataRepository @Inject constructor(
     }
 
     suspend fun onShownRating() {
+        val today = LocalDate.now()
         userPreferencesStore.updateData { prefs ->
-            with(prefs.toBuilder()) {
-                setMinDaysBetweenRatingShow((prefs.minDaysBetweenRatingShow * 1.5).toInt())
-                setLastShowedRatingPopup(
-                    Date.newBuilder().setYear(2024).setMonth(10).setDay(12)
-                ).build()
-            }
+            prefs.toBuilder()
+                .setMinDaysBetweenRatingShow((prefs.minDaysBetweenRatingShow * 1.5).toInt())
+                .setLastShowedRatingPopup(
+                    Date.newBuilder()
+                        .setYear(today.year)
+                        .setMonth(today.monthValue)
+                        .setDay(today.dayOfMonth)
+                )
+                .build()
         }
     }
 }
