@@ -264,11 +264,22 @@ class UserPreferencesRepository @Inject constructor(
     /**
      * Encrypts and stores whichever of [barcodeSeed] and [patronId] are non-null, in a single
      * write. A null argument leaves that stored value unchanged.
+     *
+     * Nothing is written unless [sessionId], the session the data was fetched with, is still the
+     * stored session. Logout and linking another account change the stored session, so a response
+     * that arrives late can't restore credentials after logout or mix them into another account.
+     * The check and the write run in one DataStore transaction, so a clear can't run in between.
      */
-    suspend fun setBarcodeData(barcodeSeed: String?, patronId: String?) {
+    suspend fun setBarcodeDataIfSessionMatches(
+        sessionId: String,
+        barcodeSeed: String?,
+        patronId: String?,
+    ) {
+        if (sessionId.isEmpty()) return
         val encryptedSeed = barcodeSeed?.let { encryptOrEmpty(ALIAS_BARCODE_SEED, it) }
         val encryptedPatronId = patronId?.let { encryptOrEmpty(ALIAS_PATRON_ID, it) }
         setPref {
+            if (decryptOrNull(ALIAS_SESSION_ID, this.sessionId) != sessionId) return@setPref this
             encryptedSeed?.let { setEncryptedBarcodeSeed(it) }
             encryptedPatronId?.let { setEncryptedPatronId(it) }
             this
