@@ -48,11 +48,10 @@ class GETAccountRepository @Inject constructor(
      * Only real values from the backend are stored: a missing or blank field leaves the cached
      * value as it was rather than being replaced with a placeholder. The patron ID is missing
      * when the account has no transactions yet. The response is dropped if the user logged out or
-     * linked another account while the request was in flight.
-     *
-     * @return the cached credentials after the update, or null if either value is still missing
+     * linked another account while the request was in flight. Read the result with
+     * [getCachedBarcodeCredentials].
      */
-    suspend fun refreshBarcodeData(): Result<BarcodeCredentials?> = resultOfNetworkCall {
+    suspend fun refreshBarcodeData(): Result<Unit> = resultOfNetworkCall {
         var sessionId = getSessionId().orEmpty()
         val response = try {
             networkApi.getBarcode(SessionID(sessionId))
@@ -71,7 +70,6 @@ class GETAccountRepository @Inject constructor(
             barcodeSeed = response.barcodeSeed?.takeIf { it.isNotBlank() },
             patronId = response.patronId?.takeIf { it.isNotBlank() }
         )
-        getCachedBarcodeCredentials()
     }
 
     /**
