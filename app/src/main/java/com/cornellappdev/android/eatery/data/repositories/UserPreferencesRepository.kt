@@ -3,6 +3,7 @@ package com.cornellappdev.android.eatery.data.repositories
 import android.util.Log
 import androidx.datastore.core.DataStore
 import com.cornellappdev.android.eatery.UserPreferences
+import com.cornellappdev.android.eatery.data.models.BarcodeCredentials
 import com.cornellappdev.android.eatery.data.models.ThemePreference
 import com.cornellappdev.android.eatery.util.decryptData
 import com.cornellappdev.android.eatery.util.encryptData
@@ -27,6 +28,8 @@ class UserPreferencesRepository @Inject constructor(
         private const val ALIAS_SESSION_ID = "eatery_session_id"
         private const val ALIAS_DEVICE_ID = "eatery_device_id"
         private const val ALIAS_PIN = "eatery_pin"
+        private const val ALIAS_BARCODE_SEED = "eatery_barcode_seed"
+        private const val ALIAS_PATRON_ID = "eatery_patron_id"
     }
 
     private val userPreferencesFlow: Flow<UserPreferences> = userPreferencesStore.data
@@ -94,6 +97,16 @@ class UserPreferencesRepository @Inject constructor(
      */
     val sessionIdFlow: Flow<String> = userPreferencesFlow.map { prefs ->
         decryptOrDefault(ALIAS_SESSION_ID, prefs.sessionId) { "" }
+    }
+
+    /**
+     * Emits the decrypted barcode credentials, or null unless both the seed and patron ID are
+     * stored and decrypt successfully. Never emits a partial or placeholder value.
+     */
+    val barcodeCredentialsFlow: Flow<BarcodeCredentials?> = userPreferencesFlow.map { prefs ->
+        val seed = decryptOrNull(ALIAS_BARCODE_SEED, prefs.encryptedBarcodeSeed)
+        val patronId = decryptOrNull(ALIAS_PATRON_ID, prefs.encryptedPatronId)
+        if (seed != null && patronId != null) BarcodeCredentials(seed, patronId) else null
     }
 
     val favoriteEateryNamesFlow: Flow<List<String>> =
@@ -246,6 +259,35 @@ class UserPreferencesRepository @Inject constructor(
     /** Encrypts [sessionId] before persisting. Pass an empty string to clear the value. */
     suspend fun setSessionId(sessionId: String) {
         setPref { setSessionId(encryptOrEmpty(ALIAS_SESSION_ID, sessionId)) }
+    }
+
+    /**
+     * Encrypts and stores whichever of [barcodeSeed] and [patronId] are non-null, in a single
+     * write. A null argument leaves that stored value unchanged.
+     *
+     * Nothing is written unless [sessionId], the session the data was fetched with, is still the
+     * stored session. Logout and linking another account change the stored session, so a response
+     * that arrives late can't restore credentials after logout or mix them into another account.
+     * The check and the write run in one DataStore transaction, so a clear can't run in between.
+     */
+    suspend fun setBarcodeDataIfSessionMatches(
+        sessionId: String,
+        barcodeSeed: String?,
+        patronId: String?,
+    ) {
+        if (sessionId.isEmpty()) return
+        val encryptedSeed = barcodeSeed?.let { encryptOrEmpty(ALIAS_BARCODE_SEED, it) }
+        val encryptedPatronId = patronId?.let { encryptOrEmpty(ALIAS_PATRON_ID, it) }
+        setPref {
+            if (decryptOrNull(ALIAS_SESSION_ID, this.sessionId) != sessionId) return@setPref this
+            encryptedSeed?.let { setEncryptedBarcodeSeed(it) }
+            encryptedPatronId?.let { setEncryptedPatronId(it) }
+            this
+        }
+    }
+
+    suspend fun clearBarcodeData() = setPref {
+        clearEncryptedBarcodeSeed().clearEncryptedPatronId()
     }
 
     private fun String?.nullIfEmpty(): String? = if (this.isNullOrEmpty()) null else this

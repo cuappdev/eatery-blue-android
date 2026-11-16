@@ -218,6 +218,7 @@ class UserRepository @Inject constructor(
     suspend fun logout() {
         _loadedUser.value = null
         getAccountRepository.clearSessionId()
+        getAccountRepository.clearBarcodeData()
         getAccountRepository.setIsLoggedIn(false)
     }
 

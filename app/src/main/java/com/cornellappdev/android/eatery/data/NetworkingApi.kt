@@ -1,6 +1,7 @@
 package com.cornellappdev.android.eatery.data
 
 import com.cornellappdev.android.eatery.data.models.AuthTokens
+import com.cornellappdev.android.eatery.data.models.BarcodeResponse
 import com.cornellappdev.android.eatery.data.models.DeviceId
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.models.FavoriteEatery
@@ -114,6 +115,12 @@ interface NetworkApi {
     suspend fun getFinancials(
         @Body sessionId: SessionID
     ): Financials
+
+    /** Barcode seed and patron ID for generating the GET barcode. Never log the response. */
+    @POST("/financials/barcode")
+    suspend fun getBarcode(
+        @Body sessionId: SessionID
+    ): BarcodeResponse
 
     @GET("/users/favorites/matches")
     suspend fun getFavoriteMatches(): List<Match>

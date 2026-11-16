@@ -17,6 +17,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -27,11 +28,26 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+    /** Paths whose bodies hold payment credentials, so only the method, URL and status are logged. */
+    private val CREDENTIAL_PATHS = setOf("/financials/barcode")
+
     @Singleton
     @Provides
     fun provideHttpClient(authInterceptor: AuthInterceptor): OkHttpClient {
-        val logging = HttpLoggingInterceptor { message -> Log.d("NetworkRequest", message) }
-        logging.level = (HttpLoggingInterceptor.Level.BODY)
+        val logger = HttpLoggingInterceptor.Logger { message -> Log.d("NetworkRequest", message) }
+        val bodyLogging = HttpLoggingInterceptor(logger).apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+        val basicLogging = HttpLoggingInterceptor(logger).apply {
+            level = HttpLoggingInterceptor.Level.BASIC
+        }
+        val logging = Interceptor { chain ->
+            if (chain.request().url.encodedPath in CREDENTIAL_PATHS) {
+                basicLogging.intercept(chain)
+            } else {
+                bodyLogging.intercept(chain)
+            }
+        }
 
         return OkHttpClient
             .Builder()

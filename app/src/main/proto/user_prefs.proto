@@ -48,6 +48,11 @@ message UserPreferences {
   // True once favorites saved before backend sync existed have been queued for upload.
   bool favoriteItemsMigratedToBackend = 24;
 
+  // GET barcode credentials, encrypted with the Android KeyStore and stored as Base64 strings.
+  // Empty means not yet fetched. Cleared on logout and when a different GET account is linked.
+  string encryptedBarcodeSeed = 25;
+  string encryptedPatronId = 26;
+
   //  repeated int32 recentSearches = 2;
   //  string username = 3;
   //  // Must be encrypted / decrypted.

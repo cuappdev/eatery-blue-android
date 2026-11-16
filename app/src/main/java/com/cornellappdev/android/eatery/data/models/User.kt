@@ -75,6 +75,25 @@ data class SessionID(
     @Json(name = "sessionId") val sessionId: String? = null
 )
 
+/**
+ * Response from `POST /financials/barcode`. [patronId] is null when the user has no GET
+ * transactions yet, since the backend reads it from the most recent one.
+ */
+@JsonClass(generateAdapter = true)
+data class BarcodeResponse(
+    @Json(name = "barcodeSeed") val barcodeSeed: String? = null,
+    @Json(name = "patronId") val patronId: String? = null
+)
+
+/**
+ * The cached values needed to generate the GET barcode offline with
+ * [com.cornellappdev.android.eatery.util.BarcodeGenerator]. Both are payment credentials.
+ */
+data class BarcodeCredentials(
+    val barcodeSeed: String,
+    val patronId: String
+)
+
 @JsonClass(generateAdapter = true)
 data class Financials(
     @Json(name = "accounts") val accounts: Accounts? = null,
