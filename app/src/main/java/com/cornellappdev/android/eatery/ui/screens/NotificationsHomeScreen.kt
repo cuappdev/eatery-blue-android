@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,17 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.HubNotification
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
+import com.cornellappdev.android.eatery.ui.components.general.loadingPulse
 import com.cornellappdev.android.eatery.ui.components.notifications.NOTIFICATIONS_STATE_HEIGHT_FRACTION
 import com.cornellappdev.android.eatery.ui.components.notifications.NotificationRow
 import com.cornellappdev.android.eatery.ui.components.notifications.NotificationsErrorState
@@ -45,9 +45,6 @@ import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsHomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsHomeViewState
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
-import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.rememberShimmer
-import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun NotificationsHomeScreen(
@@ -87,12 +84,7 @@ private fun NotificationsHomeScreenContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         when (val state = uiState) {
-            is NotificationsHomeViewState.Loading -> {
-                FavoriteItemsHeading()
-                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    NotificationsLoadingState()
-                }
-            }
+            is NotificationsHomeViewState.Loading -> NotificationsLoadingContent()
 
             is NotificationsHomeViewState.Error -> NotificationsErrorState(
                 title = stringResource(R.string.notifications_home_error),
@@ -149,26 +141,52 @@ private fun FavoriteItemsHeading() {
     )
 }
 
-/**
- * Shimmering placeholder rows, matching the loading treatment used on the home and favorites
- * screens. Only shown on a cold start, since cached notifications render immediately.
- */
+/** Only shown on a cold start, since cached notifications render immediately. */
 @Composable
-private fun NotificationsLoadingState() {
-    val shimmer = rememberShimmer(ShimmerBounds.View)
-
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+private fun NotificationsLoadingContent(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.loadingPulse(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         repeat(3) {
-            Surface(
+            Row(
                 modifier = Modifier
-                    .shimmer(shimmer)
-                    .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth()
-                    .height(72.dp),
-                color = currentColors.backgroundDefault92
-            ) {}
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_notif_star),
+                    contentDescription = null,
+                    tint = currentColors.accentPrimary
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(12.dp)
+                            .background(currentColors.accentPrimary, CircleShape)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .width(88.dp)
+                            .height(12.dp)
+                            .background(currentColors.accentPrimary, CircleShape)
+                    )
+                }
+            }
         }
     }
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsLoadingContentPreview() = EateryPreview {
+    NotificationsLoadingContent()
 }
 
 @Composable
