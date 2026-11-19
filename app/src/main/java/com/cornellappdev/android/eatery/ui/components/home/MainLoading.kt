@@ -3,6 +3,8 @@ package com.cornellappdev.android.eatery.ui.components.home
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,10 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.DualModePreview
+import com.cornellappdev.android.eatery.util.EateryPreview
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.shimmer
 
@@ -44,11 +49,13 @@ fun FilterItem(width: Dp, modifier: Modifier = Modifier) {
 fun EateryBlob(
     modifier: Modifier = Modifier,
     fillMaxWidth: Boolean = false,
-    height: Dp = 186.dp
+    height: Dp = 186.dp,
+    color: Color = currentColors.backgroundDefault92,
+    endPadding: Dp = 12.dp
 ) {
     Surface(
         modifier = Modifier
-            .padding(end = 12.dp)
+            .padding(end = endPadding)
             .then(modifier)
             .clip(
                 RoundedCornerShape(
@@ -57,8 +64,25 @@ fun EateryBlob(
             )
             .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(295.dp))
             .height(height),
-        color = currentColors.backgroundDefault92
+        color = color
     ) {}
+}
+
+@DualModePreview
+@Composable
+private fun EateryBlobPreview() = EateryPreview {
+    Column(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        EateryBlob()
+        EateryBlob(
+            fillMaxWidth = true,
+            height = 216.dp,
+            color = currentColors.accentPrimary,
+            endPadding = 0.dp
+        )
+    }
 }
 
 sealed class MainLoadingItem {
