@@ -1,6 +1,11 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCard
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -379,6 +386,41 @@ private fun EateriesEmptyState(message: String) {
             )
         }
     }
+}
+
+@Composable
+private fun FavoritesLoadingContent(modifier: Modifier = Modifier) {
+    val pulseAlpha by rememberInfiniteTransition(label = "Favorites loading").animateFloat(
+        initialValue = 1f,
+        targetValue = 0.5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "Pulse alpha"
+    )
+
+    Column(modifier = modifier.graphicsLayer { alpha = pulseAlpha }) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            repeat(2) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(34.dp)
+                        .background(currentColors.accentPrimary, CircleShape)
+                )
+            }
+        }
+    }
+}
+
+@DualModePreview
+@Composable
+private fun FavoritesLoadingContentPreview() = EateryPreview {
+    FavoritesLoadingContent(modifier = Modifier.padding(16.dp))
 }
 
 @Composable
