@@ -137,6 +137,9 @@
     <string name="account_search_transactions_placeholder">Search for transactions…</string>
     <string name="account_past_30_days">Past 30 Days</string>
     <string name="account_show_transactions">Show transactions</string>
+    <string name="account_barcode">Barcode</string>
+    <string name="account_dining_barcode">Dining Barcode</string>
+    <string name="a11y_profile_picture">Profile picture</string>
     <string name="a11y_change_account_type">Change account type</string>
 
     <string name="permission_location_message">Location permissions are necessary to show you eateries that are the closest to you!</string>

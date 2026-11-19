@@ -9,6 +9,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
+import com.cornellappdev.android.eatery.data.models.UserProfile
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
 import com.cornellappdev.android.eatery.ui.components.login.AccountPage
 import com.cornellappdev.android.eatery.ui.components.login.LoginPage
@@ -48,7 +49,8 @@ fun ProfileScreen(
         filterText = uiState.filterText,
         filteredTransactions = uiState.filteredTransactions,
         onQueryChanged = loginViewModel::setQuery,
-        updateAccountFilter = loginViewModel::updateAccountFilter
+        updateAccountFilter = loginViewModel::updateAccountFilter,
+        userProfile = uiState.userProfile
     )
 }
 
@@ -66,7 +68,8 @@ private fun ProfileScreenContent(
     onSettingsClicked: () -> Unit,
     filteredTransactions: List<DisplayTransaction>,
     onQueryChanged: (String) -> Unit,
-    updateAccountFilter: (TransactionAccountType) -> Unit
+    updateAccountFilter: (TransactionAccountType) -> Unit,
+    userProfile: UserProfile = UserProfile()
 ) {
     Box(
         modifier = Modifier
@@ -90,7 +93,8 @@ private fun ProfileScreenContent(
                 filteredTransactions = filteredTransactions,
                 filterText = filterText,
                 onQueryChanged = onQueryChanged,
-                updateAccountFilter = updateAccountFilter
+                updateAccountFilter = updateAccountFilter,
+                userProfile = userProfile
             )
         }
     }
@@ -145,7 +149,8 @@ private fun ProfileScreenAccountPreview() = EateryPreview {
             )
         ),
         onQueryChanged = {},
-        updateAccountFilter = {}
+        updateAccountFilter = {},
+        userProfile = UserProfile(name = "Wonjin Eum", email = "we46@cornell.edu")
     )
 }
 
