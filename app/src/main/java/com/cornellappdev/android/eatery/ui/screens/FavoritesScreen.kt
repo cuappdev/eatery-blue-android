@@ -59,6 +59,7 @@ import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
+import com.cornellappdev.android.eatery.ui.components.home.EateryBlob
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
@@ -414,6 +415,17 @@ private fun FavoritesLoadingContent(modifier: Modifier = Modifier) {
                 )
             }
         }
+        Spacer(modifier = Modifier.height(12.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            repeat(4) {
+                EateryBlob(
+                    fillMaxWidth = true,
+                    height = 216.dp,
+                    color = currentColors.accentPrimary,
+                    endPadding = 0.dp
+                )
+            }
+        }
     }
 }
 
@@ -421,25 +433,4 @@ private fun FavoritesLoadingContent(modifier: Modifier = Modifier) {
 @Composable
 private fun FavoritesLoadingContentPreview() = EateryPreview {
     FavoritesLoadingContent(modifier = Modifier.padding(16.dp))
-}
-
-@Composable
-private fun EateryBlob(
-    modifier: Modifier = Modifier,
-    fillMaxWidth: Boolean = true,
-    height: Dp = 186.dp
-) {
-    Surface(
-        modifier = Modifier
-            .padding(horizontal = 6.dp)
-            .then(modifier)
-            .clip(
-                RoundedCornerShape(
-                    CornerSize(8.dp),
-                )
-            )
-            .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(295.dp))
-            .height(height),
-        color = currentColors.backgroundDefault92
-    ) {}
 }
