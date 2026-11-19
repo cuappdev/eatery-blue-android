@@ -32,6 +32,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.HubNotification
+import com.cornellappdev.android.eatery.ui.components.general.ConnectionErrorBanner
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
 import com.cornellappdev.android.eatery.ui.components.general.loadingPulse
 import com.cornellappdev.android.eatery.ui.components.notifications.NOTIFICATIONS_STATE_HEIGHT_FRACTION
@@ -120,6 +121,15 @@ private fun NotificationsHomeScreenContent(
                             )
                         }
                     }
+                }
+
+                if (state.showConnectionError) {
+                    ConnectionErrorBanner(
+                        onRetry = onTryAgain,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(start = 6.dp, end = 6.dp, bottom = 8.dp)
+                    )
                 }
             }
         }
@@ -217,23 +227,34 @@ private fun PreviewNotificationsHomeScreen(uiState: NotificationsHomeViewState) 
     )
 }
 
+private val previewNotifications = listOf(
+    HubNotification(
+        id = 1,
+        body = "**Chicken Tenders** is being served at Morrison Dining at 5:00 PM!",
+        isRead = false
+    ),
+    HubNotification(
+        id = 2,
+        body = "**Mac and Cheese** is being served at Okenshields at 5:00 PM!",
+        isRead = true
+    ),
+)
+
 @DualModePreview
 @Composable
 private fun NotificationsHomeScreenPreview() = EateryPreview {
     PreviewNotificationsHomeScreen(
+        uiState = NotificationsHomeViewState.Loaded(previewNotifications)
+    )
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsHomeConnectionErrorPreview() = EateryPreview {
+    PreviewNotificationsHomeScreen(
         uiState = NotificationsHomeViewState.Loaded(
-            listOf(
-                HubNotification(
-                    id = 1,
-                    body = "**Chicken Tenders** is being served at Morrison Dining at 5:00 PM!",
-                    isRead = false
-                ),
-                HubNotification(
-                    id = 2,
-                    body = "**Mac and Cheese** is being served at Okenshields at 5:00 PM!",
-                    isRead = true
-                ),
-            )
+            previewNotifications,
+            showConnectionError = true
         )
     )
 }

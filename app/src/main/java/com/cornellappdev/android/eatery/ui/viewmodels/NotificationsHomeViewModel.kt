@@ -17,7 +17,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class NotificationsHomeViewState {
-    data class Loaded(val notifications: List<HubNotification>) : NotificationsHomeViewState()
+    /** [showConnectionError] is set when [notifications] are cached but the latest fetch failed. */
+    data class Loaded(
+        val notifications: List<HubNotification>,
+        val showConnectionError: Boolean = false,
+    ) : NotificationsHomeViewState()
     data object Loading : NotificationsHomeViewState()
     data object Error : NotificationsHomeViewState()
 }
@@ -53,7 +57,10 @@ class NotificationsHomeViewModel @Inject constructor(
         }
         when {
             // Cached notifications (fetched by Home) take priority over loading/error states.
-            notifications.isNotEmpty() -> NotificationsHomeViewState.Loaded(notifications)
+            notifications.isNotEmpty() -> NotificationsHomeViewState.Loaded(
+                notifications,
+                showConnectionError = error
+            )
             loading -> NotificationsHomeViewState.Loading
             error -> NotificationsHomeViewState.Error
             else -> NotificationsHomeViewState.Loaded(emptyList())
@@ -71,23 +78,21 @@ class NotificationsHomeViewModel @Inject constructor(
     fun refresh() = viewModelScope.launch {
         hasError.value = false
         isLoading.value = true
-
-        if (notificationRepository.fetchNotifications() is Result.Error) {
-            hasError.value = true
-        } else {
-            markUnreadAsRead()
-        }
-
+        fetchNotifications()
         isLoading.value = false
     }
 
-    /** Keeps the current list on screen; a failure leaves it unchanged. */
+    /** Keeps the current list on screen; a failure shows the connection error over it. */
     fun pullToRefresh() = viewModelScope.launch {
         _isRefreshing.value = true
-        if (notificationRepository.fetchNotifications() is Result.Success) {
-            markUnreadAsRead()
-        }
+        fetchNotifications()
         _isRefreshing.value = false
+    }
+
+    private suspend fun fetchNotifications() {
+        val succeeded = notificationRepository.fetchNotifications() is Result.Success
+        hasError.value = !succeeded
+        if (succeeded) markUnreadAsRead()
     }
 
     /** Opening the hub marks notifications read. On failure the next visit retries. */
