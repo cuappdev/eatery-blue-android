@@ -150,6 +150,9 @@
     <string name="home_error_title">Hmm, no chow here (yet).</string>
     <string name="home_error_description">We ran into an issue loading this page. Check your connection or try reloading the page.</string>
     <string name="home_error_try_again">Try Again</string>
+    <string name="connection_error_title">Couldn’t load the latest data</string>
+    <string name="connection_error_description">Check your connection and try again.</string>
+    <string name="connection_error_retry">Retry</string>
     <string name="a11y_list_view">List View</string>
     <string name="a11y_grid_view">Grid View</string>
     <string name="all_eateries_title">All Eateries</string>
@@ -190,7 +193,6 @@
     <string name="search_recent_searches">Recent Searches</string>
 
     <string name="notifications_home_title">Notifications</string>
-    <string name="notifications_home_favorite_items">Favorite Items</string>
     <string name="notifications_home_empty">Nothing here…yet!</string>
     <string name="notifications_home_empty_description">When your favorite menu items are being served in a dining hall, it will show up here.</string>
     <string name="notifications_home_error">Something went wrong loading your notifications.</string>

@@ -25,8 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -109,36 +107,23 @@ private fun NotificationsHomeScreenContent(
                         }
                     }
                 } else {
-                    Column {
-                        FavoriteItemsHeading()
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(
-                                items = state.notifications,
-                                key = { it.id }
-                            ) { notification ->
-                                NotificationRow(
-                                    body = notification.body,
-                                )
-                            }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = state.notifications,
+                            key = { it.id }
+                        ) { notification ->
+                            NotificationRow(
+                                body = notification.body,
+                            )
                         }
                     }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun FavoriteItemsHeading() {
-    Text(
-        text = stringResource(R.string.notifications_home_favorite_items),
-        style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 20.sp),
-        color = currentColors.textPrimary,
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
-    )
 }
 
 /** Only shown on a cold start, since cached notifications render immediately. */
