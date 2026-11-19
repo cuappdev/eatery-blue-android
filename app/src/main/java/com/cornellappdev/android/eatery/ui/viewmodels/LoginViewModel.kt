@@ -8,6 +8,7 @@ import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.data.models.User
+import com.cornellappdev.android.eatery.data.models.UserProfile
 import com.cornellappdev.android.eatery.data.repositories.GETAccountRepository
 import com.cornellappdev.android.eatery.data.repositories.UserRepository
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
@@ -37,6 +38,7 @@ class LoginViewModel @Inject constructor(
         val accountFilter: TransactionAccountType = TransactionAccountType.BRBS,
         val filterText: String = "",
         val filteredTransactions: List<DisplayTransaction> = emptyList(),
+        val userProfile: UserProfile = UserProfile(),
         val error: NetworkUiError? = null
     )
 
@@ -77,8 +79,12 @@ class LoginViewModel @Inject constructor(
         )
     }
 
-    val uiState = combine(loginDataState, _error) { dataState, error ->
-        dataState.copy(error = error)
+    val uiState = combine(
+        loginDataState,
+        _error,
+        userRepository.userProfileFlow
+    ) { dataState, error, userProfile ->
+        dataState.copy(error = error, userProfile = userProfile)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -189,6 +195,7 @@ class LoginViewModel @Inject constructor(
             is Result.Success -> {
                 onNetworkSuccess()
                 refreshBarcodeData()
+                refreshProfile()
             }
             is Result.Error -> onNetworkFailure(NetworkAction.GetFinancials, result.error)
         }
@@ -200,5 +207,14 @@ class LoginViewModel @Inject constructor(
      */
     private fun refreshBarcodeData() {
         viewModelScope.launch { getAccountRepository.refreshBarcodeData() }
+    }
+
+    /**
+     * Loads the user's name, email, and photo. Called after financials, which renews an expired
+     * GET session, so this doesn't race it to refresh the session. A failure leaves the profile
+     * card empty and shows no error, since the balances already loaded.
+     */
+    private fun refreshProfile() {
+        viewModelScope.launch { userRepository.getProfile() }
     }
 }

@@ -28,8 +28,11 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    /** Paths whose bodies hold payment credentials, so only the method, URL and status are logged. */
-    private val CREDENTIAL_PATHS = setOf("/financials/barcode")
+    /**
+     * Paths whose bodies hold payment credentials or personal info, so only the method, URL and
+     * status are logged.
+     */
+    private val CREDENTIAL_PATHS = setOf("/financials/barcode", "/users/get-profile")
 
     @Singleton
     @Provides
