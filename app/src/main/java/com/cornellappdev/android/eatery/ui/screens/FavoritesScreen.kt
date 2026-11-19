@@ -26,10 +26,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,7 +43,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -66,9 +62,6 @@ import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
-import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.rememberShimmer
-import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun FavoritesScreen(
@@ -108,7 +101,6 @@ private fun FavoritesScreenContent(
     removeFavorite: (eateryId: Int, eateryName: String) -> Unit,
     removeFavoriteMenuItem: (menuItem: String) -> Unit,
 ) {
-    val shimmer = rememberShimmer(ShimmerBounds.View)
     var toggle by remember { mutableStateOf(true) }
 
     Column(
@@ -143,20 +135,7 @@ private fun FavoritesScreenContent(
 
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             when (favoritesScreenViewState) {
-                is FavoritesScreenViewState.Loading -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        items(15) {
-                            EateryBlob(
-                                modifier = Modifier.shimmer(shimmer),
-                                height = 216.dp,
-                            )
-                        }
-                    }
-                }
+                is FavoritesScreenViewState.Loading -> FavoritesLoadingContent()
 
                 is FavoritesScreenViewState.Error -> {
                     // TODO we should have a better no internet display
