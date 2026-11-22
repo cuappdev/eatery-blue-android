@@ -15,6 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.dropShadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +25,7 @@ import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.theme.ColorTheme
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.DualModePreview
@@ -41,11 +45,22 @@ fun ConnectionErrorBanner(
         )
     )
 
+    val shape = RoundedCornerShape(8.dp)
+
     Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        color = currentColors.backgroundDefault,
-        shadowElevation = 6.dp
+        modifier = modifier
+            .fillMaxWidth()
+            .dropShadow(
+                shape = shape,
+                shadow = Shadow(radius = 6.dp, color = Color.Black.copy(alpha = 0.12f))
+            ),
+        shape = shape,
+        // The shadow doesn't show on a dark background, so lift the card with a lighter fill.
+        color = if (currentColors == ColorTheme.darkMode) {
+            currentColors.accentPrimary
+        } else {
+            currentColors.backgroundDefault
+        }
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -74,7 +89,7 @@ fun ConnectionErrorBanner(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = currentColors.contentBrand,
-                    contentColor = currentColors.oppTextPrimary
+                    contentColor = Color.White
                 ),
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp)
             ) {
