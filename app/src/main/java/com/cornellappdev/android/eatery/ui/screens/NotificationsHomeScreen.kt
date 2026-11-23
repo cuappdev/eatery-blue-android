@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,9 +21,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -95,6 +101,9 @@ private fun NotificationsHomeScreenContent(
                 onRefresh = onRefresh,
                 modifier = Modifier.fillMaxSize()
             ) {
+                val density = LocalDensity.current
+                var bannerHeight by remember { mutableStateOf(0.dp) }
+
                 // The pull gesture only reaches scrollable content, so the empty state is
                 // wrapped in a LazyColumn as well.
                 if (state.notifications.isEmpty()) {
@@ -110,6 +119,14 @@ private fun NotificationsHomeScreenContent(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
+                        // Lets the last notification scroll above the connection error banner.
+                        contentPadding = PaddingValues(
+                            bottom = if (state.showConnectionError) {
+                                bannerHeight + BANNER_BOTTOM_MARGIN
+                            } else {
+                                0.dp
+                            }
+                        ),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(
@@ -128,13 +145,16 @@ private fun NotificationsHomeScreenContent(
                         onRetry = onTryAgain,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(start = 6.dp, end = 6.dp, bottom = 8.dp)
+                            .padding(start = 6.dp, end = 6.dp, bottom = BANNER_BOTTOM_MARGIN)
+                            .onSizeChanged { bannerHeight = with(density) { it.height.toDp() } }
                     )
                 }
             }
         }
     }
 }
+
+private val BANNER_BOTTOM_MARGIN = 8.dp
 
 /** Only shown on a cold start, since cached notifications render immediately. */
 @Composable
