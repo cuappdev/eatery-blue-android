@@ -3,7 +3,6 @@ package com.cornellappdev.android.eatery.ui.components.general
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -64,7 +63,6 @@ fun AppStoreRatingPopup(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun AppStoreRatingDialog(navigateToSupport: () -> Unit, onDismiss: () -> Unit) {
     var rating by remember { mutableIntStateOf(0) }

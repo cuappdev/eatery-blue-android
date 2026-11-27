@@ -4,9 +4,7 @@ package com.cornellappdev.android.eatery.ui.screens
 import android.Manifest
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -104,7 +102,6 @@ import com.valentinilk.shimmer.rememberShimmer
 import kotlinx.coroutines.launch
 
 @OptIn(
-    ExperimentalMaterial3Api::class,
     ExperimentalPermissionsApi::class
 )
 @Composable
@@ -365,9 +362,6 @@ private fun SheetContent(
     }
 }
 
-@OptIn(
-    ExperimentalFoundationApi::class,
-)
 @Composable
 private fun HomeScrollableMainContent(
     onSearchClick: () -> Unit,
@@ -479,7 +473,6 @@ private fun HomeScrollableMainContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HomeLazyColumn(
     listState: LazyListState,
@@ -698,7 +691,6 @@ private fun LazyListScope.regularContent(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun HomeStickyHeader(
     collapsed: Boolean,

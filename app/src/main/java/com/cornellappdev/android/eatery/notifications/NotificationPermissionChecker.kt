@@ -18,11 +18,7 @@ class NotificationPermissionChecker @Inject constructor(
 ) {
     /** Whether POST_NOTIFICATIONS still needs to be requested. Always false below API 33. */
     fun needsPermissionRequest(): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            return false
-        }
-
-        return ContextCompat.checkSelfPermission(
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && ContextCompat.checkSelfPermission(
             context,
             android.Manifest.permission.POST_NOTIFICATIONS
         ) != PackageManager.PERMISSION_GRANTED

@@ -198,8 +198,9 @@ class UserRepository @Inject constructor(
                         date = date,
                         location = transaction.location
                     )
-                } ?: emptyList()
-//            mealSwipes = financials.accounts?.mealSwipes
+                } ?: emptyList(),
+            mealSwipes = financials.accounts?.mealSwipes?.balance?.toInt(),
+            mealSwipePlan = financials.accounts?.mealSwipes?.planType
         )
         financials
     }

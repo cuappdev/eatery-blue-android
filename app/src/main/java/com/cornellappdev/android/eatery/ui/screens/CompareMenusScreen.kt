@@ -1,11 +1,11 @@
 package com.cornellappdev.android.eatery.ui.screens
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -33,12 +32,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.Surface
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -84,10 +83,6 @@ import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import kotlinx.coroutines.launch
 
-@OptIn(
-    ExperimentalFoundationApi::class,
-    ExperimentalMaterial3Api::class,
-)
 @Composable
 fun CompareMenusScreen(
     eateryIds: List<Int>,
@@ -115,7 +110,6 @@ fun CompareMenusScreen(
 }
 
 @OptIn(
-    ExperimentalFoundationApi::class,
     ExperimentalMaterial3Api::class,
 )
 @Composable
@@ -252,10 +246,6 @@ private fun CompareMenusScreenPreview() = EateryPreview {
 
 
 @Composable
-@OptIn(
-    ExperimentalFoundationApi::class,
-    ExperimentalMaterial3Api::class
-)
 private fun MenuPager(
     eateries: List<Eatery>,
     firstPagerState: PagerState,
@@ -489,7 +479,6 @@ private fun MenuPager(
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 private fun TitlePager(
     eateries: List<Eatery>,
     pagerState: PagerState,

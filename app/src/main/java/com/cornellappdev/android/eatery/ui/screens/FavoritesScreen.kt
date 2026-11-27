@@ -1,13 +1,11 @@
 package com.cornellappdev.android.eatery.ui.screens
 
-import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCard
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -43,6 +41,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
+import com.cornellappdev.android.eatery.ui.components.details.ItemFavoritesCard
 import com.cornellappdev.android.eatery.ui.components.details.ToggleRow
 import com.cornellappdev.android.eatery.ui.components.general.EateryCard
 import com.cornellappdev.android.eatery.ui.components.general.Filter
@@ -210,7 +209,6 @@ private fun FavoritesScreenErrorPreview() = EateryPreview {
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 private fun MainScrollableContent(
     toggle: Boolean,
     setToggle: (Boolean) -> Unit,

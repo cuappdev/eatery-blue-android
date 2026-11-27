@@ -1,0 +1,32 @@
+name: Queue Notion PR Review Sync
+
+on:
+  pull_request_review:
+    types:
+      - submitted
+      - dismissed
+      - edited
+
+permissions:
+  contents: read
+
+jobs:
+  queue:
+    name: Pass review context to trusted sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      # This workflow never checks out or executes pull request code.
+      - name: Record pull request number
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: printf '%s\n' "$PR_NUMBER" > pr-number
+
+      - name: Upload review context
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: notion-pr-review-context
+          path: pr-number
+          if-no-files-found: error
+          retention-days: 1

@@ -2,8 +2,6 @@ package com.cornellappdev.android.eatery.ui.components.login
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -54,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.AccountBalances
+import com.cornellappdev.android.eatery.data.models.MealSwipePlan
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
@@ -65,8 +64,7 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlin.math.abs
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
+    ExperimentalMaterial3Api::class
 )
 @Composable
 fun AccountPage(
@@ -126,10 +124,6 @@ fun AccountPage(
     }
 }
 
-@OptIn(
-    ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
-)
 @Composable
 private fun AccountPageContent(
     onSettingsClicked: () -> Unit,
@@ -159,13 +153,10 @@ private fun AccountPageContent(
                             modifier = Modifier.padding(top = 16.dp),
                             color = currentColors.textPrimary
                         )
-                        accountTypeBalance.mealSwipes?.let {
-                            AccountBalanceRow(
-                                accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
-                                swipes = it
-                            )
-                        }
-                        HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
+                        MealSwipesRow(
+                            plan = accountTypeBalance.mealSwipePlan,
+                            swipes = accountTypeBalance.mealSwipes
+                        )
                         accountTypeBalance.brbBalance?.let {
                             AccountBalanceRow(
                                 accountName = stringResource(TransactionAccountType.BRBS.displayNameRes()),
@@ -289,7 +280,6 @@ private fun TransactionsHeader(
 }
 
 @Composable
-@OptIn(ExperimentalAnimationApi::class)
 private fun AccountPageHeader(
     isFirstVisible: Boolean,
     onSettingsClicked: () -> Unit
@@ -420,12 +410,32 @@ fun AccountBalanceRow(
     AccountRow(accountName, "$" + "%.2f".format(balance))
 }
 
+/**
+ * Shows the meal swipe balance, labeled by how the plan resets. Renders nothing (including the
+ * divider) when there is no swipe balance to show.
+ */
 @Composable
-fun AccountBalanceRow(
-    accountName: String,
-    swipes: Int
+private fun MealSwipesRow(
+    plan: MealSwipePlan?,
+    swipes: Int?
 ) {
-    AccountRow(accountName, "$swipes remaining")
+    val text = when {
+        plan == MealSwipePlan.UNLIMITED -> stringResource(R.string.account_meal_swipes_unlimited)
+        swipes == null -> return
+        else -> stringResource(
+            when (plan) {
+                MealSwipePlan.WEEKLY -> R.string.account_meal_swipes_remaining_week
+                MealSwipePlan.SEMESTER -> R.string.account_meal_swipes_remaining_semester
+                else -> R.string.account_meal_swipes_remaining
+            },
+            swipes
+        )
+    }
+    AccountRow(
+        accountName = stringResource(TransactionAccountType.MEAL_SWIPES.displayNameRes()),
+        text = text
+    )
+    HorizontalDivider(color = currentColors.accentPrimary, thickness = 1.dp)
 }
 
 @Composable
@@ -587,7 +597,9 @@ private fun AccountPagePreview() = EateryPreview {
             brbBalance = 25.50,
             cityBucksBalance = 10.75,
             laundryBalance = 5.00,
-            mealSwipes = 42
+            mealSwipes = 42,
+            mealSwipePlan = MealSwipePlan.SEMESTER,
+            //mealSwipePlan = MealSwipePlan.UNLIMITED
         ),
         accountFilter = TransactionAccountType.BRBS,
         showBottomSheet = {},

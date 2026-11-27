@@ -19,7 +19,7 @@ import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 
 /**
- * A raised, rounded container for grouping settings cells. Use [CircleShape] for a pill-shaped
+ * A raised, rounded container for grouping settings cells. Use [androidx.compose.foundation.shape.CircleShape] for a pill-shaped
  * card holding a single cell.
  */
 @Composable

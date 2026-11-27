@@ -45,7 +45,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -335,44 +334,6 @@ fun EateryCardSecondaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCar
     }
 }
 
-//TODO, integrate backend for the entree recommendation once backend is done for that
-@Composable
-fun EateryCardTertiaryHeader(eatery: Eatery, style: EateryCardStyle = EateryCardStyle.DEFAULT) {
-    //TODO uncomment when backend finishes AI feature
-    if (style == EateryCardStyle.DEFAULT) {
-        Row(
-            modifier = Modifier.padding(top = 2.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Recommended for You: ",
-                color = currentColors.textSecondary,
-                style = EateryBlueTypography.subtitle2
-            )
-            Text(
-                text = "Carved Roast Beef",
-                color = currentColors.textPrimary,
-                fontStyle = FontStyle.Italic,
-                style = EateryBlueTypography.subtitle2
-            )
-        }
-    } else {
-        Column(modifier = Modifier.padding(top = 8.dp)) {
-            Text(
-                text = "Recommended for You: ",
-                color = currentColors.textSecondary,
-                style = EateryBlueTypography.subtitle2
-            )
-            Text(
-                text = "Carved Roast Beef",
-                color = currentColors.textPrimary,
-                fontStyle = FontStyle.Italic,
-                style = EateryBlueTypography.subtitle2
-            )
-        }
-    }
-}
-
 @Composable
 fun DotSeparator() {
     Text(
@@ -381,37 +342,6 @@ fun DotSeparator() {
         style = EateryBlueTypography.subtitle2,
         modifier = Modifier.padding(horizontal = 5.dp)
     )
-}
-
-@Composable
-fun EateryMenuSummary(eatery: Eatery) {
-    if (eatery.acceptsMealSwipes()) {
-        DotSeparator()
-        Text(
-            text = "Meal swipes allowed",
-            maxLines = 1,
-            color = currentColors.textPrimary,
-            style = EateryBlueTypography.subtitle2
-        )
-    } else if (!eatery.acceptsBRB() &&
-        (eatery.acceptsCash() || eatery.acceptsCard())
-    ) {
-        DotSeparator()
-        Text(
-            text = "Cash or credit only",
-            maxLines = 1,
-            color = currentColors.success,
-            style = EateryBlueTypography.subtitle2
-        )
-    } else if (!eatery.menuSummary.isNullOrEmpty()) {
-        DotSeparator()
-        Text(
-            text = eatery.menuSummary,
-            maxLines = 1,
-            color = currentColors.textSecondary,
-            style = EateryBlueTypography.subtitle2
-        )
-    }
 }
 
 @DualModePreview

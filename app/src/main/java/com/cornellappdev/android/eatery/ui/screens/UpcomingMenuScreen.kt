@@ -1,8 +1,6 @@
 package com.cornellappdev.android.eatery.ui.screens
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -69,11 +67,6 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
-)
-
 @Composable
 fun UpcomingMenuScreen(
     upcomingViewModel: UpcomingViewModel = hiltViewModel(),
@@ -96,8 +89,7 @@ fun UpcomingMenuScreen(
 }
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
+    ExperimentalMaterial3Api::class
 )
 @Composable
 private fun UpcomingMenuScreenContent(
@@ -348,7 +340,6 @@ private fun UpcomingFilterRow(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun UpcomingLazyColumn(
     innerListState: LazyListState,
@@ -385,7 +376,6 @@ private fun UpcomingLazyColumn(
 }
 
 @Composable
-@OptIn(ExperimentalAnimationApi::class)
 private fun UpcomingMenuHeader(isFirstVisible: State<Boolean>) {
     Column(
         modifier = Modifier

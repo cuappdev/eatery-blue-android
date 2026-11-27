@@ -1,8 +1,5 @@
 package com.cornellappdev.android.eatery.ui.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cornellappdev.android.eatery.BuildConfig
@@ -176,12 +173,6 @@ class HomeViewModel @Inject constructor(
                     (BuildConfig.DEBUG || hubAvailable),
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
-
-    var bigPopUp by mutableStateOf(false)
-
-    fun setPopUp(bool: Boolean) {
-        bigPopUp = bool
-    }
 
     fun onToggleFilterPressed(filter: Filter) {
         if (eateryFlow.value is EateryApiResponse.Error) {

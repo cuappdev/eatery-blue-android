@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Date
 import java.util.Locale.getDefault
+import kotlin.time.Duration.Companion.milliseconds
 
 typealias DayToOperatingHours = Map<DayOfWeek, List<String>>
 typealias OperatingHoursToDays = Map<List<String>, List<DayOfWeek>>
@@ -237,7 +238,7 @@ data class Eatery(
                 emit(timeBuffer.toInt())
                 delay(
                     /**45 seconds=*/
-                    45000
+                    45000.milliseconds
                 )
             }
         }.stateIn(
@@ -391,7 +392,6 @@ enum class PaymentMethod {
     MEAL_SWIPE,
     CARD,
     BRB,
-    FREE,
     UNKNOWN
 }
 

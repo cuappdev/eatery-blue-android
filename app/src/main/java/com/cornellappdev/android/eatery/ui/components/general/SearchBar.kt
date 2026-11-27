@@ -39,6 +39,7 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun SearchBar(
@@ -58,7 +59,7 @@ fun SearchBar(
     LaunchedEffect(textFieldValue.text, inputDebounceMillis) {
         if (textFieldValue.text != searchText) {
             if (inputDebounceMillis > 0) {
-                delay(inputDebounceMillis)
+                delay(inputDebounceMillis.milliseconds)
             }
             if (textFieldValue.text != searchText) {
                 onSearchTextChange(textFieldValue.text)
