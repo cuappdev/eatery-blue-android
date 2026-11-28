@@ -54,6 +54,7 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.rememberEateryHaptics
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
@@ -148,6 +149,7 @@ fun BottomNavigationBar(
     tabItems: List<NavigationItem>,
     darkMode: Boolean
 ) {
+    val haptics = rememberEateryHaptics()
     NavigationBar(
         containerColor = currentColors.accentPrimary
     ) {
@@ -176,6 +178,7 @@ fun BottomNavigationBar(
                     indicatorColor = Color.Transparent
                 ),
                 onClick = {
+                    if (!isSelected) haptics.tabSelected()
                     FirstTimeShown.firstTimeShown = false
                     navController.navigate(item.route)
                 }
