@@ -2,14 +2,18 @@ package com.cornellappdev.android.eatery.ui.components.login
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -22,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,22 +43,29 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.AccountBalances
 import com.cornellappdev.android.eatery.data.models.MealSwipePlan
 import com.cornellappdev.android.eatery.data.models.TransactionAccountType
+import com.cornellappdev.android.eatery.data.models.UserProfile
 import com.cornellappdev.android.eatery.ui.components.general.SearchBar
 import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
@@ -61,6 +73,7 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.state.DisplayTransaction
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 
 @OptIn(
@@ -74,10 +87,14 @@ fun AccountPage(
     filteredTransactions: List<DisplayTransaction>,
     filterText: String,
     onQueryChanged: (String) -> Unit,
-    updateAccountFilter: (TransactionAccountType) -> Unit
+    updateAccountFilter: (TransactionAccountType) -> Unit,
+    userProfile: UserProfile = UserProfile(),
 ) {
     val modalBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
+    val barcodeSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBarcodeSheet by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     var sheetContent by remember { mutableStateOf(BottomSheetContent.ACCOUNT_TYPE) }
     AccountPageContent(
         onSettingsClicked,
@@ -88,7 +105,29 @@ fun AccountPage(
         setFilterText = onQueryChanged,
         filteredTransactions,
         setSheetContent = { sheetContent = it },
+        userProfile = userProfile,
+        onBarcodeClicked = { showBarcodeSheet = true },
     )
+
+    if (showBarcodeSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBarcodeSheet = false },
+            sheetState = barcodeSheetState,
+            containerColor = currentColors.backgroundDefault,
+            contentColor = currentColors.textPrimary,
+            shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+            dragHandle = null
+        ) {
+            DiningBarcodeSheet(
+                userProfile = userProfile,
+                onClose = {
+                    scope.launch { barcodeSheetState.hide() }.invokeOnCompletion {
+                        if (!barcodeSheetState.isVisible) showBarcodeSheet = false
+                    }
+                }
+            )
+        }
+    }
 
     if (showBottomSheet) {
         ModalBottomSheet(
@@ -133,7 +172,9 @@ private fun AccountPageContent(
     filterText: String,
     setFilterText: (String) -> Unit,
     filteredTransactions: List<DisplayTransaction>,
-    setSheetContent: (BottomSheetContent) -> Unit
+    setSheetContent: (BottomSheetContent) -> Unit,
+    userProfile: UserProfile = UserProfile(),
+    onBarcodeClicked: () -> Unit = {}
 ) {
     val innerListState = rememberLazyListState()
     val isFirstVisible by remember { derivedStateOf { innerListState.firstVisibleItemIndex > 1 } }
@@ -144,6 +185,23 @@ private fun AccountPageContent(
     ) {
         AccountPageHeader(isFirstVisible, onSettingsClicked)
         LazyColumn(state = innerListState) {
+            item {
+                ProfileCard(
+                    userProfile = userProfile,
+                    onBarcodeClicked = onBarcodeClicked,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(16.dp)
+                        .background(currentColors.accentPrimary)
+                )
+            }
+
             item {
                 (Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                     Column {
@@ -207,6 +265,179 @@ private fun AccountPageContent(
                     isMealSwipes = accountFilter == TransactionAccountType.MEAL_SWIPES
                 )
             }
+        }
+    }
+}
+
+/**
+ * Card at the top of the Account page showing the user's profile picture, name, and email,
+ * plus a button to show their barcode.
+ */
+@Composable
+private fun ProfileCard(
+    userProfile: UserProfile,
+    onBarcodeClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(currentColors.backgroundSecondary)
+            .padding(16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ProfilePicture(
+                photo = userProfile.photo,
+                modifier = Modifier.size(64.dp)
+            )
+            Column(modifier = Modifier.padding(start = 16.dp)) {
+                userProfile.name?.let {
+                    Text(
+                        text = it,
+                        style = EateryBlueTypography.h5,
+                        color = currentColors.oppTextPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                userProfile.email?.let {
+                    Text(
+                        text = it,
+                        style = EateryBlueTypography.subtitle2,
+                        color = currentColors.oppTextPrimary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+        Button(
+            onClick = onBarcodeClicked,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
+            shape = RoundedCornerShape(8.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = currentColors.backgroundDefault,
+                contentColor = currentColors.textPrimary
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.QrCodeScanner,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Text(
+                text = stringResource(R.string.account_barcode),
+                style = EateryBlueTypography.button,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+    }
+}
+
+/**
+ * Bottom sheet showing the user's dining barcode beneath their name and email.
+ */
+@Composable
+private fun DiningBarcodeSheet(
+    userProfile: UserProfile,
+    onClose: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 32.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.account_dining_barcode),
+                style = EateryBlueTypography.h4,
+                color = currentColors.textPrimary,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(color = currentColors.accentPrimary, shape = CircleShape)
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = stringResource(R.string.close),
+                    tint = currentColors.textPrimary
+                )
+            }
+        }
+        Column(
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .border(1.dp, currentColors.borderDefault, RoundedCornerShape(8.dp))
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(currentColors.backgroundSecondary)
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ProfilePicture(
+                    photo = userProfile.photo,
+                    modifier = Modifier.size(40.dp)
+                )
+                Column(modifier = Modifier.padding(start = 12.dp)) {
+                    userProfile.name?.let {
+                        Text(
+                            text = it,
+                            style = EateryBlueTypography.h5,
+                            color = currentColors.oppTextPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                    userProfile.email?.let {
+                        Text(
+                            text = it,
+                            style = EateryBlueTypography.subtitle2,
+                            color = currentColors.oppTextPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+            // TODO: render the dining barcode here.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(96.dp)
+                    .background(currentColors.backgroundDefault)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProfilePicture(photo: ImageBitmap?, modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(currentColors.backgroundDefault)
+    ) {
+        photo?.let {
+            Image(
+                bitmap = it,
+                contentDescription = stringResource(R.string.a11y_profile_picture),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
@@ -621,7 +852,21 @@ private fun AccountPagePreview() = EateryPreview {
                 formattedDate = "2:00 PM · Monday, October 2"
             )
         ),
-        setSheetContent = {}
+        setSheetContent = {},
+        userProfile = previewUserProfile()
     )
 }
 
+@DualModePreview
+@Composable
+private fun DiningBarcodeSheetPreview() = EateryPreview {
+    DiningBarcodeSheet(userProfile = previewUserProfile(), onClose = {})
+}
+
+/** Sample profile for previews, with a bundled image standing in for the user's photo. */
+@Composable
+private fun previewUserProfile() = UserProfile(
+    name = "Jane Doe",
+    email = "jd123@cornell.edu",
+    photo = ImageBitmap.imageResource(R.drawable.blank_eatery_square)
+)

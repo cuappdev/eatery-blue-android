@@ -10,13 +10,18 @@ import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.models.SessionID
 import com.cornellappdev.android.eatery.data.models.Transaction
 import com.cornellappdev.android.eatery.data.models.User
+import com.cornellappdev.android.eatery.data.models.UserProfile
 import com.cornellappdev.android.eatery.data.models.toTransactionAccountType
+import com.cornellappdev.android.eatery.data.models.toUserProfile
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -54,6 +59,14 @@ class UserRepository @Inject constructor(
 
     /** Expose whether a user is currently logged in. Delegates to UserPreferencesRepository. */
     val isLoggedInFlow: Flow<Boolean> = userPreferencesRepository.isLoggedInFlow
+
+    private val _userProfile: MutableStateFlow<UserProfile> = MutableStateFlow(UserProfile())
+
+    /**
+     * The logged-in user's name, email, and profile picture. Kept in memory only, since the
+     * backend asks that profile data not be cached.
+     */
+    val userProfileFlow: StateFlow<UserProfile> = _userProfile.asStateFlow()
 
     private val useLocalFavorites = BuildConfig.USE_LOCAL_FAVORITES
 
@@ -205,6 +218,25 @@ class UserRepository @Inject constructor(
         financials
     }
 
+    /**
+     * Fetches the user's name, email, and photo. If the GET session has expired (401), gets a
+     * new session with the saved PIN and tries once more, like [getFinancials].
+     */
+    suspend fun getProfile(): Result<UserProfile> = resultOfNetworkCall {
+        val response = try {
+            networkApi.getProfile(sessionId = SessionID(getAccountRepository.getSessionId()))
+        } catch (e: HttpException) {
+            if (e.code() != 401) throw e
+            val pin = getAccountRepository.getPin() ?: throw e
+            val refreshResult = getAccountRepository.refreshLogin(pin = pin)
+            if (refreshResult is Result.Error) throw IllegalStateException("refreshLogin failed")
+            networkApi.getProfile(sessionId = SessionID(getAccountRepository.getSessionId()))
+        }
+        val profile = withContext(Dispatchers.Default) { response.toUserProfile() }
+        _userProfile.value = profile
+        profile
+    }
+
     private fun String.toLocalDateTime(): LocalDateTime? {
         val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX")
         return runCatching {
@@ -220,6 +252,7 @@ class UserRepository @Inject constructor(
         getAccountRepository.clearSessionId()
         getAccountRepository.clearBarcodeData()
         getAccountRepository.setIsLoggedIn(false)
+        _userProfile.value = UserProfile()
     }
 
     suspend fun hasOnboarded(): Boolean =

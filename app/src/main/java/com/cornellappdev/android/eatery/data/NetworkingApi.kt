@@ -17,6 +17,7 @@ import com.cornellappdev.android.eatery.data.models.NotificationIds
 import com.cornellappdev.android.eatery.data.models.RefreshRequest
 import com.cornellappdev.android.eatery.data.models.ReportSendBody
 import com.cornellappdev.android.eatery.data.models.SessionID
+import com.cornellappdev.android.eatery.data.models.UserProfileResponse
 import com.cornellappdev.android.eatery.data.models.UserSettings
 import com.cornellappdev.android.eatery.data.models.UserSettingsUpdate
 import retrofit2.http.Body
@@ -121,6 +122,12 @@ interface NetworkApi {
     suspend fun getBarcode(
         @Body sessionId: SessionID
     ): BarcodeResponse
+
+    /** The user's name, email, and photo. Never cache or log the response. */
+    @POST("/users/get-profile")
+    suspend fun getProfile(
+        @Body sessionId: SessionID
+    ): UserProfileResponse
 
     @GET("/users/favorites/matches")
     suspend fun getFavoriteMatches(): List<Match>
