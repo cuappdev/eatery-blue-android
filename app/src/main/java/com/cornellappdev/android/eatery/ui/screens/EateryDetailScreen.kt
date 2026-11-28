@@ -105,6 +105,7 @@ import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
+import com.cornellappdev.android.eatery.ui.haptics.rememberEateryHaptics
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.theme.currentColors
@@ -428,8 +429,12 @@ fun EateryDetailScreenContent(
                                     }
 
 
+                                    val haptics = rememberEateryHaptics()
                                     Button(
-                                        onClick = onToggleFavorite,
+                                        onClick = {
+                                            haptics.favoriteToggled(!viewState.isFavorite)
+                                            onToggleFavorite()
+                                        },
                                         modifier = Modifier
                                             .align(Alignment.TopEnd)
                                             .padding(top = 40.dp, end = 16.dp)
@@ -926,6 +931,7 @@ private fun LazyListScope.menuHeadingItem(
 
 @Composable
 fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Unit) {
+    val haptics = rememberEateryHaptics()
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -948,7 +954,10 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
         )
 
         Button(
-            onClick = onFavoriteClick,
+            onClick = {
+                haptics.favoriteToggled(!isFavorite)
+                onFavoriteClick()
+            },
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 16.dp)

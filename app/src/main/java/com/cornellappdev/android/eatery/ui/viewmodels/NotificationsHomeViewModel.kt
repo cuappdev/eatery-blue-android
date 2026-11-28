@@ -6,9 +6,12 @@ import com.cornellappdev.android.eatery.data.models.HubNotification
 import com.cornellappdev.android.eatery.data.models.Result
 import com.cornellappdev.android.eatery.data.repositories.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -45,6 +48,11 @@ class NotificationsHomeViewModel @Inject constructor(
 
     /** True only while a pull-to-refresh is in flight, so the initial load keeps its shimmer. */
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    private val _refreshSucceeded = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    /** Emits once each time a pull-to-refresh succeeds. */
+    val refreshSucceeded: SharedFlow<Unit> = _refreshSucceeded.asSharedFlow()
 
     val uiState: StateFlow<NotificationsHomeViewState> = combine(
         notificationRepository.notificationsFlow,
@@ -85,14 +93,15 @@ class NotificationsHomeViewModel @Inject constructor(
     /** Keeps the current list on screen; a failure shows the connection error over it. */
     fun pullToRefresh() = viewModelScope.launch {
         _isRefreshing.value = true
-        fetchNotifications()
+        if (fetchNotifications()) _refreshSucceeded.tryEmit(Unit)
         _isRefreshing.value = false
     }
 
-    private suspend fun fetchNotifications() {
+    private suspend fun fetchNotifications(): Boolean {
         val succeeded = notificationRepository.fetchNotifications() is Result.Success
         hasError.value = !succeeded
         if (succeeded) markUnreadAsRead()
+        return succeeded
     }
 
     /** Opening the hub marks notifications read. On failure the next visit retries. */

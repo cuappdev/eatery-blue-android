@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,6 +44,7 @@ import com.cornellappdev.android.eatery.ui.components.general.loadingPulse
 import com.cornellappdev.android.eatery.ui.components.notifications.NOTIFICATIONS_STATE_HEIGHT_FRACTION
 import com.cornellappdev.android.eatery.ui.components.notifications.NotificationRow
 import com.cornellappdev.android.eatery.ui.components.notifications.NotificationsErrorState
+import com.cornellappdev.android.eatery.ui.haptics.rememberEateryHaptics
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsHomeViewModel
@@ -57,12 +59,20 @@ fun NotificationsHomeScreen(
 ) {
     val uiState by notificationsHomeViewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by notificationsHomeViewModel.isRefreshing.collectAsStateWithLifecycle()
+    val haptics = rememberEateryHaptics()
+
+    LaunchedEffect(Unit) {
+        notificationsHomeViewModel.refreshSucceeded.collect { haptics.refreshCompleted() }
+    }
 
     NotificationsHomeScreenContent(
         uiState = uiState,
         isRefreshing = isRefreshing,
         onBackClick = onBackClick,
-        onRefresh = notificationsHomeViewModel::pullToRefresh,
+        onRefresh = {
+            haptics.refreshStarted()
+            notificationsHomeViewModel.pullToRefresh()
+        },
         onTryAgain = notificationsHomeViewModel::refresh,
     )
 }

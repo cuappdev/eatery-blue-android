@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.cornellappdev.android.eatery.ui.components.general.AppStoreRatingPopup
+import com.cornellappdev.android.eatery.ui.haptics.rememberEateryHaptics
 import com.cornellappdev.android.eatery.ui.screens.AboutScreen
 import com.cornellappdev.android.eatery.ui.screens.CompareMenusScreen
 import com.cornellappdev.android.eatery.ui.screens.EateryDetailScreen
@@ -148,6 +149,7 @@ fun BottomNavigationBar(
     tabItems: List<NavigationItem>,
     darkMode: Boolean
 ) {
+    val haptics = rememberEateryHaptics()
     NavigationBar(
         containerColor = currentColors.accentPrimary
     ) {
@@ -176,6 +178,7 @@ fun BottomNavigationBar(
                     indicatorColor = Color.Transparent
                 ),
                 onClick = {
+                    if (!isSelected) haptics.tabSelected()
                     FirstTimeShown.firstTimeShown = false
                     navController.navigate(item.route)
                 }

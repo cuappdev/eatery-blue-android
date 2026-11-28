@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.Eatery
 import com.cornellappdev.android.eatery.data.repositories.CoilRepository
+import com.cornellappdev.android.eatery.ui.haptics.rememberEateryHaptics
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.theme.currentColors
@@ -257,13 +258,17 @@ fun GridViewFavoriteWidget(
     interactionSource: MutableInteractionSource,
     onClick: () -> Unit
 ) {
+    val haptics = rememberEateryHaptics()
     Surface(
         modifier = modifier
             .size(40.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = ripple(radius = 20.dp),
-                onClick = onClick
+                onClick = {
+                    haptics.favoriteToggled(!isFavorite)
+                    onClick()
+                }
             ),
         shape = CircleShape,
         color = currentColors.backgroundDefault
