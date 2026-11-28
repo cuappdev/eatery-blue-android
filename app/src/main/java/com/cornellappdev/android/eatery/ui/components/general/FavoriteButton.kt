@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.ui.theme.currentColors
+import com.cornellappdev.android.eatery.util.rememberEateryHaptics
 
 @Composable
 fun FavoriteButton(
@@ -21,6 +22,7 @@ fun FavoriteButton(
     onFavoriteClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val haptics = rememberEateryHaptics()
     FavoriteIcon(
         isFavorite = isFavorite,
         modifier = modifier
@@ -28,6 +30,7 @@ fun FavoriteButton(
             .clip(RoundedCornerShape(9.dp))
             .clickable(
                 onClick = {
+                    haptics.favoriteToggled(!isFavorite)
                     onFavoriteClick(!isFavorite)
                 }
             )

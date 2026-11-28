@@ -59,6 +59,7 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.state.EateryApiResponse
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.rememberEateryHaptics
 
 enum class EateryCardStyle {
     DEFAULT, COMPACT, GRID_VIEW
@@ -257,13 +258,17 @@ fun GridViewFavoriteWidget(
     interactionSource: MutableInteractionSource,
     onClick: () -> Unit
 ) {
+    val haptics = rememberEateryHaptics()
     Surface(
         modifier = modifier
             .size(40.dp)
             .clickable(
                 interactionSource = interactionSource,
                 indication = ripple(radius = 20.dp),
-                onClick = onClick
+                onClick = {
+                    haptics.favoriteToggled(!isFavorite)
+                    onClick()
+                }
             ),
         shape = CircleShape,
         color = currentColors.backgroundDefault

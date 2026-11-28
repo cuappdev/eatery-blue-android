@@ -119,6 +119,7 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
+import com.cornellappdev.android.eatery.util.rememberEateryHaptics
 import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds
@@ -428,8 +429,12 @@ fun EateryDetailScreenContent(
                                     }
 
 
+                                    val haptics = rememberEateryHaptics()
                                     Button(
-                                        onClick = onToggleFavorite,
+                                        onClick = {
+                                            haptics.favoriteToggled(!viewState.isFavorite)
+                                            onToggleFavorite()
+                                        },
                                         modifier = Modifier
                                             .align(Alignment.TopEnd)
                                             .padding(top = 40.dp, end = 16.dp)
@@ -926,6 +931,7 @@ private fun LazyListScope.menuHeadingItem(
 
 @Composable
 fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Unit) {
+    val haptics = rememberEateryHaptics()
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -948,7 +954,10 @@ fun EateryHeader(eatery: Eatery, isFavorite: Boolean, onFavoriteClick: () -> Uni
         )
 
         Button(
-            onClick = onFavoriteClick,
+            onClick = {
+                haptics.favoriteToggled(!isFavorite)
+                onFavoriteClick()
+            },
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 16.dp)
