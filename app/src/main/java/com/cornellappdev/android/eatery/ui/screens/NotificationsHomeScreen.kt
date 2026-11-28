@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,21 +14,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,7 +37,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cornellappdev.android.eatery.R
 import com.cornellappdev.android.eatery.data.models.HubNotification
+import com.cornellappdev.android.eatery.ui.components.general.ConnectionErrorBanner
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
+import com.cornellappdev.android.eatery.ui.components.general.loadingPulse
 import com.cornellappdev.android.eatery.ui.components.notifications.NOTIFICATIONS_STATE_HEIGHT_FRACTION
 import com.cornellappdev.android.eatery.ui.components.notifications.NotificationRow
 import com.cornellappdev.android.eatery.ui.components.notifications.NotificationsErrorState
@@ -44,9 +49,6 @@ import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsHomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsHomeViewState
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
-import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.rememberShimmer
-import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun NotificationsHomeScreen(
@@ -85,12 +87,7 @@ private fun NotificationsHomeScreenContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         when (uiState) {
-            is NotificationsHomeViewState.Loading -> {
-                FavoriteItemsHeading()
-                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    NotificationsLoadingState()
-                }
-            }
+            is NotificationsHomeViewState.Loading -> NotificationsLoadingContent()
 
             is NotificationsHomeViewState.Error -> NotificationsErrorState(
                 title = stringResource(R.string.notifications_home_error),
@@ -102,6 +99,9 @@ private fun NotificationsHomeScreenContent(
                 onRefresh = onRefresh,
                 modifier = Modifier.fillMaxSize()
             ) {
+                val density = LocalDensity.current
+                var bannerHeight by remember { mutableStateOf(0.dp) }
+
                 // The pull gesture only reaches scrollable content, so the empty state is
                 // wrapped in a LazyColumn as well.
                 if (uiState.notifications.isEmpty()) {
@@ -115,58 +115,91 @@ private fun NotificationsHomeScreenContent(
                         }
                     }
                 } else {
-                    Column {
-                        FavoriteItemsHeading()
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(
-                                items = uiState.notifications,
-                                key = { it.id }
-                            ) { notification ->
-                                NotificationRow(
-                                    body = notification.body,
-                                )
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        // Lets the last notification scroll above the connection error banner.
+                        contentPadding = PaddingValues(
+                            bottom = if (uiState.showConnectionError) {
+                                bannerHeight + BANNER_BOTTOM_MARGIN
+                            } else {
+                                0.dp
                             }
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = uiState.notifications,
+                            key = { it.id }
+                        ) { notification ->
+                            NotificationRow(
+                                body = notification.body,
+                            )
                         }
                     }
+                }
+
+                if (uiState.showConnectionError) {
+                    ConnectionErrorBanner(
+                        onRetry = onTryAgain,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(start = 6.dp, end = 6.dp, bottom = BANNER_BOTTOM_MARGIN)
+                            .onSizeChanged { bannerHeight = with(density) { it.height.toDp() } }
+                    )
                 }
             }
         }
     }
 }
 
-@Composable
-private fun FavoriteItemsHeading() {
-    Text(
-        text = stringResource(R.string.notifications_home_favorite_items),
-        style = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 20.sp),
-        color = currentColors.textPrimary,
-        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
-    )
-}
+private val BANNER_BOTTOM_MARGIN = 8.dp
 
-/**
- * Shimmering placeholder rows, matching the loading treatment used on the home and favorites
- * screens. Only shown on a cold start, since cached notifications render immediately.
- */
+/** Only shown on a cold start, since cached notifications render immediately. */
 @Composable
-private fun NotificationsLoadingState() {
-    val shimmer = rememberShimmer(ShimmerBounds.View)
-
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+private fun NotificationsLoadingContent(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.loadingPulse(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         repeat(3) {
-            Surface(
+            Row(
                 modifier = Modifier
-                    .shimmer(shimmer)
-                    .clip(RoundedCornerShape(8.dp))
                     .fillMaxWidth()
-                    .height(72.dp),
-                color = currentColors.backgroundDefault92
-            ) {}
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_notif_star),
+                    contentDescription = null,
+                    tint = currentColors.accentPrimary
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(12.dp)
+                            .background(currentColors.accentPrimary, CircleShape)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .width(88.dp)
+                            .height(12.dp)
+                            .background(currentColors.accentPrimary, CircleShape)
+                    )
+                }
+            }
         }
     }
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsLoadingContentPreview() = EateryPreview {
+    NotificationsLoadingContent()
 }
 
 @Composable
@@ -212,23 +245,34 @@ private fun PreviewNotificationsHomeScreen(uiState: NotificationsHomeViewState) 
     )
 }
 
+private val previewNotifications = listOf(
+    HubNotification(
+        id = 1,
+        body = "**Chicken Tenders** is being served at Morrison Dining at 5:00 PM!",
+        isRead = false
+    ),
+    HubNotification(
+        id = 2,
+        body = "**Mac and Cheese** is being served at Okenshields at 5:00 PM!",
+        isRead = true
+    ),
+)
+
 @DualModePreview
 @Composable
 private fun NotificationsHomeScreenPreview() = EateryPreview {
     PreviewNotificationsHomeScreen(
+        uiState = NotificationsHomeViewState.Loaded(previewNotifications)
+    )
+}
+
+@DualModePreview
+@Composable
+private fun NotificationsHomeConnectionErrorPreview() = EateryPreview {
+    PreviewNotificationsHomeScreen(
         uiState = NotificationsHomeViewState.Loaded(
-            listOf(
-                HubNotification(
-                    id = 1,
-                    body = "**Chicken Tenders** is being served at Morrison Dining at 5:00 PM!",
-                    isRead = false
-                ),
-                HubNotification(
-                    id = 2,
-                    body = "**Mac and Cheese** is being served at Okenshields at 5:00 PM!",
-                    isRead = true
-                ),
-            )
+            previewNotifications,
+            showConnectionError = true
         )
     )
 }

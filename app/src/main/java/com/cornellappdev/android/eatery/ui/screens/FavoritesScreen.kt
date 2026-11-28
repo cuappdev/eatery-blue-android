@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,10 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -51,15 +48,14 @@ import com.cornellappdev.android.eatery.ui.components.general.Filter
 import com.cornellappdev.android.eatery.ui.components.general.FilterRow
 import com.cornellappdev.android.eatery.ui.components.general.LargeTitleHeader
 import com.cornellappdev.android.eatery.ui.components.general.NetworkErrorToast
+import com.cornellappdev.android.eatery.ui.components.general.loadingPulse
+import com.cornellappdev.android.eatery.ui.components.home.EateryBlob
 import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesScreenViewState
 import com.cornellappdev.android.eatery.ui.viewmodels.FavoritesViewModel
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
-import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.rememberShimmer
-import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun FavoritesScreen(
@@ -99,7 +95,6 @@ private fun FavoritesScreenContent(
     removeFavorite: (eateryId: Int, eateryName: String) -> Unit,
     removeFavoriteMenuItem: (menuItem: String) -> Unit,
 ) {
-    val shimmer = rememberShimmer(ShimmerBounds.View)
     var toggle by remember { mutableStateOf(true) }
 
     Column(
@@ -134,20 +129,7 @@ private fun FavoritesScreenContent(
 
         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
             when (favoritesScreenViewState) {
-                is FavoritesScreenViewState.Loading -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        items(15) {
-                            EateryBlob(
-                                modifier = Modifier.shimmer(shimmer),
-                                height = 216.dp,
-                            )
-                        }
-                    }
-                }
+                is FavoritesScreenViewState.Loading -> FavoritesLoadingContent()
 
                 is FavoritesScreenViewState.Error -> {
                     // TODO we should have a better no internet display
@@ -380,22 +362,37 @@ private fun EateriesEmptyState(message: String) {
 }
 
 @Composable
-private fun EateryBlob(
-    modifier: Modifier = Modifier,
-    fillMaxWidth: Boolean = true,
-    height: Dp = 186.dp
-) {
-    Surface(
-        modifier = Modifier
-            .padding(horizontal = 6.dp)
-            .then(modifier)
-            .clip(
-                RoundedCornerShape(
-                    CornerSize(8.dp),
+private fun FavoritesLoadingContent(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.loadingPulse()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            repeat(2) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(34.dp)
+                        .background(currentColors.accentPrimary, CircleShape)
                 )
-            )
-            .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.width(295.dp))
-            .height(height),
-        color = currentColors.backgroundDefault92
-    ) {}
+            }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            repeat(4) {
+                EateryBlob(
+                    fillMaxWidth = true,
+                    height = 216.dp,
+                    color = currentColors.accentPrimary,
+                    endPadding = 0.dp
+                )
+            }
+        }
+    }
+}
+
+@DualModePreview
+@Composable
+private fun FavoritesLoadingContentPreview() = EateryPreview {
+    FavoritesLoadingContent(modifier = Modifier.padding(16.dp))
 }
