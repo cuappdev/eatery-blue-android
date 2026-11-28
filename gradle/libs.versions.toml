@@ -3,7 +3,7 @@ agp = "9.5.0"
 googleServices = "4.5.0"
 protobufPlugin = "0.10.0"
 kotlin = "2.4.21"
-ksp = "2.3.12"
+ksp = "2.3.14"
 hilt = "2.60.1"
 
 junit = "4.13.2"
