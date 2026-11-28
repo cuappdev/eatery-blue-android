@@ -49,6 +49,7 @@ import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsHomeViewModel
 import com.cornellappdev.android.eatery.ui.viewmodels.NotificationsHomeViewState
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
+import com.cornellappdev.android.eatery.util.rememberEateryHaptics
 
 @Composable
 fun NotificationsHomeScreen(
@@ -57,12 +58,16 @@ fun NotificationsHomeScreen(
 ) {
     val uiState by notificationsHomeViewModel.uiState.collectAsStateWithLifecycle()
     val isRefreshing by notificationsHomeViewModel.isRefreshing.collectAsStateWithLifecycle()
+    val haptics = rememberEateryHaptics()
 
     NotificationsHomeScreenContent(
         uiState = uiState,
         isRefreshing = isRefreshing,
         onBackClick = onBackClick,
-        onRefresh = notificationsHomeViewModel::pullToRefresh,
+        onRefresh = {
+            haptics.refreshStarted()
+            notificationsHomeViewModel.pullToRefresh()
+        },
         onTryAgain = notificationsHomeViewModel::refresh,
     )
 }
