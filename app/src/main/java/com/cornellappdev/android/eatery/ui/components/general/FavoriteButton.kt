@@ -13,8 +13,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.cornellappdev.android.eatery.R
+import com.cornellappdev.android.eatery.ui.haptics.rememberEateryHaptics
 import com.cornellappdev.android.eatery.ui.theme.currentColors
-import com.cornellappdev.android.eatery.util.rememberEateryHaptics
 
 @Composable
 fun FavoriteButton(

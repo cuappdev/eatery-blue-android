@@ -1,4 +1,4 @@
-package com.cornellappdev.android.eatery.util
+package com.cornellappdev.android.eatery.ui.haptics
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

@@ -105,6 +105,7 @@ import com.cornellappdev.android.eatery.ui.components.home.BottomSheetContent
 import com.cornellappdev.android.eatery.ui.components.home.EateryDetailLoadingScreen
 import com.cornellappdev.android.eatery.ui.components.settings.Issue
 import com.cornellappdev.android.eatery.ui.components.settings.ReportBottomSheet
+import com.cornellappdev.android.eatery.ui.haptics.rememberEateryHaptics
 import com.cornellappdev.android.eatery.ui.theme.EateryBlueTypography
 import com.cornellappdev.android.eatery.ui.theme.colorInterp
 import com.cornellappdev.android.eatery.ui.theme.currentColors
@@ -119,7 +120,6 @@ import com.cornellappdev.android.eatery.util.EateryPreview
 import com.cornellappdev.android.eatery.util.PreviewData
 import com.cornellappdev.android.eatery.util.appStorePopupRepository
 import com.cornellappdev.android.eatery.util.fromOffsetToDayOfWeek
-import com.cornellappdev.android.eatery.util.rememberEateryHaptics
 import com.cornellappdev.android.eatery.util.toMealTypeDisplayName
 import com.cornellappdev.android.eatery.util.toReadableFullName
 import com.valentinilk.shimmer.ShimmerBounds

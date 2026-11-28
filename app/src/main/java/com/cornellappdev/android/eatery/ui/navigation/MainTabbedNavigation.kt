@@ -33,6 +33,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.cornellappdev.android.eatery.ui.components.general.AppStoreRatingPopup
+import com.cornellappdev.android.eatery.ui.haptics.rememberEateryHaptics
 import com.cornellappdev.android.eatery.ui.screens.AboutScreen
 import com.cornellappdev.android.eatery.ui.screens.CompareMenusScreen
 import com.cornellappdev.android.eatery.ui.screens.EateryDetailScreen
@@ -54,7 +55,6 @@ import com.cornellappdev.android.eatery.ui.theme.currentColors
 import com.cornellappdev.android.eatery.ui.theme.rememberResolvedDarkMode
 import com.cornellappdev.android.eatery.util.DualModePreview
 import com.cornellappdev.android.eatery.util.EateryPreview
-import com.cornellappdev.android.eatery.util.rememberEateryHaptics
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
